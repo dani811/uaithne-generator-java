@@ -1,0 +1,9 @@
+org.uaithne.generator.processors.UaithneConfigurationProcessor
+org.uaithne.generator.processors.UseResultInterfaceProcessor
+org.uaithne.generator.processors.SharedLibraryProcessor
+org.uaithne.generator.processors.EntityProcessor
+org.uaithne.generator.processors.ExecutorModuleProcessor
+org.uaithne.generator.processors.gwt.SharedGwtLibraryProcessor
+org.uaithne.generator.processors.gwt.GwtAccesorProcessor
+org.uaithne.generator.processors.myBatis.SharedMyBatisLibraryProcessor
+org.uaithne.generator.processors.myBatis.MyBatisOracleMappersProcessor
