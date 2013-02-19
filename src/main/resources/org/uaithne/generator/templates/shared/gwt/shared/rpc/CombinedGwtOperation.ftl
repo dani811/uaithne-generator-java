@@ -1,4 +1,4 @@
-<#-- 
+<#--
 Copyright 2012 and beyond, Juan Luis Paz
 
 This file is part of Uaithne.
@@ -28,18 +28,18 @@ public abstract class CombinedGwtOperation<RESULT extends CombinedGwtResult> imp
 
     @Override
     public Object getExecutorSelector() {
-        return CombinedGwtOperationExecutor.SELECTOR;
+        return GwtOperationExecutor.SELECTOR;
     }
-    
+
     @Override
     public RESULT execute(Executor executor) {
         if (executor == null) {
             throw new IllegalArgumentException("executor for execute " + this.getClass().getName() + " CombinedGwtOperation cannot be null");
         }
-        return ((CombinedGwtOperationExecutor)executor).executeCombinedGwtOperation(this);
+        return ((GwtOperationExecutor)executor).executeCombinedGwtOperation(this);
     }
 
-    public abstract RESULT execute(CombinedGwtOperationExecutor executor);
+    public abstract RESULT executeOnServer(Executor executor);
 
     @Override
     public RESULT executePostOperation(RESULT result) {
@@ -51,10 +51,10 @@ public abstract class CombinedGwtOperation<RESULT extends CombinedGwtResult> imp
     public ResultWrapper<RESULT> wrapResult(RESULT result) {
         return new CombinedGwtOperationResultWrapper<RESULT>(result);
     }
-    
+
     static class CombinedGwtOperationResultWrapper<RESULT extends CombinedGwtResult> implements ResultWrapper<RESULT> {
         private RESULT value;
-        
+
         @Override
         public RESULT getValue() {
             return value;

@@ -1,4 +1,4 @@
-<#-- 
+<#--
 Copyright 2012 and beyond, Juan Luis Paz
 
 This file is part of Uaithne.
@@ -19,7 +19,7 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 package ${packageName};
 
 import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtOperation;
-import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtOperationExecutor;
+import ${generation.sharedGwtPackageDot}shared.rpc.GwtOperationExecutor;
 import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtResult;
 import ${generation.sharedGwtPackageDot}shared.rpc.ExecutorGroupRpc;
 import ${generation.sharedGwtPackageDot}shared.rpc.RpcRequest;
@@ -37,17 +37,17 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.util.ArrayList;
 
 public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements ExecutorGroupRpc {
-    
-    class CombinedGwtOperationExecutorImpl implements CombinedGwtOperationExecutor {
+
+    class GwtOperationExecutorImpl implements GwtOperationExecutor {
 
         @Override
         public <RESULT extends CombinedGwtResult, OPERATION extends CombinedGwtOperation<RESULT>> RESULT executeCombinedGwtOperation(OPERATION operation) {
-            return operation.execute(this);
+            return operation.executeOnServer(this);
         }
 
         @Override
         public Object getExecutorSelector() {
-            return CombinedGwtOperationExecutor.SELECTOR;
+            return GwtOperationExecutor.SELECTOR;
         }
 
         @Override
@@ -59,11 +59,11 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
         public ${operationBaseDefinition} RESULT executeOther(OPERATION operation) {
             return execute(operation);
         }
-        
+
     }
-    
-    private CombinedGwtOperationExecutorImpl customOperationExecutorImpl;
-    
+
+    private GwtOperationExecutorImpl gwtOperationExecutorImpl;
+
     private ExecutorGroup chainedExecutorGroup;
 
     /**
@@ -87,14 +87,14 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
             return null;
         }
         ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> result = new ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>>(operations.size());
-        
+
         for (int i = 0; i < operations.size(); i++) {
             result.add(executeOperation(operations.get(i)));
         }
-        
+
         return result;
     }
-    
+
     <#if generation.useResultInterface>Result<#else>ResultWrapper</#if> executeOperation(Operation o) {
         try {
             <#if generation.useResultInterface>
@@ -126,10 +126,10 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
         return e.getClass().getName() + ": " + e.getMessage();
     }
     </#if>
-    
+
     ${operationBaseDefinition} RESULT runOperation(OPERATION o) {
-        if (o.getExecutorSelector() == CombinedGwtOperationExecutor.SELECTOR) {
-            return o.execute(customOperationExecutorImpl);
+        if (o.getExecutorSelector() == GwtOperationExecutor.SELECTOR) {
+            return o.execute(gwtOperationExecutorImpl);
         } else {
             return chainedExecutorGroup.execute(o);
         }
@@ -140,17 +140,17 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
             throw new IllegalArgumentException("chainedExecutorGroup for the ExecutorGroupRpcImpl cannot be null");
         }
         this.chainedExecutorGroup = chainedExecutorGroup;
-        this.customOperationExecutorImpl = new CombinedGwtOperationExecutorImpl();
+        this.gwtOperationExecutorImpl = new GwtOperationExecutorImpl();
     }
 
-    ExecutorGroupRpcImpl(ExecutorGroup chainedExecutorGroup, CombinedGwtOperationExecutorImpl customOperationExecutorImpl) {
+    ExecutorGroupRpcImpl(ExecutorGroup chainedExecutorGroup, GwtOperationExecutorImpl gwtOperationExecutorImpl) {
         if (chainedExecutorGroup == null) {
             throw new IllegalArgumentException("chainedExecutorGroup for the ExecutorGroupRpcImpl cannot be null");
         }
-        if (customOperationExecutorImpl == null) {
-            throw new IllegalArgumentException("customOperationExecutorImpl for the ExecutorGroupRpcImpl cannot be null");
+        if (gwtOperationExecutorImpl == null) {
+            throw new IllegalArgumentException("gwtOperationExecutorImpl for the ExecutorGroupRpcImpl cannot be null");
         }
-        this.customOperationExecutorImpl = customOperationExecutorImpl;
+        this.gwtOperationExecutorImpl = gwtOperationExecutorImpl;
     }
-    
+
 }

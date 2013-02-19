@@ -46,7 +46,7 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
-                
+
                 if (!generationInfo.isUseResultWrapperInterface() && !generationInfo.isUseResultInterface()) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "You must enable wrapResult or useResultInterface for generate the gwt clases", element);
                 }
@@ -78,11 +78,11 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 }
                 data.put("imports", imports);
                 data.put("rpcErrorAsString", rpcErrorAsString);
-                
+
                 boolean includeGwtClientExecutors = generationInfo.isIncludeGwtClientExecutors();
 
                 processRpcClientClassTemplate("AsyncExecutorGroup", packageName, data, element);
-                
+
                 if (includeGwtClientExecutors) {
                     processRpcClientClassTemplate("AsyncExecutor", packageName, data, element);
                     processRpcClientClassTemplate("ChainedAsyncExecutor", packageName, data, element);
@@ -105,7 +105,7 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
 
                 data = createDefaultData();
                 data.put("rpcErrorAsString", rpcErrorAsString);
-                
+
                 packageName = generationInfo.getSharedGwtPackageDot() + "client.rpc";
                 processRpcClientRpcClassTemplate("RpcResult", packageName, data, element);
                 processRpcClientRpcClassTemplate("RpcAsyncExecutorGroup", packageName, data, element);
@@ -114,7 +114,7 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 processRpcSharedRpcClassTemplate("ExecutorGroupRpc", packageName, data, element);
                 processRpcSharedRpcClassTemplate("ExecutorGroupRpcAsync", packageName, data, element);
                 processRpcSharedRpcClassTemplate("CombinedGwtOperation", packageName, data, element);
-                processRpcSharedRpcClassTemplate("CombinedGwtOperationExecutor", packageName, data, element);
+                processRpcSharedRpcClassTemplate("GwtOperationExecutor", packageName, data, element);
                 processRpcSharedRpcClassTemplate("CombinedGwtResult", packageName, data, element);
                 processRpcSharedRpcClassTemplate("RpcRequest", packageName, data, element);
                 processRpcSharedRpcClassTemplate("RpcResponse", packageName, data, element);

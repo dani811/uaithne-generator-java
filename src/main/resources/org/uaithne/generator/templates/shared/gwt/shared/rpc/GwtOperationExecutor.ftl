@@ -1,4 +1,4 @@
-<#-- 
+<#--
 Copyright 2012 and beyond, Juan Luis Paz
 
 This file is part of Uaithne.
@@ -20,9 +20,9 @@ package ${packageName};
 
 import ${generation.sharedPackageDot}Executor;
 
-public interface CombinedGwtOperationExecutor extends Executor {
-    
-    public static final Object SELECTOR = CombinedGwtOperationExecutor.class;
-    
+public interface GwtOperationExecutor extends Executor {
+
+    public static final Object SELECTOR = GwtOperationExecutor.class;
+
     public <RESULT extends CombinedGwtResult, OPERATION extends CombinedGwtOperation<RESULT>> RESULT executeCombinedGwtOperation(OPERATION operation);
 }
