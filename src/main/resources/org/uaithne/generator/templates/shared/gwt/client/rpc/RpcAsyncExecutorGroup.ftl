@@ -30,6 +30,7 @@ import ${generation.sharedPackageDot}Operation;
 import ${generation.sharedGwtPackageDot}client.AsyncExecutorGroup;
 import ${generation.sharedGwtPackageDot}shared.rpc.ExecutorGroupRpc;
 import ${generation.sharedGwtPackageDot}shared.rpc.ExecutorGroupRpcAsync;
+import ${generation.sharedGwtPackageDot}shared.rpc.AwaitGwtOperation;
 import ${generation.sharedGwtPackageDot}shared.rpc.RpcRequest;
 import ${generation.sharedGwtPackageDot}shared.rpc.RpcResponse;
 <#if rpcErrorAsString>
@@ -48,6 +49,7 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
     private boolean sendDeferredEnabled = true;
     private ArrayList<Operation> deferredOperations;
     private ArrayList<AsyncCallback> deferredCallbacks;
+    private boolean containsExecutableOperations;
 
     /**
      * @return the executorGroupRpc
@@ -100,6 +102,9 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
         if (asyncCallback == null) {
             throw new IllegalArgumentException("The asyncCallback cannot be null");
         }
+        if (operation instanceof AwaitGwtOperation) {
+            asyncCallback.onSuccess(null);
+        }
         if (deferredOperations == null) {
             deferredOperations = new ArrayList<Operation>(1);
         }
@@ -109,6 +114,7 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
 
         deferredOperations.add(operation);
         deferredCallbacks.add(asyncCallback);
+        containsExecutableOperations = true;
 
         flush();
     }
@@ -120,6 +126,7 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
         if (asyncCallback == null) {
             throw new IllegalArgumentException("The asyncCallback cannot be null");
         }
+        containsExecutableOperations = containsExecutableOperations || !(operation instanceof AwaitGwtOperation);
         boolean schedule = false;
         if (deferredOperations == null) {
             deferredOperations = new ArrayList<Operation>(1);
@@ -149,10 +156,17 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
             return;
         }
 
-        send(deferredOperations, deferredCallbacks);
+        if (containsExecutableOperations) {
+            send(deferredOperations, deferredCallbacks);
+        } else {
+            for (AsyncCallback callback : deferredCallbacks) {
+                callback.onSuccess(null);
+            }
+        }
 
         deferredOperations = null;
         deferredCallbacks = null;
+        containsExecutableOperations = false;
     }
 
     protected RpcResult createRequest(ArrayList<Operation> operations, ArrayList<AsyncCallback> callbacks) {

@@ -43,13 +43,17 @@ public class GwtAccesorProcessor extends TemplateProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
                 DataTypeInfo dataType = NamesGenerator.createGwtAccesorDataType(classElement);
-                
+
                 HashMap<String, Object> data = createDefaultData();
                 HashSet<String> imports = new HashSet<String>();
                 for (OperationInfo op : generationInfo.getOperations()) {
                     op.appendReturnImports(dataType.getPackageName(), imports);
                 }
                 Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "client.AsyncExecutorGroup");
+                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.AwaitGwtOperation");
+                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.AwaitResult");
+                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.CombinedGwtOperation");
+                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.CombinedGwtResult");
                 Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedPackageDot() + "Operation");
                 if (generationInfo.isUseResultInterface()) {
                     Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedPackageDot() + "Result");
@@ -62,7 +66,7 @@ public class GwtAccesorProcessor extends TemplateProcessor {
         }
         return true; // no further processing of this annotation type
     }
-    
+
     public boolean processGwtAccesorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("GwtAccesor.ftl", packageName, className, data, element);
     }

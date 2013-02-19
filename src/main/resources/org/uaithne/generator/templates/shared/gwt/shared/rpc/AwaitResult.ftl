@@ -18,13 +18,37 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 -->
 package ${packageName};
 
-import ${generation.sharedPackageDot}Executor;
+<#if generation.useResultInterface>
+import ${generation.sharedPackageDot}Result;
+<#else>
+import java.io.Serializable;
+</#if>
 
-public interface GwtOperationExecutor extends Executor {
+public class AwaitResult implements <#if generation.useResultInterface>Result<#else>Serializable</#if> {
 
-    public static final Object SELECTOR = GwtOperationExecutor.class;
+    @Override
+    public String toString() {
+        return "AwaitResult{}";
+    }
 
-    public <RESULT extends CombinedGwtResult, OPERATION extends CombinedGwtOperation<RESULT>> RESULT executeCombinedGwtOperation(OPERATION operation);
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        return true;
+    }
 
-    public AwaitResult executeAwaitGwtOperation(AwaitGwtOperation operation);
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        return hash;
+    }
+
+    public AwaitResult() {
+    }
+
 }

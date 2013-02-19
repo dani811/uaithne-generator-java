@@ -1,4 +1,4 @@
-<#-- 
+<#--
 Copyright 2012 and beyond, Juan Luis Paz
 
 This file is part of Uaithne.
@@ -26,10 +26,18 @@ import ${import};
 public class ${className} implements AsyncExecutorGroup {
 
     private AsyncExecutorGroup chainedExecutorGroup;
-    
+
     @Override
     public ${operationBaseDefinition}
         void execute(final OPERATION operation, final AsyncCallback<RESULT> asyncCallback) {
+        chainedExecutorGroup.execute(operation, asyncCallback);
+    }
+
+    public <RESULT extends CombinedGwtResult> void execute(CombinedGwtOperation<RESULT> operation,  AsyncCallback<RESULT> asyncCallback) {
+        chainedExecutorGroup.execute(operation, asyncCallback);
+    }
+
+    public void execute(AwaitGwtOperation operation,  AsyncCallback<AwaitResult> asyncCallback) {
         chainedExecutorGroup.execute(operation, asyncCallback);
     }
 

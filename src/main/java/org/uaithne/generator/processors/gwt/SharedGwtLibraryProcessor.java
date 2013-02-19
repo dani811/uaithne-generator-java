@@ -114,6 +114,8 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 processRpcSharedRpcClassTemplate("ExecutorGroupRpc", packageName, data, element);
                 processRpcSharedRpcClassTemplate("ExecutorGroupRpcAsync", packageName, data, element);
                 processRpcSharedRpcClassTemplate("CombinedGwtOperation", packageName, data, element);
+                processRpcSharedRpcClassTemplate("AwaitResult", packageName, data, element);
+                processRpcSharedRpcClassTemplate("AwaitGwtOperation", packageName, data, element);
                 processRpcSharedRpcClassTemplate("GwtOperationExecutor", packageName, data, element);
                 processRpcSharedRpcClassTemplate("CombinedGwtResult", packageName, data, element);
                 processRpcSharedRpcClassTemplate("RpcRequest", packageName, data, element);

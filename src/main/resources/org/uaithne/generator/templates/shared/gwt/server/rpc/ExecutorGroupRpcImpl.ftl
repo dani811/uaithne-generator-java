@@ -18,6 +18,8 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 -->
 package ${packageName};
 
+import ${generation.sharedGwtPackageDot}shared.rpc.AwaitGwtOperation;
+import ${generation.sharedGwtPackageDot}shared.rpc.AwaitResult;
 import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtOperation;
 import ${generation.sharedGwtPackageDot}shared.rpc.GwtOperationExecutor;
 import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtResult;
@@ -43,6 +45,11 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
         @Override
         public <RESULT extends CombinedGwtResult, OPERATION extends CombinedGwtOperation<RESULT>> RESULT executeCombinedGwtOperation(OPERATION operation) {
             return operation.executeOnServer(this);
+        }
+
+        @Override
+        public AwaitResult executeAwaitGwtOperation(AwaitGwtOperation operation) {
+            return null;
         }
 
         @Override
