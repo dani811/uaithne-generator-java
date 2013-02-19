@@ -1,4 +1,4 @@
-<#-- 
+<#--
 Copyright 2012 and beyond, Juan Luis Paz
 
 This file is part of Uaithne.
@@ -194,21 +194,23 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
             result = null;
         }
 
-        if (operations == null || callbacks == null || result == null) {
-            if (operations == null || operations.isEmpty()) {
-                if (result != null || !result.isEmpty()) {
-                    throw new IllegalStateException("Wrong number of results");
-                }
-                if (callbacks != null || !callbacks.isEmpty()) {
-                    throw new IllegalStateException("Wrong number of callbacks");
-                }
-            } else {
-                if (result == null || result.isEmpty()) {
-                    throw new IllegalStateException("Wrong number of results");
-                }
-                if (callbacks == null || callbacks.isEmpty()) {
-                    throw new IllegalStateException("Wrong number of callbacks");
-                }
+        boolean hasOperations = operations != null && !operations.isEmpty();
+        boolean hasResults = result != null && !result.isEmpty();
+        boolean hasCallbacks = callbacks != null && !callbacks.isEmpty();
+
+        if (hasOperations) {
+            if (!hasResults) {
+                throw new IllegalStateException("Wrong number of results");
+            }
+            if (!hasCallbacks) {
+                throw new IllegalStateException("Wrong number of callbacks");
+            }
+        } else {
+            if (hasResults) {
+                throw new IllegalStateException("Wrong number of results");
+            }
+            if (hasCallbacks) {
+                throw new IllegalStateException("Wrong number of callbacks");
             }
             return;
         }

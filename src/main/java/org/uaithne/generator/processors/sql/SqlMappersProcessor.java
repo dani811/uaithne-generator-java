@@ -1926,22 +1926,38 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
                     comparator = Comparator.LARGER_AS;
                 } else if ("in".equals(rule) || "IN".equals(rule)) {
                     comparator = Comparator.IN;
+                } else if ("notIn".equals(rule) || "NOT_IN".equals(rule)) {
+                    comparator = Comparator.NOT_IN;
                 } else if ("like".equals(rule) || "LIKE".equals(rule)) {
                     comparator = Comparator.LIKE;
                 } else if ("ilike".equals(rule) || "ILIKE".equals(rule) || "likeInsensitive".equals(rule) || "LIKE_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.LIKE_INSENSITIVE;
+                } else if ("notIlike".equals(rule) || "NOT_ILIKE".equals(rule) || "notLikeInsensitive".equals(rule) || "NOT_LIKE_INSENSITIVE".equals(rule)) {
+                    comparator = Comparator.NOT_LIKE_INSENSITIVE;
                 } else if ("startWith".equals(rule) || "START_WITH".equals(rule)) {
                     comparator = Comparator.START_WITH;
+                } else if ("notStartWith".equals(rule) || "NOT_START_WITH".equals(rule)) {
+                    comparator = Comparator.NOT_START_WITH;
                 } else if ("endWith".equals(rule) || "END_WITH".equals(rule)) {
                     comparator = Comparator.END_WITH;
+                } else if ("notEndWith".equals(rule) || "NOT_END_WITH".equals(rule)) {
+                    comparator = Comparator.NOT_END_WITH;
                 } else if ("istartWith".equals(rule) || "ISTART_WITH".equals(rule) || "startWithInsensitive".equals(rule) || "START_WITH_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.START_WITH_INSENSITIVE;
+                } else if ("notIstartWith".equals(rule) || "NOT_ISTART_WITH".equals(rule) || "notStartWithInsensitive".equals(rule) || "NOT_START_WITH_INSENSITIVE".equals(rule)) {
+                    comparator = Comparator.NOT_START_WITH_INSENSITIVE;
                 } else if ("iendWith".equals(rule) || "IEND_WITH".equals(rule) || "endWithInsensitive".equals(rule) || "END_WITH_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.END_WITH_INSENSITIVE;
+                } else if ("notIendWith".equals(rule) || "NOT_IEND_WITH".equals(rule) || "notEndWithInsensitive".equals(rule) || "NOT_END_WITH_INSENSITIVE".equals(rule)) {
+                    comparator = Comparator.NOT_END_WITH_INSENSITIVE;
                 } else if ("contains".equals(rule) || "CONTAINS".equals(rule)) {
                     comparator = Comparator.CONTAINS;
+                } else if ("notContains".equals(rule) || "NOT_CONTAINS".equals(rule)) {
+                    comparator = Comparator.NOT_CONTAINS;
                 } else if ("icontains".equals(rule) || "ICONTAINST".equals(rule) || "containsInsensitive".equals(rule) || "CONTAINS_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.CONTAINS_INSENSITIVE;
+                } else if ("notIcontains".equals(rule) || "NOT_ICONTAINS".equals(rule) || "notContainsInsensitive".equals(rule) || "NOT_CONTAINS_INSENSITIVE".equals(rule)) {
+                    comparator = Comparator.NOT_CONTAINS_INSENSITIVE;
                 } else {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator rule used in: " + matcher.group(), operation.getElement());
                     continue;

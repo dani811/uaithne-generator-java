@@ -592,14 +592,23 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
             case SMALL_AS:   return "[[column]] &lt;= [[value]]";
             case LARGER_AS:  return "[[column]] &gt;= [[value]]";
             case IN:         return "[[column]] in <foreach close=')' collection='[[name]]' item='_item_[[name]]' open='(' separator=','> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
+            case NOT_IN:     return "[[column]] not in <foreach close=')' collection='[[name]]' item='_item_[[name]]' open='(' separator=','> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
             case LIKE:       return "[[column]] like [[value]]";
+            case NOT_LIKE:   return "[[column]] not like [[value]]";
             case LIKE_INSENSITIVE:       return "lower([[column]]) like lower([[value]])";
-            case START_WITH: return "[[column]] like ([[value]] || '%')";
-            case END_WITH:   return "[[column]] like ('%' || [[value]]";
-            case START_WITH_INSENSITIVE: return "lower([[column]]) like (lower([[value]]) || '%')";
-            case END_WITH_INSENSITIVE:   return "lower([[column]]) like ('%' || lower([[value]])";
-            case CONTAINS:   return "[[column]] like ('%' || [[value]] || '%')'";
-            case CONTAINS_INSENSITIVE:   return "lower([[column]]) like ('%' || lower([[value]]) || '%')";
+            case NOT_LIKE_INSENSITIVE:   return "lower([[column]]) not like lower([[value]])";
+            case START_WITH:     return "[[column]] like ([[value]] || '%')";
+            case NOT_START_WITH: return "[[column]] not like ([[value]] || '%')";
+            case END_WITH:       return "[[column]] like ('%' || [[value]]";
+            case NOT_END_WITH:   return "[[column]] not like ('%' || [[value]]";
+            case START_WITH_INSENSITIVE:     return "lower([[column]]) like (lower([[value]]) || '%')";
+            case NOT_START_WITH_INSENSITIVE: return "lower([[column]]) not like (lower([[value]]) || '%')";
+            case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]])";
+            case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]])";
+            case CONTAINS:       return "[[column]] like ('%' || [[value]] || '%')'";
+            case NOT_CONTAINS:   return "[[column]] not like ('%' || [[value]] || '%')'";
+            case CONTAINS_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]]) || '%')";
+            case NOT_CONTAINS_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]]) || '%')";
             default:
                 throw new IllegalArgumentException("Unimplemented comparator " + comparator);
         }
