@@ -57,12 +57,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         return true; // no further processing of this annotation type
     }
-    
+
     public void process(Set<? extends TypeElement> set, RoundEnvironment re, Element element) {
         TypeElement moduleElement = (TypeElement) element;
         ExecutorModuleInfo executorModuleInfo = new ExecutorModuleInfo(moduleElement);
         getGenerationInfo().addExecutorModule(executorModuleInfo);
-        
+
         for (Element enclosedModuleElement : moduleElement.getEnclosedElements()) {
             if (enclosedModuleElement.getKind() == ElementKind.CLASS) {
                 Entity entity = enclosedModuleElement.getAnnotation(Entity.class);
@@ -113,7 +113,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
         }
     }
-    
+
     public void processSelectPage(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, SelectPage selectPage) {
         GenerationInfo generationInfo = getGenerationInfo();
         DataTypeInfo realResultDataType;
@@ -129,7 +129,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         DataTypeInfo resultDataType = getResultType(realResultDataType, element);
         EntityInfo entityInfo = generationInfo.getEntitiesByName().get(realResultDataType.getQualifiedName());
-        
+
         DataTypeInfo relatedDataType;
         try {
             relatedDataType = NamesGenerator.createResultDataType(selectPage.related());
@@ -150,12 +150,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
             entityInfo = relatedEntityInfo;
         }
-        
-        DataTypeInfo pageResultDataType = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "DataPage<" + resultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo pageResultDataType = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "DataPage<" + resultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "DataPage");
         pageResultDataType.getImports().addAll(resultDataType.getImports());
-        
+
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(pageResultDataType);
         operationInfo.setOneItemReturnDataType(resultDataType);
@@ -163,44 +163,44 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setOperationKind(OperationKind.SELECT_PAGE);
         operationInfo.setDistinct(selectPage.distinct());
         operationInfo.setEntity(entityInfo);
-        
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "Operation<" + pageResultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "Operation<" + pageResultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "Operation");
         operationInfo.addImplement(operationInterface);
-        
-        DataTypeInfo dataPageRequestInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "DataPageRequest", 
+
+        DataTypeInfo dataPageRequestInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "DataPageRequest",
                 generationInfo.getSharedPackageDot() + "DataPageRequest");
         operationInfo.addImplement(dataPageRequestInterface);
-        
+
         DataTypeInfo pageInfoDataType = DataTypeInfo.PAGE_INFO_DATA_TYPE;
         DataTypeInfo onlyDataCountDataType = DataTypeInfo.PAGE_ONLY_DATA_COUNT_DATA_TYPE;
-        
+
         FieldInfo limitInfo = new FieldInfo("limit", pageInfoDataType);
         limitInfo.setMarkAsOvwrride(true);
         limitInfo.setExtra(true);
         operationInfo.addField(limitInfo);
-        
+
         FieldInfo offsetInfo = new FieldInfo("offset", pageInfoDataType);
         offsetInfo.setMarkAsOvwrride(true);
         offsetInfo.setExtra(true);
         operationInfo.addField(offsetInfo);
-        
+
         FieldInfo dataCountInfo = new FieldInfo("dataCount", pageInfoDataType);
         dataCountInfo.setMarkAsOvwrride(true);
         dataCountInfo.setExtra(true);
         operationInfo.addField(dataCountInfo);
-        
+
         FieldInfo onlyDataCount = new FieldInfo("onlyDataCount", onlyDataCountDataType);
         onlyDataCount.setMarkAsOvwrride(true);
         onlyDataCount.setExtra(true);
         operationInfo.addField(onlyDataCount);
-        
+
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
-    
+
     public void processSelectOne(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, SelectOne selectOne) {
         GenerationInfo generationInfo = getGenerationInfo();
         DataTypeInfo realResultDataType;
@@ -216,7 +216,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         DataTypeInfo resultDataType = getResultType(realResultDataType, element);
         EntityInfo entityInfo = generationInfo.getEntitiesByName().get(resultDataType.getQualifiedName());
-        
+
         DataTypeInfo relatedDataType;
         try {
             relatedDataType = NamesGenerator.createResultDataType(selectOne.related());
@@ -237,22 +237,22 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
             entityInfo = relatedEntityInfo;
         }
-        
+
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setRealReturnDataType(realResultDataType);
         operationInfo.setOperationKind(OperationKind.SELECT_ONE);
         operationInfo.setEntity(entityInfo);
-        
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "Operation<" + resultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "Operation<" + resultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "Operation");
         operationInfo.addImplement(operationInterface);
-        
+
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
-    
+
     public void processSelectMany(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, SelectMany selectMany) {
         GenerationInfo generationInfo = getGenerationInfo();
         DataTypeInfo realResultDataType;
@@ -268,7 +268,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         DataTypeInfo resultDataType = getResultType(realResultDataType, element);
         EntityInfo entityInfo = generationInfo.getEntitiesByName().get(realResultDataType.getQualifiedName());
-        
+
         DataTypeInfo relatedDataType;
         try {
             relatedDataType = NamesGenerator.createResultDataType(selectMany.related());
@@ -289,7 +289,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
             entityInfo = relatedEntityInfo;
         }
-        
+
         DataTypeInfo listResultDataType;
         if (generationInfo.isUseResultInterface()) {
             listResultDataType = new DataTypeInfo(generationInfo.getSharedPackage(), "DataList<" + resultDataType.getSimpleName() + ">", generationInfo.getSharedPackageDot() + "DataList");
@@ -301,7 +301,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
         }
         listResultDataType.getImports().addAll(resultDataType.getImports());
-        
+
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(listResultDataType);
         operationInfo.setOneItemReturnDataType(resultDataType);
@@ -309,16 +309,16 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setOperationKind(OperationKind.SELECT_MANY);
         operationInfo.setDistinct(selectMany.distinct());
         operationInfo.setEntity(entityInfo);
-        
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "Operation<" + listResultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "Operation<" + listResultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "Operation");
         operationInfo.addImplement(operationInterface);
-        
+
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
-    
+
     public void processOperation(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, Operation operation) {
         GenerationInfo generationInfo = getGenerationInfo();
         DataTypeInfo realResultDataType;
@@ -334,30 +334,30 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         DataTypeInfo resultDataType = getResultType(realResultDataType, element);
         EntityInfo entityInfo = generationInfo.getEntitiesByName().get(realResultDataType.getQualifiedName());
-        
+
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setRealReturnDataType(realResultDataType);
         operationInfo.setOperationKind(OperationKind.CUSTOM);
         operationInfo.setEntity(entityInfo);
-        
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "Operation<" + resultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "Operation<" + resultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "Operation");
         operationInfo.addImplement(operationInterface);
         operationInfo.setManually(true);
-        
+
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
-    
+
     public void processInsert(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, Insert operation) {
         GenerationInfo generationInfo = getGenerationInfo();
         EntityInfo entity;
         DataTypeInfo entityDataType;
         DataTypeInfo realResultDataType;
         OperationKind operationKind;
-        
+
         try {
             entityDataType = NamesGenerator.createResultDataType(operation.related());
         } catch (MirroredTypeException ex) {
@@ -374,7 +374,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
             return;
         }
-        
+
         if (operation.returnLastInsertedId()) {
             operationKind = OperationKind.CUSTOM_INSERT_WITH_ID;
             FieldInfo id = entity.getCombined().getFirstIdField();
@@ -389,29 +389,29 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             operationKind = OperationKind.CUSTOM_INSERT;
         }
         DataTypeInfo resultDataType = getResultType(realResultDataType, element);
-        
+
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setEntity(entity);
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setRealReturnDataType(realResultDataType);
         operationInfo.setOperationKind(operationKind);
-        
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "Operation<" + resultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "Operation<" + resultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "Operation");
         operationInfo.addImplement(operationInterface);
-        
+
         loadShared(re, element, executorModuleInfo, operationInfo);
-        
+
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
-    
+
     public void processUpdate(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, Update operation) {
         GenerationInfo generationInfo = getGenerationInfo();
         DataTypeInfo realResultDataType = DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE;
         EntityInfo entity;
         DataTypeInfo entityDataType;
-        
+
         try {
             entityDataType = NamesGenerator.createResultDataType(operation.related());
         } catch (MirroredTypeException ex) {
@@ -429,28 +429,28 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
         DataTypeInfo resultDataType = getResultType(realResultDataType, element);
-        
+
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setEntity(entity);
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setRealReturnDataType(realResultDataType);
         operationInfo.setOperationKind(OperationKind.CUSTOM_UPDATE);
-        
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "Operation<" + resultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "Operation<" + resultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "Operation");
         operationInfo.addImplement(operationInterface);
-        
+
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
-    
+
     public void processDelete(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, Delete operation) {
         GenerationInfo generationInfo = getGenerationInfo();
         DataTypeInfo realResultDataType = DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE;
         EntityInfo entity;
         DataTypeInfo entityDataType;
-        
+
         try {
             entityDataType = NamesGenerator.createResultDataType(operation.related());
         } catch (MirroredTypeException ex) {
@@ -468,27 +468,27 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
         DataTypeInfo resultDataType = getResultType(realResultDataType, element);
-        
+
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setEntity(entity);
         operationInfo.setReturnDataType(resultDataType);
-        operationInfo.setReturnDataType(realResultDataType);
+        operationInfo.setRealReturnDataType(realResultDataType);
         operationInfo.setOperationKind(OperationKind.CUSTOM_DELETE);
-        
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                "Operation<" + resultDataType.getSimpleName() + ">", 
+
+        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                "Operation<" + resultDataType.getSimpleName() + ">",
                 generationInfo.getSharedPackageDot() + "Operation");
         operationInfo.addImplement(operationInterface);
-        
+
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
-    
+
     public void loadShared(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, OperationInfo operationInfo) {
         for (Element enclosedElement : element.getEnclosedElements()) {
             if (enclosedElement.getKind() == ElementKind.FIELD) {
                 VariableElement ve = (VariableElement) enclosedElement;
-                
+
                 FieldInfo fi = new FieldInfo(ve);
                 if (fi.getMappedName() == null) {
                     EntityInfo entityInfo = operationInfo.getEntity();
@@ -501,7 +501,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
         }
     }
-    
+
     public void processEntityViewElement(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
         EntityInfo entityInfo = generationInfo.getEntitiesByRealName().get(element.getQualifiedName().toString());
@@ -511,7 +511,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         executorModuleInfo.addEntity(entityInfo);
     }
-    
+
     public void processEntityElement(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
         EntityInfo entityInfo = generationInfo.getEntitiesByRealName().get(element.getQualifiedName().toString());
@@ -519,7 +519,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity element", element);
             return;
         }
-        
+
         EntityInfo combinedEntity = entityInfo.getCombined();
         FieldInfo idInfo;
         List<FieldInfo> idFields = combinedEntity.getIdFields();
@@ -542,7 +542,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         idInfo.setIdentifier(true);
         DataTypeInfo realIdDataType = idInfo.getDataType();
         DataTypeInfo idDataType;
-        
+
         DataTypeInfo entityDataType = entityInfo.getDataType();
         FieldInfo valueInfo = new FieldInfo("value", entityDataType);
         valueInfo.setMarkAsOvwrride(true);
@@ -550,7 +550,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setIdentifier(false);
         DataTypeInfo realAffectedRowCountDataType = DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE;
         DataTypeInfo affectedRowCountDataType;
-        
+
         if (generationInfo.isUseResultInterface()) {
             affectedRowCountDataType = getResultType(realAffectedRowCountDataType, element);
             idDataType = getResultType(realIdDataType, element);
@@ -558,22 +558,22 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             affectedRowCountDataType = realAffectedRowCountDataType;
             idDataType = realIdDataType;
         }
-        
+
         executorModuleInfo.addEntity(entityInfo);
-        
+
         /* ****************************************************************************************
          * *** Delete By Id operation
          */
         {
-            DataTypeInfo deleteOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+            DataTypeInfo deleteOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Delete" + entityDataType.getSimpleName() + "ById");
             OperationInfo deleteOperationInfo = new OperationInfo(deleteOperationName);
             deleteOperationInfo.setReturnDataType(affectedRowCountDataType);
             deleteOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
             deleteOperationInfo.setOperationKind(OperationKind.DELETE_BY_ID);
 
-            DataTypeInfo deleteOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                    "DeleteByIdOperation<" + realIdDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">", 
+            DataTypeInfo deleteOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "DeleteByIdOperation<" + realIdDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
                     generationInfo.getSharedPackageDot() + "DeleteByIdOperation");
             deleteOperationInterface.getImports().addAll(realIdDataType.getImports());
             deleteOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
@@ -584,20 +584,20 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             deleteOperationInfo.setManually(entityInfo.getCombined().isManually());
             generationInfo.addOperation(deleteOperationInfo, executorModuleInfo);
         }
-        
+
         /* ****************************************************************************************
          * *** Insert operation
          */
         {
-            DataTypeInfo insertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+            DataTypeInfo insertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Insert" + entityDataType.getSimpleName());
             OperationInfo insertOperationInfo = new OperationInfo(insertOperationName);
             insertOperationInfo.setReturnDataType(idDataType);
             insertOperationInfo.setRealReturnDataType(realIdDataType);
             insertOperationInfo.setOperationKind(OperationKind.INSERT);
 
-            DataTypeInfo insertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                    "InsertValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">", 
+            DataTypeInfo insertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "InsertValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">",
                     generationInfo.getSharedPackageDot() + "InsertValueOperation");
             insertOperationInterface.getImports().addAll(entityDataType.getImports());
             insertOperationInterface.getImports().addAll(idDataType.getImports());
@@ -608,21 +608,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             insertOperationInfo.setManually(entityInfo.getCombined().isManually());
             generationInfo.addOperation(insertOperationInfo, executorModuleInfo);
         }
-        
+
         if (generationInfo.isGenerateJustOperationsEnabled()) {
             /* ****************************************************************************************
             * *** Just Insert operation
             */
             {
-                DataTypeInfo justInsertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+                DataTypeInfo justInsertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                         "JustInsert" + entityDataType.getSimpleName());
                 OperationInfo justInsertOperationInfo = new OperationInfo(justInsertOperationName);
                 justInsertOperationInfo.setReturnDataType(affectedRowCountDataType);
                 justInsertOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
                 justInsertOperationInfo.setOperationKind(OperationKind.JUST_INSERT);
 
-                DataTypeInfo justInsertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                        "JustInsertValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">", 
+                DataTypeInfo justInsertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                        "JustInsertValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
                         generationInfo.getSharedPackageDot() + "JustInsertValueOperation");
                 justInsertOperationInterface.getImports().addAll(entityDataType.getImports());
                 justInsertOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
@@ -634,21 +634,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo);
             }
         }
-        
+
         if (generationInfo.isGenerateSaveOperationsEnabled()) {
             /* ****************************************************************************************
             * *** Save operation
             */
             {
-                DataTypeInfo saveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+                DataTypeInfo saveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                         "Save" + entityDataType.getSimpleName());
                 OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
                 saveOperationInfo.setReturnDataType(idDataType);
                 saveOperationInfo.setRealReturnDataType(realIdDataType);
                 saveOperationInfo.setOperationKind(OperationKind.SAVE);
 
-                DataTypeInfo saveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                        "SaveValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">", 
+                DataTypeInfo saveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                        "SaveValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">",
                         generationInfo.getSharedPackageDot() + "SaveValueOperation");
                 saveOperationInterface.getImports().addAll(entityDataType.getImports());
                 saveOperationInterface.getImports().addAll(idDataType.getImports());
@@ -660,21 +660,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
             }
         }
-        
+
         if (generationInfo.isGenerateJustOperationsEnabled() && generationInfo.isGenerateSaveOperationsEnabled()) {
             /* ****************************************************************************************
             * *** Just Save operation
             */
             {
-                DataTypeInfo justSaveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+                DataTypeInfo justSaveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                         "JustSave" + entityDataType.getSimpleName());
                 OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
                 justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
                 justSaveOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
                 justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
 
-                DataTypeInfo justSaveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                        "JustSaveValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">", 
+                DataTypeInfo justSaveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                        "JustSaveValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
                         generationInfo.getSharedPackageDot() + "JustSaveValueOperation");
                 justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
                 justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
@@ -686,19 +686,19 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
             }
         }
-        
+
         /* ****************************************************************************************
          * *** Select By Id operation
          */
         {
-            DataTypeInfo selectOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+            DataTypeInfo selectOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Select" + entityDataType.getSimpleName() + "ById");
             OperationInfo selectOperationInfo = new OperationInfo(selectOperationName);
             selectOperationInfo.setReturnDataType(entityDataType);
             selectOperationInfo.setOperationKind(OperationKind.SELECT_BY_ID);
 
-            DataTypeInfo selectOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                    "SelectByIdOperation<" + realIdDataType.getSimpleName() + ", " + entityDataType.getSimpleName() + ">", 
+            DataTypeInfo selectOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "SelectByIdOperation<" + realIdDataType.getSimpleName() + ", " + entityDataType.getSimpleName() + ">",
                     generationInfo.getSharedPackageDot() + "SelectByIdOperation");
             selectOperationInterface.getImports().addAll(realIdDataType.getImports());
             selectOperationInterface.getImports().addAll(entityDataType.getImports());
@@ -709,20 +709,20 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             selectOperationInfo.setManually(entityInfo.getCombined().isManually());
             generationInfo.addOperation(selectOperationInfo, executorModuleInfo);
         }
-        
+
         /* ****************************************************************************************
          * *** Update operation
          */
         {
-            DataTypeInfo updateOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+            DataTypeInfo updateOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Update" + entityDataType.getSimpleName());
             OperationInfo updateOperationInfo = new OperationInfo(updateOperationName);
             updateOperationInfo.setReturnDataType(affectedRowCountDataType);
             updateOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
             updateOperationInfo.setOperationKind(OperationKind.UPDATE);
 
-            DataTypeInfo updateOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                    "UpdateValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">", 
+            DataTypeInfo updateOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "UpdateValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
                     generationInfo.getSharedPackageDot() + "UpdateValueOperation");
             updateOperationInterface.getImports().addAll(entityDataType.getImports());
             updateOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
@@ -733,20 +733,20 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             updateOperationInfo.setManually(entityInfo.getCombined().isManually());
             generationInfo.addOperation(updateOperationInfo, executorModuleInfo);
         }
-        
+
         /* ****************************************************************************************
          * *** Merge operation
          */
         if (generationInfo.isGenerateMergeOperationsEnabled()) {
-            DataTypeInfo mergeOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(), 
+            DataTypeInfo mergeOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Merge" + entityDataType.getSimpleName());
             OperationInfo mergeOperationInfo = new OperationInfo(mergeOperationName);
             mergeOperationInfo.setReturnDataType(affectedRowCountDataType);
             mergeOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
             mergeOperationInfo.setOperationKind(OperationKind.MERGE);
 
-            DataTypeInfo mergeOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(), 
-                    "MergeValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">", 
+            DataTypeInfo mergeOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "MergeValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
                     generationInfo.getSharedPackageDot() + "MergeValueOperation");
             mergeOperationInterface.getImports().addAll(entityDataType.getImports());
             mergeOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
@@ -758,18 +758,18 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             generationInfo.addOperation(mergeOperationInfo, executorModuleInfo);
         }
     }
-    
+
     public void generateOperations(RoundEnvironment re, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
-        
+
         HashMap<String, Object> data = createDefaultData();
         data.put("operations", executorModuleInfo.getOperations());
-        
+
         String packageName = executorModuleInfo.getOperationPackage();
         boolean inShared = generationInfo.getSharedPackage().equals(packageName);
         HashSet<String> executorModuleImports = new HashSet<String>();
         executorModuleInfo.appendDefinitionImports(packageName, executorModuleImports);
-        
+
         HashSet<String> executorImports = new HashSet<String>();
         executorImports.addAll(executorModuleImports);
         if (!inShared) {
@@ -780,7 +780,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         String executorName = executorModuleInfo.getNameUpper() + "Executor";
         processExecutorTemplate(executorName, executorModuleInfo.getOperationPackage(), data, executorModuleInfo.getElement());
-        
+
         for (OperationInfo operation : executorModuleInfo.getOperations()) {
             HashSet<String> operationImports = new HashSet<String>();
             operation.appendFullImports(packageName, operationImports);
@@ -790,14 +790,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     operationImports.add(generationInfo.getSharedPackage() + ".ResultWrapper");
                 }
             }
-            
+
             HashMap<String, Object> dataOperation = createDefaultData();
             dataOperation.put("executorName", executorName);
             dataOperation.put("operation", operation);
             dataOperation.put("imports", operationImports);
             processOperationTemplate(operation, packageName, dataOperation, operation.getElement());
         }
-        
+
         data.put("executorInterfaceName", executorName);
         data.put("imports", executorModuleImports);
         if (!inShared) {
@@ -807,7 +807,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             executorModuleImports.add(generationInfo.getSharedPackage() + ".Result");
         }
         processChainedExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedExecutor", packageName, data, executorModuleInfo.getElement());
-        
+
         String executorAbstractName = executorModuleInfo.getNameUpper() + "AbstractExecutor";
         HashSet<String> abstractExecutorImports = new HashSet<String>();
         if (!inShared) {
@@ -825,7 +825,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             executorModuleImports.add(generationInfo.getSharedPackage() + ".ExecutorGroup");
         }
         processChainedGroupingExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedGroupingExecutor", packageName, data, executorModuleInfo.getElement());
-        
+
         if (executorModuleInfo.getAnnotation(PlainExecutor.class) != null) {
             boolean useConcreteCollections = generationInfo.isUseConcreteCollections();
             String plainExecutorName = executorModuleInfo.getNameUpper() + "PlainExecutor";
@@ -852,11 +852,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processPlainChainedGroupingExecutorTemplate(executorModuleInfo.getNameUpper() + "PlainChainedGroupingExecutor", packageName, data, executorModuleInfo.getElement());
         }
     }
-    
+
     public boolean processExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("operations/Executor.ftl", packageName, className, data, element);
     }
-    
+
     public boolean processOperationTemplate(OperationInfo operation, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("operations/Operation.ftl", packageName, operation.getDataType().getSimpleName(), data, element);
     }
@@ -868,23 +868,23 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
     public boolean processChainedGroupingExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("operations/ChainedGroupingExecutor.ftl", packageName, className, data, element);
     }
-    
+
     public boolean processAbstractExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("operations/AbstractExecutor.ftl", packageName, className, data, element);
     }
-    
+
     public boolean processPlainExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("operations/PlainExecutor.ftl", packageName, className, data, element);
     }
-    
+
     public boolean processPlainChainedExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("operations/PlainChainedExecutor.ftl", packageName, className, data, element);
     }
-    
+
     public boolean processPlainChainedGroupingExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("operations/PlainChainedGroupingExecutor.ftl", packageName, className, data, element);
     }
-    
+
     public boolean processResultTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("Result.ftl", packageName, className, data, element);
     }
@@ -900,7 +900,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             if (resultWrapper != null) {
                 return resultWrapper;
             }
-            
+
             String name;
             String packageName = resultType.getPackageName();
             if (packageName == null || packageName.isEmpty()) {
@@ -928,7 +928,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 sb.append("Result");
                 name = sb.toString();
             }
-            
+
             HashMap<String, Object> data = createDefaultData();
             data.put("valueType", resultType);
 
