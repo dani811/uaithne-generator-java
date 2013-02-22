@@ -152,21 +152,25 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
     }
 
     public void flush() {
-        if (deferredOperations == null || deferredCallbacks == null) {
-            return;
-        }
-
-        if (containsExecutableOperations) {
-            send(deferredOperations, deferredCallbacks);
-        } else {
-            for (AsyncCallback callback : deferredCallbacks) {
-                callback.onSuccess(null);
-            }
-        }
+        ArrayList<Operation> currentDeferredOperations = deferredOperations;
+        ArrayList<AsyncCallback> currentDeferredCallbacks = deferredCallbacks;
+        boolean currentContainsExecutableOperations = containsExecutableOperations;
 
         deferredOperations = null;
         deferredCallbacks = null;
         containsExecutableOperations = false;
+
+        if (currentDeferredOperations == null || currentDeferredCallbacks == null) {
+            return;
+        }
+
+        if (currentContainsExecutableOperations) {
+            send(currentDeferredOperations, currentDeferredCallbacks);
+        } else {
+            for (AsyncCallback callback : currentDeferredCallbacks) {
+                callback.onSuccess(null);
+            }
+        }
     }
 
     protected RpcResult createRequest(ArrayList<Operation> operations, ArrayList<AsyncCallback> callbacks) {
