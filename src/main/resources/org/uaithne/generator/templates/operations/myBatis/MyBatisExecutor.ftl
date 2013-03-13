@@ -1,4 +1,4 @@
-<#-- 
+<#--
 Copyright 2012 and beyond, Juan Luis Paz
 
 This file is part of Uaithne.
@@ -45,7 +45,21 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
     <#elseif operation.operationKind.id == 1>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
+        <#list operation.fields as field>
+        <#if field.orderBy>
+        ${field.dataType.simpleName} ${field.name}Old = operation.get${field.capitalizedName}();
+        operation.set${field.capitalizedName}(translateOrderBy(${field.name}Old, orderByTranslationsFor${operation.entity.dataType.simpleName}));
+        </#if>
+        </#list>
+
         ${operation.realReturnDataType.simpleName} result = (${operation.realReturnDataType.simpleName}) getSession().selectOne("${operation.extraInfo.myBatisStatementId}", operation);
+
+        <#list operation.fields as field>
+        <#if field.orderBy>
+        operation.set${field.capitalizedName}(${field.name}Old);
+        </#if>
+        </#list>
+
         <#if operation.returnDataType != operation.realReturnDataType>
         return new ${operation.returnDataType.simpleName}(result);
         <#else>

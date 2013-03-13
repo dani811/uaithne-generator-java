@@ -569,6 +569,16 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
         return sb.toString();
     }
 
+    public String joinsp(String[] strings) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < strings.length - 1; i++) {
+            sb.append(strings[i]);
+            sb.append("\n");
+        }
+        sb.append(strings[strings.length - 1]);
+        return sb.toString();
+    }
+
     public boolean hasQueryValue(String[] array) {
         if (array == null || array.length <= 0) {
             return false;
@@ -1179,8 +1189,9 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             } else {
                 result = completeQuery(query.value(), operation, true);
             }
-            if (result != null && result.length > 0) {
-                String s = result[0];
+            if (result != null) {
+                String s = joinsp(result);
+                s = s.replaceAll("\n", " ");
                 s = s.toLowerCase();
                 if (!s.matches("\\s*select\\s+count\\s*\\(.*")) {
                     String[] r = new String[result.length + 2];
