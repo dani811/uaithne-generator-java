@@ -605,8 +605,8 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
             case NOT_START_WITH_INSENSITIVE: return "lower([[column]]) not like (lower([[value]]) || '%')";
             case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]])";
             case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]])";
-            case CONTAINS:       return "[[column]] like ('%' || [[value]] || '%')'";
-            case NOT_CONTAINS:   return "[[column]] not like ('%' || [[value]] || '%')'";
+            case CONTAINS:       return "[[column]] like ('%' || [[value]] || '%')";
+            case NOT_CONTAINS:   return "[[column]] not like ('%' || [[value]] || '%')";
             case CONTAINS_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]]) || '%')";
             case NOT_CONTAINS_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]]) || '%')";
             default:
