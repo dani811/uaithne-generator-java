@@ -28,6 +28,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 public class SqlSessionProvider {
     private SqlSessionFactory sqlSessionFactory;
     private ThreadLocal<SqlSession> currentSqlSession = new ThreadLocal<SqlSession>();
+    private ThreadLocal<Integer> currentSessionLevel = new ThreadLocal<Integer>();
 
     public SqlSessionProvider(String configurationUrl) throws IOException {
         InputStream inputStream = Resources.getResourceAsStream(configurationUrl);
@@ -48,9 +49,18 @@ public class SqlSessionProvider {
         if (session == null) {
             session = sqlSessionFactory.openSession();
             currentSqlSession.set(session);
+            currentSessionLevel.set(1);
             return true;
+        } else {
+            Integer currentLevel = currentSessionLevel.get();
+            if (currentLevel == null || currentLevel <= 0) {
+                currentLevel = 1;
+            } else {
+                currentLevel++;
+            }
+            currentSessionLevel.set(currentLevel);
+            return false;
         }
-        return false;
     }
     
     public boolean isSqlSessionOpened() {
@@ -60,8 +70,7 @@ public class SqlSessionProvider {
     public SqlSession getSqlSession() {
         SqlSession result = currentSqlSession.get();
         if (result == null) {
-            openSqlSession();
-            result = currentSqlSession.get();
+            throw new IllegalStateException("No open connection is available in this context, the operation must cross a ManagedSqlSessionExecutorGroup before get the sql session");
         }
         return result;
     }
@@ -69,6 +78,18 @@ public class SqlSessionProvider {
     public void closeSqlSession(boolean roolback) {
         SqlSession session = currentSqlSession.get();
         if (session != null) {
+            Integer currentLevel = currentSessionLevel.get();
+            if (currentLevel == null || currentLevel <= 1) {
+                currentLevel = 0;
+            } else {
+                currentLevel--;
+            }
+            
+            if (currentLevel > 0) {
+                currentSessionLevel.set(currentLevel);
+                return;
+            }
+            
             if (roolback) {
                 session.rollback();
             } else {
@@ -77,6 +98,7 @@ public class SqlSessionProvider {
             session.close();
             currentSqlSession.set(null);
         }
+        currentSessionLevel.set(null);
     }
 
     public SqlSessionFactory getSqlSessionFactory() {
