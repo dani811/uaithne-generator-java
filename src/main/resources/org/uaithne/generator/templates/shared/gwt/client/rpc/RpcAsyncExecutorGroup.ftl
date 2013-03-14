@@ -260,9 +260,6 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
 
     void process(Operation operation, <#if generation.useResultInterface>Result<#else>ResultWrapper</#if> r, AsyncCallback callback) {
         if (callback == null) {
-            throw new IllegalStateException("Invalid result (null ResultWrapper is not allowed) for the operation: " + operation);
-        }
-        if (callback == null) {
             throw new IllegalStateException("No callback found for the operation: " + operation);
         }
         <#if generation.useResultInterface>
@@ -280,6 +277,9 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
             callback.onSuccess(r);
         }
         <#else>
+        if (r == null) {
+            throw new IllegalStateException("Invalid result (null ResultWrapper is not allowed) for the operation: " + operation);
+        }
         if (r instanceof ErrorResultWrapper) {
             <#if rpcErrorAsString>
             callback.onFailure(new RpcException((String)r.getValue()));
