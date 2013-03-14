@@ -1040,7 +1040,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             if (customQuery != null) {
                 appendToQueryln(result, customQuery.afterUpdateSetExpression(), "    ");
             }
-            appendWhere(result, operation, false, null);
+            appendWhere(result, operation, false, customQuery);
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.value());
