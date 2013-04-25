@@ -728,7 +728,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
     public void appendNotDeleted(StringBuilder result, FieldInfo field) {
         if (field.isOptional()) {
             result.append(getColumnName(field));
-            result.append("is not null");
+            result.append(" is not null");
         } else {
             result.append(getColumnName(field));
             result.append(" = ");
@@ -1485,10 +1485,10 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
                     requireComma = true;
                 }
             }
+            boolean requireAnd = false; 
             List<FieldInfo> idFields = entity.getIdFields();
             if (!idFields.isEmpty()) {
                 result.append("\nwhere\n");
-                boolean requireAnd = false;
                 for (FieldInfo field : idFields) {
                     if (omitOnUpdate(field)) {
                         continue;
@@ -1502,6 +1502,24 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
                     result.append(getParameterValue(field));
                     requireAnd = true;
                 }
+            }
+            boolean requireWhere = idFields.isEmpty();
+            for (FieldInfo field : entity.getFieldsWithExtras()) {
+                if (field.isManually()) {
+                    continue;
+                }
+                if (!field.isDeletionMark()) {
+                    continue;
+                }
+                if (requireWhere) {
+                    result.append("\nwhere\n");
+                }
+                if (requireAnd) {
+                    result.append(" and\n");
+                }
+                result.append("    ");
+                appendNotDeleted(result, field);
+                requireAnd = true;
             }
             finalQuery = result.toString();
         } else {
@@ -1562,10 +1580,10 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
                 }
             }
             appendEndSet(result);
+            boolean requireAnd = false;
             List<FieldInfo> idFields = entity.getIdFields();
             if (!idFields.isEmpty()) {
                 result.append("\nwhere\n");
-                boolean requireAnd = false;
                 for (FieldInfo field : idFields) {
                     if (omitOnUpdate(field)) {
                         continue;
@@ -1579,6 +1597,24 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
                     result.append(getParameterValue(field));
                     requireAnd = true;
                 }
+            }
+            boolean requireWhere = idFields.isEmpty();
+            for (FieldInfo field : entity.getFieldsWithExtras()) {
+                if (field.isManually()) {
+                    continue;
+                }
+                if (!field.isDeletionMark()) {
+                    continue;
+                }
+                if (requireWhere) {
+                    result.append("\nwhere\n");
+                }
+                if (requireAnd) {
+                    result.append(" and\n");
+                }
+                result.append("    ");
+                appendNotDeleted(result, field);
+                requireAnd = true;
             }
             finalQuery = result.toString();
         } else {
@@ -1641,24 +1677,22 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             }
             boolean requireWhere = idFields.isEmpty();
             for (FieldInfo field : entity.getFieldsWithExtras()) {
-                    if (field.isManually()) {
-                        continue;
-                    }
-                    if (!field.isDeletionMark()) {
-                        continue;
-                    }
-                    if (requireWhere) {
-                        result.append("\nwhere\n");
-                    }
-                    if (requireAnd) {
-                        result.append(" and\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    result.append(" = ");
-                    result.append(falseValue());
-                    requireAnd = true;
+                if (field.isManually()) {
+                    continue;
                 }
+                if (!field.isDeletionMark()) {
+                    continue;
+                }
+                if (requireWhere) {
+                    result.append("\nwhere\n");
+                }
+                if (requireAnd) {
+                    result.append(" and\n");
+                }
+                result.append("    ");
+                appendNotDeleted(result, field);
+                requireAnd = true;
+            }
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.deleteById());
