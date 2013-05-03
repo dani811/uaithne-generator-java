@@ -193,13 +193,29 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             appendFrom(appender, entity, customQuery);
         }
         if (addWhere) {
-            orderBy = appendWhere(appender, operation, addOrderBy, customQuery);
+            orderBy = appendWhere(appender, operation, addOrderBy, customQuery, count);
         }
         if (addGroupBy) {
             appendGroupBy(appender, operation, entity, customQuery);
         }
-        if (addOrderBy && !count) {
-            appendOrderBy(appender, orderBy, customQuery);
+        if (!count) {
+            if (addOrderBy) {
+                appendOrderBy(appender, orderBy, customQuery);
+            }
+            if (limitToOneResult(operation)) {
+                String limitOne = selectOneRowAfterOrderBy();
+                if (limitOne != null && !limitOne.isEmpty()) {
+                    appender.append("\n");
+                    appender.append(limitOne);
+                }
+            }
+            if (selectPageOperation(operation)) {
+                String page = selectPageAfterOrderBy();
+                if (page != null && !page.isEmpty()) {
+                    appender.append("\n");
+                    appender.append(page);
+                }
+            }
         }
 
         String result;
@@ -311,7 +327,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
     /**
      * Return the field with the OrderBy annotation
      */
-    public FieldInfo appendWhere(StringBuilder query, OperationInfo operation, boolean onlyOneOrderBy, CustomSqlQuery customQuery) {
+    public FieldInfo appendWhere(StringBuilder query, OperationInfo operation, boolean onlyOneOrderBy, CustomSqlQuery customQuery, boolean count) {
         FieldInfo orderBy = null;
         ArrayList<FieldInfo> fields = operation.getFields();
         boolean useDeletionMarks = useLogicalDeletion(operation);
@@ -392,7 +408,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             requireAnd = true;
         }
         if (limitToOneResult(operation)) {
-            String limitOne = selectOneRowBeforeWhere();
+            String limitOne = selectOneRowAfterWhere();
             if (limitOne != null && !limitOne.isEmpty()) {
                 if (requireAnd) {
                     result.append(" and\n");
@@ -403,8 +419,8 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
                 whereCount++;
             }
         }
-        if (selectPageOperation(operation)) {
-            String page = selectPageBeforeWhere();
+        if (!count && selectPageOperation(operation)) {
+            String page = selectPageAfterWhere();
             if (page != null && !page.isEmpty()) {
                 if (requireAnd) {
                     result.append(" and\n");
@@ -715,13 +731,17 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
 
     public abstract String selectPageBeforeSelect();
 
-    public abstract String selectPageBeforeWhere();
+    public abstract String selectPageAfterWhere();
+    
+    public abstract String selectPageAfterOrderBy();
 
     public abstract String[] envolveInSelectOneRow(String[] query);
 
     public abstract String selectOneRowBeforeSelect();
-
-    public abstract String selectOneRowBeforeWhere();
+    
+    public abstract String selectOneRowAfterWhere();
+    
+    public abstract String selectOneRowAfterOrderBy();
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Deletion mark managment">
@@ -776,19 +796,17 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                if (insertQueryIncludeId()) {
-                    List<FieldInfo> idFields = entity.getIdFields();
-                    for (FieldInfo field : idFields) {
-                        if (omitOnInsert(field)) {
-                            continue;
-                        }
-                        if (requireComma) {
-                            result.append(",\n");
-                        }
-                        result.append("    ");
-                        result.append(getColumnName(field));
-                        requireComma = true;
+                List<FieldInfo> idFields = entity.getIdFields();
+                for (FieldInfo field : idFields) {
+                    if (omitIdOnInsert(entity, field)) {
+                        continue;
                     }
+                    if (requireComma) {
+                        result.append(",\n");
+                    }
+                    result.append("    ");
+                    result.append(getColumnName(field));
+                    requireComma = true;
                 }
                 List<FieldInfo> entityFieldsWithExtras = entity.getFieldsWithExtras();
                 for (FieldInfo field : entityFieldsWithExtras) {
@@ -853,28 +871,26 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                if (insertQueryIncludeId()) {
-                    List<FieldInfo> idFields = entity.getIdFields();
-                    for (FieldInfo field : idFields) {
-                        if (omitOnInsert(field)) {
-                            continue;
-                        }
-                        if (requireComma) {
-                            result.append(",\n");
-                        }
-                        result.append("    ");
-                        if (field.getAnnotation(InsertDate.class) != null) {
-                            result.append(currentSqlDate());
-                        } else {
-                            String nextValueQuery[] = getIdNextValue(entity, field);
-                            for (int i = 0; i < nextValueQuery.length - 1; i++) {
-                                result.append(nextValueQuery[i]);
-                                result.append(" ");
-                            }
-                            result.append(nextValueQuery[nextValueQuery.length - 1]);
-                        }
-                        requireComma = true;
+                List<FieldInfo> idFields = entity.getIdFields();
+                for (FieldInfo field : idFields) {
+                    if (omitIdOnInsert(entity, field)) {
+                        continue;
                     }
+                    if (requireComma) {
+                        result.append(",\n");
+                    }
+                    result.append("    ");
+                    if (field.getAnnotation(InsertDate.class) != null) {
+                        result.append(currentSqlDate());
+                    } else {
+                        String nextValueQuery[] = getIdNextValue(entity, field);
+                        for (int i = 0; i < nextValueQuery.length - 1; i++) {
+                            result.append(nextValueQuery[i]);
+                            result.append(" ");
+                        }
+                        result.append(nextValueQuery[nextValueQuery.length - 1]);
+                    }
+                    requireComma = true;
                 }
                 List<FieldInfo> entityFieldsWithExtras = entity.getFieldsWithExtras();
                 for (FieldInfo field : entityFieldsWithExtras) {
@@ -1040,7 +1056,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             if (customQuery != null) {
                 appendToQueryln(result, customQuery.afterUpdateSetExpression(), "    ");
             }
-            appendWhere(result, operation, false, customQuery);
+            appendWhere(result, operation, false, customQuery, false);
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.value());
@@ -1121,7 +1137,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
                 result.append("delete from");
                 appendToQueryln(result, getTableName(entity), "    ");
             }
-            appendWhere(result, operation, false, customQuery);
+            appendWhere(result, operation, false, customQuery, false);
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.value());
@@ -1301,19 +1317,17 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             appendToQueryln(result, getTableName(entity), "    ");
             result.append("\n(\n");
             boolean requireComma = false;
-            if (insertQueryIncludeId()) {
-                List<FieldInfo> idFields = entity.getIdFields();
-                for (FieldInfo field : idFields) {
-                    if (omitOnInsert(field)) {
-                        continue;
-                    }
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    requireComma = true;
+            List<FieldInfo> idFields = entity.getIdFields();
+            for (FieldInfo field : idFields) {
+                if (omitIdOnInsert(entity, field)) {
+                    continue;
                 }
+                if (requireComma) {
+                    result.append(",\n");
+                }
+                result.append("    ");
+                result.append(getColumnName(field));
+                requireComma = true;
             }
             List<FieldInfo> mandatoryAndOptionalFields = entity.getMandatoryAndOptionalFields();
             for (FieldInfo field : mandatoryAndOptionalFields) {
@@ -1350,28 +1364,26 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
 
             result.append("\n) values (\n");
             requireComma = false;
-            if (insertQueryIncludeId()) {
-                List<FieldInfo> idFields = entity.getIdFields();
-                for (FieldInfo field : idFields) {
-                    if (omitOnInsert(field)) {
-                        continue;
-                    }
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    if (field.getAnnotation(InsertDate.class) != null) {
-                        result.append(currentSqlDate());
-                    } else {
-                        String nextValueQuery[] = getIdNextValue(entity, field);
-                        for (int i = 0; i < nextValueQuery.length - 1; i++) {
-                            result.append(nextValueQuery[i]);
-                            result.append(" ");
-                        }
-                        result.append(nextValueQuery[nextValueQuery.length - 1]);
-                    }
-                    requireComma = true;
+            idFields = entity.getIdFields();
+            for (FieldInfo field : idFields) {
+                if (omitIdOnInsert(entity, field)) {
+                    continue;
                 }
+                if (requireComma) {
+                    result.append(",\n");
+                }
+                result.append("    ");
+                if (field.getAnnotation(InsertDate.class) != null) {
+                    result.append(currentSqlDate());
+                } else {
+                    String nextValueQuery[] = getIdNextValue(entity, field);
+                    for (int i = 0; i < nextValueQuery.length - 1; i++) {
+                        result.append(nextValueQuery[i]);
+                        result.append(" ");
+                    }
+                    result.append(nextValueQuery[nextValueQuery.length - 1]);
+                }
+                requireComma = true;
             }
             for (FieldInfo field : mandatoryAndOptionalFields) {
                 if (omitOnInsert(field)) {
@@ -1717,6 +1729,23 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
     public abstract boolean insertQueryIncludeId();
 
     public abstract String getParameterValue(FieldInfo field);
+    
+    public boolean omitIdOnInsert(EntityInfo entity, FieldInfo field) {
+        if (omitOnInsert(field)) {
+            return true;
+        }
+        IdQueries idQueries = field.getAnnotation(IdQueries.class);
+        if (idQueries != null) {
+            return false;
+        } else {
+            idQueries = entity.getAnnotation(IdQueries.class);
+            if (idQueries != null) {
+                return false;
+            } else {
+                return !insertQueryIncludeId();
+            }
+        }
+    }
 
     public String[] getIdNextValue(EntityInfo entity, FieldInfo field) {
         IdQueries idQueries = field.getAnnotation(IdQueries.class);

@@ -26,17 +26,17 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import org.uaithne.annotations.myBatis.MyBatisOracleMapper;
+import org.uaithne.annotations.myBatis.MyBatisSqlServerMapper;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisOracleMapper")
-public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
+@SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisSqlServerMapper")
+public class MyBatisSqlServerMappersProcessor extends MyBatisMappersProcessor {
     
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
-        for (Element element : re.getElementsAnnotatedWith(MyBatisOracleMapper.class)) {
+        for (Element element : re.getElementsAnnotatedWith(MyBatisSqlServerMapper.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 process(re, element);
             }
@@ -46,7 +46,7 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
     
     @Override
     public String currentSqlDate() {
-        return "sysdate";
+        return "current_timestamp";
     }
     
     @Override
@@ -66,26 +66,22 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
 
     @Override
     public boolean insertQueryIncludeId() {
-        return true;
+        return false;
     }
     
     @Override
     public String[] getDefaultIdNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"seq_" + getTableName(entity)[0] + ".nextval"};
+        return null;
     }
     
     @Override
     public String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select seq_" + getTableName(entity)[0] + ".currval from dual"};
+        return new String[] {"select scope_identity()"};
     }
 
     @Override
     public String[] envolveInSelectPage(String[] query) {
-        String[] r = new String[query.length + 2];
-        r[0] = "<if test='offset != null and maxRowNumber != null'> select * from (select t.*, rownum as oracle__rownum__ from (</if>";
-        System.arraycopy(query, 0, r, 1, query.length);
-        r[r.length - 1] = "<if test='offset != null and maxRowNumber != null'>) t) <where> <if test='offset != null'>oracle__rownum__ &gt; #{offset,jdbcType=NUMERIC}</if> <if test='maxRowNumber != null'>and oracle__rownum__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if></where></if>";
-        return r;
+        return query;
     }
 
     @Override
@@ -100,7 +96,7 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
     
     @Override
     public String selectPageAfterOrderBy() {
-        return null;
+        return "<if test='offset != null and maxRowNumber != null'><if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if><if test='maxRowNumber != null'>fetch next #{maxRowNumber,jdbcType=NUMERIC} rows only</if></if>";
     }
 
     @Override
@@ -115,22 +111,22 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
 
     @Override
     public String selectOneRowAfterWhere() {
-        return "rownum = 1";
-    }
-
-    @Override
-    public String selectOneRowAfterOrderBy() {
         return null;
     }
 
     @Override
+    public String selectOneRowAfterOrderBy() {
+        return "fetch next 1 rows only";
+    }
+
+    @Override
     public String subPackage() {
-        return "myBatis.oracle";
+        return "myBatis.sqlServer";
     }
 
     @Override
     public String mapperPrefix() {
-        return "MyBatisOracle";
+        return "MyBatisSqlServer";
     }
     
 }
