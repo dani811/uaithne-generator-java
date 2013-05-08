@@ -41,6 +41,7 @@ public class GenerationInfo {
     private ArrayList<ExecutorModuleInfo> executorModules = new ArrayList<ExecutorModuleInfo>();
     private HashMap<String, ExecutorModuleInfo> executorModulesByRealName = new HashMap<String, ExecutorModuleInfo>();
     private HashMap<String, Object> extraInfo = new HashMap<String, Object>();
+    private boolean generateDefaultEntityOperations;
     private boolean generateJustOperationsEnabled;
     private boolean generateSaveOperationsEnabled = true;
     private boolean generateMergeOperationsEnabled = true;
@@ -224,6 +225,14 @@ public class GenerationInfo {
             return null;
         }
         return getEntityByName(extend);
+    }
+
+    public boolean isGenerateDefaultEntityOperations() {
+        return generateDefaultEntityOperations;
+    }
+
+    public void setGenerateDefaultEntityOperations(boolean generateDefaultEntityOperations) {
+        this.generateDefaultEntityOperations = generateDefaultEntityOperations;
     }
 
     public boolean isGenerateJustOperationsEnabled() {

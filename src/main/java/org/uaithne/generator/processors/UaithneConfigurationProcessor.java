@@ -42,6 +42,7 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 UaithneConfiguration configuration = element.getAnnotation(UaithneConfiguration.class);
                 if (configuration != null) {
+                    generationInfo.setGenerateDefaultEntityOperations(configuration.enableDefaultEntityOperations());
                     generationInfo.setGenerateJustOperationsEnabled(configuration.enableJustOperations());
                     generationInfo.setGenerateSaveOperationsEnabled(configuration.enableSaveOperations());
                     generationInfo.setGenerateMergeOperationsEnabled(configuration.enableMergeOperations());

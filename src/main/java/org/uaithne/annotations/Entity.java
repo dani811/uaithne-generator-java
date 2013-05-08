@@ -26,4 +26,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface Entity {
+    Ternary generateDeleteByIdOperation() default Ternary.UNSPECIFIED;
+    Ternary generateInsertOperation() default Ternary.UNSPECIFIED;
+    Ternary generateJustInsertOperation() default Ternary.UNSPECIFIED;
+    Ternary generateSaveOperation() default Ternary.UNSPECIFIED;
+    Ternary generateJustSaveOperation() default Ternary.UNSPECIFIED;
+    Ternary generateSelectByIdOperation() default Ternary.UNSPECIFIED;
+    Ternary generateUpdateOperation() default Ternary.UNSPECIFIED;
+    Ternary generateMergeOperation() default Ternary.UNSPECIFIED;
 }

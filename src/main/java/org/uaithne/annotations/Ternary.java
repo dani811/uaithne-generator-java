@@ -1,3 +1,5 @@
+package org.uaithne.annotations;
+
 /*
  * Copyright 2012 and beyond, Juan Luis Paz
  *
@@ -16,20 +18,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.annotations;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-public @interface UaithneConfiguration {
-    boolean enableDefaultEntityOperations() default true;
-    boolean enableJustOperations() default false;
-    boolean enableSaveOperations() default true;
-    boolean enableMergeOperations() default true;
-    boolean useConcreteCollections() default false;
-    boolean wrapResult() default false;
+public enum Ternary {
+    TRUE,
+    FALSE,
+    UNSPECIFIED;
+    
+    public boolean solve(boolean unspecifiedValue) {
+        switch (this) {
+            case TRUE:
+                return true;
+            case FALSE:
+                return false;
+            case UNSPECIFIED:
+                return unspecifiedValue;
+            default:
+                throw new AssertionError(this.name());
+        }
+    }
 }

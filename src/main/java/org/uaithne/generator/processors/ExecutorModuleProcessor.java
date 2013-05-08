@@ -560,11 +560,55 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
 
         executorModuleInfo.addEntity(entityInfo);
-
+        
+        boolean generateDefaultEntityOperations = generationInfo.isGenerateDefaultEntityOperations();
+        boolean defaultGenerateDeleteByIdOperation = generateDefaultEntityOperations;
+        boolean defaultGenerateInsertOperation = generateDefaultEntityOperations;
+        boolean defaultGenerateJustInsertOperation = generateDefaultEntityOperations && generationInfo.isGenerateJustOperationsEnabled();
+        boolean defaultGenerateSaveOperation = generateDefaultEntityOperations && generationInfo.isGenerateSaveOperationsEnabled();
+        boolean defaultGenerateJustSaveOperation = generateDefaultEntityOperations && generationInfo.isGenerateJustOperationsEnabled() && generationInfo.isGenerateSaveOperationsEnabled();
+        boolean defaultGenerateSelectByIdOperation = generateDefaultEntityOperations;
+        boolean defaultGenerateUpdateOperation = generateDefaultEntityOperations;
+        boolean defaultGenerateMergeOperation = generateDefaultEntityOperations && generationInfo.isGenerateMergeOperationsEnabled();
+        
+        boolean generateDeleteByIdOperation;
+        boolean generateInsertOperation;
+        boolean generateJustInsertOperation;
+        boolean generateSaveOperation;
+        boolean generateJustSaveOperation;
+        boolean generateSelectByIdOperation;
+        boolean generateUpdateOperation;
+        boolean generateMergeOperation;
+        
+        Entity entityAnnotation = entityInfo.getAnnotation(Entity.class);
+        if (entityAnnotation == null) {
+            generateDeleteByIdOperation = defaultGenerateDeleteByIdOperation;
+            generateInsertOperation = defaultGenerateInsertOperation;
+            generateJustInsertOperation = defaultGenerateJustInsertOperation;
+            generateSaveOperation = defaultGenerateSaveOperation;
+            generateJustSaveOperation = defaultGenerateJustSaveOperation;
+            generateSelectByIdOperation = defaultGenerateSelectByIdOperation;
+            generateUpdateOperation = defaultGenerateUpdateOperation;
+            generateMergeOperation = defaultGenerateMergeOperation;
+        } else {
+            generateDeleteByIdOperation = entityAnnotation.generateDeleteByIdOperation().solve(defaultGenerateDeleteByIdOperation);
+            generateInsertOperation = entityAnnotation.generateInsertOperation().solve(defaultGenerateInsertOperation);
+            generateJustInsertOperation = entityAnnotation.generateJustInsertOperation().solve(defaultGenerateJustInsertOperation);
+            generateSaveOperation = entityAnnotation.generateSaveOperation().solve(defaultGenerateSaveOperation);
+            generateJustSaveOperation = entityAnnotation.generateJustSaveOperation().solve(defaultGenerateJustSaveOperation);
+            generateSelectByIdOperation = entityAnnotation.generateSelectByIdOperation().solve(defaultGenerateSelectByIdOperation);
+            generateUpdateOperation = entityAnnotation.generateUpdateOperation().solve(defaultGenerateUpdateOperation);
+            generateMergeOperation = entityAnnotation.generateMergeOperation().solve(defaultGenerateMergeOperation);
+        }
+        
+        // Todo: remove this limitation
+        generateInsertOperation = generateInsertOperation || generateSaveOperation || generateJustSaveOperation;
+        generateUpdateOperation = generateUpdateOperation || generateSaveOperation || generateJustSaveOperation;
+        
         /* ****************************************************************************************
          * *** Delete By Id operation
          */
-        {
+        if (generateDeleteByIdOperation) {
             DataTypeInfo deleteOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Delete" + entityDataType.getSimpleName() + "ById");
             OperationInfo deleteOperationInfo = new OperationInfo(deleteOperationName);
@@ -588,7 +632,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         /* ****************************************************************************************
          * *** Insert operation
          */
-        {
+        if (generateInsertOperation) {
             DataTypeInfo insertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Insert" + entityDataType.getSimpleName());
             OperationInfo insertOperationInfo = new OperationInfo(insertOperationName);
@@ -609,88 +653,82 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             generationInfo.addOperation(insertOperationInfo, executorModuleInfo);
         }
 
-        if (generationInfo.isGenerateJustOperationsEnabled()) {
-            /* ****************************************************************************************
-            * *** Just Insert operation
-            */
-            {
-                DataTypeInfo justInsertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                        "JustInsert" + entityDataType.getSimpleName());
-                OperationInfo justInsertOperationInfo = new OperationInfo(justInsertOperationName);
-                justInsertOperationInfo.setReturnDataType(affectedRowCountDataType);
-                justInsertOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
-                justInsertOperationInfo.setOperationKind(OperationKind.JUST_INSERT);
+        /* ****************************************************************************************
+         * *** Just Insert operation
+         */
+        if (generateJustInsertOperation) {
+            DataTypeInfo justInsertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
+                    "JustInsert" + entityDataType.getSimpleName());
+            OperationInfo justInsertOperationInfo = new OperationInfo(justInsertOperationName);
+            justInsertOperationInfo.setReturnDataType(affectedRowCountDataType);
+            justInsertOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
+            justInsertOperationInfo.setOperationKind(OperationKind.JUST_INSERT);
 
-                DataTypeInfo justInsertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                        "JustInsertValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
-                        generationInfo.getSharedPackageDot() + "JustInsertValueOperation");
-                justInsertOperationInterface.getImports().addAll(entityDataType.getImports());
-                justInsertOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-                justInsertOperationInfo.addImplement(justInsertOperationInterface);
+            DataTypeInfo justInsertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "JustInsertValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
+                    generationInfo.getSharedPackageDot() + "JustInsertValueOperation");
+            justInsertOperationInterface.getImports().addAll(entityDataType.getImports());
+            justInsertOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+            justInsertOperationInfo.addImplement(justInsertOperationInterface);
 
-                justInsertOperationInfo.addField(valueInfo);
-                justInsertOperationInfo.setEntity(entityInfo);
-                justInsertOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo);
-            }
+            justInsertOperationInfo.addField(valueInfo);
+            justInsertOperationInfo.setEntity(entityInfo);
+            justInsertOperationInfo.setManually(entityInfo.getCombined().isManually());
+            generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo);
         }
 
-        if (generationInfo.isGenerateSaveOperationsEnabled()) {
-            /* ****************************************************************************************
-            * *** Save operation
-            */
-            {
-                DataTypeInfo saveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                        "Save" + entityDataType.getSimpleName());
-                OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
-                saveOperationInfo.setReturnDataType(idDataType);
-                saveOperationInfo.setRealReturnDataType(realIdDataType);
-                saveOperationInfo.setOperationKind(OperationKind.SAVE);
+        /* ****************************************************************************************
+         * *** Save operation
+         */
+        if (generateSaveOperation) {
+            DataTypeInfo saveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
+                    "Save" + entityDataType.getSimpleName());
+            OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
+            saveOperationInfo.setReturnDataType(idDataType);
+            saveOperationInfo.setRealReturnDataType(realIdDataType);
+            saveOperationInfo.setOperationKind(OperationKind.SAVE);
 
-                DataTypeInfo saveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                        "SaveValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">",
-                        generationInfo.getSharedPackageDot() + "SaveValueOperation");
-                saveOperationInterface.getImports().addAll(entityDataType.getImports());
-                saveOperationInterface.getImports().addAll(idDataType.getImports());
-                saveOperationInfo.addImplement(saveOperationInterface);
+            DataTypeInfo saveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "SaveValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">",
+                    generationInfo.getSharedPackageDot() + "SaveValueOperation");
+            saveOperationInterface.getImports().addAll(entityDataType.getImports());
+            saveOperationInterface.getImports().addAll(idDataType.getImports());
+            saveOperationInfo.addImplement(saveOperationInterface);
 
-                saveOperationInfo.addField(valueInfo);
-                saveOperationInfo.setEntity(entityInfo);
-                saveOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
-            }
+            saveOperationInfo.addField(valueInfo);
+            saveOperationInfo.setEntity(entityInfo);
+            saveOperationInfo.setManually(entityInfo.getCombined().isManually());
+            generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
         }
 
-        if (generationInfo.isGenerateJustOperationsEnabled() && generationInfo.isGenerateSaveOperationsEnabled()) {
-            /* ****************************************************************************************
-            * *** Just Save operation
-            */
-            {
-                DataTypeInfo justSaveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                        "JustSave" + entityDataType.getSimpleName());
-                OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
-                justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
-                justSaveOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
-                justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
+        /* ****************************************************************************************
+         * *** Just Save operation
+         */
+        if (generateJustSaveOperation) {
+            DataTypeInfo justSaveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
+                    "JustSave" + entityDataType.getSimpleName());
+            OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
+            justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
+            justSaveOperationInfo.setRealReturnDataType(realAffectedRowCountDataType);
+            justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
 
-                DataTypeInfo justSaveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                        "JustSaveValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
-                        generationInfo.getSharedPackageDot() + "JustSaveValueOperation");
-                justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
-                justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-                justSaveOperationInfo.addImplement(justSaveOperationInterface);
+            DataTypeInfo justSaveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
+                    "JustSaveValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
+                    generationInfo.getSharedPackageDot() + "JustSaveValueOperation");
+            justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
+            justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+            justSaveOperationInfo.addImplement(justSaveOperationInterface);
 
-                justSaveOperationInfo.addField(valueInfo);
-                justSaveOperationInfo.setEntity(entityInfo);
-                justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
-            }
+            justSaveOperationInfo.addField(valueInfo);
+            justSaveOperationInfo.setEntity(entityInfo);
+            justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
+            generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
         }
 
         /* ****************************************************************************************
          * *** Select By Id operation
          */
-        {
+        if (generateSelectByIdOperation) {
             DataTypeInfo selectOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Select" + entityDataType.getSimpleName() + "ById");
             OperationInfo selectOperationInfo = new OperationInfo(selectOperationName);
@@ -713,7 +751,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         /* ****************************************************************************************
          * *** Update operation
          */
-        {
+        if (generateUpdateOperation) {
             DataTypeInfo updateOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Update" + entityDataType.getSimpleName());
             OperationInfo updateOperationInfo = new OperationInfo(updateOperationName);
@@ -737,7 +775,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         /* ****************************************************************************************
          * *** Merge operation
          */
-        if (generationInfo.isGenerateMergeOperationsEnabled()) {
+        if (generateMergeOperation) {
             DataTypeInfo mergeOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Merge" + entityDataType.getSimpleName());
             OperationInfo mergeOperationInfo = new OperationInfo(mergeOperationName);
