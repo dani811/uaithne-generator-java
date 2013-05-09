@@ -45,6 +45,8 @@ public class GenerationInfo {
     private boolean generateJustOperationsEnabled;
     private boolean generateSaveOperationsEnabled = true;
     private boolean generateMergeOperationsEnabled = true;
+    private boolean generateModuleChainedExecutorsEnabled = true;
+    private boolean generateModuleChainedGroupingExecutorsEnabled = true;
     private boolean useResultInterface;
     private boolean useResultWrapperInterface;
     private HashMap<String, DataTypeInfo> resultTypes = new HashMap<String, DataTypeInfo>();
@@ -257,6 +259,22 @@ public class GenerationInfo {
 
     public void setGenerateMergeOperationsEnabled(boolean generateMergeOperationsEnabled) {
         this.generateMergeOperationsEnabled = generateMergeOperationsEnabled;
+    }
+
+    public boolean isGenerateModuleChainedExecutorsEnabled() {
+        return generateModuleChainedExecutorsEnabled;
+    }
+
+    public void setGenerateModuleChainedExecutorsEnabled(boolean generateModuleChainedExecutorsEnabled) {
+        this.generateModuleChainedExecutorsEnabled = generateModuleChainedExecutorsEnabled;
+    }
+
+    public boolean isGenerateModuleChainedGroupingExecutorsEnabled() {
+        return generateModuleChainedGroupingExecutorsEnabled;
+    }
+
+    public void setGenerateModuleChainedGroupingExecutorsEnabled(boolean generateModuleChainedGroupingExecutorsEnabled) {
+        this.generateModuleChainedGroupingExecutorsEnabled = generateModuleChainedGroupingExecutorsEnabled;
     }
 
     public boolean isUseResultInterface() {

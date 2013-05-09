@@ -799,6 +799,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
     public void generateOperations(RoundEnvironment re, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
+        
+        boolean defaultGenerateModuleChainedExecutorsEnabled = generationInfo.isGenerateModuleChainedExecutorsEnabled();
+        boolean defaultGenerateModuleChainedGroupingExecutorsEnabled = generationInfo.isGenerateModuleChainedGroupingExecutorsEnabled();
+        
+        boolean generateModuleChainedExecutorsEnabled;
+        boolean generateModuleChainedGroupingExecutorsEnabled;
+        
+        OperationModule operationModuleAnnotation = executorModuleInfo.getAnnotation(OperationModule.class);
+        if (operationModuleAnnotation == null) {
+            generateModuleChainedExecutorsEnabled = defaultGenerateModuleChainedExecutorsEnabled;
+            generateModuleChainedGroupingExecutorsEnabled = defaultGenerateModuleChainedGroupingExecutorsEnabled;
+        } else {
+            generateModuleChainedExecutorsEnabled = operationModuleAnnotation.generateChainedExecutor().solve(defaultGenerateModuleChainedExecutorsEnabled);
+            generateModuleChainedGroupingExecutorsEnabled = operationModuleAnnotation.generateChainedGroupingExecutor().solve(defaultGenerateModuleChainedGroupingExecutorsEnabled);
+        }
 
         HashMap<String, Object> data = createDefaultData();
         data.put("operations", executorModuleInfo.getOperations());
@@ -844,7 +859,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generationInfo.isUseResultInterface()) {
             executorModuleImports.add(generationInfo.getSharedPackage() + ".Result");
         }
-        processChainedExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedExecutor", packageName, data, executorModuleInfo.getElement());
+        if (generateModuleChainedExecutorsEnabled) {
+            processChainedExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedExecutor", packageName, data, executorModuleInfo.getElement());
+        }
 
         String executorAbstractName = executorModuleInfo.getNameUpper() + "AbstractExecutor";
         HashSet<String> abstractExecutorImports = new HashSet<String>();
@@ -862,7 +879,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (!inShared) {
             executorModuleImports.add(generationInfo.getSharedPackage() + ".ExecutorGroup");
         }
-        processChainedGroupingExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedGroupingExecutor", packageName, data, executorModuleInfo.getElement());
+        if (generateModuleChainedGroupingExecutorsEnabled) {
+            processChainedGroupingExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedGroupingExecutor", packageName, data, executorModuleInfo.getElement());
+        }
 
         if (executorModuleInfo.getAnnotation(PlainExecutor.class) != null) {
             boolean useConcreteCollections = generationInfo.isUseConcreteCollections();

@@ -32,4 +32,6 @@ public @interface UaithneConfiguration {
     boolean enableMergeOperations() default true;
     boolean useConcreteCollections() default false;
     boolean wrapResult() default false;
+    boolean enableModuleChainedExecutors() default true;
+    boolean enableModuleChainedGroupingExecutors() default true;
 }
