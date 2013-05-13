@@ -24,7 +24,7 @@ import ${import};
 
 public class ManagedSqlSessionExecutorGroup extends ChainedExecutorGroup {
     
-    private SqlSessionProvider provider;
+    private ManagedSqlSessionProvider provider;
 
     @Override
     public ${operationBaseDefinition} RESULT execute(OPERATION operation) {
@@ -42,7 +42,7 @@ public class ManagedSqlSessionExecutorGroup extends ChainedExecutorGroup {
         }
     }
     
-    public ManagedSqlSessionExecutorGroup(ExecutorGroup chainedExecutorGroup, SqlSessionProvider provider) {
+    public ManagedSqlSessionExecutorGroup(ExecutorGroup chainedExecutorGroup, ManagedSqlSessionProvider provider) {
         super(chainedExecutorGroup);
         
         if (provider == null) {

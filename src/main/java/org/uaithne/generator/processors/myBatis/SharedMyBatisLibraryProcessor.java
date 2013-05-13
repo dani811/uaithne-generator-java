@@ -63,6 +63,7 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
 
                 HashMap<String, Object> data = createDefaultData();
                 processSqlSessionProviderClassTemplate(packageName, data, element);
+                processManagedSqlSessionProviderClassTemplate(packageName, data, element);
                 
                 HashSet<String> imports = new HashSet<String>();
                 Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "ChainedExecutorGroup");
@@ -80,6 +81,10 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
 
     public boolean processSqlSessionProviderClassTemplate(String packageName, HashMap<String, Object> data, Element element) {
         return processClassTemplate("shared/myBatis/SqlSessionProvider.ftl", packageName, "SqlSessionProvider", data, element);
+    }
+
+    public boolean processManagedSqlSessionProviderClassTemplate(String packageName, HashMap<String, Object> data, Element element) {
+        return processClassTemplate("shared/myBatis/ManagedSqlSessionProvider.ftl", packageName, "ManagedSqlSessionProvider", data, element);
     }
 
     public boolean processManagedSqlSessionExecutorGroupClassTemplate(String packageName, HashMap<String, Object> data, Element element) {
