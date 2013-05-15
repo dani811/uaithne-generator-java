@@ -120,6 +120,8 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 processRpcSharedRpcClassTemplate("CombinedGwtResult", packageName, data, element);
                 processRpcSharedRpcClassTemplate("RpcRequest", packageName, data, element);
                 processRpcSharedRpcClassTemplate("RpcResponse", packageName, data, element);
+                processRpcSharedRpcClassTemplate("RpcRequest_CustomFieldSerializer", packageName, data, element);
+                processRpcSharedRpcClassTemplate("RpcResponse_CustomFieldSerializer", packageName, data, element);
                 if (generationInfo.isUseResultInterface()) {
                     processRpcSharedRpcClassTemplate("ErrorResult", packageName, data, element);
                 } else if (generationInfo.isUseResultWrapperInterface()) {

@@ -20,22 +20,18 @@ package ${packageName};
 
 import java.io.Serializable;
 import java.util.ArrayList;
-<#if generation.useResultInterface>
-import ${generation.sharedPackageDot}Result;
-<#else>
-import ${generation.sharedPackageDot}ResultWrapper;
-</#if>
-
+import com.google.gwt.user.client.rpc.GwtTransient;
 
 public class RpcResponse implements Serializable {
 
-    private ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> result;
+    @GwtTransient
+    private ArrayList/*<Object>*/ result;
 
-    public ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> getResult() {
+    public ArrayList/*<Object>*/ getResult() {
         return result;
     }
 
-    public void setResult(ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> result) {
+    public void setResult(ArrayList/*<Object>*/ result) {
         this.result = result;
     }
 
@@ -61,7 +57,7 @@ public class RpcResponse implements Serializable {
         return hash;
     }
 
-    public RpcResponse(ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> result) {
+    public RpcResponse(ArrayList/*<Object>*/ result) {
         this.result = result;
     }
 

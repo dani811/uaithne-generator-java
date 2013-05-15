@@ -20,10 +20,12 @@ package ${packageName};
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import com.google.gwt.user.client.rpc.GwtTransient;
 import ${generation.sharedPackageDot}Operation;
 
 public class RpcRequest implements Serializable {
-    
+
+    @GwtTransient
     private ArrayList<Operation> operations;
 
     public ArrayList<Operation> getOperations() {
