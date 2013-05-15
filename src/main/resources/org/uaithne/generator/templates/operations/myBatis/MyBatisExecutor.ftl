@@ -100,7 +100,7 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         List<${operation.realOneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
         ArrayList<${operation.oneItemReturnDataType.simpleName}> result = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp.size());
         for(${operation.realOneItemReturnDataType.simpleName} element : tmp) {
-            list.add(new ${operation.oneItemReturnDataType.simpleName}(element));
+            result.add(new ${operation.oneItemReturnDataType.simpleName}(element));
         }
         <#else>
         List<${operation.realOneItemReturnDataType.simpleName}> result = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
@@ -325,7 +325,12 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         SqlSession session = getSession();
         Integer i = session.insert("${operation.extraInfo.myBatisStatementId}", operation);
         if (i != null && i.intValue() == 1) {
-            return (${operation.realReturnDataType.simpleName}) session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
+            ${operation.realReturnDataType.simpleName} result = session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
+            <#if operation.returnDataType != operation.realReturnDataType>
+            return new ${operation.returnDataType.simpleName}(result);
+            <#else>
+            return result;
+            </#if>
         } else {
             throw new IllegalStateException("Unable to insert. Operation: " + operation + ". Insertion result: " + i);
         }
