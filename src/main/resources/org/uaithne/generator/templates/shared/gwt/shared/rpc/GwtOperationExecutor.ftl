@@ -26,5 +26,5 @@ public interface GwtOperationExecutor extends Executor {
 
     public <RESULT extends CombinedGwtResult, OPERATION extends CombinedGwtOperation<RESULT>> RESULT executeCombinedGwtOperation(OPERATION operation);
 
-    public AwaitResult executeAwaitGwtOperation(AwaitGwtOperation operation);
+    public AwaitGwtResult executeAwaitGwtOperation(AwaitGwtOperation operation);
 }

@@ -24,7 +24,7 @@ import ${generation.sharedPackageDot}Operation;
 import ${generation.sharedPackageDot}ResultWrapper;
 </#if>
 
-public class AwaitGwtOperation implements Operation<AwaitResult> {
+public class AwaitGwtOperation implements Operation<AwaitGwtResult> {
 
     @Override
     public Object getExecutorSelector() {
@@ -32,7 +32,7 @@ public class AwaitGwtOperation implements Operation<AwaitResult> {
     }
 
     @Override
-    public AwaitResult execute(Executor executor) {
+    public AwaitGwtResult execute(Executor executor) {
         if (executor == null) {
             throw new IllegalArgumentException("executor for execute " + this.getClass().getName() + " AwaitGwtOperation cannot be null");
         }
@@ -40,25 +40,25 @@ public class AwaitGwtOperation implements Operation<AwaitResult> {
     }
 
     @Override
-    public AwaitResult executePostOperation(AwaitResult result) {
+    public AwaitGwtResult executePostOperation(AwaitGwtResult result) {
         return result;
     }
 
     <#if generation.useResultWrapperInterface>
     @Override
-    public ResultWrapper<AwaitResult> wrapResult(AwaitResult result) {
+    public ResultWrapper<AwaitGwtResult> wrapResult(AwaitGwtResult result) {
         return new AwaitGwtOperationResultWrapper(result);
     }
 
-    static class AwaitGwtOperationResultWrapper implements ResultWrapper<AwaitResult> {
-        private AwaitResult value;
+    static class AwaitGwtOperationResultWrapper implements ResultWrapper<AwaitGwtResult> {
+        private AwaitGwtResult value;
 
         @Override
-        public AwaitResult getValue() {
+        public AwaitGwtResult getValue() {
             return value;
         }
 
-        public void setValue(AwaitResult value) {
+        public void setValue(AwaitGwtResult value) {
             this.value = value;
         }
 
@@ -89,7 +89,7 @@ public class AwaitGwtOperation implements Operation<AwaitResult> {
             return hash;
         }
 
-        AwaitGwtOperationResultWrapper(AwaitResult value) {
+        AwaitGwtOperationResultWrapper(AwaitGwtResult value) {
             this.value = value;
         }
 

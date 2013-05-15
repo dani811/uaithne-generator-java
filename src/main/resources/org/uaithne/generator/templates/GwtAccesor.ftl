@@ -37,7 +37,7 @@ public class ${className} implements AsyncExecutorGroup {
         chainedExecutorGroup.execute(operation, asyncCallback);
     }
 
-    public void execute(AwaitGwtOperation operation,  AsyncCallback<AwaitResult> asyncCallback) {
+    public void execute(AwaitGwtOperation operation,  AsyncCallback<AwaitGwtResult> asyncCallback) {
         chainedExecutorGroup.execute(operation, asyncCallback);
     }
 

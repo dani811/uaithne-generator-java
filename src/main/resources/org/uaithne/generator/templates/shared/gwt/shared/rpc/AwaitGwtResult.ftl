@@ -24,11 +24,11 @@ import ${generation.sharedPackageDot}Result;
 import java.io.Serializable;
 </#if>
 
-public class AwaitResult implements <#if generation.useResultInterface>Result<#else>Serializable</#if> {
+public class AwaitGwtResult implements <#if generation.useResultInterface>Result<#else>Serializable</#if> {
 
     @Override
     public String toString() {
-        return "AwaitResult{}";
+        return "AwaitGwtResult{}";
     }
 
     @Override
@@ -48,7 +48,7 @@ public class AwaitResult implements <#if generation.useResultInterface>Result<#e
         return hash;
     }
 
-    public AwaitResult() {
+    public AwaitGwtResult() {
     }
 
 }

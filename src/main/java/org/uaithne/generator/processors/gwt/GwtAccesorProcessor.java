@@ -51,7 +51,7 @@ public class GwtAccesorProcessor extends TemplateProcessor {
                 }
                 Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "client.AsyncExecutorGroup");
                 Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.AwaitGwtOperation");
-                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.AwaitResult");
+                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.AwaitGwtResult");
                 Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.CombinedGwtOperation");
                 Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.CombinedGwtResult");
                 Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedPackageDot() + "Operation");

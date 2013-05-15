@@ -19,7 +19,7 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 package ${packageName};
 
 import ${generation.sharedGwtPackageDot}shared.rpc.AwaitGwtOperation;
-import ${generation.sharedGwtPackageDot}shared.rpc.AwaitResult;
+import ${generation.sharedGwtPackageDot}shared.rpc.AwaitGwtResult;
 import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtOperation;
 import ${generation.sharedGwtPackageDot}shared.rpc.GwtOperationExecutor;
 import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtResult;
@@ -48,7 +48,7 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
         }
 
         @Override
-        public AwaitResult executeAwaitGwtOperation(AwaitGwtOperation operation) {
+        public AwaitGwtResult executeAwaitGwtOperation(AwaitGwtOperation operation) {
             return null;
         }
 
