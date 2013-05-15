@@ -18,14 +18,7 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 -->
 package ${packageName};
 
-
-<#if generation.useResultInterface>
-import ${generation.sharedPackageDot}Result;
 import ${generation.sharedGwtPackageDot}shared.rpc.ErrorResult;
-<#else>
-import ${generation.sharedPackageDot}ResultWrapper;
-import ${generation.sharedGwtPackageDot}shared.rpc.ErrorResultWrapper;
-</#if>
 import ${generation.sharedPackageDot}Operation;
 import ${generation.sharedGwtPackageDot}client.AsyncExecutorGroup;
 import ${generation.sharedGwtPackageDot}shared.rpc.ExecutorGroupRpc;
@@ -205,7 +198,7 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
         ArrayList<AsyncCallback> callbacks = rpcResult.getCallbacks();
         RpcResponse response = rpcResult.getResponse();
 
-        ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> result;
+        ArrayList<Object> result;
         if (response != null) {
             result = response.getResult();
         } else {
@@ -244,7 +237,7 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
         for (int i = 0; i < result.size(); i++) {
             Operation operation = operations.get(i);
             AsyncCallback callback = callbacks.get(i);
-            <#if generation.useResultInterface>Result<#else>ResultWrapper</#if> r = result.get(i);
+            Object r = result.get(i);
 
             try {
                 process(operation, r, callback);
@@ -258,11 +251,10 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
         }
     }
 
-    void process(Operation operation, <#if generation.useResultInterface>Result<#else>ResultWrapper</#if> r, AsyncCallback callback) {
+    void process(Operation operation, Object r, AsyncCallback callback) {
         if (callback == null) {
             throw new IllegalStateException("No callback found for the operation: " + operation);
         }
-        <#if generation.useResultInterface>
         if (r instanceof ErrorResult) {
             ErrorResult er = (ErrorResult) r;
             <#if rpcErrorAsString>
@@ -276,24 +268,6 @@ public class RpcAsyncExecutorGroup implements AsyncExecutorGroup {
             }
             callback.onSuccess(r);
         }
-        <#else>
-        if (r == null) {
-            throw new IllegalStateException("Invalid result (null ResultWrapper is not allowed) for the operation: " + operation);
-        }
-        if (r instanceof ErrorResultWrapper) {
-            <#if rpcErrorAsString>
-            callback.onFailure(new RpcException((String)r.getValue()));
-            <#else>
-            callback.onFailure((Throwable)r.getValue());
-            </#if>
-        } else {
-            Object v = r.getValue();
-            if (executePostOperationEnabled) {
-                v = operation.executePostOperation(v);
-            }
-            callback.onSuccess(v);
-        }
-        </#if>
     }
 
     public RpcAsyncExecutorGroup() {

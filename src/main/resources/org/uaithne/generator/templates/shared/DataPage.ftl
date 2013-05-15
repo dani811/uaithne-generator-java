@@ -23,15 +23,13 @@ package ${packageName};
 <#else>
     <#assign listName="List">
 </#if>
-<#if !generation.useResultInterface>
 import java.io.Serializable;
-</#if>
 import java.util.${listName};
 <#list imports as import>
 import ${import};
 </#list>
 
-public class DataPage<${resultBaseDefinition}> implements <#if generation.useResultInterface>Result<#else>Serializable</#if> {
+public class DataPage<${resultBaseDefinition}> implements Serializable {
     private ${pageInfoDataType.simpleName} limit;
     private ${pageInfoDataType.simpleName} offset;
     private ${pageInfoDataType.simpleName} dataCount;

@@ -26,13 +26,7 @@ import ${generation.sharedGwtPackageDot}shared.rpc.CombinedGwtResult;
 import ${generation.sharedGwtPackageDot}shared.rpc.ExecutorGroupRpc;
 import ${generation.sharedGwtPackageDot}shared.rpc.RpcRequest;
 import ${generation.sharedGwtPackageDot}shared.rpc.RpcResponse;
-<#if generation.useResultInterface>
-import ${generation.sharedPackageDot}Result;
 import ${generation.sharedGwtPackageDot}shared.rpc.ErrorResult;
-<#else>
-import ${generation.sharedPackageDot}ResultWrapper;
-import ${generation.sharedGwtPackageDot}shared.rpc.ErrorResultWrapper;
-</#if>
 import ${generation.sharedPackageDot}ExecutorGroup;
 import ${generation.sharedPackageDot}Operation;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -85,15 +79,15 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
         if (request == null) {
             return null;
         }
-        ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> result = execute(request.getOperations());
+        ArrayList<Object> result = execute(request.getOperations());
         return new RpcResponse(result);
     }
 
-    protected ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> execute(ArrayList<Operation> operations) {
+    protected ArrayList<Object> execute(ArrayList<Operation> operations) {
         if (operations == null) {
             return null;
         }
-        ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>> result = new ArrayList<<#if generation.useResultInterface>Result<#else>ResultWrapper</#if>>(operations.size());
+        ArrayList<Object> result = new ArrayList<Object>(operations.size());
 
         for (int i = 0; i < operations.size(); i++) {
             result.add(executeOperation(operations.get(i)));
@@ -102,28 +96,15 @@ public class ExecutorGroupRpcImpl extends RemoteServiceServlet implements Execut
         return result;
     }
 
-    <#if generation.useResultInterface>Result<#else>ResultWrapper</#if> executeOperation(Operation o) {
+    Object executeOperation(Operation o) {
         try {
-            <#if generation.useResultInterface>
             return runOperation(o);
-            <#else>
-            Object result = runOperation(o);
-            return o.wrapResult(result);
-            </#if>
         } catch (Throwable e) {
             <#if rpcErrorAsString>
             String error = transformError(e);
-            <#if generation.useResultInterface>
             return new ErrorResult(error);
             <#else>
-            return new ErrorResultWrapper(error);
-            </#if>
-            <#else>
-            <#if generation.useResultInterface>
             return new ErrorResult(e);
-            <#else>
-            return new ErrorResultWrapper(e);
-            </#if>
             </#if>
         }
     }

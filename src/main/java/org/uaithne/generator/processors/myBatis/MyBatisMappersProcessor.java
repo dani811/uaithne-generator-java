@@ -164,7 +164,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                     writeSelect(writer,
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedName(),
-                            operation.getRealReturnDataType().getQualifiedName(),
+                            operation.getReturnDataType().getQualifiedName(),
                             query);
                 }
             }
@@ -176,7 +176,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                     writeSelect(writer,
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedName(),
-                            operation.getRealOneItemReturnDataType().getQualifiedName(),
+                            operation.getOneItemReturnDataType().getQualifiedName(),
                             query);
                 }
             }
@@ -189,7 +189,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                     writeSelect(writer,
                             operation.getMethodName() + "Page",
                             operation.getDataType().getQualifiedName(),
-                            operation.getRealOneItemReturnDataType().getQualifiedName(),
+                            operation.getOneItemReturnDataType().getQualifiedName(),
                             query);
                 }
                 query = getSelectPageCountQuery(operation);
@@ -217,7 +217,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeSelectWithoutParameter(writer,
                             "lastInsertedIdFor" + entity.getDataType().getSimpleName(),
-                            operation.getRealReturnDataType().getQualifiedName(),
+                            operation.getReturnDataType().getQualifiedName(),
                             query);
                 }
                 query = getEntityInsertQuery(entity);
@@ -244,7 +244,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                     writeSelect(writer,
                             operation.getMethodName(),
                             entity.getFirstIdField().getDataType().getQualifiedName(),
-                            operation.getRealReturnDataType().getQualifiedName(),
+                            operation.getReturnDataType().getQualifiedName(),
                             query);
                 }
             }

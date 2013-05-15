@@ -31,7 +31,7 @@ public @interface UaithneConfiguration {
     boolean enableSaveOperations() default true;
     boolean enableMergeOperations() default true;
     boolean useConcreteCollections() default false;
-    boolean wrapResult() default false;
     boolean enableModuleChainedExecutors() default true;
     boolean enableModuleChainedGroupingExecutors() default true;
+    Class<?> entitiesImplements() default Void.class;
 }

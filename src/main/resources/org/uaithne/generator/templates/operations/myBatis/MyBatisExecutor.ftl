@@ -52,7 +52,7 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         </#if>
         </#list>
 
-        ${operation.realReturnDataType.simpleName} result = (${operation.realReturnDataType.simpleName}) getSession().selectOne("${operation.extraInfo.myBatisStatementId}", operation);
+        ${operation.returnDataType.simpleName} result = (${operation.returnDataType.simpleName}) getSession().selectOne("${operation.extraInfo.myBatisStatementId}", operation);
 
         <#list operation.fields as field>
         <#if field.orderBy>
@@ -60,11 +60,7 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         </#if>
         </#list>
 
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 2>
     @Override
@@ -77,34 +73,24 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         </#list>
 
         <#if generation.useConcreteCollections>
-        List<${operation.realOneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
+        List<${operation.oneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
         ArrayList<${operation.oneItemReturnDataType.simpleName}> result;
         if (tmp == null) {
             result = null;
-        <#if operation.oneItemReturnDataType == operation.realOneItemReturnDataType>
         } else if (tmp instanceof ArrayList) {
-            result = (ArrayList<${operation.realOneItemReturnDataType.simpleName}>) tmp;
-        </#if>
+            result = (ArrayList<${operation.oneItemReturnDataType.simpleName}>) tmp;
         } else {
-            <#if operation.oneItemReturnDataType != operation.realOneItemReturnDataType>
+            <#if operation.oneItemReturnDataType != operation.oneItemReturnDataType>
             result = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp.size());
-            for(${operation.realOneItemReturnDataType.simpleName} element : tmp) {
+            for(${operation.oneItemReturnDataType.simpleName} element : tmp) {
                 result.add(new ${operation.oneItemReturnDataType.simpleName}(element));
             }
             <#else>
-            result = new ArrayList<${operation.realOneItemReturnDataType.simpleName}>(tmp);
+            result = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp);
             </#if>
         }
         <#else>
-        <#if operation.oneItemReturnDataType != operation.realOneItemReturnDataType>
-        List<${operation.realOneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        ArrayList<${operation.oneItemReturnDataType.simpleName}> result = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp.size());
-        for(${operation.realOneItemReturnDataType.simpleName} element : tmp) {
-            result.add(new ${operation.oneItemReturnDataType.simpleName}(element));
-        }
-        <#else>
-        List<${operation.realOneItemReturnDataType.simpleName}> result = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        </#if>
+        List<${operation.oneItemReturnDataType.simpleName}> result = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
         </#if>
 
         <#list operation.fields as field>
@@ -113,11 +99,7 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         </#if>
         </#list>
 
-        <#if generation.useResultInterface>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 3>
     @Override
@@ -140,34 +122,17 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         }
 
         <#if generation.useConcreteCollections>
-        List<${operation.realOneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
+        List<${operation.oneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
         ArrayList<${operation.oneItemReturnDataType.simpleName}> data;
         if (tmp == null) {
             data = null;
-        <#if operation.oneItemReturnDataType == operation.realOneItemReturnDataType>
         } else if (tmp instanceof ArrayList) {
-            data = (ArrayList<${operation.realOneItemReturnDataType.simpleName}>) tmp;
-        </#if>
+            data = (ArrayList<${operation.oneItemReturnDataType.simpleName}>) tmp;
         } else {
-            <#if operation.oneItemReturnDataType != operation.realOneItemReturnDataType>
-            data = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp.size());
-            for(${operation.realOneItemReturnDataType.simpleName} element : tmp) {
-                data.add(new ${operation.oneItemReturnDataType.simpleName}(element));
-            }
-            <#else>
-            data = new ArrayList<${operation.realOneItemReturnDataType.simpleName}>(tmp);
-            </#if>
+            data = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp);
         }
         <#else>
-        <#if operation.oneItemReturnDataType != operation.realOneItemReturnDataType>
-        List<${operation.realOneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        ArrayList<${operation.oneItemReturnDataType.simpleName}> data = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp.size());
-        for(${operation.realOneItemReturnDataType.simpleName} element : tmp) {
-            data.add(new ${operation.oneItemReturnDataType.simpleName}(element));
-        }
-        <#else>
-        List<${operation.realOneItemReturnDataType.simpleName}> data = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        </#if>
+        List<${operation.oneItemReturnDataType.simpleName}> data = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
         </#if>
 
         <#list operation.fields as field>
@@ -185,12 +150,8 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
     <#elseif operation.operationKind.id == 4>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = getSession().delete("${namespace}.${operation.methodName}", operation.getId());
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = getSession().delete("${namespace}.${operation.methodName}", operation.getId());
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 5>
     public ${operation.entity.combined.firstIdField.dataType.simpleName} getLastInsertedIdFor${operation.entity.dataType.simpleName}() {
@@ -202,12 +163,8 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         SqlSession session = getSession();
         Integer i = session.insert("${namespace}.insert${operation.entity.dataType.simpleName}", operation.getValue());
         if (i != null && i.intValue() == 1) {
-            ${operation.realReturnDataType.simpleName} result = (${operation.entity.combined.firstIdField.dataType.simpleName}) session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
-            <#if operation.returnDataType != operation.realReturnDataType>
-            return new ${operation.returnDataType.simpleName}(result);
-            <#else>
+            ${operation.returnDataType.simpleName} result = (${operation.entity.combined.firstIdField.dataType.simpleName}) session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
             return result;
-            </#if>
         } else {
             throw new IllegalStateException("Unable to insert a ${operation.entity.dataType.simpleName}. Operation: " + operation + ". Insertion result: " + i);
         }
@@ -215,12 +172,8 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
     <#elseif operation.operationKind.id == 6>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = getSession().insert("${namespace}.insert${operation.entity.dataType.simpleName}", operation.getValue());
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = getSession().insert("${namespace}.insert${operation.entity.dataType.simpleName}", operation.getValue());
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 7>
     @Override
@@ -230,24 +183,16 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
             SqlSession session = getSession();
             Integer i = session.insert("${namespace}.insert${operation.entity.dataType.simpleName}", value);
             if (i != null && i.intValue() == 1) {
-                ${operation.realReturnDataType.simpleName} result = (${operation.entity.combined.firstIdField.dataType.simpleName}) session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
-                <#if operation.returnDataType != operation.realReturnDataType>
-                return new ${operation.returnDataType.simpleName}(result);
-                <#else>
+                ${operation.returnDataType.simpleName} result = (${operation.entity.combined.firstIdField.dataType.simpleName}) session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
                 return result;
-                </#if>
             } else {
                 throw new IllegalStateException("Unable to insert a ${operation.entity.dataType.simpleName}. Operation: " + operation + ". Insertion result: " + i);
             }
         } else {
             Integer i = getSession().update("${namespace}.update${operation.entity.dataType.simpleName}", value);
             if (i != null && i.intValue() == 1) {
-                ${operation.realReturnDataType.simpleName} result = value.get${operation.entity.combined.firstIdField.capitalizedName}();
-                <#if operation.returnDataType != operation.realReturnDataType>
-                return new ${operation.returnDataType.simpleName}(result);
-                <#else>
+                ${operation.returnDataType.simpleName} result = value.get${operation.entity.combined.firstIdField.capitalizedName}();
                 return result;
-                </#if>
             } else {
                 throw new IllegalStateException("Unable to update a ${operation.entity.dataType.simpleName}. Operation: " + operation + ". Update result: " + i);
             }
@@ -257,67 +202,43 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
         ${operation.entity.dataType.simpleName} value = operation.getValue();
-        ${operation.realReturnDataType.simpleName} result;
+        ${operation.returnDataType.simpleName} result;
         if (value.get${operation.entity.combined.firstIdField.capitalizedName}() == null) {
             result = getSession().insert("${namespace}.insert${operation.entity.dataType.simpleName}", value);
         } else {
             result = getSession().update("${namespace}.update${operation.entity.dataType.simpleName}", value);
         }
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 9>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = (${operation.realReturnDataType.simpleName}) getSession().selectOne("${namespace}.${operation.methodName}", operation.getId());
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = (${operation.returnDataType.simpleName}) getSession().selectOne("${namespace}.${operation.methodName}", operation.getId());
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 10>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = getSession().update("${namespace}.update${operation.entity.dataType.simpleName}", operation.getValue());
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = getSession().update("${namespace}.update${operation.entity.dataType.simpleName}", operation.getValue());
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 11>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = getSession().insert("${operation.extraInfo.myBatisStatementId}", operation);
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = getSession().insert("${operation.extraInfo.myBatisStatementId}", operation);
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 12>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = getSession().update("${operation.extraInfo.myBatisStatementId}", operation);
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = getSession().update("${operation.extraInfo.myBatisStatementId}", operation);
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 13>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = getSession().delete("${operation.extraInfo.myBatisStatementId}", operation);
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = getSession().delete("${operation.extraInfo.myBatisStatementId}", operation);
         return result;
-        </#if>
     }
     <#elseif operation.operationKind.id == 14>
     @Override
@@ -325,12 +246,8 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         SqlSession session = getSession();
         Integer i = session.insert("${operation.extraInfo.myBatisStatementId}", operation);
         if (i != null && i.intValue() == 1) {
-            ${operation.realReturnDataType.simpleName} result = session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
-            <#if operation.returnDataType != operation.realReturnDataType>
-            return new ${operation.returnDataType.simpleName}(result);
-            <#else>
+            ${operation.returnDataType.simpleName} result = session.selectOne("${namespace}.lastInsertedIdFor${operation.entity.dataType.simpleName}");
             return result;
-            </#if>
         } else {
             throw new IllegalStateException("Unable to insert. Operation: " + operation + ". Insertion result: " + i);
         }
@@ -338,12 +255,8 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
     <#elseif operation.operationKind.id == 15>
     @Override
     public ${operation.returnDataType.simpleName} ${operation.methodName}(${operation.dataType.simpleName} operation) {
-        ${operation.realReturnDataType.simpleName} result = getSession().update("${namespace}.merge${operation.entity.dataType.simpleName}", operation.getValue());
-        <#if operation.returnDataType != operation.realReturnDataType>
-        return new ${operation.returnDataType.simpleName}(result);
-        <#else>
+        ${operation.returnDataType.simpleName} result = getSession().update("${namespace}.merge${operation.entity.dataType.simpleName}", operation.getValue());
         return result;
-        </#if>
     }
     </#if>
 

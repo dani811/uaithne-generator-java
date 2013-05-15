@@ -26,9 +26,13 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.SharedLibrary;
 import org.uaithne.annotations.UaithneConfiguration;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
+import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -47,9 +51,25 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setGenerateSaveOperationsEnabled(configuration.enableSaveOperations());
                     generationInfo.setGenerateMergeOperationsEnabled(configuration.enableMergeOperations());
                     generationInfo.setUseConcreteCollections(configuration.useConcreteCollections());
-                    generationInfo.setUseResultWrapperInterface(configuration.wrapResult());
                     generationInfo.setGenerateModuleChainedExecutorsEnabled(configuration.enableModuleChainedExecutors());
                     generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(configuration.enableModuleChainedGroupingExecutors());
+                    
+                    DataTypeInfo entitiesImplementsDataType;
+                    try {
+                        entitiesImplementsDataType = NamesGenerator.createResultDataType(configuration.entitiesImplements());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        entitiesImplementsDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    
+                    if (entitiesImplementsDataType == null) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the interface that the entities implements", element);
+                        return true;
+                    }
+                    
+                    if (!"java.lang.Void".equals(entitiesImplementsDataType.getQualifiedName())) {
+                        generationInfo.setEntitiesImplements(entitiesImplementsDataType);
+                    }
                 }
             }
         }

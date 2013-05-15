@@ -24,7 +24,4 @@ public interface Operation<${resultBaseDefinition}> extends Serializable {
     public Object getExecutorSelector();
     public RESULT execute(Executor executor);
     public RESULT executePostOperation(RESULT result);
-    <#if generation.useResultWrapperInterface>
-    public ResultWrapper<RESULT> wrapResult(RESULT result);
-    </#if>
 }

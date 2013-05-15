@@ -1,5 +1,4 @@
 org.uaithne.generator.processors.UaithneConfigurationProcessor
-org.uaithne.generator.processors.UseResultInterfaceProcessor
 org.uaithne.generator.processors.SharedLibraryProcessor
 org.uaithne.generator.processors.EntityProcessor
 org.uaithne.generator.processors.ExecutorModuleProcessor

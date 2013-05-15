@@ -18,14 +18,14 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 -->
 package ${packageName};
 
-import ${generation.sharedPackageDot}Result;
+import java.io.Serializable;
 <#if rpcErrorAsString>
 <#assign errorDataType="String">
 <#else>
 <#assign errorDataType="Throwable">
 </#if>
 
-public class ErrorResult implements Result {
+public class ErrorResult implements Serializable {
     
     private ${errorDataType} error;
 

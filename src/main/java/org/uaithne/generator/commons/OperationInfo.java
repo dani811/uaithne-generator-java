@@ -31,9 +31,7 @@ public class OperationInfo {
     private String[] documentation;
     private String realName;
     private DataTypeInfo returnDataType;
-    private DataTypeInfo realReturnDataType;
     private DataTypeInfo oneItemReturnDataType;
-    private DataTypeInfo realOneItemReturnDataType;
     private String methodName;
     private DataTypeInfo dataType;
     private DataTypeInfo extend;
@@ -75,18 +73,6 @@ public class OperationInfo {
         this.returnDataType = returnDataType;
     }
 
-    public DataTypeInfo getRealReturnDataType() {
-        if (realReturnDataType != null) {
-            return realReturnDataType;
-        } else {
-            return returnDataType;
-        }
-    }
-
-    public void setRealReturnDataType(DataTypeInfo returnDataType) {
-        this.realReturnDataType = returnDataType;
-    }
-
     public DataTypeInfo getOneItemReturnDataType() {
         return oneItemReturnDataType;
     }
@@ -94,26 +80,10 @@ public class OperationInfo {
     public void setOneItemReturnDataType(DataTypeInfo oneItemReturnDataType) {
         this.oneItemReturnDataType = oneItemReturnDataType;
     }
-
-    public DataTypeInfo getRealOneItemReturnDataType() {
-        if (realOneItemReturnDataType != null) {
-            return realOneItemReturnDataType;
-        } else {
-            return oneItemReturnDataType;
-        }
-    }
-
-    public void setRealOneItemReturnDataType(DataTypeInfo realOneItemReturnDataType) {
-        this.realOneItemReturnDataType = realOneItemReturnDataType;
-    }
     
     public DataTypeInfo getResultItem() {
-        if (realOneItemReturnDataType != null) {
-            return realOneItemReturnDataType;
-        } else if (oneItemReturnDataType != null) {
+        if (oneItemReturnDataType != null) {
             return oneItemReturnDataType;
-        } else if (realReturnDataType != null) {
-            return realReturnDataType;
         } else {
             return returnDataType;
         }

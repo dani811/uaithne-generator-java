@@ -62,14 +62,8 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 
                 HashMap<String, Object> data = createDefaultData();
                 
-                if (generationInfo.isUseResultInterface()) {
-                    processClassTemplate("DataList", packageName, data, element);
-                }
                 processClassTemplate("Executor", packageName, data, element);
                 processClassTemplate("Operation", packageName, data, element);
-                if (generationInfo.isUseResultWrapperInterface()) {
-                    processClassTemplate("ResultWrapper", packageName, data, element);
-                }
                 processClassTemplate("ExecutorGroup", packageName, data, element);
                 processClassTemplate("DeleteByIdOperation", packageName, data, element);
                 processClassTemplate("InsertValueOperation", packageName, data, element);

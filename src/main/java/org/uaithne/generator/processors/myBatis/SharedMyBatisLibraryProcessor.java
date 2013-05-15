@@ -69,9 +69,6 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "ChainedExecutorGroup");
                 Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "ExecutorGroup");
                 Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "Operation");
-                if (generationInfo.isUseResultInterface()) {
-                    Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "Result");
-                }
                 data.put("imports", imports);
                 processManagedSqlSessionExecutorGroupClassTemplate(packageName, data, element);
             }

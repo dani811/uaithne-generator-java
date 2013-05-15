@@ -47,10 +47,6 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 TypeElement classElement = (TypeElement) element;
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
 
-                if (!generationInfo.isUseResultWrapperInterface() && !generationInfo.isUseResultInterface()) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "You must enable wrapResult or useResultInterface for generate the gwt clases", element);
-                }
-
                 boolean rpcErrorAsString = false;
                 SharedGwtLibrary sl = element.getAnnotation(SharedGwtLibrary.class);
                 if (sl != null) {
@@ -73,9 +69,6 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 HashSet<String> imports = new HashSet<String>();
                 Utils.appendImportIfRequired(imports, packageName, "com.google.gwt.user.client.rpc.AsyncCallback");
                 Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "Operation");
-                if (generationInfo.isUseResultInterface()) {
-                    Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "Result");
-                }
                 data.put("imports", imports);
                 data.put("rpcErrorAsString", rpcErrorAsString);
 
@@ -122,11 +115,7 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 processRpcSharedRpcClassTemplate("RpcResponse", packageName, data, element);
                 processRpcSharedRpcClassTemplate("RpcRequest_CustomFieldSerializer", packageName, data, element);
                 processRpcSharedRpcClassTemplate("RpcResponse_CustomFieldSerializer", packageName, data, element);
-                if (generationInfo.isUseResultInterface()) {
-                    processRpcSharedRpcClassTemplate("ErrorResult", packageName, data, element);
-                } else if (generationInfo.isUseResultWrapperInterface()) {
-                    processRpcSharedRpcClassTemplate("ErrorResultWrapper", packageName, data, element);
-                }
+                processRpcSharedRpcClassTemplate("ErrorResult", packageName, data, element);
                 if (rpcErrorAsString) {
                     processRpcSharedRpcClassTemplate("RpcException", packageName, data, element);
                 }

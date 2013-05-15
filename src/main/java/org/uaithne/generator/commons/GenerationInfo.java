@@ -47,11 +47,10 @@ public class GenerationInfo {
     private boolean generateMergeOperationsEnabled = true;
     private boolean generateModuleChainedExecutorsEnabled = true;
     private boolean generateModuleChainedGroupingExecutorsEnabled = true;
-    private boolean useResultInterface;
-    private boolean useResultWrapperInterface;
     private HashMap<String, DataTypeInfo> resultTypes = new HashMap<String, DataTypeInfo>();
     private boolean useConcreteCollections;
     private boolean includeGwtClientExecutors;
+    private DataTypeInfo entitiesImplements;
 
     public String getSharedPackage() {
         return sharedPackage;
@@ -276,22 +275,6 @@ public class GenerationInfo {
     public void setGenerateModuleChainedGroupingExecutorsEnabled(boolean generateModuleChainedGroupingExecutorsEnabled) {
         this.generateModuleChainedGroupingExecutorsEnabled = generateModuleChainedGroupingExecutorsEnabled;
     }
-
-    public boolean isUseResultInterface() {
-        return useResultInterface;
-    }
-
-    public void setUseResultInterface(boolean useResultInterface) {
-        this.useResultInterface = useResultInterface;
-    }
-
-    public boolean isUseResultWrapperInterface() {
-        return useResultWrapperInterface;
-    }
-
-    public void setUseResultWrapperInterface(boolean useResultWrapperInterface) {
-        this.useResultWrapperInterface = useResultWrapperInterface;
-    }
     
     public HashMap<String, DataTypeInfo> getResultTypes() {
         return resultTypes;
@@ -319,6 +302,14 @@ public class GenerationInfo {
 
     public void setIncludeGwtClientExecutors(boolean includeGwtClientExecutors) {
         this.includeGwtClientExecutors = includeGwtClientExecutors;
+    }
+
+    public DataTypeInfo getEntitiesImplements() {
+        return entitiesImplements;
+    }
+
+    public void setEntitiesImplements(DataTypeInfo entitiesImplements) {
+        this.entitiesImplements = entitiesImplements;
     }
     
 }

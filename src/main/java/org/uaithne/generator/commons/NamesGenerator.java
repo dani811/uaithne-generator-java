@@ -278,9 +278,7 @@ public class NamesGenerator {
         if ("org.uaithne.mirror.OtherOperation".equals(className)) {
             return new DataTypeInfo(gi.getSharedPackage(), "Operation");
         } if ("org.uaithne.mirror.DataListMirror".equals(className)) {
-            if (gi.isUseResultInterface()) {
-                return new DataTypeInfo(gi.getSharedPackage(), "DataList");
-            } else if (gi.isUseConcreteCollections()) {
+            if (gi.isUseConcreteCollections()) {
                 return new DataTypeInfo("java.util.ArrayList");
             } else {
                 return new DataTypeInfo("java.util.List");

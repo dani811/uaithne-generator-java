@@ -25,13 +25,13 @@ import com.google.gwt.user.client.rpc.GwtTransient;
 public class RpcResponse implements Serializable {
 
     @GwtTransient
-    private ArrayList/*<Object>*/ result;
+    private ArrayList<Object> result;
 
-    public ArrayList/*<Object>*/ getResult() {
+    public ArrayList<Object> getResult() {
         return result;
     }
 
-    public void setResult(ArrayList/*<Object>*/ result) {
+    public void setResult(ArrayList<Object> result) {
         this.result = result;
     }
 
@@ -57,7 +57,7 @@ public class RpcResponse implements Serializable {
         return hash;
     }
 
-    public RpcResponse(ArrayList/*<Object>*/ result) {
+    public RpcResponse(ArrayList<Object> result) {
         this.result = result;
     }
 

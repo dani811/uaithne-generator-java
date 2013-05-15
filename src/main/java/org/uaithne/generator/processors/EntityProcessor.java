@@ -68,9 +68,8 @@ public class EntityProcessor extends TemplateProcessor {
         entityInfo.addImplement(DataTypeInfo.SERIALIZABLE_DATA_TYPE);
         
         GenerationInfo generationInfo = getGenerationInfo();
-        if (generationInfo.isUseResultInterface()) {
-            DataTypeInfo implement = new DataTypeInfo(generationInfo.getSharedPackage(), "Result");
-            entityInfo.addImplement(implement);
+        if (generationInfo.getEntitiesImplements() != null) {
+            entityInfo.addImplement(generationInfo.getEntitiesImplements());
         }
         
         for (Element enclosedElement : classElement.getEnclosedElements()) {

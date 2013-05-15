@@ -20,9 +20,6 @@ package ${packageName};
 
 import ${generation.sharedPackageDot}Executor;
 import ${generation.sharedPackageDot}Operation;
-<#if generation.useResultWrapperInterface>
-import ${generation.sharedPackageDot}ResultWrapper;
-</#if>
 
 public class AwaitGwtOperation implements Operation<AwaitGwtResult> {
 
@@ -44,57 +41,4 @@ public class AwaitGwtOperation implements Operation<AwaitGwtResult> {
         return result;
     }
 
-    <#if generation.useResultWrapperInterface>
-    @Override
-    public ResultWrapper<AwaitGwtResult> wrapResult(AwaitGwtResult result) {
-        return new AwaitGwtOperationResultWrapper(result);
-    }
-
-    static class AwaitGwtOperationResultWrapper implements ResultWrapper<AwaitGwtResult> {
-        private AwaitGwtResult value;
-
-        @Override
-        public AwaitGwtResult getValue() {
-            return value;
-        }
-
-        public void setValue(AwaitGwtResult value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return "AwaitGwtOperationResultWrapper{value=" + value + "}";
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final AwaitGwtOperationResultWrapper other = (AwaitGwtOperationResultWrapper) obj;
-            if ((this.value == null) ? (other.value != null) : !this.value.equals(other.value)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 17 * hash + (this.value != null ? this.value.hashCode() : 0);
-            return hash;
-        }
-
-        AwaitGwtOperationResultWrapper(AwaitGwtResult value) {
-            this.value = value;
-        }
-
-        public AwaitGwtOperationResultWrapper() {
-        }
-    }
-    </#if>
 }

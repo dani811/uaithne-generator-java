@@ -18,13 +18,9 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 -->
 package ${packageName};
 
-<#if generation.useResultInterface>
-import ${generation.sharedPackageDot}Result;
-<#else>
 import java.io.Serializable;
-</#if>
 
-public class AwaitGwtResult implements <#if generation.useResultInterface>Result<#else>Serializable</#if> {
+public class AwaitGwtResult implements Serializable {
 
     @Override
     public String toString() {

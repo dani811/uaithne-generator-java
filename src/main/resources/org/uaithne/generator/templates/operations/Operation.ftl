@@ -190,24 +190,12 @@ public class ${className}<#if operation.extend??> extends ${operation.extend.sim
     public ${operation.returnDataType.simpleName} executePostOperation(${operation.returnDataType.simpleName} result) {
         <#if operation.operationKind.id == 5>
         if (value != null) {
-            <#if generation.useResultInterface>
-            if (result != null) {
-                value.set${operation.entity.combined.firstIdField.capitalizedName}(result.getValue());
-            }
-            <#else>
             value.set${operation.entity.combined.firstIdField.capitalizedName}(result);
-            </#if>
         }
         return result;
         <#elseif operation.operationKind.id == 7>
         if (value != null) {
-            <#if generation.useResultInterface>
-            if (result != null) {
-                value.set${operation.entity.combined.firstIdField.capitalizedName}(result.getValue());
-            }
-            <#else>
             value.set${operation.entity.combined.firstIdField.capitalizedName}(result);
-            </#if>
         }
         return result;
         <#else>
@@ -219,61 +207,6 @@ public class ${className}<#if operation.extend??> extends ${operation.extend.sim
     public Object getExecutorSelector() {
         return ${executorName}.SELECTOR;
     }
-    
-    <#if generation.useResultWrapperInterface>
-    static class ${className}ResultWrapper implements ResultWrapper<${operation.returnDataType.simpleName}> {
-        private ${operation.returnDataType.simpleName} value;
-        
-        @Override
-        public ${operation.returnDataType.simpleName} getValue() {
-            return value;
-        }
-
-        public void setValue(${operation.returnDataType.simpleName} value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return "${className}ResultWrapper{value=" + value + "}";
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final ${className}ResultWrapper other = (${className}ResultWrapper) obj;
-            if ((this.value == null) ? (other.value != null) : !this.value.equals(other.value)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = ${operation.generateFistPrimeNumberForHashCode()};
-            <#assign prime=operation.generateSecondPrimeNumberForHashCode()>
-            hash = ${prime} * hash + (this.value != null ? this.value.hashCode() : 0);
-            return hash;
-        }
-
-        ${className}ResultWrapper(${operation.returnDataType.simpleName} value) {
-            this.value = value;
-        }
-
-        public ${className}ResultWrapper() {
-        }
-    }
-
-    @Override
-    public ResultWrapper<${operation.returnDataType.simpleName}> wrapResult(${operation.returnDataType.simpleName} result) {
-        return new ${className}ResultWrapper(result);
-    }
-    </#if>
 
     <#if operation.operationKind.id != 3>
     <#if operation.mandatoryFields?size &gt; 0>
