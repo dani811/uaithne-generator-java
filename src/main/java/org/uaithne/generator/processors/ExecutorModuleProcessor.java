@@ -285,14 +285,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             entityInfo = relatedEntityInfo;
         }
 
-        DataTypeInfo listResultDataType;
-        if (generationInfo.isUseConcreteCollections()) {
-            listResultDataType = new DataTypeInfo("java.util", "ArrayList<" + resultDataType.getSimpleName() + ">", "java.util.ArrayList");
-        } else {
-            listResultDataType = new DataTypeInfo("java.util", "List<" + resultDataType.getSimpleName() + ">", "java.util.List");
-        }
-        listResultDataType.getImports().addAll(resultDataType.getImports());
-
+        DataTypeInfo listResultDataType = DataTypeInfo.LIST_DATA_TYPE.of(resultDataType);
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(listResultDataType);
         operationInfo.setOneItemReturnDataType(resultDataType);
@@ -839,20 +832,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
 
         if (executorModuleInfo.getAnnotation(PlainExecutor.class) != null) {
-            boolean useConcreteCollections = generationInfo.isUseConcreteCollections();
             String plainExecutorName = executorModuleInfo.getNameUpper() + "PlainExecutor";
             HashSet<String> plainExecutorImports = new HashSet<String>();
-            executorModuleInfo.appendPlainDefinitionImports(packageName, plainExecutorImports, useConcreteCollections);
+            executorModuleInfo.appendPlainDefinitionImports(packageName, plainExecutorImports);
             data.put("imports", plainExecutorImports);
-            if (useConcreteCollections) {
-                data.put("listName", "ArrayList");
-            } else {
-                data.put("listName", "List");
-            }
             processPlainExecutorTemplate(plainExecutorName, packageName, data, executorModuleInfo.getElement());
 
             HashSet<String> plainExecutorImplementationImports = new HashSet<String>();
-            executorModuleInfo.appendPlainImplementationImports(packageName, plainExecutorImplementationImports, useConcreteCollections);
+            executorModuleInfo.appendPlainImplementationImports(packageName, plainExecutorImplementationImports);
             data.put("imports", plainExecutorImplementationImports);
             data.put("plainExecutorName", plainExecutorName);
             data.put("executorInterfaceName", executorName);

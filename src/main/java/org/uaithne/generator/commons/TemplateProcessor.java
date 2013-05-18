@@ -67,13 +67,8 @@ public abstract class TemplateProcessor extends AbstractProcessor {
         result.put("generation", generationInfo);
         result.put("resultBaseDefinition", "RESULT");
         result.put("operationBaseDefinition", "<RESULT, OPERATION extends Operation<RESULT>>");
-        if (generationInfo.isUseConcreteCollections()) {
-            result.put("listName", "ArrayList");
-            result.put("listQualifiedName", "java.util.ArrayList");
-        } else {
-            result.put("listName", "List");
-            result.put("listQualifiedName", "java.util.List");
-        }
+        result.put("listName", DataTypeInfo.LIST_DATA_TYPE.getSimpleName());
+        result.put("listQualifiedName", DataTypeInfo.LIST_DATA_TYPE.getQualifiedName());
         return result;
     }
     

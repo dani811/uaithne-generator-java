@@ -18,13 +18,8 @@ along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
 -->
 package ${packageName};
 
-<#if generation.useConcreteCollections>
-    <#assign listName="ArrayList">
-<#else>
-    <#assign listName="List">
-</#if>
 import java.io.Serializable;
-import java.util.${listName};
+import ${listQualifiedName};
 <#list imports as import>
 import ${import};
 </#list>

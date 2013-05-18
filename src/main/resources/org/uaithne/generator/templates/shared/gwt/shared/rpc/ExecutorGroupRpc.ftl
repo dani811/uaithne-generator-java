@@ -20,7 +20,6 @@ package ${packageName};
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
-import java.util.ArrayList;
 
 @RemoteServiceRelativePath("rpc/executorGroupRpc")
 public interface ExecutorGroupRpc extends RemoteService {

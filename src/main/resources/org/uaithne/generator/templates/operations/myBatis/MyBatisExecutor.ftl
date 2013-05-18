@@ -72,26 +72,7 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
         </#if>
         </#list>
 
-        <#if generation.useConcreteCollections>
-        List<${operation.oneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        ArrayList<${operation.oneItemReturnDataType.simpleName}> result;
-        if (tmp == null) {
-            result = null;
-        } else if (tmp instanceof ArrayList) {
-            result = (ArrayList<${operation.oneItemReturnDataType.simpleName}>) tmp;
-        } else {
-            <#if operation.oneItemReturnDataType != operation.oneItemReturnDataType>
-            result = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp.size());
-            for(${operation.oneItemReturnDataType.simpleName} element : tmp) {
-                result.add(new ${operation.oneItemReturnDataType.simpleName}(element));
-            }
-            <#else>
-            result = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp);
-            </#if>
-        }
-        <#else>
         List<${operation.oneItemReturnDataType.simpleName}> result = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        </#if>
 
         <#list operation.fields as field>
         <#if field.orderBy>
@@ -121,19 +102,7 @@ public<#if abstractClass> abstract</#if> class ${className} extends ${abstractEx
             return result;
         }
 
-        <#if generation.useConcreteCollections>
-        List<${operation.oneItemReturnDataType.simpleName}> tmp = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        ArrayList<${operation.oneItemReturnDataType.simpleName}> data;
-        if (tmp == null) {
-            data = null;
-        } else if (tmp instanceof ArrayList) {
-            data = (ArrayList<${operation.oneItemReturnDataType.simpleName}>) tmp;
-        } else {
-            data = new ArrayList<${operation.oneItemReturnDataType.simpleName}>(tmp);
-        }
-        <#else>
         List<${operation.oneItemReturnDataType.simpleName}> data = getSession().selectList("${operation.extraInfo.myBatisStatementId}", operation);
-        </#if>
 
         <#list operation.fields as field>
         <#if field.orderBy>

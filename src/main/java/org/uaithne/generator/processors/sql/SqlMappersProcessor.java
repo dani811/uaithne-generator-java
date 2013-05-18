@@ -494,7 +494,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
         }
 
         if (comparator == null) {
-            if ("java.util.List".equals(field.getDataType().getQualifiedName()) || "java.util.ArrayList".equals(field.getDataType().getQualifiedName())) {
+            if (field.getDataType().isList()) {
                 comparator = Comparator.IN;
             } else {
                 comparator = Comparator.EQUAL;

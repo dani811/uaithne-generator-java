@@ -50,7 +50,6 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setGenerateJustOperationsEnabled(configuration.enableJustOperations());
                     generationInfo.setGenerateSaveOperationsEnabled(configuration.enableSaveOperations());
                     generationInfo.setGenerateMergeOperationsEnabled(configuration.enableMergeOperations());
-                    generationInfo.setUseConcreteCollections(configuration.useConcreteCollections());
                     generationInfo.setGenerateModuleChainedExecutorsEnabled(configuration.enableModuleChainedExecutors());
                     generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(configuration.enableModuleChainedGroupingExecutors());
                     

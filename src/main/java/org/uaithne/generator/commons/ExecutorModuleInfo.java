@@ -125,28 +125,20 @@ public class ExecutorModuleInfo {
         }
     }
     
-    public void appendPlainDefinitionImports(String currentPackage, HashSet<String> imports, boolean useConcreteCollections) {
+    public void appendPlainDefinitionImports(String currentPackage, HashSet<String> imports) {
         for (OperationInfo operation : operations) {
             operation.appendPlainDefinitionImports(currentPackage, imports);
         }
         DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(currentPackage, imports);
-        if (useConcreteCollections) {
-            Utils.appendImportIfRequired(imports, currentPackage, "java.util.ArrayList");
-        } else {
-            Utils.appendImportIfRequired(imports, currentPackage, "java.util.List");
-        }
+        DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
     }
     
-    public void appendPlainImplementationImports(String currentPackage, HashSet<String> imports, boolean useConcreteCollections) {
+    public void appendPlainImplementationImports(String currentPackage, HashSet<String> imports) {
         for (OperationInfo operation : operations) {
             operation.appendPlainImplementationImports(currentPackage, imports);
         }
         DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(currentPackage, imports);
-        if (useConcreteCollections) {
-            Utils.appendImportIfRequired(imports, currentPackage, "java.util.ArrayList");
-        } else {
-            Utils.appendImportIfRequired(imports, currentPackage, "java.util.List");
-        }
+        DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
     }
     
     public TypeElement getElement() {

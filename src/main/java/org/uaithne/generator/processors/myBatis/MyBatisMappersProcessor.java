@@ -100,13 +100,13 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
 
         HashSet<String> imports = new HashSet<String>();
         DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(packageName, imports);
-        Utils.appendImportIfRequired(imports, packageName, "java.util.List");
+        DataTypeInfo.LIST_DATA_TYPE.appendImports(packageName, imports);
         Utils.appendImportIfRequired(imports, packageName, module.getOperationPackage() + "." + module.getNameUpper() + "AbstractExecutor");
         module.appendNotMannuallyDefinitionImports(packageName, imports);
         if (module.isContainOrderedOperations()) {
-            Utils.appendImportIfRequired(imports, packageName, "java.util.HashMap");
+            DataTypeInfo.HASHMAP_DATA_TYPE.appendImports(packageName, imports);
         }
-        Utils.appendImportIfRequired(imports, packageName, "java.util.ArrayList");
+        DataTypeInfo.ARRAYLIST_DATA_TYPE.appendImports(packageName, imports);
 
         boolean generateGetSession = generationInfo.getSharedMyBatisPackage() != null;
         if (generateGetSession) {

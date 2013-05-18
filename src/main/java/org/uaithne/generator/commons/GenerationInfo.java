@@ -48,7 +48,6 @@ public class GenerationInfo {
     private boolean generateModuleChainedExecutorsEnabled = true;
     private boolean generateModuleChainedGroupingExecutorsEnabled = true;
     private HashMap<String, DataTypeInfo> resultTypes = new HashMap<String, DataTypeInfo>();
-    private boolean useConcreteCollections;
     private boolean includeGwtClientExecutors;
     private DataTypeInfo entitiesImplements;
 
@@ -286,14 +285,6 @@ public class GenerationInfo {
     
     public void addResultType(DataTypeInfo result, DataTypeInfo resultWrapper) {
         resultTypes.put(result.getQualifiedName(), resultWrapper);
-    }
-
-    public boolean isUseConcreteCollections() {
-        return useConcreteCollections;
-    }
-
-    public void setUseConcreteCollections(boolean useConcreteCollections) {
-        this.useConcreteCollections = useConcreteCollections;
     }
 
     public boolean isIncludeGwtClientExecutors() {
