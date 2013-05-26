@@ -18,8 +18,6 @@
  */
 package org.uaithne.generator.processors;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
@@ -35,6 +33,14 @@ import javax.tools.Diagnostic;
 import org.uaithne.annotations.*;
 import org.uaithne.annotations.executors.PlainExecutor;
 import org.uaithne.generator.commons.*;
+import org.uaithne.generator.templates.operations.AbstractExecutorTemplate;
+import org.uaithne.generator.templates.operations.ChainedExecutorTemplate;
+import org.uaithne.generator.templates.operations.ChainedGroupingExecutorTemplate;
+import org.uaithne.generator.templates.operations.ExecutorTemplate;
+import org.uaithne.generator.templates.operations.OperationTemplate;
+import org.uaithne.generator.templates.operations.PlainChainedExecutorTemplate;
+import org.uaithne.generator.templates.operations.PlainChainedGroupingExecutorTemplate;
+import org.uaithne.generator.templates.operations.PlainExecutorTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.OperationModule")
@@ -525,7 +531,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         DataTypeInfo affectedRowCountDataType = DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE;
 
         executorModuleInfo.addEntity(entityInfo);
-        
+
         boolean generateDefaultEntityOperations = generationInfo.isGenerateDefaultEntityOperations();
         boolean defaultGenerateDeleteByIdOperation = generateDefaultEntityOperations;
         boolean defaultGenerateInsertOperation = generateDefaultEntityOperations;
@@ -535,7 +541,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         boolean defaultGenerateSelectByIdOperation = generateDefaultEntityOperations;
         boolean defaultGenerateUpdateOperation = generateDefaultEntityOperations;
         boolean defaultGenerateMergeOperation = generateDefaultEntityOperations && generationInfo.isGenerateMergeOperationsEnabled();
-        
+
         boolean generateDeleteByIdOperation;
         boolean generateInsertOperation;
         boolean generateJustInsertOperation;
@@ -544,7 +550,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         boolean generateSelectByIdOperation;
         boolean generateUpdateOperation;
         boolean generateMergeOperation;
-        
+
         Entity entityAnnotation = entityInfo.getAnnotation(Entity.class);
         if (entityAnnotation == null) {
             generateDeleteByIdOperation = defaultGenerateDeleteByIdOperation;
@@ -565,11 +571,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             generateUpdateOperation = entityAnnotation.generateUpdateOperation().solve(defaultGenerateUpdateOperation);
             generateMergeOperation = entityAnnotation.generateMergeOperation().solve(defaultGenerateMergeOperation);
         }
-        
+
         // Todo: remove this limitation
         generateInsertOperation = generateInsertOperation || generateSaveOperation || generateJustSaveOperation;
         generateUpdateOperation = generateUpdateOperation || generateSaveOperation || generateJustSaveOperation;
-        
+
         /* ****************************************************************************************
          * *** Delete By Id operation
          */
@@ -756,13 +762,13 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
     public void generateOperations(RoundEnvironment re, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
-        
+
         boolean defaultGenerateModuleChainedExecutorsEnabled = generationInfo.isGenerateModuleChainedExecutorsEnabled();
         boolean defaultGenerateModuleChainedGroupingExecutorsEnabled = generationInfo.isGenerateModuleChainedGroupingExecutorsEnabled();
-        
+
         boolean generateModuleChainedExecutorsEnabled;
         boolean generateModuleChainedGroupingExecutorsEnabled;
-        
+
         OperationModule operationModuleAnnotation = executorModuleInfo.getAnnotation(OperationModule.class);
         if (operationModuleAnnotation == null) {
             generateModuleChainedExecutorsEnabled = defaultGenerateModuleChainedExecutorsEnabled;
@@ -771,121 +777,29 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             generateModuleChainedExecutorsEnabled = operationModuleAnnotation.generateChainedExecutor().solve(defaultGenerateModuleChainedExecutorsEnabled);
             generateModuleChainedGroupingExecutorsEnabled = operationModuleAnnotation.generateChainedGroupingExecutor().solve(defaultGenerateModuleChainedGroupingExecutorsEnabled);
         }
-
-        HashMap<String, Object> data = createDefaultData();
-        data.put("operations", executorModuleInfo.getOperations());
-
         String packageName = executorModuleInfo.getOperationPackage();
-        boolean inShared = generationInfo.getSharedPackage().equals(packageName);
-        HashSet<String> executorModuleImports = new HashSet<String>();
-        executorModuleInfo.appendDefinitionImports(packageName, executorModuleImports);
+        String sharedPackageDot = generationInfo.getSharedPackageDot();
 
-        HashSet<String> executorImports = new HashSet<String>();
-        executorImports.addAll(executorModuleImports);
-        if (!inShared) {
-            executorImports.add(generationInfo.getSharedPackage() + ".Executor");
-        }
-        data.put("imports", executorImports);
-        data.put("documentation", executorModuleInfo.getDocumentation());
-
-        String executorName = executorModuleInfo.getNameUpper() + "Executor";
-        processExecutorTemplate(executorName, executorModuleInfo.getOperationPackage(), data, executorModuleInfo.getElement());
+        processClassTemplate(new ExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
 
         for (OperationInfo operation : executorModuleInfo.getOperations()) {
-            HashSet<String> operationImports = new HashSet<String>();
-            operation.appendFullImports(packageName, operationImports);
-            if (!inShared) {
-                operationImports.add(generationInfo.getSharedPackage() + ".Executor");
-            }
-
-            HashMap<String, Object> dataOperation = createDefaultData();
-            dataOperation.put("executorName", executorName);
-            dataOperation.put("operation", operation);
-            dataOperation.put("imports", operationImports);
-            processOperationTemplate(operation, packageName, dataOperation, operation.getElement());
+            processClassTemplate(new OperationTemplate(operation, packageName, executorModuleInfo.getExecutorInterfaceName(), sharedPackageDot), operation.getElement());
         }
 
-        data.put("executorInterfaceName", executorName);
-        data.put("imports", executorModuleImports);
-        if (!inShared) {
-            executorModuleImports.add(generationInfo.getSharedPackage() + ".Operation");
-        }
         if (generateModuleChainedExecutorsEnabled) {
-            processChainedExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedExecutor", packageName, data, executorModuleInfo.getElement());
+            processClassTemplate(new ChainedExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
         }
 
-        String executorAbstractName = executorModuleInfo.getNameUpper() + "AbstractExecutor";
-        HashSet<String> abstractExecutorImports = new HashSet<String>();
-        if (!inShared) {
-            abstractExecutorImports.add(generationInfo.getSharedPackage() + ".Operation");
-        }
-        data.put("imports", abstractExecutorImports);
-        data.put("executorAbstractName", executorAbstractName);
-        processAbstractExecutorTemplate(executorAbstractName, packageName, data, executorModuleInfo.getElement());
+        processClassTemplate(new AbstractExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
 
-        data.put("imports", executorModuleImports);
-        if (!inShared) {
-            executorModuleImports.add(generationInfo.getSharedPackage() + ".ExecutorGroup");
-        }
         if (generateModuleChainedGroupingExecutorsEnabled) {
-            processChainedGroupingExecutorTemplate(executorModuleInfo.getNameUpper() + "ChainedGroupingExecutor", packageName, data, executorModuleInfo.getElement());
+            processClassTemplate(new ChainedGroupingExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
         }
 
         if (executorModuleInfo.getAnnotation(PlainExecutor.class) != null) {
-            String plainExecutorName = executorModuleInfo.getNameUpper() + "PlainExecutor";
-            HashSet<String> plainExecutorImports = new HashSet<String>();
-            executorModuleInfo.appendPlainDefinitionImports(packageName, plainExecutorImports);
-            data.put("imports", plainExecutorImports);
-            processPlainExecutorTemplate(plainExecutorName, packageName, data, executorModuleInfo.getElement());
-
-            HashSet<String> plainExecutorImplementationImports = new HashSet<String>();
-            executorModuleInfo.appendPlainImplementationImports(packageName, plainExecutorImplementationImports);
-            data.put("imports", plainExecutorImplementationImports);
-            data.put("plainExecutorName", plainExecutorName);
-            data.put("executorInterfaceName", executorName);
-            processPlainChainedExecutorTemplate(executorModuleInfo.getNameUpper() + "PlainChainedExecutor", packageName, data, executorModuleInfo.getElement());
-
-            if (!inShared) {
-                plainExecutorImplementationImports.add(generationInfo.getSharedPackage() + ".ExecutorGroup");
-            }
-            processPlainChainedGroupingExecutorTemplate(executorModuleInfo.getNameUpper() + "PlainChainedGroupingExecutor", packageName, data, executorModuleInfo.getElement());
+            processClassTemplate(new PlainExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            processClassTemplate(new PlainChainedExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            processClassTemplate(new PlainChainedGroupingExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
         }
     }
-
-    public boolean processExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/Executor.ftl", packageName, className, data, element);
-    }
-
-    public boolean processOperationTemplate(OperationInfo operation, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/Operation.ftl", packageName, operation.getDataType().getSimpleName(), data, element);
-    }
-
-    public boolean processChainedExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/ChainedExecutor.ftl", packageName, className, data, element);
-    }
-
-    public boolean processChainedGroupingExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/ChainedGroupingExecutor.ftl", packageName, className, data, element);
-    }
-
-    public boolean processAbstractExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/AbstractExecutor.ftl", packageName, className, data, element);
-    }
-
-    public boolean processPlainExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/PlainExecutor.ftl", packageName, className, data, element);
-    }
-
-    public boolean processPlainChainedExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/PlainChainedExecutor.ftl", packageName, className, data, element);
-    }
-
-    public boolean processPlainChainedGroupingExecutorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("operations/PlainChainedGroupingExecutor.ftl", packageName, className, data, element);
-    }
-
-    public boolean processResultTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("Result.ftl", packageName, className, data, element);
-    }
-
 }

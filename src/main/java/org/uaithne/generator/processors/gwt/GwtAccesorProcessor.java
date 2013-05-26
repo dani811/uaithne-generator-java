@@ -18,8 +18,6 @@
  */
 package org.uaithne.generator.processors.gwt;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -30,6 +28,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.gwt.GwtAccesor;
 import org.uaithne.generator.commons.*;
+import org.uaithne.generator.templates.GwtAccesorTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.gwt.GwtAccesor")
@@ -43,28 +42,15 @@ public class GwtAccesorProcessor extends TemplateProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
                 DataTypeInfo dataType = NamesGenerator.createGwtAccesorDataType(classElement);
-
-                HashMap<String, Object> data = createDefaultData();
-                HashSet<String> imports = new HashSet<String>();
-                for (OperationInfo op : generationInfo.getOperations()) {
-                    op.appendReturnImports(dataType.getPackageName(), imports);
-                }
-                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "client.AsyncExecutorGroup");
-                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.AwaitGwtOperation");
-                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.AwaitGwtResult");
-                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.CombinedGwtOperation");
-                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedGwtPackageDot() + "shared.rpc.CombinedGwtResult");
-                Utils.appendImportIfRequired(imports, dataType.getPackageName(), generationInfo.getSharedPackageDot() + "Operation");
-                data.put("imports", imports);
-                data.put("operations", generationInfo.getOperations());
-
-                processGwtAccesorTemplate(dataType.getSimpleName(), dataType.getPackageName(), data, element);
+                GwtAccesorTemplate template = new GwtAccesorTemplate(
+                        generationInfo.getOperations(),
+                        dataType.getPackageName(),
+                        dataType.getSimpleName(),
+                        generationInfo.getSharedPackageDot(),
+                        generationInfo.getSharedGwtPackageDot());
+                processClassTemplate(template, element);
             }
         }
         return true; // no further processing of this annotation type
-    }
-
-    public boolean processGwtAccesorTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("GwtAccesor.ftl", packageName, className, data, element);
     }
 }

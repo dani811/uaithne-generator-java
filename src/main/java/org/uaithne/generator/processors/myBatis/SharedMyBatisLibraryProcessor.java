@@ -18,8 +18,6 @@
  */
 package org.uaithne.generator.processors.myBatis;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -32,7 +30,9 @@ import org.uaithne.annotations.myBatis.SharedMyBatisLibrary;
 import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
-import org.uaithne.generator.commons.Utils;
+import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionProviderTemplate;
+import org.uaithne.generator.templates.shared.myBatis.SqlSessionProviderTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.myBatis.SharedMyBatisLibrary")
@@ -46,7 +46,6 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 TypeElement classElement = (TypeElement) element;
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
 
-                boolean rpcErrorAsString = false;
                 SharedMyBatisLibrary sl = element.getAnnotation(SharedMyBatisLibrary.class);
                 if (sl != null) {
                     if (packageName == null || packageName.isEmpty()) {
@@ -61,31 +60,12 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                     }
                 }
 
-                HashMap<String, Object> data = createDefaultData();
-                processSqlSessionProviderClassTemplate(packageName, data, element);
-                processManagedSqlSessionProviderClassTemplate(packageName, data, element);
-                
-                HashSet<String> imports = new HashSet<String>();
-                Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "ChainedExecutorGroup");
-                Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "ExecutorGroup");
-                Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "Operation");
-                data.put("imports", imports);
-                processManagedSqlSessionExecutorGroupClassTemplate(packageName, data, element);
+                processClassTemplate(new SqlSessionProviderTemplate(packageName), element);
+                processClassTemplate(new ManagedSqlSessionProviderTemplate(packageName), element);
+                processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName, generationInfo.getSharedPackageDot()), element);
             }
         }
         return true; // no further processing of this annotation type
-    }
-
-    public boolean processSqlSessionProviderClassTemplate(String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/myBatis/SqlSessionProvider.ftl", packageName, "SqlSessionProvider", data, element);
-    }
-
-    public boolean processManagedSqlSessionProviderClassTemplate(String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/myBatis/ManagedSqlSessionProvider.ftl", packageName, "ManagedSqlSessionProvider", data, element);
-    }
-
-    public boolean processManagedSqlSessionExecutorGroupClassTemplate(String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/myBatis/ManagedSqlSessionExecutorGroup.ftl", packageName, "ManagedSqlSessionExecutorGroup", data, element);
     }
 
 }

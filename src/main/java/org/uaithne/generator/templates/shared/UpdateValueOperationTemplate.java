@@ -16,8 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.templates;
+package org.uaithne.generator.templates.shared;
 
-public class TemplateLoader {
+import java.io.IOException;
+import org.uaithne.generator.templates.ClassTemplate;
+
+public class UpdateValueOperationTemplate extends ClassTemplate {
+
+    public UpdateValueOperationTemplate(String packageName) {
+        setPackageName(packageName);
+        setClassName("UpdateValueOperation");
+        addGenericArgument("VALUE");
+        addGenericArgument(RESULT_BASE_DEFINITION);
+        addImplement("Operation<RESULT>");
+        setInterface(true);
+    }
+    
+    @Override
+    protected void writeContent(Appendable appender) throws IOException {
+        appender.append("    public VALUE getValue();\n"
+                + "    public void setValue(VALUE value);");
+    }
     
 }

@@ -18,92 +18,50 @@
  */
 package org.uaithne.generator.commons;
 
-import freemarker.cache.TemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import org.uaithne.generator.templates.ClassTemplate;
 
 public abstract class TemplateProcessor extends AbstractProcessor {
+
     private static GenerationInfo GENERATION_INFO = new GenerationInfo();
-    
+
     public static GenerationInfo getGenerationInfo() {
         return GENERATION_INFO;
     }
-    
-    Configuration configuration;
 
-    @Override
-    public synchronized void init(ProcessingEnvironment pe) {
-        super.init(pe);
-        configuration = new Configuration();
-        configuration.setClassForTemplateLoading(TemplateLoader.class, "/org/uaithne/generator/templates/");
-        configuration.setObjectWrapper(new DefaultObjectWrapper());
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-    
-    public Template getTemplate(String templateName) throws IOException {
-        return configuration.getTemplate(templateName);
-    }
-    
-    public HashMap<String, Object> createDefaultData() {
-        GenerationInfo generationInfo = getGenerationInfo();
-        HashMap<String,Object> result = new HashMap<String, Object>();
-        result.put("system", System.getProperties());
-        result.put("env", System.getenv());
-        result.put("generation", generationInfo);
-        result.put("resultBaseDefinition", "RESULT");
-        result.put("operationBaseDefinition", "<RESULT, OPERATION extends Operation<RESULT>>");
-        result.put("listName", DataTypeInfo.LIST_DATA_TYPE.getSimpleName());
-        result.put("listQualifiedName", DataTypeInfo.LIST_DATA_TYPE.getQualifiedName());
-        return result;
-    }
-    
-    public boolean processClassTemplate(String templateName, String packageName, String className, HashMap<String, Object> data, Element element) {
+    public boolean processClassTemplate(ClassTemplate template, Element element) {
         Writer writer = null;
         try {
-            data.put("className", className);
-            data.put("packageName", packageName);
-            Template template = getTemplate(templateName);
             JavaFileObject jfo;
+            String packageName = template.getPackageName();
             if (packageName == null || packageName.isEmpty()) {
-                jfo = processingEnv.getFiler().createSourceFile(className, element);
+                jfo = processingEnv.getFiler().createSourceFile(template.getClassName(), element);
             } else {
-                jfo = processingEnv.getFiler().createSourceFile(packageName + "." + className, element);
+                jfo = processingEnv.getFiler().createSourceFile(packageName + "." + template.getClassName(), element);
             }
             writer = jfo.openWriter();
-            template.process(data, writer);
+            template.write(writer);
             writer.flush();
         } catch (IOException ex) {
-            String errorMessage = "An IOException has been ocurred processing the template: '" + templateName + "'. Package name: '" + packageName + "'. Class name: '" + className + "'. Message: " + ex.toString();
+            String errorMessage = "An IOException has been ocurred processing the template: '" + template.getClass().getSimpleName() + "'. Package name: '" + template.getPackageName() + "'. Class name: '" + template.getClassName() + "'. Message: " + ex.toString();
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, errorMessage, element);
             Logger.getLogger(TemplateProcessor.class.getName()).log(Level.SEVERE, errorMessage, ex);
             return false;
-        } catch (TemplateException ex) {
-            String errorMessage = "An TemplateEception has been ocurred processing the template: '" + templateName + "'. Package name: '" + packageName + "'. Class name: '" + className + "'. Message: " + ex.toString();
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, errorMessage, element);
-            Logger.getLogger(TemplateProcessor.class.getName()).log(Level.SEVERE, errorMessage, ex);
-            return false;
+
         } finally {
             try {
                 if (writer != null) {
                     writer.close();
                 }
             } catch (IOException ex) {
-                String errorMessage = "An IOException has been ocurred closing the writer for processing the template: '" + templateName + "'. Package name: '" + packageName + "'. Class name: '" + className + "'. Message: " + ex.toString();
+                String errorMessage = "An IOException has been ocurred closing the writer for processing the template: '" + template.getClass().getSimpleName() + "'. Package name: '" + template.getPackageName() + "'. Class name: '" + template.getClassName() + "'. Message: " + ex.toString();
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, errorMessage, element);
                 Logger.getLogger(TemplateProcessor.class.getName()).log(Level.SEVERE, errorMessage, ex);
                 return false;
@@ -111,5 +69,4 @@ public abstract class TemplateProcessor extends AbstractProcessor {
         }
         return true;
     }
-    
 }

@@ -18,8 +18,6 @@
  */
 package org.uaithne.generator.processors.gwt;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -28,12 +26,37 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
 import org.uaithne.annotations.gwt.SharedGwtLibrary;
 import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
-import org.uaithne.generator.commons.Utils;
+import org.uaithne.generator.templates.shared.gwt.client.AsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.AsyncExecutorTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.ChainedAsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.ChainedAsyncExecutorTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.ChainedGroupingAsyncExecutorTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.ChainedMappedAsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.LoggedAsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.MappedAsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.PostOperationAsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.PostOperationAsyncExecutorTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.SyncAsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.SyncAsyncExecutorTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.rpc.RpcAsyncExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.rpc.RpcResultTemplate;
+import org.uaithne.generator.templates.shared.gwt.server.rpc.ExecutorGroupRpcImplTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.AwaitGwtOperationTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.AwaitGwtResultTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.CombinedGwtOperationTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.CombinedGwtResultTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.ExecutorGroupRpcAsyncTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.ExecutorGroupRpcTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.GwtOperationExecutorTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.RpcExceptionTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.RpcRequestTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.RpcRequest_CustomFieldSerializerTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.RpcResponseTemplate;
+import org.uaithne.generator.templates.shared.gwt.shared.rpc.RpcResponse_CustomFieldSerializerTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.gwt.SharedGwtLibrary")
@@ -47,11 +70,9 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                 TypeElement classElement = (TypeElement) element;
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
 
-                boolean rpcErrorAsString = false;
                 SharedGwtLibrary sl = element.getAnnotation(SharedGwtLibrary.class);
                 if (sl != null) {
                     generationInfo.setIncludeGwtClientExecutors(sl.includeClientExecutors());
-                    rpcErrorAsString = sl.rpcErrorAsString();
                     if (packageName == null || packageName.isEmpty()) {
                         generationInfo.setSharedGwtPackage("");
                         generationInfo.setSharedGwtPackageDot("");
@@ -64,83 +85,47 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                     }
                 }
 
-                packageName = generationInfo.getSharedGwtPackageDot() + "client";
-                HashMap<String, Object> data = createDefaultData();
-                HashSet<String> imports = new HashSet<String>();
-                Utils.appendImportIfRequired(imports, packageName, "com.google.gwt.user.client.rpc.AsyncCallback");
-                Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "Operation");
-                data.put("imports", imports);
-                data.put("rpcErrorAsString", rpcErrorAsString);
-
                 boolean includeGwtClientExecutors = generationInfo.isIncludeGwtClientExecutors();
 
-                processRpcClientClassTemplate("AsyncExecutorGroup", packageName, data, element);
+                String sharedPackageDot = generationInfo.getSharedPackageDot();
+                String sharedGwtPackageDot = generationInfo.getSharedGwtPackageDot();
+                
+                processClassTemplate(new AsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
 
                 if (includeGwtClientExecutors) {
-                    processRpcClientClassTemplate("AsyncExecutor", packageName, data, element);
-                    processRpcClientClassTemplate("ChainedAsyncExecutor", packageName, data, element);
-                    processRpcClientClassTemplate("ChainedAsyncExecutorGroup", packageName, data, element);
-                    processRpcClientClassTemplate("ChainedGroupingAsyncExecutor", packageName, data, element);
-                    processRpcClientClassTemplate("ChainedMappedAsyncExecutorGroup", packageName, data, element);
-                    processRpcClientClassTemplate("MappedAsyncExecutorGroup", packageName, data, element);
-                    processRpcClientClassTemplate("PostOperationAsyncExecutor", packageName, data, element);
-                    processRpcClientClassTemplate("PostOperationAsyncExecutorGroup", packageName, data, element);
-                    processRpcClientClassTemplate("LoggedAsyncExecutorGroup", packageName, data, element);
-
-                    HashSet<String> imports2 = new HashSet<String>(imports);
-                    Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedPackageDot() + "Executor");
-                    processRpcClientClassTemplate("SyncAsyncExecutor", packageName, data, element);
-
-                    Utils.appendImportIfRequired(imports2, packageName, generationInfo.getSharedPackageDot() + "ExecutorGroup");
-                    data.put("imports", imports2);
-                    processRpcClientClassTemplate("SyncAsyncExecutorGroup", packageName, data, element);
+                    processClassTemplate(new AsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new ChainedAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new ChainedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new ChainedGroupingAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new ChainedMappedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new MappedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new PostOperationAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new PostOperationAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new LoggedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new SyncAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new SyncAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
                 }
 
-                data = createDefaultData();
-                data.put("rpcErrorAsString", rpcErrorAsString);
+                processClassTemplate(new RpcResultTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new RpcAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
 
-                packageName = generationInfo.getSharedGwtPackageDot() + "client.rpc";
-                processRpcClientRpcClassTemplate("RpcResult", packageName, data, element);
-                processRpcClientRpcClassTemplate("RpcAsyncExecutorGroup", packageName, data, element);
+                processClassTemplate(new ExecutorGroupRpcTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new ExecutorGroupRpcAsyncTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new CombinedGwtOperationTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new AwaitGwtResultTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new AwaitGwtOperationTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new GwtOperationExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new CombinedGwtResultTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new RpcRequestTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new RpcResponseTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new RpcRequest_CustomFieldSerializerTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new RpcResponse_CustomFieldSerializerTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new RpcExceptionTemplate(sharedGwtPackageDot, sharedPackageDot), element);
 
-                packageName = generationInfo.getSharedGwtPackageDot() + "shared.rpc";
-                processRpcSharedRpcClassTemplate("ExecutorGroupRpc", packageName, data, element);
-                processRpcSharedRpcClassTemplate("ExecutorGroupRpcAsync", packageName, data, element);
-                processRpcSharedRpcClassTemplate("CombinedGwtOperation", packageName, data, element);
-                processRpcSharedRpcClassTemplate("AwaitGwtResult", packageName, data, element);
-                processRpcSharedRpcClassTemplate("AwaitGwtOperation", packageName, data, element);
-                processRpcSharedRpcClassTemplate("GwtOperationExecutor", packageName, data, element);
-                processRpcSharedRpcClassTemplate("CombinedGwtResult", packageName, data, element);
-                processRpcSharedRpcClassTemplate("RpcRequest", packageName, data, element);
-                processRpcSharedRpcClassTemplate("RpcResponse", packageName, data, element);
-                processRpcSharedRpcClassTemplate("RpcRequest_CustomFieldSerializer", packageName, data, element);
-                processRpcSharedRpcClassTemplate("RpcResponse_CustomFieldSerializer", packageName, data, element);
-                processRpcSharedRpcClassTemplate("ErrorResult", packageName, data, element);
-                if (rpcErrorAsString) {
-                    processRpcSharedRpcClassTemplate("RpcException", packageName, data, element);
-                }
-
-                packageName = generationInfo.getSharedGwtPackageDot() + "server.rpc";
-                processRpcServerRpcClassTemplate("ExecutorGroupRpcImpl", packageName, data, element);
+                processClassTemplate(new ExecutorGroupRpcImplTemplate(sharedGwtPackageDot, sharedPackageDot), element);
             }
         }
         return true; // no further processing of this annotation type
-    }
-
-    public boolean processRpcClientClassTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/gwt/client/" + className + ".ftl", packageName, className, data, element);
-    }
-
-    public boolean processRpcClientRpcClassTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/gwt/client/rpc/" + className + ".ftl", packageName, className, data, element);
-    }
-
-    public boolean processRpcSharedRpcClassTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/gwt/shared/rpc/" + className + ".ftl", packageName, className, data, element);
-    }
-
-    public boolean processRpcServerRpcClassTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/gwt/server/rpc/" + className + ".ftl", packageName, className, data, element);
     }
 
 }

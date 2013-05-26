@@ -16,16 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.annotations.gwt;
+package org.uaithne.generator.templates.shared;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.IOException;
+import org.uaithne.generator.templates.ClassTemplate;
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-public @interface SharedGwtLibrary {
-    boolean generate() default true;
-    boolean includeClientExecutors() default true;
+public class InsertValueOperationTemplate extends ClassTemplate {
+
+    public InsertValueOperationTemplate(String packageName) {
+        setPackageName(packageName);
+        setClassName("InsertValueOperation");
+        addGenericArgument("VALUE");
+        addGenericArgument(RESULT_BASE_DEFINITION);
+        addImplement("Operation<RESULT>");
+        setInterface(true);
+    }
+    
+    @Override
+    protected void writeContent(Appendable appender) throws IOException {
+        appender.append("    public VALUE getValue();\n"
+                + "    public void setValue(VALUE value);");
+    }
+    
 }

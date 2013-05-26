@@ -283,10 +283,12 @@ public class OperationInfo {
         return dataType.generateSecondPrimeNumberForHashCode();
     }
     
+    @Deprecated
     public DataTypeInfo getPageInfoDataType() {
         return DataTypeInfo.PAGE_INFO_DATA_TYPE;
     }
     
+    @Deprecated
     public DataTypeInfo getPageOnlyDataCountDataType() {
         return DataTypeInfo.PAGE_ONLY_DATA_COUNT_DATA_TYPE;
     }

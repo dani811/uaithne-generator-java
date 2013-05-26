@@ -31,6 +31,7 @@ public class ExecutorModuleInfo {
     private String nameLower;
     private String operationPackage;
     private String realName;
+    private String executorInterfaceName;
     private HashMap<String, OperationInfo> operationsByRealName = new HashMap<String, OperationInfo>();
     private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
     private HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>(); 
@@ -86,6 +87,13 @@ public class ExecutorModuleInfo {
 
     public void setRealName(String realName) {
         this.realName = realName;
+    }
+
+    public String getExecutorInterfaceName() {
+        if (executorInterfaceName == null) {
+            executorInterfaceName = getNameUpper() + "Executor";
+        }
+        return executorInterfaceName;
     }
     
     public void addOperation(OperationInfo operation) {

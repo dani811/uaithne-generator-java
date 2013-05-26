@@ -18,8 +18,6 @@
  */
 package org.uaithne.generator.processors;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -29,10 +27,30 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.SharedLibrary;
-import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
+import org.uaithne.generator.templates.shared.ChainedExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.ChainedExecutorTemplate;
+import org.uaithne.generator.templates.shared.ChainedGroupingExecutorTemplate;
+import org.uaithne.generator.templates.shared.ChainedMappedExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.DataPageRequestTemplate;
+import org.uaithne.generator.templates.shared.DataPageTemplate;
+import org.uaithne.generator.templates.shared.DeleteByIdOperationTemplate;
+import org.uaithne.generator.templates.shared.ExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.ExecutorTemplate;
+import org.uaithne.generator.templates.shared.InsertValueOperationTemplate;
+import org.uaithne.generator.templates.shared.JustInsertValueOperationTemplate;
+import org.uaithne.generator.templates.shared.JustSaveValueOperationTemplate;
+import org.uaithne.generator.templates.shared.LoggedExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.MappedExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.MergeValueOperationTemplate;
+import org.uaithne.generator.templates.shared.OperationTemplate;
+import org.uaithne.generator.templates.shared.PostOperationExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.PostOperationExecutorTemplate;
+import org.uaithne.generator.templates.shared.SaveValueOperationTemplate;
+import org.uaithne.generator.templates.shared.SelectByIdOperationTemplate;
+import org.uaithne.generator.templates.shared.UpdateValueOperationTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.SharedLibrary")
@@ -45,7 +63,7 @@ public class SharedLibraryProcessor extends TemplateProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
-                
+
                 SharedLibrary sl = element.getAnnotation(SharedLibrary.class);
                 if (sl != null) {
                     if (packageName == null || packageName.isEmpty()) {
@@ -59,52 +77,38 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                         continue;
                     }
                 }
-                
-                HashMap<String, Object> data = createDefaultData();
-                
-                processClassTemplate("Executor", packageName, data, element);
-                processClassTemplate("Operation", packageName, data, element);
-                processClassTemplate("ExecutorGroup", packageName, data, element);
-                processClassTemplate("DeleteByIdOperation", packageName, data, element);
-                processClassTemplate("InsertValueOperation", packageName, data, element);
+
+                processClassTemplate(new ExecutorTemplate(packageName), element);
+                processClassTemplate(new OperationTemplate(packageName), element);
+                processClassTemplate(new ExecutorGroupTemplate(packageName), element);
+                processClassTemplate(new DeleteByIdOperationTemplate(packageName), element);
+                processClassTemplate(new InsertValueOperationTemplate(packageName), element);
                 if (generationInfo.isGenerateJustOperationsEnabled()) {
-                    processClassTemplate("JustInsertValueOperation", packageName, data, element);
+                    processClassTemplate(new JustInsertValueOperationTemplate(packageName), element);
                     if (generationInfo.isGenerateSaveOperationsEnabled()) {
-                        processClassTemplate("JustSaveValueOperation", packageName, data, element);
+                        processClassTemplate(new JustSaveValueOperationTemplate(packageName), element);
                     }
                 }
                 if (generationInfo.isGenerateSaveOperationsEnabled()) {
-                    processClassTemplate("SaveValueOperation", packageName, data, element);
+                    processClassTemplate(new SaveValueOperationTemplate(packageName), element);
                 }
                 if (generationInfo.isGenerateMergeOperationsEnabled()) {
-                    processClassTemplate("MergeValueOperation", packageName, data, element);
+                    processClassTemplate(new MergeValueOperationTemplate(packageName), element);
                 }
-                processClassTemplate("SelectByIdOperation", packageName, data, element);
-                processClassTemplate("UpdateValueOperation", packageName, data, element);
-                processClassTemplate("ChainedMappedExecutorGroup", packageName, data, element);
-                processClassTemplate("LoggedExecutorGroup", packageName, data, element);
-                processClassTemplate("MappedExecutorGroup", packageName, data, element);
-                processClassTemplate("ChainedExecutor", packageName, data, element);
-                processClassTemplate("ChainedExecutorGroup", packageName, data, element);
-                processClassTemplate("ChainedGroupingExecutor", packageName, data, element);
-                processClassTemplate("PostOperationExecutor", packageName, data, element);
-                processClassTemplate("PostOperationExecutorGroup", packageName, data, element);
-                
-                HashSet<String> imports = new HashSet<String>();
-                DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(packageName, imports);
-                data.put("imports", imports);
-                data.put("pageInfoDataType", DataTypeInfo.PAGE_INFO_DATA_TYPE);
-                processClassTemplate("DataPage", packageName, data, element);
-                DataTypeInfo.PAGE_ONLY_DATA_COUNT_DATA_TYPE.appendImports(packageName, imports);
-                data.put("pageOnlyDataCountDataType", DataTypeInfo.PAGE_ONLY_DATA_COUNT_DATA_TYPE);
-                processClassTemplate("DataPageRequest", packageName, data, element);
+                processClassTemplate(new SelectByIdOperationTemplate(packageName), element);
+                processClassTemplate(new UpdateValueOperationTemplate(packageName), element);
+                processClassTemplate(new ChainedMappedExecutorGroupTemplate(packageName), element);
+                processClassTemplate(new LoggedExecutorGroupTemplate(packageName), element);
+                processClassTemplate(new MappedExecutorGroupTemplate(packageName), element);
+                processClassTemplate(new ChainedExecutorTemplate(packageName), element);
+                processClassTemplate(new ChainedExecutorGroupTemplate(packageName), element);
+                processClassTemplate(new ChainedGroupingExecutorTemplate(packageName), element);
+                processClassTemplate(new PostOperationExecutorTemplate(packageName), element);
+                processClassTemplate(new PostOperationExecutorGroupTemplate(packageName), element);
+                processClassTemplate(new DataPageTemplate(packageName), element);
+                processClassTemplate(new DataPageRequestTemplate(packageName), element);
             }
         }
         return true; // no further processing of this annotation type
     }
-    
-    public boolean processClassTemplate(String className, String packageName, HashMap<String, Object> data, Element element) {
-        return processClassTemplate("shared/" + className + ".ftl", packageName, className, data, element);
-    }
-    
 }

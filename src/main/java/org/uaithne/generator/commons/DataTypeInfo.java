@@ -19,6 +19,7 @@
 package org.uaithne.generator.commons;
 
 import java.util.HashSet;
+import org.uaithne.generator.templates.ClassTemplate;
 
 public class DataTypeInfo {
     private HashSet<String> imports = new HashSet<String>(0);
@@ -270,6 +271,10 @@ public class DataTypeInfo {
         return result;
     }
     
+    public boolean isPrimitiveBoolean() {
+        return "boolean".equals(qualifiedName);
+    }
+    
     public boolean isBoolean() {
         return "boolean".equals(qualifiedName) ||
             "java.lang.Boolean".equals(qualifiedName);
@@ -310,12 +315,17 @@ public class DataTypeInfo {
     }
     
     private static final int[] PRIMES = new int[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
-    
-    public static final DataTypeInfo PAGE_INFO_DATA_TYPE = new DataTypeInfo("java.math", "BigInteger", "java.math.BigInteger");
-    public static final DataTypeInfo PAGE_ONLY_DATA_COUNT_DATA_TYPE = new DataTypeInfo("boolean");
-    public static final DataTypeInfo SERIALIZABLE_DATA_TYPE = new DataTypeInfo("java.io", "Serializable", "java.io.Serializable");
-    public static final DataTypeInfo AFFECTED_ROW_COUNT_DATA_TYPE = new DataTypeInfo("java.lang", "Integer", "java.lang.Integer");
-    public static final DataTypeInfo LIST_DATA_TYPE = new DataTypeInfo("java.util", "List", "java.util.List");
+
+    public static final String PAGE_INFO_DATA = "BigInteger";
+    public static final DataTypeInfo PAGE_INFO_DATA_TYPE = new DataTypeInfo("java.math", PAGE_INFO_DATA, "java.math.BigInteger");
+    public static final String PAGE_ONLY_DATA_COUNT_DATA = "boolean";
+    public static final DataTypeInfo PAGE_ONLY_DATA_COUNT_DATA_TYPE = new DataTypeInfo(PAGE_ONLY_DATA_COUNT_DATA);
+    public static final String SERIALIZABLE_DATA = "Serializable";
+    public static final DataTypeInfo SERIALIZABLE_DATA_TYPE = new DataTypeInfo("java.io", SERIALIZABLE_DATA, "java.io.Serializable");
+    public static final String AFFECTED_ROW_COUNT_DATA = "Integer";
+    public static final DataTypeInfo AFFECTED_ROW_COUNT_DATA_TYPE = new DataTypeInfo("java.lang", AFFECTED_ROW_COUNT_DATA, "java.lang.Integer");
+    public static final String LIST_DATA = "List";
+    public static final DataTypeInfo LIST_DATA_TYPE = new DataTypeInfo("java.util", LIST_DATA, "java.util.List");
     public static final DataTypeInfo ARRAYLIST_DATA_TYPE = new DataTypeInfo("java.util", "ArrayList", "java.util.ArrayList");
     public static final DataTypeInfo HASHMAP_DATA_TYPE = new DataTypeInfo("java.util", "HashMap", "java.util.HashMap");
 }

@@ -16,16 +16,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.annotations.gwt;
+package org.uaithne.generator.templates.shared.gwt.shared.rpc;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.IOException;
+import static org.uaithne.generator.commons.DataTypeInfo.*;
+import org.uaithne.generator.templates.ClassTemplate;
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-public @interface SharedGwtLibrary {
-    boolean generate() default true;
-    boolean includeClientExecutors() default true;
+public class CombinedGwtResultTemplate extends ClassTemplate {
+
+    public CombinedGwtResultTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+        String packageName = sharedGwtPackageDot + "shared.rpc";
+        addImport(SERIALIZABLE_DATA_TYPE, packageName);
+        setPackageName(packageName);
+        setClassName("CombinedGwtResult");
+        setExtend(SERIALIZABLE_DATA);
+        setInterface(true);
+    }
+    
+    @Override
+    protected void writeContent(Appendable appender) throws IOException {
+    }
+    
 }

@@ -20,8 +20,6 @@ package org.uaithne.generator.processors.myBatis;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.processing.RoundEnvironment;
@@ -39,6 +37,7 @@ import org.uaithne.annotations.sql.JdbcType;
 import org.uaithne.annotations.sql.UseJdbcType;
 import org.uaithne.generator.commons.*;
 import org.uaithne.generator.processors.sql.SqlMappersProcessor;
+import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 
 public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
 
@@ -88,37 +87,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 Logger.getLogger(MyBatisMappersProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        processMyBatisExecutorTemplate(module, packageName, namespace, name, hasUnimplementedOperations, element);
-    }
-
-    public boolean processMyBatisExecutorTemplate(ExecutorModuleInfo module, String packageName, String namespace, String name, boolean hasUnimplementedOperations, Element element) {
-        GenerationInfo generationInfo = getGenerationInfo();
-
-        HashMap<String, Object> data = createDefaultData();
-        data.put("module", module);
-        data.put("useAliasInOrderBy", useAliasInOrderBy());
-
-        HashSet<String> imports = new HashSet<String>();
-        DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(packageName, imports);
-        DataTypeInfo.LIST_DATA_TYPE.appendImports(packageName, imports);
-        Utils.appendImportIfRequired(imports, packageName, module.getOperationPackage() + "." + module.getNameUpper() + "AbstractExecutor");
-        module.appendNotMannuallyDefinitionImports(packageName, imports);
-        if (module.isContainOrderedOperations()) {
-            DataTypeInfo.HASHMAP_DATA_TYPE.appendImports(packageName, imports);
-        }
-        DataTypeInfo.ARRAYLIST_DATA_TYPE.appendImports(packageName, imports);
-
-        boolean generateGetSession = generationInfo.getSharedMyBatisPackage() != null;
-        if (generateGetSession) {
-            Utils.appendImportIfRequired(imports, packageName, generationInfo.getSharedMyBatisPackageDot() + "SqlSessionProvider");
-        }
-
-        data.put("imports", imports);
-        data.put("namespace", namespace);
-        data.put("abstractExecutorName", module.getNameUpper() + "AbstractExecutor");
-        data.put("abstractClass", hasUnimplementedOperations || !generateGetSession);
-        data.put("generateGetSession", generateGetSession);
-        return processClassTemplate("operations/myBatis/MyBatisExecutor.ftl", packageName, name, data, element);
+        processClassTemplate(new MyBatisTemplate(module, packageName, name, namespace, useAliasInOrderBy(), hasUnimplementedOperations, getGenerationInfo().getSharedPackageDot(), getGenerationInfo().getSharedMyBatisPackageDot()), element);
     }
     //</editor-fold>
 

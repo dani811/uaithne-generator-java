@@ -32,6 +32,7 @@ import javax.lang.model.element.VariableElement;
 import org.uaithne.annotations.Entity;
 import org.uaithne.annotations.EntityView;
 import org.uaithne.generator.commons.*;
+import org.uaithne.generator.templates.EntityTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes({"org.uaithne.annotations.Entity", "org.uaithne.annotations.EntityView"})
@@ -56,7 +57,7 @@ public class EntityProcessor extends TemplateProcessor {
         if (generate) {
             getGenerationInfo().combineAllEntities();
             for (EntityInfo entity : getGenerationInfo().getEntities()) {
-                processClassTemplate(entity);
+                processClassTemplate(new EntityTemplate(entity), entity.getElement());
             }
         }
         return true; // no further processing of this annotation type
@@ -85,15 +86,5 @@ public class EntityProcessor extends TemplateProcessor {
         }
         getGenerationInfo().addEntity(entityInfo);
     }
-    
-    public boolean processClassTemplate(EntityInfo entityInfo) {
-        HashMap<String, Object> data = createDefaultData();
-        data.put("entity", entityInfo);
-        
-        HashSet<String> imports = new HashSet<String>();
-        entityInfo.appendFullImports(entityInfo.getDataType().getPackageName(), imports);
-        data.put("imports", imports);
-        
-        return processClassTemplate("Entity.ftl", entityInfo.getDataType().getPackageName(), entityInfo.getDataType().getSimpleName(), data, entityInfo.getElement());
-    }
+
 }
