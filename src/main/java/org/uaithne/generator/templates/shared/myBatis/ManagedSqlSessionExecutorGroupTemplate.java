@@ -19,15 +19,16 @@
 package org.uaithne.generator.templates.shared.myBatis;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.templates.ClassTemplate;
 
 public class ManagedSqlSessionExecutorGroupTemplate extends ClassTemplate {
 
-    public ManagedSqlSessionExecutorGroupTemplate(String packageName, String sharedPackageDot) {
+    public ManagedSqlSessionExecutorGroupTemplate(String packageName) {
         setPackageName(packageName);
-        addImport(sharedPackageDot + "ChainedExecutorGroup", packageName);
-        addImport(sharedPackageDot + "ExecutorGroup", packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(DataTypeInfo.CHAINED_EXECUTOR_GROUP_DATA_TYPE, packageName);
+        addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName("ManagedSqlSessionExecutorGroup");
         setExtend("ChainedExecutorGroup");
     }

@@ -19,15 +19,16 @@
 package org.uaithne.generator.templates.operations;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
 public class ChainedExecutorTemplate extends ExecutorModuleTemplate {
 
-    public ChainedExecutorTemplate(ExecutorModuleInfo executorModule, String packageName, String sharedPackageDot) {
+    public ChainedExecutorTemplate(ExecutorModuleInfo executorModule, String packageName) {
         setPackageName(packageName);
         executorModule.appendDefinitionImports(packageName, getImport());
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName(executorModule.getNameUpper() + "ChainedExecutor");        
         addImplement(executorModule.getExecutorInterfaceName());
         setExecutorModule(executorModule);

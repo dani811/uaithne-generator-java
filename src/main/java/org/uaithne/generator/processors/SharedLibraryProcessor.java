@@ -27,6 +27,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.SharedLibrary;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
@@ -67,11 +68,9 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 SharedLibrary sl = element.getAnnotation(SharedLibrary.class);
                 if (sl != null) {
                     if (packageName == null || packageName.isEmpty()) {
-                        generationInfo.setSharedPackage("");
-                        generationInfo.setSharedPackageDot("");
+                        DataTypeInfo.updateSharedPackage("");
                     } else {
-                        generationInfo.setSharedPackage(packageName);
-                        generationInfo.setSharedPackageDot(packageName + ".");
+                        DataTypeInfo.updateSharedPackage(packageName);
                     }
                     if (!sl.generate()) {
                         continue;

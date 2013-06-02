@@ -87,7 +87,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 Logger.getLogger(MyBatisMappersProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        processClassTemplate(new MyBatisTemplate(module, packageName, name, namespace, useAliasInOrderBy(), hasUnimplementedOperations, getGenerationInfo().getSharedPackageDot(), getGenerationInfo().getSharedMyBatisPackageDot()), element);
+        processClassTemplate(new MyBatisTemplate(module, packageName, name, namespace, useAliasInOrderBy(), hasUnimplementedOperations), element);
     }
     //</editor-fold>
 
@@ -132,8 +132,8 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
-                            operation.getDataType().getQualifiedName(),
-                            operation.getReturnDataType().getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
+                            operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -144,8 +144,8 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
-                            operation.getDataType().getQualifiedName(),
-                            operation.getOneItemReturnDataType().getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
+                            operation.getOneItemReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -157,16 +157,16 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName() + "Page",
-                            operation.getDataType().getQualifiedName(),
-                            operation.getOneItemReturnDataType().getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
+                            operation.getOneItemReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
                 query = getSelectPageCountQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName() + "Count",
-                            operation.getDataType().getQualifiedName(),
-                            DataTypeInfo.PAGE_INFO_DATA_TYPE.getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
+                            DataTypeInfo.PAGE_INFO_DATA_TYPE.getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -176,7 +176,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeDelete(writer,
                             operation.getMethodName(),
-                            entity.getFirstIdField().getDataType().getQualifiedName(),
+                            entity.getFirstIdField().getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -185,15 +185,15 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 String[] query = getEntityLastInsertedIdQuery(entity);
                 if (query != null) {
                     writeSelectWithoutParameter(writer,
-                            "lastInsertedIdFor" + entity.getDataType().getSimpleName(),
-                            operation.getReturnDataType().getQualifiedName(),
+                            "lastInsertedIdFor" + entity.getDataType().getSimpleNameWithoutGenerics(),
+                            operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
                 query = getEntityInsertQuery(entity);
                 if (query != null) {
                     writeInsert(writer,
-                            "insert" + entity.getDataType().getSimpleName(),
-                            entity.getDataType().getQualifiedName(),
+                            "insert" + entity.getDataType().getSimpleNameWithoutGenerics(),
+                            entity.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -212,8 +212,8 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
-                            entity.getFirstIdField().getDataType().getQualifiedName(),
-                            operation.getReturnDataType().getQualifiedName(),
+                            entity.getFirstIdField().getDataType().getQualifiedNameWithoutGenerics(),
+                            operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -222,8 +222,8 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 String[] query = getEntityUpdateQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,
-                            "update" + entity.getDataType().getSimpleName(),
-                            entity.getDataType().getQualifiedName(),
+                            "update" + entity.getDataType().getSimpleNameWithoutGenerics(),
+                            entity.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -234,7 +234,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeInsert(writer,
                             operation.getMethodName(),
-                            operation.getDataType().getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -245,7 +245,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeUpdate(writer,
                             operation.getMethodName(),
-                            operation.getDataType().getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -256,7 +256,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeDelete(writer,
                             operation.getMethodName(),
-                            operation.getDataType().getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -267,7 +267,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 if (query != null) {
                     writeInsert(writer,
                             operation.getMethodName(),
-                            operation.getDataType().getQualifiedName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -276,8 +276,8 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
                 String[] query = getEntityMergeQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,
-                            "merge" + entity.getDataType().getSimpleName(),
-                            entity.getDataType().getQualifiedName(),
+                            "merge" + entity.getDataType().getSimpleNameWithoutGenerics(),
+                            entity.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
@@ -492,11 +492,7 @@ public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
             return "";
         }
 
-        if (typeHandler == null) {
-            return "";
-        }
-
-        return ",typeHandler=" + typeHandler.getQualifiedName();
+        return ",typeHandler=" + typeHandler.getQualifiedNameWithoutGenerics();
     }
     //</editor-fold>
 

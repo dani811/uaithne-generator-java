@@ -47,12 +47,12 @@ public class OperationTemplate extends PojoTemplate {
         this.executorName = executorName;
     }
 
-    public OperationTemplate(OperationInfo operation, String packageName, String executorName, String sharedPackageDot) {
+    public OperationTemplate(OperationInfo operation, String packageName, String executorName) {
         setPackageName(packageName);
-        addImport(sharedPackageDot + "Executor", packageName);
+        addImport(EXECUTOR_DATA_TYPE, packageName);
         operation.appendFullImports(packageName, getImport());
         setDocumentation(operation.getDocumentation());
-        setClassName(operation.getDataType().getSimpleName());
+        setClassName(operation.getDataType().getSimpleNameWithoutGenerics());
         if (operation.getExtend() != null) {
             setExtend(operation.getExtend().getSimpleName());
         }

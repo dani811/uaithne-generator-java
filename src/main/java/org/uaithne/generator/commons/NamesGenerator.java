@@ -218,6 +218,7 @@ public class NamesGenerator {
                     ArrayType at = (ArrayType) t;
                     DataTypeInfo result = createDataTypeFor(at.getComponentType());
                     result.setSimpleName(result.getSimpleName() + "[]");
+                    result.setQualifiedName(result.getQualifiedName()+ "[]");
                     return result;
                 }
             case WILDCARD:
@@ -226,10 +227,12 @@ public class NamesGenerator {
                     if (wt.getExtendsBound() != null) {
                         DataTypeInfo result = createDataTypeFor(wt.getExtendsBound());
                         result.setSimpleName("? extends " + result.getSimpleName());
+                        result.setQualifiedName("? extends " + result.getQualifiedName());
                         return result;
                     } else if (wt.getSuperBound() != null) {
                         DataTypeInfo result = createDataTypeFor(wt.getSuperBound());
                         result.setSimpleName("? super " + result.getSimpleName());
+                        result.setQualifiedName("? super " + result.getQualifiedName());
                         return result;
                     } else {
                         return new DataTypeInfo("?");
@@ -243,20 +246,27 @@ public class NamesGenerator {
                     List<? extends TypeMirror> typeArguments = dt.getTypeArguments();
                     if (typeArguments != null && !typeArguments.isEmpty()) {
                         DataTypeInfo result = createResultDataType(te);
-                        StringBuilder n = new StringBuilder(result.getSimpleName());
-                        n.append("<");
+                        StringBuilder simple = new StringBuilder(result.getSimpleName());
+                        StringBuilder qualified = new StringBuilder(result.getQualifiedName());
+                        simple.append("<");
+                        qualified.append("<");
                         int limit = typeArguments.size() - 1;
                         for (int i = 0; i < limit; i++) {
                             DataTypeInfo innerElementName = createDataTypeFor(typeArguments.get(i));
                             result.getImports().addAll(innerElementName.getImports());
-                            n.append(innerElementName.getSimpleName());
-                            n.append(", ");
+                            simple.append(innerElementName.getSimpleName());
+                            simple.append(", ");
+                            qualified.append(innerElementName.getQualifiedName());
+                            qualified.append(", ");
                         }
                         DataTypeInfo innerElementName = createDataTypeFor(typeArguments.get(limit));
                         result.getImports().addAll(innerElementName.getImports());
-                        n.append(innerElementName.getSimpleName());
-                        n.append(">");
-                        result.setSimpleName(n.toString());
+                        simple.append(innerElementName.getSimpleName());
+                        simple.append(">");
+                        qualified.append(innerElementName.getQualifiedName());
+                        qualified.append(">");
+                        result.setSimpleName(simple.toString());
+                        result.setQualifiedName(qualified.toString());
                         return result;
                     } else {
                         return createResultDataType(te);
@@ -274,13 +284,12 @@ public class NamesGenerator {
     }
 
     private static DataTypeInfo handleMirrors(String className) {
-        GenerationInfo gi = TemplateProcessor.getGenerationInfo();
         if ("org.uaithne.mirror.OtherOperation".equals(className)) {
-            return new DataTypeInfo(gi.getSharedPackage(), "Operation");
+            return new DataTypeInfo(DataTypeInfo.OPERATION_DATA_TYPE);
         } if ("org.uaithne.mirror.DataListMirror".equals(className)) {
-            return DataTypeInfo.LIST_DATA_TYPE;
+            return new DataTypeInfo(DataTypeInfo.LIST_DATA_TYPE);
         } if ("org.uaithne.mirror.DataPageMirror".equals(className)) {
-            return new DataTypeInfo(gi.getSharedPackage(), "DataPage");
+            return new DataTypeInfo(DataTypeInfo.DATA_PAGE_DATA_TYPE);
         } else {
             return null;
         }

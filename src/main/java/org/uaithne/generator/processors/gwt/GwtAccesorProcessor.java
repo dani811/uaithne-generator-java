@@ -45,9 +45,7 @@ public class GwtAccesorProcessor extends TemplateProcessor {
                 GwtAccesorTemplate template = new GwtAccesorTemplate(
                         generationInfo.getOperations(),
                         dataType.getPackageName(),
-                        dataType.getSimpleName(),
-                        generationInfo.getSharedPackageDot(),
-                        generationInfo.getSharedGwtPackageDot());
+                        dataType.getSimpleNameWithoutGenerics());
                 processClassTemplate(template, element);
             }
         }

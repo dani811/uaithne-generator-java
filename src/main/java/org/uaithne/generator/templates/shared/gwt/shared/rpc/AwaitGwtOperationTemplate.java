@@ -19,15 +19,16 @@
 package org.uaithne.generator.templates.shared.gwt.shared.rpc;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.templates.ClassTemplate;
 
 public class AwaitGwtOperationTemplate extends ClassTemplate {
 
-    public AwaitGwtOperationTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public AwaitGwtOperationTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
-        addImport(sharedPackageDot + "Executor", sharedPackageDot);
-        addImport(sharedPackageDot + "Operation", sharedPackageDot);
         setPackageName(packageName);
+        addImport(DataTypeInfo.EXECUTOR_DATA_TYPE, packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName("AwaitGwtOperation");
         addImplement("Operation<AwaitGwtResult>");
     }

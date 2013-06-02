@@ -24,7 +24,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class ExecutorGroupRpcImplTemplate extends ClassTemplate {
 
-    public ExecutorGroupRpcImplTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public ExecutorGroupRpcImplTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "server.rpc";
         setPackageName(packageName);
         addImport(sharedGwtPackageDot + "shared.rpc.AwaitGwtOperation", packageName);
@@ -36,8 +36,8 @@ public class ExecutorGroupRpcImplTemplate extends ClassTemplate {
         addImport(sharedGwtPackageDot + "shared.rpc.RpcRequest", packageName);
         addImport(sharedGwtPackageDot + "shared.rpc.RpcResponse", packageName);
         addImport(sharedGwtPackageDot + "shared.rpc.RpcException", packageName);
-        addImport(sharedPackageDot + "ExecutorGroup", packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(EXECUTOR_GROUP_DATA_TYPE, packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         addImport("com.google.gwt.user.server.rpc.RemoteServiceServlet", packageName);
         addImport(ARRAYLIST_DATA_TYPE, packageName);
         setClassName("ExecutorGroupRpcImpl");

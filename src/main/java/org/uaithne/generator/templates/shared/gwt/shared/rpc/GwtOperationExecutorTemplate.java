@@ -24,10 +24,10 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class GwtOperationExecutorTemplate extends ClassTemplate {
 
-    public GwtOperationExecutorTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public GwtOperationExecutorTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         setPackageName(packageName);
-        addImport(sharedPackageDot + "Executor", packageName);
+        addImport(EXECUTOR_DATA_TYPE, packageName);
         setClassName("GwtOperationExecutor");
         setExtend("Executor");
         setInterface(true);

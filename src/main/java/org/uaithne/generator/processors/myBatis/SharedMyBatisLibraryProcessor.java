@@ -27,6 +27,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.myBatis.SharedMyBatisLibrary;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
@@ -40,7 +41,6 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
-        GenerationInfo generationInfo = getGenerationInfo();
         for (Element element : re.getElementsAnnotatedWith(SharedMyBatisLibrary.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
@@ -49,11 +49,9 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 SharedMyBatisLibrary sl = element.getAnnotation(SharedMyBatisLibrary.class);
                 if (sl != null) {
                     if (packageName == null || packageName.isEmpty()) {
-                        generationInfo.setSharedMyBatisPackage("");
-                        generationInfo.setSharedMyBatisPackageDot("");
+                        DataTypeInfo.updateSharedMyBatisPackage("");
                     } else {
-                        generationInfo.setSharedMyBatisPackage(packageName);
-                        generationInfo.setSharedMyBatisPackageDot(packageName + ".");
+                        DataTypeInfo.updateSharedMyBatisPackage(packageName);
                     }
                     if (!sl.generate()) {
                         continue;
@@ -62,7 +60,7 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
 
                 processClassTemplate(new SqlSessionProviderTemplate(packageName), element);
                 processClassTemplate(new ManagedSqlSessionProviderTemplate(packageName), element);
-                processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName, generationInfo.getSharedPackageDot()), element);
+                processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName), element);
             }
         }
         return true; // no further processing of this annotation type

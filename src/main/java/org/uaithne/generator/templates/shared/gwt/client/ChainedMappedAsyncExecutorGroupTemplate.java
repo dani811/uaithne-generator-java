@@ -19,17 +19,18 @@
 package org.uaithne.generator.templates.shared.gwt.client;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.templates.ClassTemplate;
 
 public class ChainedMappedAsyncExecutorGroupTemplate extends ClassTemplate {
 
-    public ChainedMappedAsyncExecutorGroupTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public ChainedMappedAsyncExecutorGroupTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "client";
         setPackageName(packageName);
         addImport(HASHMAP_DATA_TYPE, packageName);
-        addImport("com.google.gwt.user.client.rpc.AsyncCallback", sharedPackageDot);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport("com.google.gwt.user.client.rpc.AsyncCallback", packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName("ChainedMappedAsyncExecutorGroup");
         addImplement("AsyncExecutorGroup");
     }

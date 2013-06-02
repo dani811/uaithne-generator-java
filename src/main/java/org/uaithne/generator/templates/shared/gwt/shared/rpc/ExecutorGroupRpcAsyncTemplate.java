@@ -23,7 +23,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class ExecutorGroupRpcAsyncTemplate extends ClassTemplate {
 
-    public ExecutorGroupRpcAsyncTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public ExecutorGroupRpcAsyncTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         addImport("com.google.gwt.user.client.rpc.AsyncCallback", packageName);
         setPackageName(packageName);

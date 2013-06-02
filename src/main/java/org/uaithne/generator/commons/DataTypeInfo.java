@@ -19,13 +19,14 @@
 package org.uaithne.generator.commons;
 
 import java.util.HashSet;
-import org.uaithne.generator.templates.ClassTemplate;
 
 public class DataTypeInfo {
     private HashSet<String> imports = new HashSet<String>(0);
     private String packageName;
     private String simpleName;
+    private String simpleNameWithoutGenerics;
     private String qualifiedName;
+    private String qualifiedNameWithoutGenerics;
 
     public String getSimpleName() {
         return simpleName;
@@ -33,6 +34,14 @@ public class DataTypeInfo {
 
     public void setSimpleName(String simpleName) {
         this.simpleName = simpleName;
+    }
+
+    public String getSimpleNameWithoutGenerics() {
+        return simpleNameWithoutGenerics;
+    }
+
+    public void setSimpleNameWithoutGenerics(String simpleNameWithoutGenerics) {
+        this.simpleNameWithoutGenerics = simpleNameWithoutGenerics;
     }
 
     public String getPackageName() {
@@ -47,8 +56,24 @@ public class DataTypeInfo {
         return qualifiedName;
     }
 
+    public String getPrintableQualifiedName() {
+        return qualifiedName.replaceAll("java\\.lang\\.", "");
+    }
+
     public void setQualifiedName(String qualifiedName) {
         this.qualifiedName = qualifiedName;
+    }
+
+    public String getQualifiedNameWithoutGenerics() {
+        return qualifiedNameWithoutGenerics;
+    }
+
+    public String getPrintableQualifiedNameWithoutGenerics() {
+        return qualifiedNameWithoutGenerics.replaceAll("java\\.lang\\.", "");
+    }
+
+    public void setQualifiedNameWithoutGenerics(String qualifiedNameWithoutGenerics) {
+        this.qualifiedNameWithoutGenerics = qualifiedNameWithoutGenerics;
     }
 
     public HashSet<String> getImports() {
@@ -76,7 +101,13 @@ public class DataTypeInfo {
         if ((this.simpleName == null) ? (other.simpleName != null) : !this.simpleName.equals(other.simpleName)) {
             return false;
         }
+        if ((this.simpleNameWithoutGenerics == null) ? (other.simpleNameWithoutGenerics != null) : !this.simpleNameWithoutGenerics.equals(other.simpleNameWithoutGenerics)) {
+            return false;
+        }
         if ((this.qualifiedName == null) ? (other.qualifiedName != null) : !this.qualifiedName.equals(other.qualifiedName)) {
+            return false;
+        }
+        if ((this.qualifiedNameWithoutGenerics == null) ? (other.qualifiedNameWithoutGenerics != null) : !this.qualifiedNameWithoutGenerics.equals(other.qualifiedNameWithoutGenerics)) {
             return false;
         }
         return true;
@@ -87,7 +118,9 @@ public class DataTypeInfo {
         int hash = 7;
         hash = 97 * hash + (this.packageName != null ? this.packageName.hashCode() : 0);
         hash = 97 * hash + (this.simpleName != null ? this.simpleName.hashCode() : 0);
+        hash = 97 * hash + (this.simpleNameWithoutGenerics != null ? this.simpleNameWithoutGenerics.hashCode() : 0);
         hash = 97 * hash + (this.qualifiedName != null ? this.qualifiedName.hashCode() : 0);
+        hash = 97 * hash + (this.qualifiedNameWithoutGenerics != null ? this.qualifiedNameWithoutGenerics.hashCode() : 0);
         return hash;
     }
 
@@ -104,7 +137,9 @@ public class DataTypeInfo {
         
         this.packageName = "";
         this.simpleName = simpleName;
+        this.simpleNameWithoutGenerics = simpleName;
         this.qualifiedName = simpleName;
+        this.qualifiedNameWithoutGenerics = simpleName;
     }
     
     public DataTypeInfo(String packageName, String simpleName) {
@@ -123,9 +158,11 @@ public class DataTypeInfo {
         } else {
             qualifiedName = packageName + "." + simpleName;
         }
+        qualifiedNameWithoutGenerics = qualifiedName;
         
         this.packageName = packageName;
         this.simpleName = simpleName;
+        this.simpleNameWithoutGenerics = simpleName;
         
         if (!qualifiedName.isEmpty()) {
             imports.add(qualifiedName);
@@ -149,20 +186,46 @@ public class DataTypeInfo {
         
         this.packageName = packageName;
         this.simpleName = simpleName;
+        this.simpleNameWithoutGenerics = simpleName;
         this.qualifiedName = qualifiedName;
+        this.qualifiedNameWithoutGenerics = qualifiedName;
         
         if (!qualifiedName.isEmpty()) {
             imports.add(qualifiedName);
         }
     }
     
+    public DataTypeInfo(DataTypeInfo other) {
+        imports.addAll(other.imports);
+        packageName = other.packageName;
+        simpleName = other.simpleName;
+        simpleNameWithoutGenerics = other.simpleNameWithoutGenerics;
+        qualifiedName = other.qualifiedName;
+        qualifiedNameWithoutGenerics = other.qualifiedNameWithoutGenerics;
+    }
+    
     public DataTypeInfo of(DataTypeInfo genericArgument) {
         DataTypeInfo result = new DataTypeInfo();
         result.packageName = packageName;
+        result.simpleNameWithoutGenerics = simpleNameWithoutGenerics;
+        result.qualifiedNameWithoutGenerics = qualifiedNameWithoutGenerics;
         result.simpleName = simpleName + "<" + genericArgument.simpleName + ">";
-        result.qualifiedName = qualifiedName + "<" + genericArgument.simpleName + ">";
+        result.qualifiedName = qualifiedName + "<" + genericArgument.qualifiedName + ">";
         result.imports.addAll(imports);
         result.imports.addAll(genericArgument.imports);
+        return result;
+    }
+    
+    public DataTypeInfo of(DataTypeInfo genericArgument, DataTypeInfo genericArgument2) {
+        DataTypeInfo result = new DataTypeInfo();
+        result.packageName = packageName;
+        result.simpleNameWithoutGenerics = simpleNameWithoutGenerics;
+        result.qualifiedNameWithoutGenerics = qualifiedNameWithoutGenerics;
+        result.simpleName = simpleName + "<" + genericArgument.simpleName + ", " + genericArgument2.simpleName + ">";
+        result.qualifiedName = qualifiedName + "<" + genericArgument.qualifiedName + ", " + genericArgument2.qualifiedName + ">";
+        result.imports.addAll(imports);
+        result.imports.addAll(genericArgument.imports);
+        result.imports.addAll(genericArgument2.imports);
         return result;
     }
     
@@ -310,8 +373,16 @@ public class DataTypeInfo {
     }
     
     public boolean isList() {
-        return qualifiedName.startsWith("java.util.List") || 
-                qualifiedName.startsWith("java.util.ArrayList");
+        return "java.util.List".equals(qualifiedNameWithoutGenerics) || 
+                "java.util.ArrayList".equals(qualifiedNameWithoutGenerics);
+    }
+    
+    public boolean isVoid() {
+        return "java.lang.Void".equals(qualifiedName);
+    }
+    
+    public boolean isObject() {
+        return "java.lang.Object".equals(qualifiedName);
     }
     
     private static final int[] PRIMES = new int[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
@@ -328,4 +399,59 @@ public class DataTypeInfo {
     public static final DataTypeInfo LIST_DATA_TYPE = new DataTypeInfo("java.util", LIST_DATA, "java.util.List");
     public static final DataTypeInfo ARRAYLIST_DATA_TYPE = new DataTypeInfo("java.util", "ArrayList", "java.util.ArrayList");
     public static final DataTypeInfo HASHMAP_DATA_TYPE = new DataTypeInfo("java.util", "HashMap", "java.util.HashMap");
+    
+    private static final String DEFAULT_SHARED_PACKAGE = "org.uaithne.shared";
+    public static DataTypeInfo DATA_PAGE_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "DataPage", DEFAULT_SHARED_PACKAGE + ".DataPage");
+    public static DataTypeInfo OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "Operation", DEFAULT_SHARED_PACKAGE + ".Operation");
+    public static DataTypeInfo DELETE_BY_ID_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "DeleteByIdOperation", DEFAULT_SHARED_PACKAGE + ".DeleteByIdOperation");
+    public static DataTypeInfo INSERT_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "InsertValueOperation", DEFAULT_SHARED_PACKAGE + ".InsertValueOperation");
+    public static DataTypeInfo JUST_INSERT_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "JustInsertValueOperation", DEFAULT_SHARED_PACKAGE + ".JustInsertValueOperation");
+    public static DataTypeInfo SAVE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "SaveValueOperation", DEFAULT_SHARED_PACKAGE + ".SaveValueOperation");
+    public static DataTypeInfo JUST_SAVE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "JustSaveValueOperation", DEFAULT_SHARED_PACKAGE + ".JustSaveValueOperation");
+    public static DataTypeInfo SELECT_BY_ID_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "SelectByIdOperation", DEFAULT_SHARED_PACKAGE + ".SelectByIdOperation");
+    public static DataTypeInfo UPDATE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "UpdateValueOperation", DEFAULT_SHARED_PACKAGE + ".UpdateValueOperation");
+    public static DataTypeInfo MERGE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "MergeValueOperation", DEFAULT_SHARED_PACKAGE + ".MergeValueOperation");
+    public static DataTypeInfo DATA_PAGE_REQUEST_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "DataPageRequest", DEFAULT_SHARED_PACKAGE + ".DataPageRequest");
+    public static DataTypeInfo EXECUTOR_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "Executor", DEFAULT_SHARED_PACKAGE + ".Executor");
+    public static DataTypeInfo EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "ExecutorGroup", DEFAULT_SHARED_PACKAGE + ".ExecutorGroup");
+    public static DataTypeInfo CHAINED_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "ChainedExecutorGroup", DEFAULT_SHARED_PACKAGE + ".ChainedExecutorGroup");
+    
+    public static void updateSharedPackage(String sharedPackage) {
+        DATA_PAGE_DATA_TYPE = new DataTypeInfo(sharedPackage, "DataPage", sharedPackage + ".DataPage");
+        OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "Operation", sharedPackage + ".Operation");
+        DELETE_BY_ID_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "DeleteByIdOperation", sharedPackage + ".DeleteByIdOperation");
+        INSERT_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "InsertValueOperation", sharedPackage + ".InsertValueOperation");
+        JUST_INSERT_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "JustInsertValueOperation", sharedPackage + ".JustInsertValueOperation");
+        SAVE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "SaveValueOperation", sharedPackage + ".SaveValueOperation");
+        JUST_SAVE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "JustSaveValueOperation", sharedPackage + ".JustSaveValueOperation");
+        SELECT_BY_ID_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "SelectByIdOperation", sharedPackage + ".SelectByIdOperation");
+        UPDATE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "UpdateValueOperation", sharedPackage + ".UpdateValueOperation");
+        MERGE_VALUE_OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "MergeValueOperation", sharedPackage + ".MergeValueOperation");
+        DATA_PAGE_REQUEST_DATA_TYPE = new DataTypeInfo(sharedPackage, "DataPageRequest", sharedPackage + ".DataPageRequest");
+        EXECUTOR_DATA_TYPE = new DataTypeInfo(sharedPackage, "Executor", sharedPackage + ".Executor");
+        EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(sharedPackage, "ExecutorGroup", sharedPackage + ".ExecutorGroup");
+        CHAINED_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(sharedPackage, "ChainedExecutorGroup", sharedPackage + ".ChainedExecutorGroup");
+    }
+    
+    private static final String DEFAULT_SHARED_MYBATIS_PACKAGE = "org.uaithne.shared.myBatys";
+    public static DataTypeInfo MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_MYBATIS_PACKAGE, "SqlSessionProvider", DEFAULT_SHARED_MYBATIS_PACKAGE + ".SqlSessionProvider");
+    
+    public static void updateSharedMyBatisPackage(String sharedMyBatisPackage) {
+        MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE = new DataTypeInfo(sharedMyBatisPackage, "SqlSessionProvider", sharedMyBatisPackage + ".SqlSessionProvider");
+    }
+    
+    private static final String DEFAULT_SHARED_GWT_PACKAGE = "org.uaithne.shared.myBatys";
+    public static DataTypeInfo GWT_ASYNC_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".client", "AsyncExecutorGroup", DEFAULT_SHARED_GWT_PACKAGE + ".client.AsyncExecutorGroup");
+    public static DataTypeInfo GWT_AWAIT_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "AwaitGwtOperation", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.AwaitGwtOperation");
+    public static DataTypeInfo GWT_AWAIT_GWT_RESULT_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "AwaitGwtResult", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.AwaitGwtResult");
+    public static DataTypeInfo GWT_COMBINED_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "CombinedGwtOperation", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.CombinedGwtOperation");
+    public static DataTypeInfo GWT_COMBINED_GWT_RESULT_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "CombinedGwtResult", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.CombinedGwtResult");
+    
+    public static void updateSharedGwtPackage(String sharedGwtPackage) {
+        GWT_ASYNC_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".client", "AsyncExecutorGroup", sharedGwtPackage + ".client.AsyncExecutorGroup");
+        GWT_AWAIT_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "AwaitGwtOperation", sharedGwtPackage + ".shared.rpc.AwaitGwtOperation");
+        GWT_AWAIT_GWT_RESULT_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "AwaitGwtResult", sharedGwtPackage + ".shared.rpc.AwaitGwtResult");
+        GWT_COMBINED_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "CombinedGwtOperation", sharedGwtPackage + ".shared.rpc.CombinedGwtOperation");
+        GWT_COMBINED_GWT_RESULT_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "CombinedGwtResult", sharedGwtPackage + ".shared.rpc.CombinedGwtResult");
+    }
 }

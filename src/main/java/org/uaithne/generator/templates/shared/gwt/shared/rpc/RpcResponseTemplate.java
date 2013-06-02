@@ -24,7 +24,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class RpcResponseTemplate extends ClassTemplate {
 
-    public RpcResponseTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public RpcResponseTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         addImport(SERIALIZABLE_DATA_TYPE, packageName);
         addImport(ARRAYLIST_DATA_TYPE, packageName);

@@ -24,11 +24,11 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class RpcResultTemplate extends ClassTemplate {
 
-    public RpcResultTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public RpcResultTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "client.rpc";
         setPackageName(packageName);
         addImport(ARRAYLIST_DATA_TYPE, packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         addImport(sharedGwtPackageDot + "shared.rpc.RpcRequest", packageName);
         addImport(sharedGwtPackageDot + "shared.rpc.RpcResponse", packageName);
         addImport("com.google.gwt.user.client.rpc.AsyncCallback", packageName);

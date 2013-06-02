@@ -19,14 +19,15 @@
 package org.uaithne.generator.templates.operations;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
 public class ExecutorTemplate extends ExecutorModuleTemplate {
     
-    public ExecutorTemplate(ExecutorModuleInfo executorModule, String packageName, String sharedPackageDot) {
+    public ExecutorTemplate(ExecutorModuleInfo executorModule, String packageName) {
         setPackageName(packageName);
-        addImport(sharedPackageDot + "Executor", packageName);
+        addImport(DataTypeInfo.EXECUTOR_DATA_TYPE, packageName);
         executorModule.appendDefinitionImports(packageName, getImport());
         setClassName(executorModule.getExecutorInterfaceName());
         setDocumentation(executorModule.getDocumentation());

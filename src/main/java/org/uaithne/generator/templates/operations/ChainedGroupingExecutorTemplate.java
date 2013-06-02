@@ -19,16 +19,17 @@
 package org.uaithne.generator.templates.operations;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
 public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
 
-    public ChainedGroupingExecutorTemplate(ExecutorModuleInfo executorModule, String packageName, String sharedPackageDot) {
+    public ChainedGroupingExecutorTemplate(ExecutorModuleInfo executorModule, String packageName) {
         setPackageName(packageName);
         executorModule.appendDefinitionImports(packageName, getImport());
-        addImport(sharedPackageDot + "ExecutorGroup", packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName(executorModule.getNameUpper() + "ChainedGroupingExecutor");
         addImplement(executorModule.getExecutorInterfaceName());
         setExecutorModule(executorModule);

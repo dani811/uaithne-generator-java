@@ -40,7 +40,7 @@ public class EntityTemplate extends PojoTemplate {
         setPackageName(packageName);
         entity.appendFullImports(packageName, getImport());
         setDocumentation(entity.getDocumentation());
-        setClassName(entity.getDataType().getSimpleName());
+        setClassName(entity.getDataType().getSimpleNameWithoutGenerics());
         if (entity.getExtend() != null) {
             setExtend(entity.getExtend().getSimpleName());
         }

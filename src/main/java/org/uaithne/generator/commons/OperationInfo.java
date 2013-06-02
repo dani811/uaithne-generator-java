@@ -254,10 +254,6 @@ public class OperationInfo {
             returnDataType.appendImports(currentPackage, imports);
         }
     }
-    
-    public void appendReturnImports(String currentPackage, HashSet<String> imports) {
-        returnDataType.appendImports(currentPackage, imports);
-    }
 
     public HashMap<String, Object> getExtraInfo() {
         return extraInfo;
@@ -319,7 +315,7 @@ public class OperationInfo {
         methodName = Utils.firstLower(elementName);
         
         extend = NamesGenerator.createDataTypeFor(classElement.getSuperclass());
-        if (extend != null && "java.lang.Object".equals(extend.getQualifiedName())) {
+        if (extend != null && extend.isObject()) {
             extend = null;
         }
         for (TypeMirror i : classElement.getInterfaces()) {
@@ -338,7 +334,7 @@ public class OperationInfo {
 
     public OperationInfo(DataTypeInfo dataType) {
         this.dataType = dataType;
-        methodName = Utils.firstLower(dataType.getSimpleName());
+        methodName = Utils.firstLower(dataType.getSimpleNameWithoutGenerics());
     }
 
 }

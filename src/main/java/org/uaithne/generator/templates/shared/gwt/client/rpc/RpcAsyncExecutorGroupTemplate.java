@@ -24,10 +24,10 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class RpcAsyncExecutorGroupTemplate extends ClassTemplate {
 
-    public RpcAsyncExecutorGroupTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public RpcAsyncExecutorGroupTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "client.rpc";
         setPackageName(packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         addImport(sharedGwtPackageDot + "client.AsyncExecutorGroup", packageName);
         addImport(sharedGwtPackageDot + "shared.rpc.ExecutorGroupRpcAsync", packageName);
         addImport(sharedGwtPackageDot + "shared.rpc.AwaitGwtOperation", packageName);

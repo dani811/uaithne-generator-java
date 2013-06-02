@@ -629,7 +629,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
         MappedName mappedName = entity.getAnnotation(MappedName.class);
         String[] result;
         if (mappedName == null) {
-            result = entity.getDataType().getSimpleName().split("\n");
+            result = entity.getDataType().getSimpleNameWithoutGenerics().split("\n");
         } else {
             result = joinln(mappedName.value()).split("\n");
         }
@@ -1718,7 +1718,7 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
     public String[] getTableName(EntityInfo entity) {
         MappedName mappedName = entity.getAnnotation(MappedName.class);
         if (mappedName == null) {
-            return entity.getDataType().getSimpleName().split("\n");
+            return entity.getDataType().getSimpleNameWithoutGenerics().split("\n");
         } else {
             return joinln(mappedName.value()).split("\n");
         }

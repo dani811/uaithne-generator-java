@@ -19,13 +19,14 @@
 package org.uaithne.generator.templates.operations;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 
 public class AbstractExecutorTemplate extends ExecutorModuleTemplate {
 
-    public AbstractExecutorTemplate(ExecutorModuleInfo executorModule, String packageName, String sharedPackageDot) {
+    public AbstractExecutorTemplate(ExecutorModuleInfo executorModule, String packageName) {
         setPackageName(packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName(executorModule.getNameUpper() + "AbstractExecutor");
         setExecutorModule(executorModule);
         addImplement(executorModule.getExecutorInterfaceName());

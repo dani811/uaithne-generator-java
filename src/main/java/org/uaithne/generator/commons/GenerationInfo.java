@@ -23,15 +23,7 @@ import java.util.HashMap;
 import javax.lang.model.element.TypeElement;
 
 public class GenerationInfo {
-    
-    private String sharedPackage = "";
-    private String sharedPackageDot = "";
-    private String sharedGwtPackage = "";
-    private String sharedGwtPackageDot = "";
-    private String sharedMyBatisPackage;
-    private String sharedMyBatisPackageDot;
-    private String resultsPackage = "";
-    private String resultsPackageDot = "";
+
     private HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>(); 
     private HashMap<String, EntityInfo> entitiesByName = new HashMap<String, EntityInfo>(); 
     private ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
@@ -47,73 +39,8 @@ public class GenerationInfo {
     private boolean generateMergeOperationsEnabled = true;
     private boolean generateModuleChainedExecutorsEnabled = true;
     private boolean generateModuleChainedGroupingExecutorsEnabled = true;
-    private HashMap<String, DataTypeInfo> resultTypes = new HashMap<String, DataTypeInfo>();
     private boolean includeGwtClientExecutors;
     private DataTypeInfo entitiesImplements;
-
-    public String getSharedPackage() {
-        return sharedPackage;
-    }
-
-    public void setSharedPackage(String sharedPackage) {
-        this.sharedPackage = sharedPackage;
-    }
-
-    public String getSharedPackageDot() {
-        return sharedPackageDot;
-    }
-
-    public void setSharedPackageDot(String sharedPackageDot) {
-        this.sharedPackageDot = sharedPackageDot;
-    }
-
-    public String getSharedGwtPackage() {
-        return sharedGwtPackage;
-    }
-
-    public void setSharedGwtPackage(String sharedGwtPackage) {
-        this.sharedGwtPackage = sharedGwtPackage;
-    }
-
-    public String getSharedGwtPackageDot() {
-        return sharedGwtPackageDot;
-    }
-
-    public void setSharedGwtPackageDot(String sharedGwtPackageDot) {
-        this.sharedGwtPackageDot = sharedGwtPackageDot;
-    }
-
-    public String getSharedMyBatisPackage() {
-        return sharedMyBatisPackage;
-    }
-
-    public void setSharedMyBatisPackage(String sharedMyBatisPackage) {
-        this.sharedMyBatisPackage = sharedMyBatisPackage;
-    }
-
-    public String getSharedMyBatisPackageDot() {
-        return sharedMyBatisPackageDot;
-    }
-
-    public void setSharedMyBatisPackageDot(String sharedMyBatisPackageDot) {
-        this.sharedMyBatisPackageDot = sharedMyBatisPackageDot;
-    }
-
-    public String getResultsPackage() {
-        return resultsPackage;
-    }
-
-    public void setResultsPackage(String resultsPackage) {
-        this.resultsPackage = resultsPackage;
-    }
-
-    public String getResultsPackageDot() {
-        return resultsPackageDot;
-    }
-
-    public void setResultsPackageDot(String resultsPackageDot) {
-        this.resultsPackageDot = resultsPackageDot;
-    }
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
         return entitiesByRealName;
@@ -128,7 +55,7 @@ public class GenerationInfo {
     }
     
     public EntityInfo getEntityByName(DataTypeInfo name) {
-        return entitiesByName.get(name.getQualifiedName());
+        return entitiesByName.get(name.getQualifiedNameWithoutGenerics());
     }
 
     public ArrayList<EntityInfo> getEntities() {
@@ -148,7 +75,7 @@ public class GenerationInfo {
     }
     
     public OperationInfo getOperationByName(DataTypeInfo name) {
-        return operationsByName.get(name.getQualifiedName());
+        return operationsByName.get(name.getQualifiedNameWithoutGenerics());
     }
 
     public ArrayList<OperationInfo> getOperations() {
@@ -174,7 +101,7 @@ public class GenerationInfo {
     
     public void addEntity(EntityInfo entityInfo) {
         entitiesByRealName.put(entityInfo.getRealName(), entityInfo);
-        entitiesByName.put(entityInfo.getDataType().getQualifiedName(), entityInfo);
+        entitiesByName.put(entityInfo.getDataType().getQualifiedNameWithoutGenerics(), entityInfo);
         entities.add(entityInfo);
     }
     
@@ -186,7 +113,7 @@ public class GenerationInfo {
         if (entity != null) {
             entity.addOperation(operation);
         }
-        operationsByName.put(operation.getDataType().getQualifiedName(), operation);
+        operationsByName.put(operation.getDataType().getQualifiedNameWithoutGenerics(), operation);
         operations.add(operation);
         executorModule.addOperation(operation);
     }
@@ -273,18 +200,6 @@ public class GenerationInfo {
 
     public void setGenerateModuleChainedGroupingExecutorsEnabled(boolean generateModuleChainedGroupingExecutorsEnabled) {
         this.generateModuleChainedGroupingExecutorsEnabled = generateModuleChainedGroupingExecutorsEnabled;
-    }
-    
-    public HashMap<String, DataTypeInfo> getResultTypes() {
-        return resultTypes;
-    }
-    
-    public DataTypeInfo getResultTypeByName(DataTypeInfo result) {
-        return resultTypes.get(result.getQualifiedName());
-    }
-    
-    public void addResultType(DataTypeInfo result, DataTypeInfo resultWrapper) {
-        resultTypes.put(result.getQualifiedName(), resultWrapper);
     }
 
     public boolean isIncludeGwtClientExecutors() {

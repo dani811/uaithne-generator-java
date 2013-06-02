@@ -24,11 +24,11 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class MappedAsyncExecutorGroupTemplate extends ClassTemplate {
 
-    public MappedAsyncExecutorGroupTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public MappedAsyncExecutorGroupTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "client";
         setPackageName(packageName);
-        addImport("com.google.gwt.user.client.rpc.AsyncCallback", sharedPackageDot);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport("com.google.gwt.user.client.rpc.AsyncCallback", packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         addImport(HASHMAP_DATA_TYPE, packageName);
         setClassName("MappedAsyncExecutorGroup");
         addImplement("AsyncExecutorGroup");

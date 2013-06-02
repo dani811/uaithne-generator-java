@@ -27,6 +27,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.gwt.SharedGwtLibrary;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
@@ -69,60 +70,56 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
+                String sharedGwtPackageDot;
 
                 SharedGwtLibrary sl = element.getAnnotation(SharedGwtLibrary.class);
-                if (sl != null) {
-                    generationInfo.setIncludeGwtClientExecutors(sl.includeClientExecutors());
-                    if (packageName == null || packageName.isEmpty()) {
-                        generationInfo.setSharedGwtPackage("");
-                        generationInfo.setSharedGwtPackageDot("");
-                    } else {
-                        generationInfo.setSharedGwtPackage(packageName);
-                        generationInfo.setSharedGwtPackageDot(packageName + ".");
-                    }
-                    if (!sl.generate()) {
-                        continue;
-                    }
+                generationInfo.setIncludeGwtClientExecutors(sl.includeClientExecutors());
+                if (packageName == null || packageName.isEmpty()) {
+                    DataTypeInfo.updateSharedGwtPackage("");
+                    sharedGwtPackageDot = "";
+                } else {
+                    DataTypeInfo.updateSharedGwtPackage(packageName);
+                    sharedGwtPackageDot = packageName + ".";
+                }
+                if (!sl.generate()) {
+                    continue;
                 }
 
                 boolean includeGwtClientExecutors = generationInfo.isIncludeGwtClientExecutors();
 
-                String sharedPackageDot = generationInfo.getSharedPackageDot();
-                String sharedGwtPackageDot = generationInfo.getSharedGwtPackageDot();
-                
-                processClassTemplate(new AsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new AsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
 
                 if (includeGwtClientExecutors) {
-                    processClassTemplate(new AsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new ChainedAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new ChainedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new ChainedGroupingAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new ChainedMappedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new MappedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new PostOperationAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new PostOperationAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new LoggedAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new SyncAsyncExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                    processClassTemplate(new SyncAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                    processClassTemplate(new AsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new ChainedAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new ChainedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new ChainedGroupingAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new ChainedMappedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new MappedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new PostOperationAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new PostOperationAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new LoggedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new SyncAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    processClassTemplate(new SyncAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
                 }
 
-                processClassTemplate(new RpcResultTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new RpcAsyncExecutorGroupTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new RpcResultTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new RpcAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
 
-                processClassTemplate(new ExecutorGroupRpcTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new ExecutorGroupRpcAsyncTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new CombinedGwtOperationTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new AwaitGwtResultTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new AwaitGwtOperationTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new GwtOperationExecutorTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new CombinedGwtResultTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new RpcRequestTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new RpcResponseTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new RpcRequest_CustomFieldSerializerTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new RpcResponse_CustomFieldSerializerTemplate(sharedGwtPackageDot, sharedPackageDot), element);
-                processClassTemplate(new RpcExceptionTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new ExecutorGroupRpcTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new ExecutorGroupRpcAsyncTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new CombinedGwtOperationTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new AwaitGwtResultTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new AwaitGwtOperationTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new GwtOperationExecutorTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new CombinedGwtResultTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new RpcRequestTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new RpcResponseTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new RpcRequest_CustomFieldSerializerTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new RpcResponse_CustomFieldSerializerTemplate(sharedGwtPackageDot), element);
+                processClassTemplate(new RpcExceptionTemplate(sharedGwtPackageDot), element);
 
-                processClassTemplate(new ExecutorGroupRpcImplTemplate(sharedGwtPackageDot, sharedPackageDot), element);
+                processClassTemplate(new ExecutorGroupRpcImplTemplate(sharedGwtPackageDot), element);
             }
         }
         return true; // no further processing of this annotation type

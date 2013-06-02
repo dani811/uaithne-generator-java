@@ -24,13 +24,13 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class RpcRequestTemplate extends ClassTemplate {
 
-    public RpcRequestTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public RpcRequestTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         setPackageName(packageName);
         addImport(SERIALIZABLE_DATA_TYPE, packageName);
         addImport(ARRAYLIST_DATA_TYPE, packageName);
         addImport("com.google.gwt.user.client.rpc.GwtTransient", packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         setClassName("RpcRequest");
         addImplement(SERIALIZABLE_DATA);
     }

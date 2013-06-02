@@ -24,7 +24,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class CombinedGwtResultTemplate extends ClassTemplate {
 
-    public CombinedGwtResultTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public CombinedGwtResultTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         addImport(SERIALIZABLE_DATA_TYPE, packageName);
         setPackageName(packageName);

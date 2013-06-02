@@ -280,7 +280,7 @@ public class EntityInfo {
         dataType = NamesGenerator.createEntityDataType(classElement);
         realName = classElement.getQualifiedName().toString();
         extend = NamesGenerator.createDataTypeFor(classElement.getSuperclass());
-        if (extend != null && "java.lang.Object".equals(extend.getQualifiedName())) {
+        if (extend != null && extend.isObject()) {
             extend = null;
         }
         for (TypeMirror i : classElement.getInterfaces()) {

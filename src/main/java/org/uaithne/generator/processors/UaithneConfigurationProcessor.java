@@ -66,7 +66,7 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                         return true;
                     }
                     
-                    if (!"java.lang.Void".equals(entitiesImplementsDataType.getQualifiedName())) {
+                    if (!entitiesImplementsDataType.isVoid()) {
                         generationInfo.setEntitiesImplements(entitiesImplementsDataType);
                     }
                 }

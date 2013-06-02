@@ -23,7 +23,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class ExecutorGroupRpcTemplate extends ClassTemplate {
 
-    public ExecutorGroupRpcTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public ExecutorGroupRpcTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         setPackageName(packageName);
         setClassName("ExecutorGroupRpc");

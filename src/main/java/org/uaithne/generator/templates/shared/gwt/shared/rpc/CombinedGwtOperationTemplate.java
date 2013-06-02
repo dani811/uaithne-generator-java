@@ -19,14 +19,15 @@
 package org.uaithne.generator.templates.shared.gwt.shared.rpc;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.templates.ClassTemplate;
 
 public class CombinedGwtOperationTemplate extends ClassTemplate {
 
-    public CombinedGwtOperationTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public CombinedGwtOperationTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
-        addImport(sharedPackageDot + "Executor", packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(DataTypeInfo.EXECUTOR_DATA_TYPE, packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setPackageName(packageName);
         setClassName("CombinedGwtOperation");
         addGenericArgument("RESULT extends CombinedGwtResult");

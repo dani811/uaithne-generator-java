@@ -24,7 +24,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class RpcRequest_CustomFieldSerializerTemplate extends ClassTemplate {
 
-    public RpcRequest_CustomFieldSerializerTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public RpcRequest_CustomFieldSerializerTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         setPackageName(packageName);
         addImport("com.google.gwt.user.client.rpc.CustomFieldSerializer", packageName);
@@ -32,7 +32,7 @@ public class RpcRequest_CustomFieldSerializerTemplate extends ClassTemplate {
         addImport("com.google.gwt.user.client.rpc.SerializationStreamReader", packageName);
         addImport("com.google.gwt.user.client.rpc.SerializationStreamWriter", packageName);
         addImport(ARRAYLIST_DATA_TYPE, packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         setClassName("RpcRequest_CustomFieldSerializer");
         setExtend("CustomFieldSerializer<RpcRequest>");
     }

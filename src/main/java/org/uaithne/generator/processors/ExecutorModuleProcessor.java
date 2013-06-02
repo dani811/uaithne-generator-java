@@ -133,7 +133,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
             return;
         }
-        EntityInfo entityInfo = generationInfo.getEntitiesByName().get(resultDataType.getQualifiedName());
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
 
         DataTypeInfo relatedDataType;
         try {
@@ -147,8 +147,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
 
-        if (!"java.lang.Void".equals(relatedDataType.getQualifiedName())) {
-            EntityInfo relatedEntityInfo = generationInfo.getEntitiesByName().get(relatedDataType.getQualifiedName());
+        if (!relatedDataType.isVoid()) {
+            EntityInfo relatedEntityInfo = generationInfo.getEntityByName(relatedDataType);
             if (relatedEntityInfo == null) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
                 return;
@@ -156,9 +156,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             entityInfo = relatedEntityInfo;
         }
 
-        DataTypeInfo pageResultDataType = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "DataPage<" + resultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "DataPage");
+        DataTypeInfo pageResultDataType = DataTypeInfo.DATA_PAGE_DATA_TYPE.of(resultDataType);
         pageResultDataType.getImports().addAll(resultDataType.getImports());
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
@@ -168,14 +166,10 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setDistinct(selectPage.distinct());
         operationInfo.setEntity(entityInfo);
 
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "Operation<" + pageResultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "Operation");
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(pageResultDataType);
         operationInfo.addImplement(operationInterface);
 
-        DataTypeInfo dataPageRequestInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "DataPageRequest",
-                generationInfo.getSharedPackageDot() + "DataPageRequest");
+        DataTypeInfo dataPageRequestInterface = DataTypeInfo.DATA_PAGE_REQUEST_DATA_TYPE;
         operationInfo.addImplement(dataPageRequestInterface);
 
         DataTypeInfo pageInfoDataType = DataTypeInfo.PAGE_INFO_DATA_TYPE;
@@ -218,7 +212,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
             return;
         }
-        EntityInfo entityInfo = generationInfo.getEntitiesByName().get(resultDataType.getQualifiedName());
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
 
         DataTypeInfo relatedDataType;
         try {
@@ -232,8 +226,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
 
-        if (!"java.lang.Void".equals(relatedDataType.getQualifiedName())) {
-            EntityInfo relatedEntityInfo = generationInfo.getEntitiesByName().get(relatedDataType.getQualifiedName());
+        if (!relatedDataType.isVoid()) {
+            EntityInfo relatedEntityInfo = generationInfo.getEntityByName(relatedDataType);
             if (relatedEntityInfo == null) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
                 return;
@@ -246,9 +240,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setOperationKind(OperationKind.SELECT_ONE);
         operationInfo.setEntity(entityInfo);
 
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "Operation<" + resultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "Operation");
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
@@ -268,7 +260,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
             return;
         }
-        EntityInfo entityInfo = generationInfo.getEntitiesByName().get(resultDataType.getQualifiedName());
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
 
         DataTypeInfo relatedDataType;
         try {
@@ -282,8 +274,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
 
-        if (!"java.lang.Void".equals(relatedDataType.getQualifiedName())) {
-            EntityInfo relatedEntityInfo = generationInfo.getEntitiesByName().get(relatedDataType.getQualifiedName());
+        if (!relatedDataType.isVoid()) {
+            EntityInfo relatedEntityInfo = generationInfo.getEntityByName(relatedDataType);
             if (relatedEntityInfo == null) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
                 return;
@@ -299,9 +291,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setDistinct(selectMany.distinct());
         operationInfo.setEntity(entityInfo);
 
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "Operation<" + listResultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "Operation");
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(listResultDataType);
         operationInfo.addImplement(operationInterface);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
@@ -321,16 +311,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
             return;
         }
-        EntityInfo entityInfo = generationInfo.getEntitiesByName().get(resultDataType.getQualifiedName());
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setOperationKind(OperationKind.CUSTOM);
         operationInfo.setEntity(entityInfo);
 
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "Operation<" + resultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "Operation");
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
         operationInfo.setManually(true);
 
@@ -356,7 +344,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
 
-        entity = generationInfo.getEntitiesByName().get(entityDataType.getQualifiedName());
+        entity = generationInfo.getEntityByName(entityDataType);
         if (entity == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
             return;
@@ -381,9 +369,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setOperationKind(operationKind);
 
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "Operation<" + resultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "Operation");
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
@@ -408,7 +394,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
 
-        entity = generationInfo.getEntitiesByName().get(entityDataType.getQualifiedName());
+        entity = generationInfo.getEntityByName(entityDataType);
         if (entity == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
             return;
@@ -419,9 +405,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setOperationKind(OperationKind.CUSTOM_UPDATE);
 
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "Operation<" + resultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "Operation");
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
@@ -445,7 +429,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             return;
         }
 
-        entity = generationInfo.getEntitiesByName().get(entityDataType.getQualifiedName());
+        entity = generationInfo.getEntityByName(entityDataType);
         if (entity == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
             return;
@@ -456,9 +440,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setOperationKind(OperationKind.CUSTOM_DELETE);
 
-        DataTypeInfo operationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                "Operation<" + resultDataType.getSimpleName() + ">",
-                generationInfo.getSharedPackageDot() + "Operation");
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
@@ -581,14 +563,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateDeleteByIdOperation) {
             DataTypeInfo deleteOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "Delete" + entityDataType.getSimpleName() + "ById");
+                    "Delete" + entityDataType.getSimpleNameWithoutGenerics()+ "ById");
             OperationInfo deleteOperationInfo = new OperationInfo(deleteOperationName);
             deleteOperationInfo.setReturnDataType(affectedRowCountDataType);
             deleteOperationInfo.setOperationKind(OperationKind.DELETE_BY_ID);
 
-            DataTypeInfo deleteOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "DeleteByIdOperation<" + idDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "DeleteByIdOperation");
+            DataTypeInfo deleteOperationInterface = DataTypeInfo.DELETE_BY_ID_OPERATION_DATA_TYPE.of(idDataType, affectedRowCountDataType);
             deleteOperationInterface.getImports().addAll(idDataType.getImports());
             deleteOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
             deleteOperationInfo.addImplement(deleteOperationInterface);
@@ -604,14 +584,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateInsertOperation) {
             DataTypeInfo insertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "Insert" + entityDataType.getSimpleName());
+                    "Insert" + entityDataType.getSimpleNameWithoutGenerics());
             OperationInfo insertOperationInfo = new OperationInfo(insertOperationName);
             insertOperationInfo.setReturnDataType(idDataType);
             insertOperationInfo.setOperationKind(OperationKind.INSERT);
 
-            DataTypeInfo insertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "InsertValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "InsertValueOperation");
+            DataTypeInfo insertOperationInterface = DataTypeInfo.INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
             insertOperationInterface.getImports().addAll(entityDataType.getImports());
             insertOperationInterface.getImports().addAll(idDataType.getImports());
             insertOperationInfo.addImplement(insertOperationInterface);
@@ -627,14 +605,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateJustInsertOperation) {
             DataTypeInfo justInsertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "JustInsert" + entityDataType.getSimpleName());
+                    "JustInsert" + entityDataType.getSimpleNameWithoutGenerics());
             OperationInfo justInsertOperationInfo = new OperationInfo(justInsertOperationName);
             justInsertOperationInfo.setReturnDataType(affectedRowCountDataType);
             justInsertOperationInfo.setOperationKind(OperationKind.JUST_INSERT);
 
-            DataTypeInfo justInsertOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "JustInsertValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "JustInsertValueOperation");
+            DataTypeInfo justInsertOperationInterface = DataTypeInfo.JUST_INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
             justInsertOperationInterface.getImports().addAll(entityDataType.getImports());
             justInsertOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
             justInsertOperationInfo.addImplement(justInsertOperationInterface);
@@ -650,14 +626,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateSaveOperation) {
             DataTypeInfo saveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "Save" + entityDataType.getSimpleName());
+                    "Save" + entityDataType.getSimpleNameWithoutGenerics());
             OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
             saveOperationInfo.setReturnDataType(idDataType);
             saveOperationInfo.setOperationKind(OperationKind.SAVE);
 
-            DataTypeInfo saveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "SaveValueOperation<" + entityDataType.getSimpleName() + ", " + idDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "SaveValueOperation");
+            DataTypeInfo saveOperationInterface = DataTypeInfo.SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
             saveOperationInterface.getImports().addAll(entityDataType.getImports());
             saveOperationInterface.getImports().addAll(idDataType.getImports());
             saveOperationInfo.addImplement(saveOperationInterface);
@@ -673,14 +647,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateJustSaveOperation) {
             DataTypeInfo justSaveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "JustSave" + entityDataType.getSimpleName());
+                    "JustSave" + entityDataType.getSimpleNameWithoutGenerics());
             OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
             justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
             justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
 
-            DataTypeInfo justSaveOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "JustSaveValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "JustSaveValueOperation");
+            DataTypeInfo justSaveOperationInterface = DataTypeInfo.JUST_SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
             justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
             justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
             justSaveOperationInfo.addImplement(justSaveOperationInterface);
@@ -696,14 +668,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateSelectByIdOperation) {
             DataTypeInfo selectOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "Select" + entityDataType.getSimpleName() + "ById");
+                    "Select" + entityDataType.getSimpleNameWithoutGenerics()+ "ById");
             OperationInfo selectOperationInfo = new OperationInfo(selectOperationName);
             selectOperationInfo.setReturnDataType(entityDataType);
             selectOperationInfo.setOperationKind(OperationKind.SELECT_BY_ID);
 
-            DataTypeInfo selectOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "SelectByIdOperation<" + idDataType.getSimpleName() + ", " + entityDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "SelectByIdOperation");
+            DataTypeInfo selectOperationInterface = DataTypeInfo.SELECT_BY_ID_OPERATION_DATA_TYPE.of(idDataType, entityDataType);
             selectOperationInterface.getImports().addAll(entityDataType.getImports());
             selectOperationInfo.addImplement(selectOperationInterface);
 
@@ -718,14 +688,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateUpdateOperation) {
             DataTypeInfo updateOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "Update" + entityDataType.getSimpleName());
+                    "Update" + entityDataType.getSimpleNameWithoutGenerics());
             OperationInfo updateOperationInfo = new OperationInfo(updateOperationName);
             updateOperationInfo.setReturnDataType(affectedRowCountDataType);
             updateOperationInfo.setOperationKind(OperationKind.UPDATE);
 
-            DataTypeInfo updateOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "UpdateValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "UpdateValueOperation");
+            DataTypeInfo updateOperationInterface = DataTypeInfo.UPDATE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
             updateOperationInterface.getImports().addAll(entityDataType.getImports());
             updateOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
             updateOperationInfo.addImplement(updateOperationInterface);
@@ -741,14 +709,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         if (generateMergeOperation) {
             DataTypeInfo mergeOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
-                    "Merge" + entityDataType.getSimpleName());
+                    "Merge" + entityDataType.getSimpleNameWithoutGenerics());
             OperationInfo mergeOperationInfo = new OperationInfo(mergeOperationName);
             mergeOperationInfo.setReturnDataType(affectedRowCountDataType);
             mergeOperationInfo.setOperationKind(OperationKind.MERGE);
 
-            DataTypeInfo mergeOperationInterface = new DataTypeInfo(generationInfo.getSharedPackage(),
-                    "MergeValueOperation<" + entityDataType.getSimpleName() + ", " + affectedRowCountDataType.getSimpleName() + ">",
-                    generationInfo.getSharedPackageDot() + "MergeValueOperation");
+            DataTypeInfo mergeOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
             mergeOperationInterface.getImports().addAll(entityDataType.getImports());
             mergeOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
             mergeOperationInfo.addImplement(mergeOperationInterface);
@@ -778,22 +744,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             generateModuleChainedGroupingExecutorsEnabled = operationModuleAnnotation.generateChainedGroupingExecutor().solve(defaultGenerateModuleChainedGroupingExecutorsEnabled);
         }
         String packageName = executorModuleInfo.getOperationPackage();
-        String sharedPackageDot = generationInfo.getSharedPackageDot();
 
-        processClassTemplate(new ExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
+        processClassTemplate(new ExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
 
         for (OperationInfo operation : executorModuleInfo.getOperations()) {
-            processClassTemplate(new OperationTemplate(operation, packageName, executorModuleInfo.getExecutorInterfaceName(), sharedPackageDot), operation.getElement());
+            processClassTemplate(new OperationTemplate(operation, packageName, executorModuleInfo.getExecutorInterfaceName()), operation.getElement());
         }
 
         if (generateModuleChainedExecutorsEnabled) {
-            processClassTemplate(new ChainedExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
+            processClassTemplate(new ChainedExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
         }
 
-        processClassTemplate(new AbstractExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
+        processClassTemplate(new AbstractExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
 
         if (generateModuleChainedGroupingExecutorsEnabled) {
-            processClassTemplate(new ChainedGroupingExecutorTemplate(executorModuleInfo, packageName, sharedPackageDot), executorModuleInfo.getElement());
+            processClassTemplate(new ChainedGroupingExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
         }
 
         if (executorModuleInfo.getAnnotation(PlainExecutor.class) != null) {

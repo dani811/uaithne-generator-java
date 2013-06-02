@@ -19,16 +19,17 @@
 package org.uaithne.generator.templates.shared.gwt.client;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.templates.ClassTemplate;
 
 public class SyncAsyncExecutorGroupTemplate extends ClassTemplate {
 
-    public SyncAsyncExecutorGroupTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public SyncAsyncExecutorGroupTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "client";
         setPackageName(packageName);
-        addImport("com.google.gwt.user.client.rpc.AsyncCallback", sharedPackageDot);
-        addImport(sharedPackageDot + "Operation", packageName);
-        addImport(sharedPackageDot + "ExecutorGroup", packageName);
+        addImport("com.google.gwt.user.client.rpc.AsyncCallback", packageName);
+        addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
+        addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
         setClassName("SyncAsyncExecutorGroup");
         addImplement("AsyncExecutorGroup");
     }

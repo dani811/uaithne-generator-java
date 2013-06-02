@@ -20,6 +20,7 @@ package org.uaithne.generator.templates;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.OperationInfo;
 
 public class GwtAccesorTemplate extends ClassTemplate {
@@ -34,18 +35,15 @@ public class GwtAccesorTemplate extends ClassTemplate {
         this.operations = operations;
     }
 
-    public GwtAccesorTemplate(ArrayList<OperationInfo> operations, String packageName, String className, String sharedPackageDot, String sharedGwtPackageDot) {
+    public GwtAccesorTemplate(ArrayList<OperationInfo> operations, String packageName, String className) {
         setPackageName(packageName);
         addImport("com.google.gwt.user.client.rpc.AsyncCallback", packageName);
-        for (OperationInfo operation : operations) {
-            operation.appendReturnImports(packageName, getImport());
-        }
-        addImport(sharedGwtPackageDot + "client.AsyncExecutorGroup", packageName);
-        addImport(sharedGwtPackageDot + "shared.rpc.AwaitGwtOperation", packageName);
-        addImport(sharedGwtPackageDot + "shared.rpc.AwaitGwtResult", packageName);
-        addImport(sharedGwtPackageDot + "shared.rpc.CombinedGwtOperation", packageName);
-        addImport(sharedGwtPackageDot + "shared.rpc.CombinedGwtResult", packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(GWT_ASYNC_EXECUTOR_GROUP_DATA_TYPE, packageName);
+        addImport(GWT_AWAIT_GWT_OPERATION_DATA_TYPE, packageName);
+        addImport(GWT_AWAIT_GWT_RESULT_DATA_TYPE, packageName);
+        addImport(GWT_COMBINED_GWT_OPERATION_DATA_TYPE, packageName);
+        addImport(GWT_COMBINED_GWT_RESULT_DATA_TYPE, packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         setClassName(className);
         addImplement("AsyncExecutorGroup");
         this.operations = operations;
@@ -71,7 +69,7 @@ public class GwtAccesorTemplate extends ClassTemplate {
                 + "\n");
 
         for (OperationInfo operation : operations) {
-            appender.append("    public void execute(").append(operation.getDataType().getQualifiedName()).append(" operation, AsyncCallback<").append(operation.getReturnDataType().getSimpleName()).append("> asyncCallback) {\n"
+            appender.append("    public void execute(").append(operation.getDataType().getPrintableQualifiedName()).append(" operation, AsyncCallback<").append(operation.getReturnDataType().getPrintableQualifiedName()).append("> asyncCallback) {\n"
                     + "        chainedExecutorGroup.execute(operation, asyncCallback);\n"
                     + "    }\n"
                     + "\n");

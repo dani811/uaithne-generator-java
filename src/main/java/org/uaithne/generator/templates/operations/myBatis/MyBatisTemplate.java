@@ -57,9 +57,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         this.hasUnimplementedOperations = hasUnimplementedOperations;
     }
     
-    public MyBatisTemplate(ExecutorModuleInfo executorModule, String packageName, String className, String namespace, boolean useAliasInOrderBy, boolean hasUnimplementedOperations, String sharedPackageDot, String sharedMyBatisPackageDot) {
+    public MyBatisTemplate(ExecutorModuleInfo executorModule, String packageName, String className, String namespace, boolean useAliasInOrderBy, boolean hasUnimplementedOperations) {
         setPackageName(packageName);
-        addImport(sharedPackageDot + "Operation", packageName);
+        addImport(OPERATION_DATA_TYPE, packageName);
         addImport("org.apache.ibatis.session.SqlSession", packageName);
         addImport(PAGE_INFO_DATA_TYPE, packageName);
         addImport(LIST_DATA_TYPE, packageName);
@@ -69,7 +69,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             addImport(HASHMAP_DATA_TYPE, packageName);
         }
         addImport(ARRAYLIST_DATA_TYPE, packageName);
-        addImport(sharedMyBatisPackageDot + "SqlSessionProvider", packageName);
+        addImport(MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE, packageName);
         setClassName(className);
         setExecutorModule(executorModule);
         addImplement(executorModule.getExecutorInterfaceName());
@@ -84,7 +84,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
 
         for (EntityInfo entity : getExecutorModule().getEntities()) {
             if (entity.isUsedInOrderedOperation()) {
-                appender.append("    protected HashMap<String,String> orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(" = new HashMap<String,String>();\n");
+                appender.append("    protected HashMap<String,String> orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(" = new HashMap<String,String>();\n");
             }
         }
 
@@ -107,8 +107,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             }
 
             if (operation.getOperationKind() == OperationKind.INSERT) {
-                appender.append("    public ").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(" getLastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleName()).append("() {\n"
-                        + "        return (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") getSession().selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleName()).append("\");\n"
+                appender.append("    public ").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(" getLastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("() {\n"
+                        + "        return (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") getSession().selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                         + "    }\n"
                         + "\n");
             }
@@ -162,9 +162,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 }
                 case INSERT: {
                     appender.append("        SqlSession session = getSession();\n"
-                            + "        Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleName()).append("\", operation.getValue());\n"
+                            + "        Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", operation.getValue());\n"
                             + "        if (i != null && i.intValue() == 1) {\n"
-                            + "            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleName()).append("\");\n"
+                            + "            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                             + "            return result;\n"
                             + "        } else {\n"
                             + "            throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
@@ -172,7 +172,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case JUST_INSERT: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleName()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
@@ -180,15 +180,15 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
                             + "            SqlSession session = getSession();\n"
-                            + "            Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleName()).append("\", value);\n"
+                            + "            Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
                             + "            if (i != null && i.intValue() == 1) {\n"
-                            + "                ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleName()).append("\");\n"
+                            + "                ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                             + "                return result;\n"
                             + "            } else {\n"
                             + "                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
                             + "            }\n"
                             + "        } else {\n"
-                            + "            Integer i = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleName()).append("\", value);\n"
+                            + "            Integer i = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
                             + "            if (i != null && i.intValue() == 1) {\n"
                             + "                ").append(returnTypeName).append(" result = value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("();\n"
                             + "                return result;\n"
@@ -202,9 +202,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        ").append(returnTypeName).append(" result;\n"
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
-                            + "            result = getSession().insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleName()).append("\", value);\n"
+                            + "            result = getSession().insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
                             + "        } else {\n"
-                            + "            result = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleName()).append("\", value);\n"
+                            + "            result = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
                             + "        }\n"
                             + "        return result;\n");
                     break;
@@ -215,7 +215,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case UPDATE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleName()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
@@ -238,7 +238,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     appender.append("        SqlSession session = getSession();\n"
                             + "        Integer i = session.insert(\"").append(operation.getExtraInfo().get("myBatisStatementId").toString()).append("\", operation);\n"
                             + "        if (i != null && i.intValue() == 1) {\n"
-                            + "            ").append(returnTypeName).append(" result = session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleName()).append("\");\n"
+                            + "            ").append(returnTypeName).append(" result = session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                             + "            return result;\n"
                             + "        } else {\n"
                             + "            throw new IllegalStateException(\"Unable to insert. Operation: \" + operation + \". Insertion result: \" + i);\n"
@@ -246,7 +246,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case MERGE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(namespace).append(".merge").append(operation.getEntity().getDataType().getSimpleName()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(namespace).append(".merge").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
@@ -305,9 +305,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             for (EntityInfo entity : getExecutorModule().getEntities()) {
                 if (entity.getCombined().isUsedInOrderedOperation()) {
                     for (FieldInfo field : entity.getCombined().getFields()) {
-                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getLowerCaseName()).append("\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getLowerCaseName()).append(" asc\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"").append(field.getLowerCaseName()).append(" desc\");\n");
+                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getLowerCaseName()).append("\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getLowerCaseName()).append(" asc\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"").append(field.getLowerCaseName()).append(" desc\");\n");
                     }
                 }
             }
@@ -315,9 +315,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             for (EntityInfo entity : getExecutorModule().getEntities()) {
                 if (entity.getCombined().isUsedInOrderedOperation()) {
                     for (FieldInfo field : entity.getCombined().getFields()) {
-                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getMappedNameOrName()).append("\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getMappedNameOrName()).append(" asc\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"").append(field.getMappedNameOrName()).append(" desc\");\n");
+                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getMappedNameOrName()).append("\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getMappedNameOrName()).append(" asc\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"").append(field.getMappedNameOrName()).append(" desc\");\n");
                     }
                 }
             }

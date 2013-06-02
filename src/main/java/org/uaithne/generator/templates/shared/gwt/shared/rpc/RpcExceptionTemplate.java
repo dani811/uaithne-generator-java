@@ -23,7 +23,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class RpcExceptionTemplate extends ClassTemplate {
 
-    public RpcExceptionTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public RpcExceptionTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         setPackageName(packageName);
         setClassName("RpcException");

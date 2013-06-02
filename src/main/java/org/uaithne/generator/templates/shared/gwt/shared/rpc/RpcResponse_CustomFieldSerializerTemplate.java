@@ -24,7 +24,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public class RpcResponse_CustomFieldSerializerTemplate extends ClassTemplate {
 
-    public RpcResponse_CustomFieldSerializerTemplate(String sharedGwtPackageDot, String sharedPackageDot) {
+    public RpcResponse_CustomFieldSerializerTemplate(String sharedGwtPackageDot) {
         String packageName = sharedGwtPackageDot + "shared.rpc";
         addImport("com.google.gwt.user.client.rpc.CustomFieldSerializer", packageName);
         addImport("com.google.gwt.user.client.rpc.SerializationException", packageName);
