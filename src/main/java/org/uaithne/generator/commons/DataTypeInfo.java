@@ -397,7 +397,8 @@ public class DataTypeInfo {
     public static final DataTypeInfo AFFECTED_ROW_COUNT_DATA_TYPE = new DataTypeInfo("java.lang", AFFECTED_ROW_COUNT_DATA, "java.lang.Integer");
     public static final String LIST_DATA = "List";
     public static final DataTypeInfo LIST_DATA_TYPE = new DataTypeInfo("java.util", LIST_DATA, "java.util.List");
-    public static final DataTypeInfo ARRAYLIST_DATA_TYPE = new DataTypeInfo("java.util", "ArrayList", "java.util.ArrayList");
+    public static final String ARRAYLIST_DATA = "ArrayList";
+    public static final DataTypeInfo ARRAYLIST_DATA_TYPE = new DataTypeInfo("java.util", ARRAYLIST_DATA, "java.util.ArrayList");
     public static final DataTypeInfo HASHMAP_DATA_TYPE = new DataTypeInfo("java.util", "HashMap", "java.util.HashMap");
     
     private static final String DEFAULT_SHARED_PACKAGE = "org.uaithne.shared";
@@ -446,6 +447,9 @@ public class DataTypeInfo {
     public static DataTypeInfo GWT_AWAIT_GWT_RESULT_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "AwaitGwtResult", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.AwaitGwtResult");
     public static DataTypeInfo GWT_COMBINED_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "CombinedGwtOperation", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.CombinedGwtOperation");
     public static DataTypeInfo GWT_COMBINED_GWT_RESULT_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "CombinedGwtResult", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.CombinedGwtResult");
+    public static DataTypeInfo GWT_EXECUTOR_GROUP_RPC_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "ExecutorGroupRpc", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.ExecutorGroupRpc");
+    public static DataTypeInfo GWT_EXECUTOR_GROUP_RPC_ASYNC_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "ExecutorGroupRpcAsync", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.ExecutorGroupRpcAsync");
+    public static DataTypeInfo GWT_RPC_EXCEPTION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "RpcException", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.RpcException");
     
     public static void updateSharedGwtPackage(String sharedGwtPackage) {
         GWT_ASYNC_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".client", "AsyncExecutorGroup", sharedGwtPackage + ".client.AsyncExecutorGroup");
@@ -453,5 +457,8 @@ public class DataTypeInfo {
         GWT_AWAIT_GWT_RESULT_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "AwaitGwtResult", sharedGwtPackage + ".shared.rpc.AwaitGwtResult");
         GWT_COMBINED_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "CombinedGwtOperation", sharedGwtPackage + ".shared.rpc.CombinedGwtOperation");
         GWT_COMBINED_GWT_RESULT_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "CombinedGwtResult", sharedGwtPackage + ".shared.rpc.CombinedGwtResult");
+        GWT_EXECUTOR_GROUP_RPC_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "ExecutorGroupRpc", sharedGwtPackage + ".shared.rpc.ExecutorGroupRpc");
+        GWT_EXECUTOR_GROUP_RPC_ASYNC_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "ExecutorGroupRpcAsync", sharedGwtPackage + ".shared.rpc.ExecutorGroupRpcAsync");
+        GWT_RPC_EXCEPTION_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "RpcException", sharedGwtPackage + ".shared.rpc.RpcException");
     }
 }

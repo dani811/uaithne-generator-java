@@ -26,27 +26,33 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import org.uaithne.annotations.gwt.GwtAccesor;
+import org.uaithne.annotations.gwt.GwtRemoteService;
 import org.uaithne.generator.commons.*;
-import org.uaithne.generator.templates.gwt.GwtAccesorTemplate;
+import org.uaithne.generator.templates.gwt.GwtRemoteServiceAsyncTemplate;
+import org.uaithne.generator.templates.gwt.GwtRemoteServiceRequestTypeIncluder;
+import org.uaithne.generator.templates.gwt.GwtRemoteServiceResponseTypeIncluder;
+import org.uaithne.generator.templates.gwt.GwtRemoteServiceTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedAnnotationTypes("org.uaithne.annotations.gwt.GwtAccesor")
-public class GwtAccesorProcessor extends TemplateProcessor {
+@SupportedAnnotationTypes("org.uaithne.annotations.gwt.GwtRemoteService")
+public class GwtRemoteServiceProcessor extends TemplateProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
         GenerationInfo generationInfo = getGenerationInfo();
 
-        for (Element element : re.getElementsAnnotatedWith(GwtAccesor.class)) {
+        for (Element element : re.getElementsAnnotatedWith(GwtRemoteService.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
+                GwtRemoteService rs = element.getAnnotation(GwtRemoteService.class);
+                String relativePath = rs.relativePath();
                 DataTypeInfo dataType = NamesGenerator.createClassBasedDataType(classElement);
-                GwtAccesorTemplate template = new GwtAccesorTemplate(
-                        generationInfo.getOperations(),
-                        dataType.getPackageName(),
-                        dataType.getSimpleNameWithoutGenerics());
-                processClassTemplate(template, element);
+                String packageName = dataType.getPackageName();
+                String serviceName = dataType.getSimpleNameWithoutGenerics();
+                processClassTemplate(new GwtRemoteServiceTemplate(packageName, serviceName, relativePath), element);
+                processClassTemplate(new GwtRemoteServiceAsyncTemplate(packageName, serviceName), element);
+                processClassTemplate(new GwtRemoteServiceRequestTypeIncluder(packageName, serviceName, generationInfo), element);
+                processClassTemplate(new GwtRemoteServiceResponseTypeIncluder(packageName, serviceName, generationInfo), element);
             }
         }
         return true; // no further processing of this annotation type

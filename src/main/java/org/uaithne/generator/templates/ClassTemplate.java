@@ -31,9 +31,9 @@ public abstract class ClassTemplate {
     private String className;
     private String extend;
     private String documentation[];
-    private HashSet<String> implement = new HashSet<String>();
-    private HashSet<String> imports = new HashSet<String>();
-    private ArrayList<String> genericArguments = new ArrayList<String>();
+    private HashSet<String> implement = new HashSet<String>(0);
+    private HashSet<String> imports = new HashSet<String>(0);
+    private ArrayList<String> genericArguments = new ArrayList<String>(0);
     private boolean isInterface;
     private boolean isAbstract;
 
@@ -139,6 +139,7 @@ public abstract class ClassTemplate {
             appender.append(" */\n");
         }
         
+        writeClassAnnotations(appender);
         appender.append("public ");
         if (isAbstract) {
             appender.append("abstract ");
@@ -185,5 +186,9 @@ public abstract class ClassTemplate {
     
     protected void writeEndClass(Appendable appender) throws IOException {
         appender.append("\n\n}");
+    }
+    
+    protected void writeClassAnnotations(Appendable appender) throws IOException {
+        
     }
 }

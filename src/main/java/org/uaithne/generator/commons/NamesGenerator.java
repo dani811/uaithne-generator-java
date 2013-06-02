@@ -184,7 +184,7 @@ public class NamesGenerator {
         return new DataTypeInfo(packageName, simpleName);
     }
 
-    public static DataTypeInfo createGwtAccesorDataType(TypeElement element) {
+    public static DataTypeInfo createClassBasedDataType(TypeElement element) {
         String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
         String packageName = element.getQualifiedName().toString();
         int lastDot = packageName.lastIndexOf(".");

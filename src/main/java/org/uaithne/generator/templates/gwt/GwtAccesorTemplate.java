@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.templates;
+package org.uaithne.generator.templates.gwt;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.OperationInfo;
+import org.uaithne.generator.templates.ClassTemplate;
 
 public class GwtAccesorTemplate extends ClassTemplate {
 
