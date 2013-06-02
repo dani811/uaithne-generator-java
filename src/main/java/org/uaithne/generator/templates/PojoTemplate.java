@@ -35,31 +35,33 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
     }
 
     protected void writeGetterDocumentation(Appendable appender, String[] doc, String fieldName) throws IOException {
+
+        appender.append("    /**\n");
         if (doc != null) {
-            appender.append("    /**\n");
             for (String s : doc) {
                 appender.append("     * ").append(s).append("\n");
             }
-            appender.append("     * @return the ");
-            appender.append(fieldName);
-            appender.append("\n");
-            appender.append("     */\n");
         }
+        appender.append("     * @return the ");
+        appender.append(fieldName);
+        appender.append("\n");
+        appender.append("     */\n");
     }
 
     protected void writeSetterDocumentation(Appendable appender, String[] doc, String fieldName) throws IOException {
+
+        appender.append("    /**\n");
         if (doc != null) {
-            appender.append("    /**\n");
             for (String s : doc) {
                 appender.append("     * ").append(s).append("\n");
             }
-            appender.append("     * @param ");
-            appender.append(fieldName);
-            appender.append(" the ");
-            appender.append(fieldName);
-            appender.append("to set\n");
-            appender.append("     */\n");
         }
+        appender.append("     * @param ");
+        appender.append(fieldName);
+        appender.append(" the ");
+        appender.append(fieldName);
+        appender.append(" to set\n");
+        appender.append("     */\n");
     }
 
     protected void writeField(Appendable appender, FieldInfo field) throws IOException {
@@ -133,10 +135,15 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             appender.append("            \"").append(field.getName()).append("=\" + ").append(field.getName()).append(" + ");
         }
         if (callSuper) {
-            appender.append("            \"superclass=\" + super.toString() +\n");
+            appender.append("\"| \" +\n"
+                    + "            \"superclass=\" + super.toString() +");
+            requireSeparator = true;
         }
-        appender.append("            \"}\";\n");
-        appender.append("    }\n");
+        if (requireSeparator) {
+            appender.append("\n");
+        }
+        appender.append("            \"}\";\n"
+                + "    }\n");
     }
 
     protected void writeStartEquals(Appendable appender, ArrayList<FieldInfo> fields, boolean callSuper, boolean alwaysGenerateOtherVariable) throws IOException {

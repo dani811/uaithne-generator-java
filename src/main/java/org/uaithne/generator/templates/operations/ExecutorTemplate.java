@@ -37,8 +37,9 @@ public class ExecutorTemplate extends ExecutorModuleTemplate {
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    public static final Object SELECTOR = ").append(getClassName()).append(".class;\n\n");
+        appender.append("    public static final Object SELECTOR = ").append(getClassName()).append(".class;\n");
         for (OperationInfo operation : getExecutorModule().getOperations()) {
+            appender.append("\n");
             String[] opDoc = operation.getDocumentation();
             if (opDoc != null) {
                 appender.append("    /**\n");
@@ -48,7 +49,7 @@ public class ExecutorTemplate extends ExecutorModuleTemplate {
                 appender.append("     */\n");
             }
             writeOperationMethodHeader(appender, operation);
-            appender.append(";\n");
+            appender.append(";");
         }
     }
     

@@ -135,6 +135,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 }
                 case SELECT_PAGE: {
                     String myBatisCountStatementId = operation.getExtraInfo().get("myBatisCountStatementId").toString();
+                    String myBatisStatementId = operation.getExtraInfo().get("myBatisStatementId").toString();
                     writeStartOrderByVariable(appender, operation);
                     appender.append("        ").append(returnTypeName).append(" result = new ").append(returnTypeName).append("();\n"
                             + "        ").append(PAGE_INFO_DATA).append(" count = operation.getDataCount();\n"
@@ -146,7 +147,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "            return result;\n"
                             + "        }\n"
                             + "\n"
-                            + "        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(myBatisCountStatementId).append("\", operation);\n");
+                            + "        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(myBatisStatementId).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        result.setData(data);\n"
                             + "        result.setLimit(operation.getLimit());\n"
@@ -304,9 +305,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             for (EntityInfo entity : getExecutorModule().getEntities()) {
                 if (entity.getCombined().isUsedInOrderedOperation()) {
                     for (FieldInfo field : entity.getCombined().getFields()) {
-                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"\\\"").append(field.getLowerCaseName()).append("\\\"\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"\\\"").append(field.getLowerCaseName()).append("\\\" asc\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"\\\"").append(field.getLowerCaseName()).append("\\\" desc\");\n");
+                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getLowerCaseName()).append("\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getLowerCaseName()).append(" asc\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"").append(field.getLowerCaseName()).append(" desc\");\n");
                     }
                 }
             }
@@ -314,9 +315,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             for (EntityInfo entity : getExecutorModule().getEntities()) {
                 if (entity.getCombined().isUsedInOrderedOperation()) {
                     for (FieldInfo field : entity.getCombined().getFields()) {
-                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"\\\"").append(field.getMappedNameOrName()).append("\\\"\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"\\\"").append(field.getMappedNameOrName()).append("\\\" asc\");\n"
-                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"\\\"").append(field.getMappedNameOrName()).append("\\\" desc\");\n");
+                        appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getMappedNameOrName()).append("\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getMappedNameOrName()).append(" asc\");\n"
+                                + "        orderByTranslationsFor").append(entity.getDataType().getSimpleName()).append(".put(\"").append(field.getLowerCaseName()).append(" desc\", \"").append(field.getMappedNameOrName()).append(" desc\");\n");
                     }
                 }
             }
@@ -328,9 +329,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         for (FieldInfo field : operation.getFields()) {
             if (field.isOrderBy()) {
                 appender.append("        ").append(field.getDataType().getSimpleName()).append(" ").append(field.getName()).append("Old = operation.get").append(field.getCapitalizedName()).append("();\n"
-                        + "        operation.set").append(field.getCapitalizedName()).append("(translateOrderBy(").append(field.getName()).append("Old, orderByTranslationsFor").append(operation.getEntity().getDataType().getSimpleName()).append("));\n"
-                        + "\n"
-                        + "\n");
+                        + "        operation.set").append(field.getCapitalizedName()).append("(translateOrderBy(").append(field.getName()).append("Old, orderByTranslationsFor").append(operation.getEntity().getDataType().getSimpleName()).append("));\n");
             }
         }
     }

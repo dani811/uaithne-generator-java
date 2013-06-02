@@ -147,7 +147,7 @@ public class OperationTemplate extends PojoTemplate {
     }
 
     void writeConstructors(Appendable appender) throws IOException {
-        if (operation.getMandatoryFields().isEmpty()) {
+        if (!operation.getMandatoryFields().isEmpty()) {
             appender.append("    public ").append(getClassName()).append("() {\n"
                     + "    }\n"
                     + "\n");
@@ -211,9 +211,8 @@ public class OperationTemplate extends PojoTemplate {
             writeField(appender, field);
         }
 
-        appender.append("\n");
-
         for (FieldInfo field : operation.getFieldsWithExtras()) {
+            appender.append("\n");
             writeFieldGetter(appender, field);
             appender.append("\n");
             writeFieldSetter(appender, field);

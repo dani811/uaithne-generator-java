@@ -69,6 +69,6 @@ public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
                 + "            throw new IllegalArgumentException(\"chainedExecutorGroup for the ").append(getClassName()).append(" cannot be null\");\n"
                 + "        }\n"
                 + "        this.chainedExecutorGroup = chainedExecutorGroup;\n"
-                + "    }\n");
+                + "    }");
     }
 }
