@@ -36,10 +36,10 @@ import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.annotations.sql.JdbcType;
 import org.uaithne.annotations.sql.UseJdbcType;
 import org.uaithne.generator.commons.*;
-import org.uaithne.generator.processors.sql.SqlMappersProcessor;
+import org.uaithne.generator.processors.sql.AbstractSqlQueryGenerator;
 import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 
-public abstract class MyBatisMappersProcessor extends SqlMappersProcessor {
+public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator {
 
     //<editor-fold defaultstate="collapsed" desc="Process">
     public void process(RoundEnvironment re, Element element) {

@@ -27,7 +27,7 @@ import org.uaithne.annotations.*;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.*;
 
-public abstract class SqlMappersProcessor extends TemplateProcessor {
+public abstract class AbstractSqlQueryGenerator extends TemplateProcessor {
 
     //<editor-fold defaultstate="collapsed" desc="Complete query">
     public String[] completeQuery(String[] query, OperationInfo operation, boolean count) {
