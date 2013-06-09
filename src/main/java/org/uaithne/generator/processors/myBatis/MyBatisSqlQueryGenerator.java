@@ -18,7 +18,6 @@
  */
 package org.uaithne.generator.processors.myBatis;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.Comparator;
