@@ -25,21 +25,21 @@ import java.util.logging.Logger;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
-import org.uaithne.annotations.Comparator;
 import org.uaithne.annotations.myBatis.MyBatisCustomSqlStatementId;
-import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
-import org.uaithne.annotations.sql.CustomSqlQuery;
-import org.uaithne.annotations.sql.JdbcType;
-import org.uaithne.annotations.sql.UseJdbcType;
 import org.uaithne.generator.commons.*;
 import org.uaithne.generator.processors.sql.AbstractSqlQueryGenerator;
 import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 
-public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator {
+public abstract class MyBatisMappersProcessor extends TemplateProcessor {
+    
+    protected AbstractSqlQueryGenerator queryGenerator;
+
+    public MyBatisMappersProcessor(AbstractSqlQueryGenerator queryGenerator) {
+        this.queryGenerator = queryGenerator;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Process">
     public void process(RoundEnvironment re, Element element) {
@@ -128,7 +128,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             break;
             case SELECT_ONE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = getSelectOneQuery(operation);
+                String[] query = queryGenerator.getSelectOneQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
@@ -140,7 +140,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             break;
             case SELECT_MANY: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = getSelectManyQuery(operation);
+                String[] query = queryGenerator.getSelectManyQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
@@ -153,7 +153,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             case SELECT_PAGE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName() + "Page");
                 operation.getExtraInfo().put("myBatisCountStatementId", namespace + "." + operation.getMethodName() + "Count");
-                String[] query = getSelectPageQuery(operation);
+                String[] query = queryGenerator.getSelectPageQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName() + "Page",
@@ -161,7 +161,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
                             operation.getOneItemReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
-                query = getSelectPageCountQuery(operation);
+                query = queryGenerator.getSelectPageCountQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName() + "Count",
@@ -172,7 +172,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             }
             break;
             case DELETE_BY_ID: {
-                String[] query = getEntityDeleteByIdQuery(entity);
+                String[] query = queryGenerator.getEntityDeleteByIdQuery(entity);
                 if (query != null) {
                     writeDelete(writer,
                             operation.getMethodName(),
@@ -182,14 +182,14 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             }
             break;
             case INSERT: {
-                String[] query = getEntityLastInsertedIdQuery(entity);
+                String[] query = queryGenerator.getEntityLastInsertedIdQuery(entity);
                 if (query != null) {
                     writeSelectWithoutParameter(writer,
                             "lastInsertedIdFor" + entity.getDataType().getSimpleNameWithoutGenerics(),
                             operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
-                query = getEntityInsertQuery(entity);
+                query = queryGenerator.getEntityInsertQuery(entity);
                 if (query != null) {
                     writeInsert(writer,
                             "insert" + entity.getDataType().getSimpleNameWithoutGenerics(),
@@ -208,7 +208,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             }
             break;
             case SELECT_BY_ID: {
-                String[] query = getEntitySelectByIdQuery(entity);
+                String[] query = queryGenerator.getEntitySelectByIdQuery(entity);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
@@ -219,7 +219,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             }
             break;
             case UPDATE: {
-                String[] query = getEntityUpdateQuery(entity);
+                String[] query = queryGenerator.getEntityUpdateQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,
                             "update" + entity.getDataType().getSimpleNameWithoutGenerics(),
@@ -230,7 +230,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             break;
             case CUSTOM_INSERT: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = getCustomInsertQuery(operation);
+                String[] query = queryGenerator.getCustomInsertQuery(operation);
                 if (query != null) {
                     writeInsert(writer,
                             operation.getMethodName(),
@@ -241,7 +241,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             break;
             case CUSTOM_UPDATE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = getCustomUpdateQuery(operation);
+                String[] query = queryGenerator.getCustomUpdateQuery(operation);
                 if (query != null) {
                     writeUpdate(writer,
                             operation.getMethodName(),
@@ -252,7 +252,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             break;
             case CUSTOM_DELETE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = getCustomDeleteQuery(operation);
+                String[] query = queryGenerator.getCustomDeleteQuery(operation);
                 if (query != null) {
                     writeDelete(writer,
                             operation.getMethodName(),
@@ -263,7 +263,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             break;
             case CUSTOM_INSERT_WITH_ID: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = getCustomInsertQuery(operation);
+                String[] query = queryGenerator.getCustomInsertQuery(operation);
                 if (query != null) {
                     writeInsert(writer,
                             operation.getMethodName(),
@@ -273,7 +273,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
             }
             break;
             case MERGE: {
-                String[] query = getEntityMergeQuery(entity);
+                String[] query = queryGenerator.getEntityMergeQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,
                             "merge" + entity.getDataType().getSimpleNameWithoutGenerics(),
@@ -369,236 +369,7 @@ public abstract class MyBatisMappersProcessor extends AbstractSqlQueryGenerator 
         writer.write("    </delete>\n\n");
     }
     //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Order by">
-    @Override
-    public void appendOrderBy(StringBuilder result, FieldInfo orderBy, CustomSqlQuery customQuery) {
-        if (customQuery != null) {
-            if (hasQueryValue(customQuery.orderBy())) {
-                result.append("\norder by");
-                appendToQueryln(result, customQuery.beforeOrderByExpression(), "    ");
-                appendToQueryln(result, customQuery.orderBy(), "    ");
-                appendToQueryln(result, customQuery.afterOrderByExpression(), "    ");
-            } else if (hasQueryValue(customQuery.beforeOrderByExpression()) || hasQueryValue(customQuery.afterOrderByExpression())) {
-                result.append("\norder by");
-                appendToQueryln(result, customQuery.beforeOrderByExpression(), "    ");
-                if (orderBy != null) {
-                    if (orderBy.isOptional()) {
-                        result.append("\n    <if test='");
-                        result.append(orderBy.getName());
-                        result.append(" != null'> ${");
-                        result.append(orderBy.getName());
-                        result.append("} </if>");
-                    } else {
-                        result.append("\n    ${");
-                        result.append(orderBy.getName());
-                        result.append("}");
-                    }
-                }
-                appendToQueryln(result, customQuery.afterOrderByExpression(), "    ");
-            } else if (orderBy != null) {
-                if (orderBy.isOptional()) {
-                    result.append("\n<if test='");
-                    result.append(orderBy.getName());
-                    result.append(" != null'> order by ${");
-                    result.append(orderBy.getName());
-                    result.append("} </if>");
-                } else {
-                    result.append("\norder by ${");
-                    result.append(orderBy.getName());
-                    result.append("}");
-                }
-            }
-        } else if (orderBy != null) {
-            if (orderBy.isOptional()) {
-                result.append("\n<if test='");
-                result.append(orderBy.getName());
-                result.append(" != null'> order by ${");
-                result.append(orderBy.getName());
-                result.append("} </if>");
-            } else {
-                result.append("\norder by ${");
-                result.append(orderBy.getName());
-                result.append("}");
-            }
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Parameter">
-    @Override
-    public String getParameterValue(FieldInfo field) {
-        return "#{" + field.getName() + getJdbcType(field) + getTypeHandler(field) + "}";
-    }
-
-    public String getJdbcType(FieldInfo field) {
-        UseJdbcType ujt = field.getAnnotation(UseJdbcType.class);
-        JdbcType jdbcType;
-        if (ujt != null) {
-            jdbcType = ujt.value();
-        } else {
-            jdbcType = null;
-        }
-        if (jdbcType != null) {
-            return ",jdbcType=" + jdbcType.name();
-        }
-
-        String name = field.getDataType().getSimpleName();
-        if ("String".equals(name)) {
-            return ",jdbcType=VARCHAR";
-        } else if ("Date".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("Time".equals(name)) {
-            return ",jdbcType=TIME";
-        } else if ("Timestamp".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("List<String>".equals(name)) {
-            return ",jdbcType=VARCHAR";
-        } else if ("ArrayList<String>".equals(name)) {
-            return ",jdbcType=VARCHAR";
-        } else if ("List<Date>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("ArrayList<Date>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("List<Time>".equals(name)) {
-            return ",jdbcType=TIME";
-        } else if ("ArrayList<Time>".equals(name)) {
-            return ",jdbcType=TIME";
-        } else if ("List<Timestamp>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("ArrayList<Timestamp>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else {
-            return ",jdbcType=NUMERIC";
-        }
-    }
-
-    public String getTypeHandler(FieldInfo field) {
-        MyBatisTypeHandler th = field.getAnnotation(MyBatisTypeHandler.class);
-
-        if (th == null) {
-            return "";
-        }
-
-        DataTypeInfo typeHandler;
-        try {
-            typeHandler = NamesGenerator.createResultDataType(th.value());
-        } catch (MirroredTypeException ex) {
-            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-            typeHandler = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
-        }
-        if (typeHandler == null) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the type handler", field.getElement());
-            return "";
-        }
-
-        return ",typeHandler=" + typeHandler.getQualifiedNameWithoutGenerics();
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Where">
-    @Override
-    public void appendStartWhere(StringBuilder result) {
-        result.append("<where>");
-    }
-
-    @Override
-    public void appendEndWhere(StringBuilder result) {
-        result.append("</where>");
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Set">
-    @Override
-    public void appendStartSet(StringBuilder result) {
-        result.append("<set>");
-    }
-
-    @Override
-    public void appendEndSet(StringBuilder result) {
-        result.append("</set>");
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="If (not) null">
-    @Override
-    public void appendConditionStartIfNull(StringBuilder result, FieldInfo field) {
-        result.append("<if test='");
-        result.append(field.getName());
-        result.append(" == null'>");
-    }
-
-    @Override
-    public void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field) {
-        result.append("<if test='");
-        result.append(field.getName());
-        result.append(" != null'>");
-    }
-
-    @Override
-    public void appendConditionEndIf(StringBuilder result) {
-        result.append("</if>");
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Comparators">
-    @Override
-    public String translateComparator(Comparator comparator) {
-        if (comparator == null) {
-            return null;
-        }
-        switch (comparator) {
-            case EQUAL:      return "[[column]] = [[value]]";
-            case NOT_EQUAL:  return "[[column]] &lt;&gt; [[value]]";
-            case EQUAL_NULLABLE:         return "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>";
-            case NOT_EQUAL_NULLABLE:     return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
-            case SMALLER:    return "[[column]] &lt; [[value]]";
-            case LARGER:     return "[[column]] &gt; [[value]]";
-            case SMALL_AS:   return "[[column]] &lt;= [[value]]";
-            case LARGER_AS:  return "[[column]] &gt;= [[value]]";
-            case IN:         return "[[column]] in <foreach close=')' collection='[[name]]' item='_item_[[name]]' open='(' separator=','> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
-            case NOT_IN:     return "[[column]] not in <foreach close=')' collection='[[name]]' item='_item_[[name]]' open='(' separator=','> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
-            case LIKE:       return "[[column]] like [[value]]";
-            case NOT_LIKE:   return "[[column]] not like [[value]]";
-            case LIKE_INSENSITIVE:       return "lower([[column]]) like lower([[value]])";
-            case NOT_LIKE_INSENSITIVE:   return "lower([[column]]) not like lower([[value]])";
-            case START_WITH:     return "[[column]] like ([[value]] || '%')";
-            case NOT_START_WITH: return "[[column]] not like ([[value]] || '%')";
-            case END_WITH:       return "[[column]] like ('%' || [[value]]";
-            case NOT_END_WITH:   return "[[column]] not like ('%' || [[value]]";
-            case START_WITH_INSENSITIVE:     return "lower([[column]]) like (lower([[value]]) || '%')";
-            case NOT_START_WITH_INSENSITIVE: return "lower([[column]]) not like (lower([[value]]) || '%')";
-            case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]])";
-            case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]])";
-            case CONTAINS:       return "[[column]] like ('%' || [[value]] || '%')";
-            case NOT_CONTAINS:   return "[[column]] not like ('%' || [[value]] || '%')";
-            case CONTAINS_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]]) || '%')";
-            case NOT_CONTAINS_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]]) || '%')";
-            default:
-                throw new IllegalArgumentException("Unimplemented comparator " + comparator);
-        }
-    }
-
-    @Override
-    public String getConditionElementValue(String rule, FieldInfo field, CustomSqlQuery customQuery) {
-        if (rule == null) {
-            return null;
-        } else if ("column".equals(rule) || "COLUMN".equals(rule)) {
-            return getColumnNameForWhere(field, customQuery);
-        } else if ("name".equals(rule) || "NAME".equals(rule)) {
-            return field.getName();
-        } else if ("value".equals(rule) || "VALUE".equals(rule)) {
-            return getParameterValue(field);
-        } else if ("jdbcType".equals(rule) || "JDBC_TYPE".equals(rule)) {
-            return getJdbcType(field);
-        } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
-            return getTypeHandler(field);
-        } else {
-            return null;
-        }
-    }
-    //</editor-fold>
-
+    
     //<editor-fold defaultstate="collapsed" desc="Configuration">
     public abstract boolean useAliasInOrderBy();
     public abstract String subPackage();

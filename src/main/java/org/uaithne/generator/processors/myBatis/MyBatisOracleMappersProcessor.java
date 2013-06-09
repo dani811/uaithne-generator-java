@@ -27,13 +27,16 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.myBatis.MyBatisOracleMapper;
-import org.uaithne.generator.commons.EntityInfo;
-import org.uaithne.generator.commons.FieldInfo;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisOracleMapper")
 public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
-    
+
+    public MyBatisOracleMappersProcessor() {
+        super(new MyBatisOracleSqlQueryGenerator());
+        queryGenerator.setProcessingEnv(processingEnv);
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
         for (Element element : re.getElementsAnnotatedWith(MyBatisOracleMapper.class)) {
@@ -45,82 +48,8 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
     }
     
     @Override
-    public String currentSqlDate() {
-        return "sysdate";
-    }
-    
-    @Override
-    public String falseValue() {
-        return "0";
-    }
-    
-    @Override
-    public String trueValue() {
-        return "1";
-    }
-    
-    @Override
     public boolean useAliasInOrderBy() {
         return false;
-    }
-
-    @Override
-    public boolean insertQueryIncludeId() {
-        return true;
-    }
-    
-    @Override
-    public String[] getDefaultIdNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"seq_" + getTableName(entity)[0] + ".nextval"};
-    }
-    
-    @Override
-    public String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select seq_" + getTableName(entity)[0] + ".currval from dual"};
-    }
-
-    @Override
-    public String[] envolveInSelectPage(String[] query) {
-        String[] r = new String[query.length + 2];
-        r[0] = "<if test='offset != null and maxRowNumber != null'> select * from (select t.*, rownum as oracle__rownum__ from (</if>";
-        System.arraycopy(query, 0, r, 1, query.length);
-        r[r.length - 1] = "<if test='offset != null and maxRowNumber != null'>) t) <where> <if test='offset != null'>oracle__rownum__ &gt; #{offset,jdbcType=NUMERIC}</if> <if test='maxRowNumber != null'>and oracle__rownum__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if></where></if>";
-        return r;
-    }
-
-    @Override
-    public String selectPageBeforeSelect() {
-        return null;
-    }
-
-    @Override
-    public String selectPageAfterWhere() {
-        return null;
-    }
-    
-    @Override
-    public String selectPageAfterOrderBy() {
-        return null;
-    }
-
-    @Override
-    public String[] envolveInSelectOneRow(String[] query) {
-        return query;
-    }
-
-    @Override
-    public String selectOneRowBeforeSelect() {
-        return null;
-    }
-
-    @Override
-    public String selectOneRowAfterWhere() {
-        return "rownum = 1";
-    }
-
-    @Override
-    public String selectOneRowAfterOrderBy() {
-        return null;
     }
 
     @Override

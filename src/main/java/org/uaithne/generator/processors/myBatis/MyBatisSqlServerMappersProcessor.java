@@ -27,12 +27,15 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.myBatis.MyBatisSqlServerMapper;
-import org.uaithne.generator.commons.EntityInfo;
-import org.uaithne.generator.commons.FieldInfo;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisSqlServerMapper")
 public class MyBatisSqlServerMappersProcessor extends MyBatisMappersProcessor {
+
+    public MyBatisSqlServerMappersProcessor() {
+        super(new MyBatisSqlServerSqlQueryGenerator());
+        queryGenerator.setProcessingEnv(processingEnv);
+    }
     
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
@@ -45,78 +48,8 @@ public class MyBatisSqlServerMappersProcessor extends MyBatisMappersProcessor {
     }
     
     @Override
-    public String currentSqlDate() {
-        return "current_timestamp";
-    }
-    
-    @Override
-    public String falseValue() {
-        return "0";
-    }
-    
-    @Override
-    public String trueValue() {
-        return "1";
-    }
-    
-    @Override
     public boolean useAliasInOrderBy() {
         return false;
-    }
-
-    @Override
-    public boolean insertQueryIncludeId() {
-        return false;
-    }
-    
-    @Override
-    public String[] getDefaultIdNextValue(EntityInfo entity, FieldInfo field) {
-        return null;
-    }
-    
-    @Override
-    public String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select scope_identity()"};
-    }
-
-    @Override
-    public String[] envolveInSelectPage(String[] query) {
-        return query;
-    }
-
-    @Override
-    public String selectPageBeforeSelect() {
-        return null;
-    }
-
-    @Override
-    public String selectPageAfterWhere() {
-        return null;
-    }
-    
-    @Override
-    public String selectPageAfterOrderBy() {
-        return "<if test='offset != null and maxRowNumber != null'><if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if><if test='maxRowNumber != null'>fetch next #{maxRowNumber,jdbcType=NUMERIC} rows only</if></if>";
-    }
-
-    @Override
-    public String[] envolveInSelectOneRow(String[] query) {
-        return query;
-    }
-
-    @Override
-    public String selectOneRowBeforeSelect() {
-        return null;
-    }
-
-    @Override
-    public String selectOneRowAfterWhere() {
-        return null;
-    }
-
-    @Override
-    public String selectOneRowAfterOrderBy() {
-        return "fetch next 1 rows only";
     }
 
     @Override

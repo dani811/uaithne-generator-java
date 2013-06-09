@@ -22,12 +22,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.*;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.*;
 
-public abstract class AbstractSqlQueryGenerator extends TemplateProcessor {
+public abstract class AbstractSqlQueryGenerator {
+    
+    protected ProcessingEnvironment processingEnv;
+
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
+    }
+
+    public void setProcessingEnv(ProcessingEnvironment processingEnv) {
+        this.processingEnv = processingEnv;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Complete query">
     public String[] completeQuery(String[] query, OperationInfo operation, boolean count) {
