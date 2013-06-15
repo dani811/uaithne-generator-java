@@ -6,5 +6,5 @@ org.uaithne.generator.processors.gwt.SharedGwtLibraryProcessor
 org.uaithne.generator.processors.gwt.GwtAccesorProcessor
 org.uaithne.generator.processors.gwt.GwtRemoteServiceProcessor
 org.uaithne.generator.processors.myBatis.SharedMyBatisLibraryProcessor
-org.uaithne.generator.processors.myBatis.MyBatisOracleMappersProcessor
-org.uaithne.generator.processors.myBatis.MyBatisSqlServerMappersProcessor
+org.uaithne.generator.processors.myBatis.oracle.MyBatisOracleMappersProcessor
+org.uaithne.generator.processors.myBatis.sqlServer.MyBatisSqlServerMappersProcessor

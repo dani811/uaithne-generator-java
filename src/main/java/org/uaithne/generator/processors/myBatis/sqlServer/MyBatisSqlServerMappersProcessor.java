@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.myBatis;
+package org.uaithne.generator.processors.myBatis.sqlServer;
 
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
@@ -27,6 +27,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.myBatis.MyBatisSqlServerMapper;
+import org.uaithne.generator.processors.myBatis.MyBatisMappersProcessor;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisSqlServerMapper")

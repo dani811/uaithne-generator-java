@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.myBatis;
+package org.uaithne.generator.processors.myBatis.oracle;
 
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.processors.myBatis.MyBatisSqlQueryGenerator;
 
 public class MyBatisOracleSqlQueryGenerator extends MyBatisSqlQueryGenerator {
     
