@@ -28,14 +28,16 @@ import org.uaithne.annotations.*;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.*;
 
-public abstract class AbstractSqlQueryGenerator {
+public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
     
     protected ProcessingEnvironment processingEnv;
 
+    @Override
     public ProcessingEnvironment getProcessingEnv() {
         return processingEnv;
     }
 
+    @Override
     public void setProcessingEnv(ProcessingEnvironment processingEnv) {
         this.processingEnv = processingEnv;
     }
@@ -785,6 +787,7 @@ public abstract class AbstractSqlQueryGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Custom operations queries">
+    @Override
     public String[] getCustomInsertQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
         CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
@@ -986,6 +989,7 @@ public abstract class AbstractSqlQueryGenerator {
         return finalQuery.split("\n");
     }
 
+    @Override
     public String[] getCustomUpdateQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
         CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
@@ -1086,6 +1090,7 @@ public abstract class AbstractSqlQueryGenerator {
         return finalQuery.split("\n");
     }
 
+    @Override
     public String[] getCustomDeleteQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
         CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
@@ -1169,6 +1174,7 @@ public abstract class AbstractSqlQueryGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Queries for diferent select operation">
+    @Override
     public String[] getSelectOneQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
         if (query == null) {
@@ -1178,6 +1184,7 @@ public abstract class AbstractSqlQueryGenerator {
 
     }
 
+    @Override
     public String[] getSelectManyQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
         if (query == null) {
@@ -1186,6 +1193,7 @@ public abstract class AbstractSqlQueryGenerator {
         return completeQuery(query.value(), operation, false);
     }
 
+    @Override
     public String[] getSelectPageQuery(OperationInfo operation) {
         PageQueries pageQueries = operation.getAnnotation(PageQueries.class);
         if (pageQueries == null) {
@@ -1206,6 +1214,7 @@ public abstract class AbstractSqlQueryGenerator {
         return completeQuery(pageQueries.selectPage(), operation, false);
     }
 
+    @Override
     public String[] getSelectPageCountQuery(OperationInfo operation) {
         PageQueries pageQueries = operation.getAnnotation(PageQueries.class);
         if (pageQueries == null) {
@@ -1235,6 +1244,7 @@ public abstract class AbstractSqlQueryGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Entity queries">
+    @Override
     public String[] getEntitySelectByIdQuery(EntityInfo entity) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
@@ -1319,6 +1329,7 @@ public abstract class AbstractSqlQueryGenerator {
         return finalQuery.split("\n");
     }
 
+    @Override
     public String[] getEntityInsertQuery(EntityInfo entity) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
@@ -1447,6 +1458,7 @@ public abstract class AbstractSqlQueryGenerator {
         return finalQuery.split("\n");
     }
 
+    @Override
     public String[] getEntityLastInsertedIdQuery(EntityInfo entity) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
@@ -1459,6 +1471,7 @@ public abstract class AbstractSqlQueryGenerator {
         return finalQuery.split("\n");
     }
 
+    @Override
     public String[] getEntityUpdateQuery(EntityInfo entity) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
@@ -1552,6 +1565,7 @@ public abstract class AbstractSqlQueryGenerator {
         return finalQuery.split("\n");
     }
 
+    @Override
     public String[] getEntityMergeQuery(EntityInfo entity) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
@@ -1647,6 +1661,7 @@ public abstract class AbstractSqlQueryGenerator {
         return finalQuery.split("\n");
     }
 
+    @Override
     public String[] getEntityDeleteByIdQuery(EntityInfo entity) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;

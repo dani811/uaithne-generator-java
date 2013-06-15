@@ -30,14 +30,14 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import org.uaithne.annotations.myBatis.MyBatisCustomSqlStatementId;
 import org.uaithne.generator.commons.*;
-import org.uaithne.generator.processors.sql.AbstractSqlQueryGenerator;
+import org.uaithne.generator.processors.sql.SqlQueryGenerator;
 import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 
 public abstract class MyBatisMappersProcessor extends TemplateProcessor {
     
-    protected AbstractSqlQueryGenerator queryGenerator;
+    protected SqlQueryGenerator queryGenerator;
 
-    public MyBatisMappersProcessor(AbstractSqlQueryGenerator queryGenerator) {
+    public MyBatisMappersProcessor(SqlQueryGenerator queryGenerator) {
         this.queryGenerator = queryGenerator;
     }
 
