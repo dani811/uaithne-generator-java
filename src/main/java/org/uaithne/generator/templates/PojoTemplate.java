@@ -188,7 +188,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             appender.append("        hash = ").append(secondPrime).append(" * hash + super.hashCode();\n");
         }
         for (FieldInfo field : fields) {
-            appender.append("        hash = ").append(secondPrime).append(" * hash + ").append(field.generateHashCodeRule()).append(";\n");;
+            appender.append("        hash = ").append(secondPrime).append(" * hash + ").append(field.generateHashCodeRule()).append(";\n");
         }
     }
 

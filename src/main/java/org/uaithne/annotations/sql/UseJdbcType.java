@@ -18,7 +18,6 @@
  */
 package org.uaithne.annotations.sql;
 
-import org.uaithne.annotations.sql.JdbcType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

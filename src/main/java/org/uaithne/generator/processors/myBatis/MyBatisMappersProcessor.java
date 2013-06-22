@@ -172,6 +172,10 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             }
             break;
             case DELETE_BY_ID: {
+                if (entity == null) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
+                    break;
+                }
                 String[] query = queryGenerator.getEntityDeleteByIdQuery(entity);
                 if (query != null) {
                     writeDelete(writer,
@@ -182,6 +186,10 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             }
             break;
             case INSERT: {
+                if (entity == null) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
+                    break;
+                }
                 String[] query = queryGenerator.getEntityLastInsertedIdQuery(entity);
                 if (query != null) {
                     writeSelectWithoutParameter(writer,
@@ -208,6 +216,10 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             }
             break;
             case SELECT_BY_ID: {
+                if (entity == null) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
+                    break;
+                }
                 String[] query = queryGenerator.getEntitySelectByIdQuery(entity);
                 if (query != null) {
                     writeSelect(writer,
@@ -219,6 +231,10 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             }
             break;
             case UPDATE: {
+                if (entity == null) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
+                    break;
+                }
                 String[] query = queryGenerator.getEntityUpdateQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,
@@ -229,6 +245,10 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             }
             break;
             case CUSTOM_INSERT: {
+                if (entity == null) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
+                    break;
+                }
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
                 String[] query = queryGenerator.getCustomInsertQuery(operation);
                 if (query != null) {
@@ -273,6 +293,10 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             }
             break;
             case MERGE: {
+                if (entity == null) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
+                    break;
+                }
                 String[] query = queryGenerator.getEntityMergeQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,

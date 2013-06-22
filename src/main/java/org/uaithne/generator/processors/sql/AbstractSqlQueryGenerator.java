@@ -93,8 +93,8 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
             addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
         } else if (query != null && !query.isEmpty()) {
             query = query.trim();
-            String queryLowerCase = query.toLowerCase();
-            if (query == null || query.isEmpty()) {
+            String queryLowerCase = query != null ? query.toLowerCase() : null;
+            if (query == null || query.isEmpty() || queryLowerCase == null || queryLowerCase.isEmpty()) {
                 if (entity == null) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
@@ -236,7 +236,7 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
             result = appender.toString();
         } else {
             result = appender.toString();
-            if (query != null || !query.isEmpty()) {
+            if (query != null && !query.isEmpty()) {
                 result = result + "\n" + query;
             }
         }
