@@ -35,7 +35,7 @@ public class MyBatisSqlServerMappersProcessor extends MyBatisMappersProcessor {
 
     public MyBatisSqlServerMappersProcessor() {
         super(new MyBatisSqlServerSqlQueryGenerator());
-        queryGenerator.setProcessingEnv(processingEnv);
+        sqlGenerator.setProcessingEnv(processingEnv);
     }
     
     @Override

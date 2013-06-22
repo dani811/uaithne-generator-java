@@ -35,7 +35,7 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
 
     public MyBatisOracleMappersProcessor() {
         super(new MyBatisOracleSqlQueryGenerator());
-        queryGenerator.setProcessingEnv(processingEnv);
+        sqlGenerator.setProcessingEnv(processingEnv);
     }
 
     @Override

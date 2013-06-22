@@ -22,7 +22,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
-public interface SqlQueryGenerator {
+public interface SqlGenerator {
     public ProcessingEnvironment getProcessingEnv();
     public void setProcessingEnv(ProcessingEnvironment processingEnv);
     public String[] getSelectManyQuery(OperationInfo operation);

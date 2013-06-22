@@ -28,7 +28,7 @@ import org.uaithne.annotations.*;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.*;
 
-public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
+public abstract class AbstractSqlQueryGenerator implements SqlGenerator {
     
     protected ProcessingEnvironment processingEnv;
 

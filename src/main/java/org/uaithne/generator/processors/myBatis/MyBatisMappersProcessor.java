@@ -30,15 +30,15 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import org.uaithne.annotations.myBatis.MyBatisCustomSqlStatementId;
 import org.uaithne.generator.commons.*;
-import org.uaithne.generator.processors.sql.SqlQueryGenerator;
+import org.uaithne.generator.processors.sql.SqlGenerator;
 import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 
 public abstract class MyBatisMappersProcessor extends TemplateProcessor {
     
-    protected SqlQueryGenerator queryGenerator;
+    protected SqlGenerator sqlGenerator;
 
-    public MyBatisMappersProcessor(SqlQueryGenerator queryGenerator) {
-        this.queryGenerator = queryGenerator;
+    public MyBatisMappersProcessor(SqlGenerator sqlGenerator) {
+        this.sqlGenerator = sqlGenerator;
     }
 
     //<editor-fold defaultstate="collapsed" desc="Process">
@@ -128,7 +128,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             break;
             case SELECT_ONE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = queryGenerator.getSelectOneQuery(operation);
+                String[] query = sqlGenerator.getSelectOneQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
@@ -140,7 +140,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             break;
             case SELECT_MANY: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = queryGenerator.getSelectManyQuery(operation);
+                String[] query = sqlGenerator.getSelectManyQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
@@ -153,7 +153,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             case SELECT_PAGE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName() + "Page");
                 operation.getExtraInfo().put("myBatisCountStatementId", namespace + "." + operation.getMethodName() + "Count");
-                String[] query = queryGenerator.getSelectPageQuery(operation);
+                String[] query = sqlGenerator.getSelectPageQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName() + "Page",
@@ -161,7 +161,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                             operation.getOneItemReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
-                query = queryGenerator.getSelectPageCountQuery(operation);
+                query = sqlGenerator.getSelectPageCountQuery(operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName() + "Count",
@@ -176,7 +176,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = queryGenerator.getEntityDeleteByIdQuery(entity);
+                String[] query = sqlGenerator.getEntityDeleteByIdQuery(entity);
                 if (query != null) {
                     writeDelete(writer,
                             operation.getMethodName(),
@@ -190,14 +190,14 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = queryGenerator.getEntityLastInsertedIdQuery(entity);
+                String[] query = sqlGenerator.getEntityLastInsertedIdQuery(entity);
                 if (query != null) {
                     writeSelectWithoutParameter(writer,
                             "lastInsertedIdFor" + entity.getDataType().getSimpleNameWithoutGenerics(),
                             operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
-                query = queryGenerator.getEntityInsertQuery(entity);
+                query = sqlGenerator.getEntityInsertQuery(entity);
                 if (query != null) {
                     writeInsert(writer,
                             "insert" + entity.getDataType().getSimpleNameWithoutGenerics(),
@@ -220,7 +220,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = queryGenerator.getEntitySelectByIdQuery(entity);
+                String[] query = sqlGenerator.getEntitySelectByIdQuery(entity);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
@@ -235,7 +235,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = queryGenerator.getEntityUpdateQuery(entity);
+                String[] query = sqlGenerator.getEntityUpdateQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,
                             "update" + entity.getDataType().getSimpleNameWithoutGenerics(),
@@ -250,7 +250,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     break;
                 }
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = queryGenerator.getCustomInsertQuery(operation);
+                String[] query = sqlGenerator.getCustomInsertQuery(operation);
                 if (query != null) {
                     writeInsert(writer,
                             operation.getMethodName(),
@@ -261,7 +261,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             break;
             case CUSTOM_UPDATE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = queryGenerator.getCustomUpdateQuery(operation);
+                String[] query = sqlGenerator.getCustomUpdateQuery(operation);
                 if (query != null) {
                     writeUpdate(writer,
                             operation.getMethodName(),
@@ -272,7 +272,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             break;
             case CUSTOM_DELETE: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = queryGenerator.getCustomDeleteQuery(operation);
+                String[] query = sqlGenerator.getCustomDeleteQuery(operation);
                 if (query != null) {
                     writeDelete(writer,
                             operation.getMethodName(),
@@ -283,7 +283,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             break;
             case CUSTOM_INSERT_WITH_ID: {
                 operation.getExtraInfo().put("myBatisStatementId", namespace + "." + operation.getMethodName());
-                String[] query = queryGenerator.getCustomInsertQuery(operation);
+                String[] query = sqlGenerator.getCustomInsertQuery(operation);
                 if (query != null) {
                     writeInsert(writer,
                             operation.getMethodName(),
@@ -297,7 +297,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = queryGenerator.getEntityMergeQuery(entity);
+                String[] query = sqlGenerator.getEntityMergeQuery(entity);
                 if (query != null) {
                     writeUpdate(writer,
                             "merge" + entity.getDataType().getSimpleNameWithoutGenerics(),
