@@ -25,8 +25,8 @@ import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.Utils;
 
 public abstract class ClassTemplate {
-    public static String RESULT_BASE_DEFINITION = "RESULT";
-    public static String OPERATION_BASE_DEFINITION = "<RESULT, OPERATION extends Operation<RESULT>>";
+    public static final String RESULT_BASE_DEFINITION = "RESULT";
+    public static final String OPERATION_BASE_DEFINITION = "<RESULT, OPERATION extends Operation<RESULT>>";
     private String packageName;
     private String className;
     private String extend;

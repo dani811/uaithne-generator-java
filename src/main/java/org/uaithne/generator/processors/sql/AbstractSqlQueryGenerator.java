@@ -93,8 +93,8 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
             addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
         } else if (query != null && !query.isEmpty()) {
             query = query.trim();
-            String queryLowerCase = query != null ? query.toLowerCase() : null;
-            if (query == null || query.isEmpty() || queryLowerCase == null || queryLowerCase.isEmpty()) {
+            String queryLowerCase = query.toLowerCase();
+            if (query.isEmpty()) {
                 if (entity == null) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
@@ -287,7 +287,7 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
 
                 appendToQueryln(result, customQuery.afterSelectExpression(), "    ");
             } else {
-                appendSelectFields(result, operation, entity, count, customQuery);
+                appendSelectFields(result, operation, entity, count, null);
             }
         }
     }
@@ -333,7 +333,7 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
             }
             appendToQueryln(result, customQuery.afterFromExpression(), "    ");
         } else {
-            appendToQueryln(result, getTableNameForSelect(entity, customQuery), "    ");
+            appendToQueryln(result, getTableNameForSelect(entity, null), "    ");
         }
     }
 
@@ -898,11 +898,13 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
                         result.append(currentSqlDate());
                     } else {
                         String nextValueQuery[] = getIdNextValue(entity, field);
-                        for (int i = 0; i < nextValueQuery.length - 1; i++) {
-                            result.append(nextValueQuery[i]);
-                            result.append(" ");
+                        if (nextValueQuery != null) {
+                            for (int i = 0; i < nextValueQuery.length - 1; i++) {
+                                result.append(nextValueQuery[i]);
+                                result.append(" ");
+                            }
+                            result.append(nextValueQuery[nextValueQuery.length - 1]);
                         }
-                        result.append(nextValueQuery[nextValueQuery.length - 1]);
                     }
                     requireComma = true;
                 }
@@ -1399,11 +1401,13 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
                     result.append(currentSqlDate());
                 } else {
                     String nextValueQuery[] = getIdNextValue(entity, field);
-                    for (int i = 0; i < nextValueQuery.length - 1; i++) {
-                        result.append(nextValueQuery[i]);
-                        result.append(" ");
+                    if (nextValueQuery != null) {
+                        for (int i = 0; i < nextValueQuery.length - 1; i++) {
+                            result.append(nextValueQuery[i]);
+                            result.append(" ");
+                        }
+                        result.append(nextValueQuery[nextValueQuery.length - 1]);
                     }
-                    result.append(nextValueQuery[nextValueQuery.length - 1]);
                 }
                 requireComma = true;
             }
@@ -1468,7 +1472,11 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
             finalQuery = joinln(query.lastInsertedId());
         }
         finalQuery = finalizeQuery(finalQuery, entity);
-        return finalQuery.split("\n");
+        if (finalQuery != null) {
+            return finalQuery.split("\n");
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -1918,11 +1926,8 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Inline query elements managment">
-    private static Pattern comparatorPattern;
+    private static final Pattern comparatorPattern = Pattern.compile("\\[\\[(.*?)\\]\\]");
     public String getConditionComparator(String comparatorRule, String template, FieldInfo field, CustomSqlQuery customQuery) {
-        if (comparatorPattern == null) {
-            comparatorPattern = Pattern.compile("\\[\\[(.*?)\\]\\]");
-        }
         if (template == null) {
             return null;
         }
@@ -1962,11 +1967,8 @@ public abstract class AbstractSqlQueryGenerator implements SqlQueryGenerator {
         return template;
     }
 
-    private static Pattern finalizationPattern;
+    private static final Pattern finalizationPattern = Pattern.compile("\\{\\{(.*?)(?:\\:(.*?))?\\}\\}");;
     public String finalizeQuery(String query, OperationInfo operation, CustomSqlQuery customQuery) {
-        if (finalizationPattern == null) {
-            finalizationPattern = Pattern.compile("\\{\\{(.*?)(?:\\:(.*?))?\\}\\}");
-        }
         if (query == null) {
             return null;
         }

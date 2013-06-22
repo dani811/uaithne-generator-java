@@ -402,6 +402,7 @@ public class DataTypeInfo {
     public static final DataTypeInfo HASHMAP_DATA_TYPE = new DataTypeInfo("java.util", "HashMap", "java.util.HashMap");
     
     private static final String DEFAULT_SHARED_PACKAGE = "org.uaithne.shared";
+    // All of this field are no final because the user can change it's package name
     public static DataTypeInfo DATA_PAGE_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "DataPage", DEFAULT_SHARED_PACKAGE + ".DataPage");
     public static DataTypeInfo OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "Operation", DEFAULT_SHARED_PACKAGE + ".Operation");
     public static DataTypeInfo DELETE_BY_ID_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "DeleteByIdOperation", DEFAULT_SHARED_PACKAGE + ".DeleteByIdOperation");
@@ -416,6 +417,7 @@ public class DataTypeInfo {
     public static DataTypeInfo EXECUTOR_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "Executor", DEFAULT_SHARED_PACKAGE + ".Executor");
     public static DataTypeInfo EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "ExecutorGroup", DEFAULT_SHARED_PACKAGE + ".ExecutorGroup");
     public static DataTypeInfo CHAINED_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "ChainedExecutorGroup", DEFAULT_SHARED_PACKAGE + ".ChainedExecutorGroup");
+    // end of no final fields
     
     public static void updateSharedPackage(String sharedPackage) {
         DATA_PAGE_DATA_TYPE = new DataTypeInfo(sharedPackage, "DataPage", sharedPackage + ".DataPage");
