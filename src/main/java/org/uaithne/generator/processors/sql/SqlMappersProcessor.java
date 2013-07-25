@@ -1573,12 +1573,10 @@ public abstract class SqlMappersProcessor extends TemplateProcessor {
             for (FieldInfo field : extraFields) {
                 if (field.getAnnotation(UpdateDate.class) != null) {
                     result.append("    ");
-                    appendConditionStartIfNotNull(result, field);
                     result.append(getColumnName(field));
                     result.append(" = ");
                     result.append(currentSqlDate());
                     result.append(",");
-                    appendConditionEndIf(result);
                     result.append("\n");
                 } else if (field.getAnnotation(UpdateUser.class) != null) {
                 result.append("    ");
