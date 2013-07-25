@@ -27,8 +27,15 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
+import org.uaithne.annotations.Delete;
 import org.uaithne.annotations.Entity;
 import org.uaithne.annotations.EntityView;
+import org.uaithne.annotations.Insert;
+import org.uaithne.annotations.Operation;
+import org.uaithne.annotations.SelectMany;
+import org.uaithne.annotations.SelectOne;
+import org.uaithne.annotations.SelectPage;
+import org.uaithne.annotations.Update;
 
 public class NamesGenerator {
 
@@ -129,12 +136,84 @@ public class NamesGenerator {
         return new DataTypeInfo(packageName, simpleName);
     }
 
+    private static DataTypeInfo createOperationDataType(TypeElement element) {
+        TypeElement container = null;
+        Element enclosing = element.getEnclosingElement();
+        if (enclosing instanceof TypeElement) {
+            container = (TypeElement) enclosing;
+        }
+        if (container == null) {
+            return createDataType(element.getQualifiedName().toString());
+        }
+        
+        DataTypeInfo mirror = handleMirrors(element.getQualifiedName().toString());
+        if (mirror != null) {
+            return mirror;
+        }
+
+        String containerSimpleName = Utils.dropFirstUnderscore(container.getSimpleName().toString());
+        String containerPackageName = container.getQualifiedName().toString();
+        int lastDot = containerPackageName.lastIndexOf(".");
+        if (lastDot >= 0 && lastDot < containerPackageName.length()) {
+            containerPackageName = containerPackageName.substring(0, lastDot);
+        }
+        if (containerPackageName == null || containerPackageName.isEmpty()) {
+            containerPackageName = "operations";
+        } else {
+            containerPackageName = containerPackageName + ".operations";
+        }
+        containerPackageName = createPackageNameFromFullName(containerPackageName);
+        String packageName = containerPackageName + "." + Utils.firstLower(containerSimpleName);
+        
+        String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
+
+        return new DataTypeInfo(packageName, simpleName);
+    }
+
+    private static DataTypeInfo createOperationDataType(Class klass) {
+        Class container = klass.getEnclosingClass();
+        if (container == null) {
+            return createDataType(klass);
+        }
+        
+        DataTypeInfo mirror = handleMirrors(klass.getCanonicalName());
+        if (mirror != null) {
+            return mirror;
+        }
+
+        String containerSimpleName = Utils.dropFirstUnderscore(container.getSimpleName().toString());
+        String containerPackageName = container.getCanonicalName().toString();
+        int lastDot = containerPackageName.lastIndexOf(".");
+        if (lastDot >= 0 && lastDot < containerPackageName.length()) {
+            containerPackageName = containerPackageName.substring(0, lastDot);
+        }
+        if (containerPackageName == null || containerPackageName.isEmpty()) {
+            containerPackageName = "operations";
+        } else {
+            containerPackageName = containerPackageName + ".operations";
+        }
+        containerPackageName = createPackageNameFromFullName(containerPackageName);
+        String packageName = containerPackageName + "." + Utils.firstLower(containerSimpleName);
+        
+        String simpleName = Utils.dropFirstUnderscore(klass.getSimpleName());
+
+        return new DataTypeInfo(packageName, simpleName);
+    }
+
     @SuppressWarnings("unchecked")
     public static DataTypeInfo createResultDataType(Class klass) {
         if (klass.getAnnotation(Entity.class) != null) {
             return createEntityDataType(klass);
         } else if (klass.getAnnotation(EntityView.class) != null) {
             return createEntityDataType(klass);
+        } else if (klass.getAnnotation(Operation.class) != null ||
+                klass.getAnnotation(SelectOne.class) != null ||
+                klass.getAnnotation(SelectMany.class) != null ||
+                klass.getAnnotation(SelectPage.class) != null ||
+                klass.getAnnotation(Insert.class) != null ||
+                klass.getAnnotation(Update.class) != null ||
+                klass.getAnnotation(Delete.class) != null) {
+            return createOperationDataType(klass);
         } else {
             return createDataType(klass);
         }
@@ -145,6 +224,14 @@ public class NamesGenerator {
             return createEntityDataType(te);
         } else if (te.getAnnotation(EntityView.class) != null) {
             return createEntityDataType(te);
+        } else if (te.getAnnotation(Operation.class) != null ||
+                te.getAnnotation(SelectOne.class) != null ||
+                te.getAnnotation(SelectMany.class) != null ||
+                te.getAnnotation(SelectPage.class) != null ||
+                te.getAnnotation(Insert.class) != null ||
+                te.getAnnotation(Update.class) != null ||
+                te.getAnnotation(Delete.class) != null) {
+            return createOperationDataType(te);
         } else {
             return createDataType(te.getQualifiedName().toString());
         }
