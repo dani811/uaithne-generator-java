@@ -19,6 +19,7 @@
 package org.uaithne.generator.templates.operations;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import org.uaithne.generator.commons.DataTypeInfo;
 import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.FieldInfo;
@@ -147,59 +148,67 @@ public class OperationTemplate extends PojoTemplate {
     }
 
     void writeConstructors(Appendable appender) throws IOException {
-        if (!operation.getMandatoryFields().isEmpty()) {
+        ArrayList<FieldInfo> mandatoryFields = operation.getMandatoryFields();
+        ArrayList<FieldInfo> filteredMandatoryFields = new ArrayList<FieldInfo>(mandatoryFields.size());
+        for (FieldInfo field : mandatoryFields) {
+            if (!field.isExcludedFromConstructor()) {
+                filteredMandatoryFields.add(field);
+            }
+        }
+        
+        if (!filteredMandatoryFields.isEmpty()) {
             appender.append("    public ").append(getClassName()).append("() {\n"
                     + "    }\n"
                     + "\n");
         }
 
         appender.append("    public ").append(getClassName()).append("(");
-        writeArguments(appender, operation.getMandatoryFields());
+        writeArguments(appender, filteredMandatoryFields);
         appender.append(") {\n");
-        writeFieldsInitialization(appender, operation.getMandatoryFields());
+        writeFieldsInitialization(appender, filteredMandatoryFields);
         appender.append("    }");
 
         if (operation.getOperationKind() == OperationKind.SELECT_PAGE) {
             appender.append("\n"
                     + "\n"
                     + "    public ").append(getClassName()).append("(");
-            writeArgumentsForAddMore(appender, operation.getMandatoryFields());
+            writeArgumentsForAddMore(appender, filteredMandatoryFields);
             appender.append(PAGE_INFO_DATA_TYPE.getSimpleName());
             appender.append(" limit) {\n");
-            writeFieldsInitialization(appender, operation.getMandatoryFields());
+            writeFieldsInitialization(appender, filteredMandatoryFields);
             appender.append("        this.limit = limit;\n"
                     + "    }\n"
                     + "\n"
                     + "    public ").append(getClassName()).append("(");
-            writeArgumentsForAddMore(appender, operation.getMandatoryFields());
+            writeArgumentsForAddMore(appender, filteredMandatoryFields);
             appender.append(PAGE_INFO_DATA_TYPE.getSimpleName());
             appender.append(" limit, ");
             appender.append(PAGE_INFO_DATA_TYPE.getSimpleName());
             appender.append(" offset) {\n");
-            writeFieldsInitialization(appender, operation.getMandatoryFields());
+            writeFieldsInitialization(appender, filteredMandatoryFields);
             appender.append("        this.limit = limit;\n"
                     + "        this.offset = offset;\n"
                     + "    }\n"
                     + "\n"
                     + "    public ").append(getClassName()).append("(");
-            writeArgumentsForAddMore(appender, operation.getMandatoryFields());
+            writeArgumentsForAddMore(appender, filteredMandatoryFields);
             appender.append(PAGE_INFO_DATA_TYPE.getSimpleName());
             appender.append(" limit, ");
             appender.append(PAGE_INFO_DATA_TYPE.getSimpleName());
             appender.append(" offset, ");
             appender.append(PAGE_INFO_DATA_TYPE.getSimpleName());
             appender.append(" dataCount) {\n");
-            writeFieldsInitialization(appender, operation.getMandatoryFields());
+            writeFieldsInitialization(appender, filteredMandatoryFields);
             appender.append("        this.limit = limit;\n"
                     + "        this.offset = offset;\n"
                     + "        this.dataCount = dataCount;\n"
                     + "    }\n"
                     + "\n"
                     + "    public ").append(getClassName()).append("(");
-            writeArgumentsForAddMore(appender, operation.getMandatoryFields());
+            writeArgumentsForAddMore(appender, filteredMandatoryFields);
             appender.append(PAGE_ONLY_DATA_COUNT_DATA_TYPE.getSimpleName());
             appender.append(" onlyDataCount) {\n");
-            writeFieldsInitialization(appender, operation.getMandatoryFields());
+            writeFieldsInitialization(appender, filteredMandatoryFields);
             appender.append("        this.onlyDataCount = onlyDataCount;\n"
                     + "    }");
         }

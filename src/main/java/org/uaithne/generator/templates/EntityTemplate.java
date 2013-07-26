@@ -19,6 +19,7 @@
 package org.uaithne.generator.templates;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
@@ -51,34 +52,90 @@ public class EntityTemplate extends PojoTemplate {
     }
     
     void writeConstructors(Appendable appender) throws IOException {
-        if (!entity.getMandatoryFields().isEmpty()) {
+        ArrayList<FieldInfo> mandatoryFields = entity.getMandatoryFields();
+        ArrayList<FieldInfo> filteredMandatoryFields = new ArrayList<FieldInfo>(mandatoryFields.size());
+        for (FieldInfo field : mandatoryFields) {
+            if (!field.isExcludedFromConstructor()) {
+                filteredMandatoryFields.add(field);
+            }
+        }
+        
+        ArrayList<FieldInfo> combinedMandatoryFields = entity.getCombined().getMandatoryFields();
+        ArrayList<FieldInfo> filteredCombinedMandatoryFields = new ArrayList<FieldInfo>(combinedMandatoryFields.size());
+        for (FieldInfo field : combinedMandatoryFields) {
+            if (!field.isExcludedFromConstructor()) {
+                filteredCombinedMandatoryFields.add(field);
+            }
+        }
+        
+        if (!filteredCombinedMandatoryFields.isEmpty()) {
             appender.append("    public ").append(getClassName()).append("() {\n"
                     + "    }\n"
                     + "\n");
         }
 
         appender.append("    public ").append(getClassName()).append("(");
-        writeArguments(appender, entity.getCombined().getMandatoryFields());
+        writeArguments(appender, filteredCombinedMandatoryFields);
         appender.append(") {\n");
         if (entity.getParent() != null) {
+            ArrayList<FieldInfo> combinedParentMandatoryFields = entity.getParent().getCombined().getMandatoryFields();
+            ArrayList<FieldInfo> filteredCombinedParentMandatoryFields = new ArrayList<FieldInfo>(combinedParentMandatoryFields.size());
+            for (FieldInfo field : combinedParentMandatoryFields) {
+                if (!field.isExcludedFromConstructor()) {
+                    filteredCombinedParentMandatoryFields.add(field);
+                }
+            }
+        
             appender.append("        super(");
-            writeCallArguments(appender, entity.getParent().getMandatoryFields());
+            writeCallArguments(appender, filteredCombinedParentMandatoryFields);
             appender.append(");\n");
         }
-        writeFieldsInitialization(appender, entity.getMandatoryFields());
+        writeFieldsInitialization(appender, filteredMandatoryFields);
         appender.append("    }");
 
-        if (!entity.getCombined().getIdFields().isEmpty()) {
+        ArrayList<FieldInfo> idAndMandatoryFields = entity.getIdFields();
+        ArrayList<FieldInfo> filteredIdAndMandatoryFields = new ArrayList<FieldInfo>(idAndMandatoryFields.size());
+        for (FieldInfo field : idAndMandatoryFields) {
+            if (!field.isExcludedFromConstructor()) {
+                filteredIdAndMandatoryFields.add(field);
+            }
+        }
+
+        ArrayList<FieldInfo> combinedIdFields = entity.getCombined().getIdFields();
+        ArrayList<FieldInfo> filteredCombinedIdFields = new ArrayList<FieldInfo>(combinedIdFields.size());
+        for (FieldInfo field : combinedIdFields) {
+            if (!field.isExcludedFromConstructor()) {
+                filteredCombinedIdFields.add(field);
+            }
+        }
+        
+        ArrayList<FieldInfo> combinedIdAndMandatoryFields = entity.getCombined().getIdAndMandatoryFields();
+        ArrayList<FieldInfo> filteredCombinedIdAndMandatoryFields = new ArrayList<FieldInfo>(combinedIdAndMandatoryFields.size());
+        for (FieldInfo field : combinedIdAndMandatoryFields) {
+            if (!field.isExcludedFromConstructor()) {
+                filteredCombinedIdAndMandatoryFields.add(field);
+            }
+        }
+
+        if (!filteredCombinedIdFields.isEmpty()) {
             appender.append("\n\n");
             appender.append("    public ").append(getClassName()).append("(");
-            writeArguments(appender, entity.getCombined().getIdAndMandatoryFields());
+            writeArguments(appender, filteredCombinedIdAndMandatoryFields);
             appender.append(") {\n");
             if (entity.getParent() != null) {
+                ArrayList<FieldInfo> combinedParentIdAndMandatoryFields = entity.getParent().getCombined().getIdAndMandatoryFields();
+                ArrayList<FieldInfo> filteredCombinedParentIdAndMandatoryFields = new ArrayList<FieldInfo>(combinedParentIdAndMandatoryFields.size());
+                for (FieldInfo field : combinedParentIdAndMandatoryFields) {
+                    if (!field.isExcludedFromConstructor()) {
+                        filteredCombinedParentIdAndMandatoryFields.add(field);
+                    }
+                }
+                
                 appender.append("        super(");
-                writeCallArguments(appender, entity.getParent().getIdAndMandatoryFields());
+                writeCallArguments(appender, filteredCombinedParentIdAndMandatoryFields);
                 appender.append(");\n");
             }
-            writeFieldsInitialization(appender, entity.getIdAndMandatoryFields());
+            writeFieldsInitialization(appender, filteredIdAndMandatoryFields);
             appender.append("    }");
         }
     }

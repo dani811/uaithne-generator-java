@@ -43,6 +43,7 @@ public class FieldInfo {
     private boolean manually;
     private FieldInfo related;
     private boolean deprecated;
+    private boolean excludedFromConstructor;
 
     public String[] getDocumentation() {
         if (documentation == null && related != null) {
@@ -247,6 +248,14 @@ public class FieldInfo {
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
     }
+
+    public boolean isExcludedFromConstructor() {
+        return excludedFromConstructor;
+    }
+
+    public void setExcludedFromConstructor(boolean excludedFromConstructor) {
+        this.excludedFromConstructor = excludedFromConstructor;
+    }
     
     public FieldInfo(VariableElement element) {
         this.element = element;
@@ -282,6 +291,11 @@ public class FieldInfo {
         Deprecated deprecatedAnnotation = element.getAnnotation(Deprecated.class);
         if (deprecatedAnnotation != null) {
             this.deprecated = true;
+        }
+        
+        ExcludeFromConstructor excludeFromConstructorAnnotation = element.getAnnotation(ExcludeFromConstructor.class);
+        if (excludeFromConstructorAnnotation != null) {
+            this.excludedFromConstructor = true;
         }
     }
 
