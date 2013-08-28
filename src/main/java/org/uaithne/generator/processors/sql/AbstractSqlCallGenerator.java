@@ -330,8 +330,11 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         appendStartCustomInsertQuery(result, operation);
 
         boolean requireComma = false;
-        for (FieldInfo field : entity.getIdFields()) {
+        for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
+                continue;
+            }
+            if (!field.isIdentifier()) {
                 continue;
             }
             if (requireComma) {

@@ -491,11 +491,18 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         EntityInfo combinedEntity = entityInfo.getCombined();
         FieldInfo idInfo;
-        List<FieldInfo> idFields = combinedEntity.getIdFields();
-        if (idFields.size() <= 0) {
+        boolean firstIdFieldFound = false;
+        boolean secondIdFieldFound = false;
+        for (FieldInfo field : combinedEntity.getFields()) {
+            if (field.isIdentifier()) {
+                secondIdFieldFound = firstIdFieldFound;
+                firstIdFieldFound = true;
+            }
+        }
+        if (!firstIdFieldFound) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define an id for use in an executor group", element);
             return;
-        } else if (idFields.size() > 1) {
+        } else if (secondIdFieldFound) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an executor group", element);
             return;
         } else {

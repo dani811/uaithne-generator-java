@@ -35,11 +35,6 @@ public class EntityInfo {
     private HashSet<DataTypeInfo> implement = new HashSet<DataTypeInfo>();
     private DataTypeInfo dataType;
     private ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> mandatoryFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> idFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> optionalFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> idAndMandatoryFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> mandatoryAndOptionalFields = new ArrayList<FieldInfo>(0);
     private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
     private EntityKind entityKind;
     private TypeElement element;
@@ -50,6 +45,7 @@ public class EntityInfo {
     private boolean manually;
     private boolean hasDeletionMark;
     private boolean ignoreLogicalDeletion;
+    private FieldInfo firstIdField;
 
     public String[] getDocumentation() {
         return documentation;
@@ -96,12 +92,9 @@ public class EntityInfo {
     }
     
     public void addField(FieldInfo fieldInfo) {
-        if (fieldInfo.isIdentifier()) {
-            addIdField(fieldInfo);
-        } else if (fieldInfo.isOptional()) {
-            addOptionalField(fieldInfo);
-        } else {
-            addMandatoryField(fieldInfo);
+        fields.add(fieldInfo);
+        if (fieldInfo.isIdentifier() && firstIdField == null) {
+            firstIdField = fieldInfo;
         }
         if (fieldInfo.isDeletionMark()) {
             hasDeletionMark = true;
@@ -117,10 +110,6 @@ public class EntityInfo {
         return null;
     }
 
-    public ArrayList<FieldInfo> getMandatoryFields() {
-        return mandatoryFields;
-    }
-
     public ArrayList<OperationInfo> getOperations() {
         return operations;
     }
@@ -131,47 +120,9 @@ public class EntityInfo {
             usedInOrderedOperation = true;
         }
     }
-    
-    private void addMandatoryField(FieldInfo fieldInfo) {
-        fields.add(fieldInfo);
-        mandatoryFields.add(fieldInfo);
-        idAndMandatoryFields.add(fieldInfo);
-        mandatoryAndOptionalFields.add(fieldInfo);
-    }
 
     public FieldInfo getFirstIdField() {
-        if (idFields.size() <= 0) {
-            return null;
-        }
-        return idFields.get(0);
-    }
-    
-    public ArrayList<FieldInfo> getIdFields() {
-        return idFields;
-    }
-    
-    private void addIdField(FieldInfo fieldInfo) {
-        fields.add(fieldInfo);
-        idFields.add(fieldInfo);
-        idAndMandatoryFields.add(fieldInfo);
-    }
-
-    public ArrayList<FieldInfo> getOptionalFields() {
-        return optionalFields;
-    }
-    
-    private void addOptionalField(FieldInfo fieldInfo) {
-        fields.add(fieldInfo);
-        optionalFields.add(fieldInfo);
-        mandatoryAndOptionalFields.add(fieldInfo);
-    }
-
-    public ArrayList<FieldInfo> getIdAndMandatoryFields() {
-        return idAndMandatoryFields;
-    }
-
-    public ArrayList<FieldInfo> getMandatoryAndOptionalFields() {
-        return mandatoryAndOptionalFields;
+        return firstIdField;
     }
 
     public EntityKind getEntityKind() {
@@ -314,16 +265,6 @@ public class EntityInfo {
         combined.dataType = this.dataType;
         combined.fields.addAll(other.fields);
         combined.fields.addAll(this.fields);
-        combined.mandatoryFields.addAll(other.mandatoryFields);
-        combined.mandatoryFields.addAll(this.mandatoryFields);
-        combined.idFields.addAll(other.idFields);
-        combined.idFields.addAll(this.idFields);
-        combined.optionalFields.addAll(other.optionalFields);
-        combined.optionalFields.addAll(this.optionalFields);
-        combined.idAndMandatoryFields.addAll(other.idAndMandatoryFields);
-        combined.idAndMandatoryFields.addAll(this.idAndMandatoryFields);
-        combined.mandatoryAndOptionalFields.addAll(other.mandatoryAndOptionalFields);
-        combined.mandatoryAndOptionalFields.addAll(this.mandatoryAndOptionalFields);
         combined.operations.addAll(this.operations);
         combined.entityKind = this.entityKind;
         combined.element = this.element;
@@ -338,6 +279,10 @@ public class EntityInfo {
         combined.manually = this.manually || other.manually;
         combined.hasDeletionMark = this.hasDeletionMark || other.hasDeletionMark;
         combined.ignoreLogicalDeletion = this.ignoreLogicalDeletion || other.ignoreLogicalDeletion;
+        combined.firstIdField = this.firstIdField;
+        if (combined.firstIdField == null) {
+            combined.firstIdField = other.firstIdField;
+        }
     }
     
 }

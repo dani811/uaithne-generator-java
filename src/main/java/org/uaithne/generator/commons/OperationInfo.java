@@ -38,8 +38,6 @@ public class OperationInfo {
     private DataTypeInfo extend;
     private HashSet<DataTypeInfo> implement = new HashSet<DataTypeInfo>();
     private ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> mandatoryFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> optionalFields = new ArrayList<FieldInfo>(0);
     private OperationKind operationKind;
     private EntityInfo entity;
     private TypeElement element;
@@ -127,10 +125,9 @@ public class OperationInfo {
     }
     
     public void addField(FieldInfo fieldInfo) {
-        if (fieldInfo.isOptional()) {
-            addOptionalField(fieldInfo);
-        } else {
-            addMandatoryField(fieldInfo);
+        fields.add(fieldInfo);
+        if (fieldInfo.isOrderBy()) {
+            ordered = true;
         }
     }
     
@@ -141,30 +138,6 @@ public class OperationInfo {
             }
         }
         return null;
-    }
-
-    public ArrayList<FieldInfo> getMandatoryFields() {
-        return mandatoryFields;
-    }
-    
-    private void addMandatoryField(FieldInfo fieldInfo) {
-        fields.add(fieldInfo);
-        mandatoryFields.add(fieldInfo);
-        if (fieldInfo.isOrderBy()) {
-            ordered = true;
-        }
-    }
-
-    public ArrayList<FieldInfo> getOptionalFields() {
-        return optionalFields;
-    }
-    
-    private void addOptionalField(FieldInfo fieldInfo) {
-        fields.add(fieldInfo);
-        optionalFields.add(fieldInfo);
-        if (fieldInfo.isOrderBy()) {
-            ordered = true;
-        }
     }
 
     public EntityInfo getEntity() {
@@ -246,10 +219,6 @@ public class OperationInfo {
 
     public boolean isOrdered() {
         return ordered;
-    }
-
-    public void setOrdered(boolean ordered) {
-        this.ordered = ordered;
     }
     
     public int generateFistPrimeNumberForHashCode() {

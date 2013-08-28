@@ -665,8 +665,10 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                for (FieldInfo field : entity.getIdFields()) {
+                for (FieldInfo field : entity.getFields()) {
                     if (field.isManually()) {
+                        continue;
+                    } else if (!field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
                         if (requireComma) {
@@ -745,8 +747,10 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                for (FieldInfo field : entity.getIdFields()) {
+                for (FieldInfo field : entity.getFields()) {
                     if (field.isManually()) {
+                        continue;
+                    } else if (!field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
                         if (requireComma) {

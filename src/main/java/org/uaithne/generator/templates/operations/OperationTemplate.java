@@ -106,9 +106,12 @@ public class OperationTemplate extends PojoTemplate {
     }
 
     void writeConstructors(Appendable appender) throws IOException {
-        ArrayList<FieldInfo> mandatoryFields = operation.getMandatoryFields();
-        ArrayList<FieldInfo> filteredMandatoryFields = new ArrayList<FieldInfo>(mandatoryFields.size());
-        for (FieldInfo field : mandatoryFields) {
+        ArrayList<FieldInfo> fields = operation.getFields();
+        ArrayList<FieldInfo> filteredMandatoryFields = new ArrayList<FieldInfo>(fields.size());
+        for (FieldInfo field : fields) {
+            if (field.isOptional()) {
+                continue;
+            }
             if (!field.isExcludedFromConstructor()) {
                 filteredMandatoryFields.add(field);
             }
