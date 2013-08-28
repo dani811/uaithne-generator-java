@@ -20,6 +20,7 @@ package org.uaithne.generator.templates;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.Utils;
@@ -124,10 +125,12 @@ public abstract class ClassTemplate {
     protected void writeStartClass(Appendable appender) throws IOException {
         appender.append("package ").append(packageName).append(";\n\n");
         
-        for (String s : imports) {
-            appender.append("import ").append(s).append(";\n");
-        }
         if (!imports.isEmpty()) {
+            ArrayList<String> sortedImports = new ArrayList<String>(imports);
+            Collections.sort(sortedImports);
+            for (String s : sortedImports) {
+                appender.append("import ").append(s).append(";\n");
+            }
             appender.append("\n");
         }
         
@@ -167,13 +170,15 @@ public abstract class ClassTemplate {
             appender.append(extend);
         }
         if (!implement.isEmpty()) {
+            ArrayList<String> sortedImplement = new ArrayList<String>(implement);
+            Collections.sort(sortedImplement);
             if (isInterface) {
                 appender.append(" extends ");
             } else {
                 appender.append(" implements ");
             }
             boolean requireComma = false;
-            for (String s : implement) {
+            for (String s : sortedImplement) {
                 if (requireComma) {
                     appender.append(", ");
                 }
