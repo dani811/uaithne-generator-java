@@ -38,7 +38,6 @@ public class FieldInfo {
     private String mappedName;
     private boolean orderBy;
     private boolean identifier;
-    private boolean extra;
     private boolean deletionMark;
     private boolean manually;
     private FieldInfo related;
@@ -185,14 +184,6 @@ public class FieldInfo {
         this.identifier = identifier;
     }
 
-    public boolean isExtra() {
-        return extra;
-    }
-
-    public void setExtra(boolean extra) {
-        this.extra = extra;
-    }
-
     public boolean isDeletionMark() {
         if (!deletionMark) {
             if (related != null) {
@@ -267,7 +258,6 @@ public class FieldInfo {
         defaultValue = Utils.getDefaultValue(dataType, element);
         orderBy = element.getAnnotation(OrderBy.class) != null;
         optional = element.getAnnotation(Optional.class) != null;
-        extra = element.getAnnotation(Extra.class) != null;
         identifier = element.getAnnotation(Id.class) != null;
         deletionMark = element.getAnnotation(DeletionMark.class) != null;
         MappedName mn = element.getAnnotation(MappedName.class);
@@ -317,5 +307,9 @@ public class FieldInfo {
         deletionMark = fieldInfo.deletionMark;
         manually = fieldInfo.manually;
         related = fieldInfo;
+        deprecated = fieldInfo.deprecated;
+        excludedFromConstructor = fieldInfo.excludedFromConstructor;
+        markAsOvwrride = fieldInfo.markAsOvwrride;
+        markAsTransient = fieldInfo.markAsTransient;
     }
 }

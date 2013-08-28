@@ -146,7 +146,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
                 + "    }\n");
     }
 
-    protected void writeStartEquals(Appendable appender, ArrayList<FieldInfo> fields, boolean callSuper, boolean alwaysGenerateOtherVariable) throws IOException {
+    protected void writeEquals(Appendable appender, ArrayList<FieldInfo> fields, boolean callSuper) throws IOException {
         appender.append("    @Override\n"
                 + "    public boolean equals(Object obj) {\n"
                 + "        if (obj == null) {\n"
@@ -156,43 +156,52 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
                 + "            return false;\n"
                 + "        }\n");
 
-        if (callSuper) {
+        ArrayList<FieldInfo> filteredFields = new ArrayList<FieldInfo>(fields.size());
+        for (FieldInfo field : fields) {
+            if (!field.isMarkAsTransient()) {
+                filteredFields.add(field);
+            }
+        }
+        
+        if (callSuper || filteredFields.isEmpty()) {
             appender.append("        if (!super.equals(obj)) {\n"
                     + "            return false;\n"
                     + "        }\n");
         }
 
-        if (!fields.isEmpty()) {
+        if (!filteredFields.isEmpty()) {
             appender.append("        final ").append(getClassName()).append(" other = (").append(getClassName()).append(") obj;\n");
-            for (FieldInfo field : fields) {
+            for (FieldInfo field : filteredFields) {
                 appender.append("        if (").append(field.generateEqualsRule()).append(") {\n"
                         + "            return false;\n"
                         + "        }\n");
             }
-
-        } else if (alwaysGenerateOtherVariable) {
-            appender.append("        final ").append(getClassName()).append(" other = (").append(getClassName()).append(") obj;\n");
         }
-    }
-
-    protected void writeEndEquals(Appendable appender) throws IOException {
+        
         appender.append("        return true;\n"
                 + "    }\n");
     }
 
-    protected void writeStartHashCode(Appendable appender, ArrayList<FieldInfo> fields, boolean callSuper, String firstPrime, String secondPrime) throws IOException {
+    protected void writeHashCode(Appendable appender, ArrayList<FieldInfo> fields, boolean callSuper, String firstPrime, String secondPrime) throws IOException {
         appender.append("    @Override\n"
                 + "    public int hashCode() {\n"
                 + "        int hash = ").append(firstPrime).append(";\n");
-        if (callSuper) {
+        
+        ArrayList<FieldInfo> filteredFields = new ArrayList<FieldInfo>(fields.size());
+        for (FieldInfo field : fields) {
+            if (!field.isMarkAsTransient()) {
+                filteredFields.add(field);
+            }
+        }
+        
+        if (callSuper || filteredFields.isEmpty()) {
             appender.append("        hash = ").append(secondPrime).append(" * hash + super.hashCode();\n");
         }
-        for (FieldInfo field : fields) {
+        
+        for (FieldInfo field : filteredFields) {
             appender.append("        hash = ").append(secondPrime).append(" * hash + ").append(field.generateHashCodeRule()).append(";\n");
         }
-    }
-
-    protected void writeEndHashCode(Appendable appender) throws IOException {
+        
         appender.append("        return hash;\n"
                 + "    }\n");
     }

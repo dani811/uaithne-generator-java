@@ -39,8 +39,6 @@ public class OperationInfo {
     private ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(0);
     private ArrayList<FieldInfo> mandatoryFields = new ArrayList<FieldInfo>(0);
     private ArrayList<FieldInfo> optionalFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> extraFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> fieldsWithExtras = new ArrayList<FieldInfo>(0);
     private OperationKind operationKind;
     private EntityInfo entity;
     private TypeElement element;
@@ -126,9 +124,7 @@ public class OperationInfo {
     }
     
     public void addField(FieldInfo fieldInfo) {
-        if (fieldInfo.isExtra()) {
-            addExtraField(fieldInfo);
-        } else if (fieldInfo.isOptional()) {
+        if (fieldInfo.isOptional()) {
             addOptionalField(fieldInfo);
         } else {
             addMandatoryField(fieldInfo);
@@ -136,7 +132,7 @@ public class OperationInfo {
     }
     
     public FieldInfo getFieldByName(String name) {
-        for(FieldInfo field : fieldsWithExtras) {
+        for(FieldInfo field : fields) {
             if (field.getName().equals(name)) {
                 return field;
             }
@@ -150,7 +146,6 @@ public class OperationInfo {
     
     private void addMandatoryField(FieldInfo fieldInfo) {
         fields.add(fieldInfo);
-        fieldsWithExtras.add(fieldInfo);
         mandatoryFields.add(fieldInfo);
         if (fieldInfo.isOrderBy()) {
             ordered = true;
@@ -163,27 +158,10 @@ public class OperationInfo {
     
     private void addOptionalField(FieldInfo fieldInfo) {
         fields.add(fieldInfo);
-        fieldsWithExtras.add(fieldInfo);
         optionalFields.add(fieldInfo);
         if (fieldInfo.isOrderBy()) {
             ordered = true;
         }
-    }
-
-    public ArrayList<FieldInfo> getExtraFields() {
-        return extraFields;
-    }
-    
-    private void addExtraField(FieldInfo fieldInfo) {
-        extraFields.add(fieldInfo);
-        fieldsWithExtras.add(fieldInfo);
-        if (fieldInfo.isOrderBy()) {
-            ordered = true;
-        }
-    }
-
-    public ArrayList<FieldInfo> getFieldsWithExtras() {
-        return fieldsWithExtras;
     }
 
     public EntityInfo getEntity() {
@@ -224,7 +202,7 @@ public class OperationInfo {
         for (DataTypeInfo imp : implement) {
             imp.appendImports(currentPackage, imports);
         }
-        for (FieldInfo field : fieldsWithExtras) {
+        for (FieldInfo field : fields) {
             field.appendImports(currentPackage, imports);
         }
         returnDataType.appendImports(currentPackage, imports);

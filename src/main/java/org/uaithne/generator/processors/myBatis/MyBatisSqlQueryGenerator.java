@@ -206,6 +206,16 @@ public abstract class MyBatisSqlQueryGenerator extends AbstractSqlQueryGenerator
     public void appendEndSet(StringBuilder result) {
         result.append("</set>");
     }
+    
+    @Override
+    public void appendSetValueIfNotNull(StringBuilder result, FieldInfo field) {
+        appendConditionStartIfNotNull(result, field);
+        result.append(getColumnName(field));
+        result.append(" = ");
+        result.append(getParameterValue(field));
+        result.append(",");
+        appendConditionEndIf(result);
+    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="If (not) null">

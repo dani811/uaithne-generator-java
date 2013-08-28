@@ -93,7 +93,7 @@ public class EntityTemplate extends PojoTemplate {
         writeFieldsInitialization(appender, filteredMandatoryFields);
         appender.append("    }");
 
-        ArrayList<FieldInfo> idAndMandatoryFields = entity.getIdFields();
+        ArrayList<FieldInfo> idAndMandatoryFields = entity.getIdAndMandatoryFields();
         ArrayList<FieldInfo> filteredIdAndMandatoryFields = new ArrayList<FieldInfo>(idAndMandatoryFields.size());
         for (FieldInfo field : idAndMandatoryFields) {
             if (!field.isExcludedFromConstructor()) {
@@ -142,10 +142,12 @@ public class EntityTemplate extends PojoTemplate {
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        for (FieldInfo field : entity.getFieldsWithExtras()) {
+        boolean hasExtend = entity.getExtend() != null;
+        
+        for (FieldInfo field : entity.getFields()) {
             writeField(appender, field);
         }
-        for (FieldInfo field : entity.getFieldsWithExtras()) {
+        for (FieldInfo field : entity.getFields()) {
             appender.append("\n");
             writeFieldGetter(appender, field);
             appender.append("\n");
@@ -153,20 +155,16 @@ public class EntityTemplate extends PojoTemplate {
         }
         
         appender.append("\n");
-        writeToString(appender, entity.getFieldsWithExtras(), entity.getExtend() != null);
-        
-        boolean callSuper = entity.getExtend() != null || entity.getIdFields().isEmpty();
+        writeToString(appender, entity.getFields(), hasExtend);
         
         appender.append("\n");
-        writeStartEquals(appender, entity.getIdFields(), callSuper, false);
-        writeEndEquals(appender);
+        writeEquals(appender, entity.getIdFields(), hasExtend);
         
         String firstPrime = Integer.toString(entity.generateFistPrimeNumberForHashCode());
         String secondPrime = Integer.toString(entity.generateSecondPrimeNumberForHashCode());
 
         appender.append("\n");
-        writeStartHashCode(appender, entity.getIdFields(), callSuper, firstPrime, secondPrime);
-        writeEndHashCode(appender);
+        writeHashCode(appender, entity.getIdFields(), hasExtend, firstPrime, secondPrime);
         
         appender.append("\n");
         writeConstructors(appender);

@@ -20,18 +20,11 @@ package org.uaithne.generator.processors.sql;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import org.uaithne.annotations.Comparator;
-import org.uaithne.annotations.DeleteDate;
-import org.uaithne.annotations.DeleteUser;
 import org.uaithne.annotations.IgnoreLogicalDeletion;
-import org.uaithne.annotations.InsertDate;
-import org.uaithne.annotations.InsertUser;
 import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.SelectOne;
-import org.uaithne.annotations.UpdateDate;
-import org.uaithne.annotations.UpdateUser;
 import org.uaithne.annotations.UseComparator;
 import org.uaithne.annotations.UseCustomComparator;
-import org.uaithne.annotations.Version;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
@@ -190,86 +183,6 @@ public abstract class AbstractSqlGenerator implements SqlGenerator {
             return useLogicalDeletion(entity.getCombined());
         }
         return false;
-    }
-    //</editor-fold>
-    
-    //<editor-fold defaultstate="collapsed" desc="Managment of the extra fields">
-    public boolean omitField(FieldInfo field) {
-        if (field.isManually()) {
-            return true;
-        }
-        if (field.getAnnotation(InsertDate.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(InsertUser.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(UpdateDate.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(UpdateUser.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(DeleteDate.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(DeleteUser.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(Version.class) != null) {
-            return true;
-        }
-        if (field.isDeletionMark()) {
-            return true;
-        }
-        return false;
-    }
-    
-    public boolean extraIncludeOnSelect(FieldInfo field) {
-        if (field.isManually()) {
-            return false;
-        }
-        if (field.getAnnotation(InsertDate.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(InsertUser.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(UpdateDate.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(UpdateUser.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(DeleteDate.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(DeleteUser.class) != null) {
-            return true;
-        }
-        if (field.getAnnotation(Version.class) != null) {
-            return true;
-        }
-        if (field.isDeletionMark()) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean omitOnSelect(FieldInfo field) {
-        return omitField(field);
-    }
-
-    public boolean omitOnInsert(FieldInfo field) {
-        return omitField(field);
-    }
-
-    public boolean omitOnUpdate(FieldInfo field) {
-        return omitField(field);
-    }
-
-    public boolean omitOnDelete(FieldInfo field) {
-        return omitField(field);
     }
     //</editor-fold>
     

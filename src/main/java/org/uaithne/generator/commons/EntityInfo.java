@@ -39,8 +39,6 @@ public class EntityInfo {
     private ArrayList<FieldInfo> optionalFields = new ArrayList<FieldInfo>(0);
     private ArrayList<FieldInfo> idAndMandatoryFields = new ArrayList<FieldInfo>(0);
     private ArrayList<FieldInfo> mandatoryAndOptionalFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> extraFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> fieldsWithExtras = new ArrayList<FieldInfo>(0);
     private ArrayList<FieldInfo> deletionMarks = new ArrayList<FieldInfo>(0);
     private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
     private EntityKind entityKind;
@@ -91,18 +89,12 @@ public class EntityInfo {
         this.dataType = dataType;
     }
 
-    public ArrayList<FieldInfo> getFieldsWithExtras() {
-        return fieldsWithExtras;
-    }
-
     public ArrayList<FieldInfo> getFields() {
         return fields;
     }
     
     public void addField(FieldInfo fieldInfo) {
-        if (fieldInfo.isExtra()) {
-            addExtraField(fieldInfo);
-        } else if (fieldInfo.isIdentifier()) {
+        if (fieldInfo.isIdentifier()) {
             addIdField(fieldInfo);
         } else if (fieldInfo.isOptional()) {
             addOptionalField(fieldInfo);
@@ -115,7 +107,7 @@ public class EntityInfo {
     }
     
     public FieldInfo getFieldByName(String name) {
-        for(FieldInfo field : fieldsWithExtras) {
+        for(FieldInfo field : fields) {
             if (field.getName().equals(name)) {
                 return field;
             }
@@ -140,7 +132,6 @@ public class EntityInfo {
     
     private void addMandatoryField(FieldInfo fieldInfo) {
         fields.add(fieldInfo);
-        fieldsWithExtras.add(fieldInfo);
         mandatoryFields.add(fieldInfo);
         idAndMandatoryFields.add(fieldInfo);
         mandatoryAndOptionalFields.add(fieldInfo);
@@ -163,7 +154,6 @@ public class EntityInfo {
     
     private void addIdField(FieldInfo fieldInfo) {
         fields.add(fieldInfo);
-        fieldsWithExtras.add(fieldInfo);
         idFields.add(fieldInfo);
         idAndMandatoryFields.add(fieldInfo);
     }
@@ -174,7 +164,6 @@ public class EntityInfo {
     
     private void addOptionalField(FieldInfo fieldInfo) {
         fields.add(fieldInfo);
-        fieldsWithExtras.add(fieldInfo);
         optionalFields.add(fieldInfo);
         mandatoryAndOptionalFields.add(fieldInfo);
     }
@@ -185,15 +174,6 @@ public class EntityInfo {
 
     public ArrayList<FieldInfo> getMandatoryAndOptionalFields() {
         return mandatoryAndOptionalFields;
-    }
-
-    public ArrayList<FieldInfo> getExtraFields() {
-        return extraFields;
-    }
-    
-    private void addExtraField(FieldInfo fieldInfo) {
-        extraFields.add(fieldInfo);
-        fieldsWithExtras.add(fieldInfo);
     }
 
     public EntityKind getEntityKind() {
@@ -250,7 +230,7 @@ public class EntityInfo {
         for (DataTypeInfo imp : implement) {
             imp.appendImports(currentPackage, imports);
         }
-        for (FieldInfo field : combined.fieldsWithExtras) {
+        for (FieldInfo field : combined.fields) {
             field.appendImports(currentPackage, imports);
         }
     }
@@ -319,10 +299,6 @@ public class EntityInfo {
         combined.dataType = this.dataType;
         combined.fields.addAll(other.fields);
         combined.fields.addAll(this.fields);
-        combined.extraFields.addAll(other.extraFields);
-        combined.extraFields.addAll(this.extraFields);
-        combined.fieldsWithExtras.addAll(other.fieldsWithExtras);
-        combined.fieldsWithExtras.addAll(this.fieldsWithExtras);
         combined.mandatoryFields.addAll(other.mandatoryFields);
         combined.mandatoryFields.addAll(this.mandatoryFields);
         combined.idFields.addAll(other.idFields);

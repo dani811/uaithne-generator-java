@@ -19,9 +19,11 @@
 package org.uaithne.generator.processors.sql;
 
 import java.util.List;
+import org.uaithne.annotations.DeleteDate;
 import org.uaithne.annotations.DeleteUser;
 import org.uaithne.annotations.InsertDate;
 import org.uaithne.annotations.InsertUser;
+import org.uaithne.annotations.UpdateDate;
 import org.uaithne.annotations.UpdateUser;
 import org.uaithne.annotations.Version;
 import org.uaithne.generator.commons.EntityInfo;
@@ -29,6 +31,21 @@ import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
 public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
+    
+    //<editor-fold defaultstate="collapsed" desc="Version managment">
+    public abstract boolean handleVersionFieldOnInsert();
+    public abstract boolean handleVersionFieldOnUpdate();
+    public abstract boolean handleVersionFieldOnDelete();
+    public void appendVersionFieldOnInsert(StringBuilder result, EntityInfo entity, FieldInfo field) {
+        appendOutParameter(result, field);
+    }
+    public void appendVersionFieldOnUpdate(StringBuilder result, EntityInfo entity, FieldInfo field) {
+        appendOutParameter(result, field);
+    }
+    public void appendVersionFieldOnDelete(StringBuilder result, EntityInfo entity, FieldInfo field) {
+        appendOutParameter(result, field);
+    }
+    //</editor-fold>
     
     public abstract void appendInParameter(StringBuilder query, FieldInfo field);
     public abstract void appendOutParameter(StringBuilder query, FieldInfo field);
@@ -51,10 +68,6 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
     public abstract void appendStartCustomUpdateQuery(StringBuilder query, OperationInfo operation);
     public abstract void appendEndQuery(StringBuilder query);
     
-    public boolean omitIdOnInsert(EntityInfo entity, FieldInfo field) {
-        return omitOnInsert(field);
-    }
-    
     public String finalizeQuery(String query, EntityInfo entity) {
         return query;
     }
@@ -75,47 +88,47 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         appendStartEntityInsertQuery(result, entity);
 
         boolean requireComma = false;
-        List<FieldInfo> idFields = entity.getIdFields();
-        for (FieldInfo field : idFields) {
-            if (omitIdOnInsert(entity, field)) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendOutParameter(result, field);
-            requireComma = true;
-        }
-        for (FieldInfo field : entity.getMandatoryAndOptionalFields()) {
-            if (omitOnInsert(field)) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendInParameter(result, field);
-            requireComma = true;
-        }
-        List<FieldInfo> fieldsWithExtras = entity.getFieldsWithExtras();
-        for (FieldInfo field : fieldsWithExtras) {
+        for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
+            } else if (field.getAnnotation(InsertDate.class) != null) {
+                continue;
+            } else if (field.isIdentifier()) {
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendOutParameter(result, field);
+                requireComma = true;
             } else if (field.getAnnotation(InsertUser.class) != null) {
                 if (requireComma) {
-                    result.append(",\n");
+                    result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            }
-        }
-        for (FieldInfo field : fieldsWithExtras) {
-            if (field.isManually()) {
-                continue;
             } else if (field.getAnnotation(Version.class) != null) {
-                if (requireComma) {
-                    result.append(",\n");
+                if (!handleVersionFieldOnInsert()) {
+                    continue;
                 }
-                appendOutParameter(result, field);
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendVersionFieldOnInsert(result, entity, field);
+                requireComma = true;
+            } else if (field.getAnnotation(UpdateDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(UpdateUser.class) != null) {
+                continue;
+            } else if (field.getAnnotation(DeleteDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(DeleteUser.class) != null) {
+                continue;
+            } else if (field.isDeletionMark()) {
+                continue;
+            } else {
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendInParameter(result, field);
                 requireComma = true;
             }
         }
@@ -144,47 +157,47 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         appendStartEntityUpdateQuery(result, entity);
 
         boolean requireComma = false;
-        List<FieldInfo> idFields = entity.getIdFields();
-        for (FieldInfo field : idFields) {
-            if (omitOnUpdate(field)) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendOutParameter(result, field);
-            requireComma = true;
-        }
-        for (FieldInfo field : entity.getMandatoryAndOptionalFields()) {
-            if (omitOnUpdate(field)) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendInParameter(result, field);
-            requireComma = true;
-        }
-        List<FieldInfo> fieldsWithExtras = entity.getFieldsWithExtras();
-        for (FieldInfo field : fieldsWithExtras) {
+        for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
+            } else if (field.isIdentifier()) {
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendOutParameter(result, field);
+                requireComma = true;
             } else if (field.getAnnotation(UpdateUser.class) != null) {
                 if (requireComma) {
-                    result.append(",\n");
+                    result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            }
-        }
-        for (FieldInfo field : fieldsWithExtras) {
-            if (field.isManually()) {
-                continue;
             } else if (field.getAnnotation(Version.class) != null) {
-                if (requireComma) {
-                    result.append(",\n");
+                if (!handleVersionFieldOnUpdate()) {
+                    continue;
                 }
-                appendInOutParameter(result, field);
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendVersionFieldOnUpdate(result, entity, field);
+                requireComma = true;
+            } else if (field.getAnnotation(InsertDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(InsertUser.class) != null) {
+                continue;
+            } else if (field.getAnnotation(UpdateDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(DeleteDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(DeleteUser.class) != null) {
+                continue;
+            } else if (field.isDeletionMark()) {
+                continue;
+            } else {
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendInParameter(result, field);
                 requireComma = true;
             }
         }
@@ -202,47 +215,47 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         appendStartEntityMergeQuery(result, entity);
 
         boolean requireComma = false;
-        List<FieldInfo> idFields = entity.getIdFields();
-        for (FieldInfo field : idFields) {
-            if (omitOnUpdate(field)) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendOutParameter(result, field);
-            requireComma = true;
-        }
-        for (FieldInfo field : entity.getMandatoryAndOptionalFields()) {
-            if (omitOnUpdate(field)) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendInParameter(result, field);
-            requireComma = true;
-        }
-        List<FieldInfo> fieldsWithExtras = entity.getFieldsWithExtras();
-        for (FieldInfo field : fieldsWithExtras) {
+        for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
+            } else if (field.isIdentifier()) {
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendOutParameter(result, field);
+                requireComma = true;
             } else if (field.getAnnotation(UpdateUser.class) != null) {
                 if (requireComma) {
-                    result.append(",\n");
+                    result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            }
-        }
-        for (FieldInfo field : fieldsWithExtras) {
-            if (field.isManually()) {
-                continue;
             } else if (field.getAnnotation(Version.class) != null) {
-                if (requireComma) {
-                    result.append(",\n");
+                if (!handleVersionFieldOnUpdate()) {
+                    continue;
                 }
-                appendInOutParameter(result, field);
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendVersionFieldOnUpdate(result, entity, field);
+                requireComma = true;
+            } else if (field.getAnnotation(InsertDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(InsertUser.class) != null) {
+                continue;
+            } else if (field.getAnnotation(UpdateDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(DeleteDate.class) != null) {
+                continue;
+            } else if (field.getAnnotation(DeleteUser.class) != null) {
+                continue;
+            } else if (field.isDeletionMark()) {
+                continue;
+            } else {
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendInParameter(result, field);
                 requireComma = true;
             }
         }
@@ -260,41 +273,32 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         appendStartEntityDeleteByIdQuery(result, entity);
 
         boolean requireComma = false;
-        List<FieldInfo> idFields = entity.getIdFields();
-        for (FieldInfo field : idFields) {
-            if (omitOnDelete(field)) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendOutParameter(result, field);
-            requireComma = true;
-        }
-        List<FieldInfo> fieldsWithExtras = entity.getFieldsWithExtras();
-        for (FieldInfo field : fieldsWithExtras) {
+        for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
+            } else if (field.isIdentifier()) {
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendOutParameter(result, field);
+                requireComma = true;
             } else if (field.getAnnotation(DeleteUser.class) != null) {
                 if (requireComma) {
-                    result.append(",\n");
+                    result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            }
-        }
-        for (FieldInfo field : fieldsWithExtras) {
-            if (field.isManually()) {
-                continue;
             } else if (field.getAnnotation(Version.class) != null) {
-                if (requireComma) {
-                    result.append(",\n");
+                if (!handleVersionFieldOnDelete()) {
+                    continue;
                 }
-                appendInParameter(result, field);
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendVersionFieldOnDelete(result, entity, field);
                 requireComma = true;
             }
         }
-
         appendEndQuery(result);
         
         String finalQuery = result.toString();
@@ -333,10 +337,8 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         appendStartCustomInsertQuery(result, operation);
 
         boolean requireComma = false;
-        List<FieldInfo> idFields = entity.getIdFields();
-        for (FieldInfo field : idFields) {
-            if (field.getAnnotation(InsertDate.class) == null && 
-                    omitIdOnInsert(entity, field)) {
+        for (FieldInfo field : entity.getIdFields()) {
+            if (field.isManually()) {
                 continue;
             }
             if (requireComma) {
@@ -345,10 +347,8 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
             appendOutParameter(result, field);
             requireComma = true;
         }
-
-        List<FieldInfo> fields = operation.getFields();
-        for (FieldInfo field : fields) {
-            if (omitOnInsert(field)) {
+        for (FieldInfo field : operation.getFields()) {
+            if (field.isManually()) {
                 continue;
             }
             if (requireComma) {
@@ -357,15 +357,19 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
             appendInParameter(result, field);
             requireComma = true;
         }
-        List<FieldInfo> fieldsWithExtras = operation.getFieldsWithExtras();
-        for (FieldInfo field : fieldsWithExtras) {
+        for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
-            } else if (field.getAnnotation(InsertUser.class) != null) {
-                if (requireComma) {
-                    result.append(",\n");
+            } else if (field.isIdentifier()) {
+                continue;
+            } else if (field.getAnnotation(Version.class) != null) {
+                if (!handleVersionFieldOnInsert()) {
+                    continue;
                 }
-                appendInParameter(result, field);
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendVersionFieldOnInsert(result, entity, field);
                 requireComma = true;
             }
         }
@@ -379,13 +383,13 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
 
     @Override
     public String[] getCustomUpdateQuery(OperationInfo operation) {
+        EntityInfo entity = operation.getEntity().getCombined();
         StringBuilder result = new StringBuilder();
         appendStartCustomUpdateQuery(result, operation);
 
         boolean requireComma = false;
-        List<FieldInfo> fields = operation.getFields();
-        for (FieldInfo field : fields) {
-            if (omitOnUpdate(field)) {
+        for (FieldInfo field : operation.getFields()) {
+            if (field.isManually()) {
                 continue;
             }
             if (requireComma) {
@@ -394,15 +398,17 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
             appendInParameter(result, field);
             requireComma = true;
         }
-        List<FieldInfo> fieldsWithExtras = operation.getFieldsWithExtras();
-        for (FieldInfo field : fieldsWithExtras) {
+        for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
-            } else if (field.getAnnotation(UpdateUser.class) != null) {
-                if (requireComma) {
-                    result.append(",\n");
+            } else if (field.getAnnotation(Version.class) != null) {
+                if (!handleVersionFieldOnUpdate()) {
+                    continue;
                 }
-                appendInParameter(result, field);
+                if (requireComma) {
+                    result.append(", ");
+                }
+                appendVersionFieldOnUpdate(result, entity, field);
                 requireComma = true;
             }
         }
@@ -416,13 +422,14 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
 
     @Override
     public String[] getCustomDeleteQuery(OperationInfo operation) {
+        EntityInfo entity = operation.getEntity().getCombined();
         StringBuilder result = new StringBuilder();
         appendStartCustomDeleteQuery(result, operation);
 
         boolean requireComma = false;
         List<FieldInfo> fields = operation.getFields();
         for (FieldInfo field : fields) {
-            if (omitOnDelete(field)) {
+            if (field.isManually()) {
                 continue;
             }
             if (requireComma) {
@@ -431,16 +438,17 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
             appendInParameter(result, field);
             requireComma = true;
         }
-        List<FieldInfo> fieldsWithExtras = operation.getFieldsWithExtras();
-        for (FieldInfo field : fieldsWithExtras) {
-            if (field.isManually()) {
-                continue;
-            } else if (field.getAnnotation(DeleteUser.class) != null) {
-                if (requireComma) {
-                    result.append(",\n");
+        if (handleVersionFieldOnDelete()) {
+            for (FieldInfo field : entity.getFields()) {
+                if (field.isManually()) {
+                    continue;
+                } else if (field.getAnnotation(Version.class) != null) {
+                    if (requireComma) {
+                        result.append(", ");
+                    }
+                    appendVersionFieldOnDelete(result, entity, field);
+                    requireComma = true;
                 }
-                appendInParameter(result, field);
-                requireComma = true;
             }
         }
 
@@ -452,5 +460,4 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
     }
     //</editor-fold>
 
-    
 }

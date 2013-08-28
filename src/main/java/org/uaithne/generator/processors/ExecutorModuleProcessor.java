@@ -175,27 +175,32 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         DataTypeInfo pageInfoDataType = DataTypeInfo.PAGE_INFO_DATA_TYPE;
         DataTypeInfo onlyDataCountDataType = DataTypeInfo.PAGE_ONLY_DATA_COUNT_DATA_TYPE;
 
+        loadShared(re, element, executorModuleInfo, operationInfo);
+        
         FieldInfo limitInfo = new FieldInfo("limit", pageInfoDataType);
         limitInfo.setMarkAsOvwrride(true);
-        limitInfo.setExtra(true);
+        limitInfo.setExcludedFromConstructor(true);
+        limitInfo.setManually(true);
         operationInfo.addField(limitInfo);
 
         FieldInfo offsetInfo = new FieldInfo("offset", pageInfoDataType);
         offsetInfo.setMarkAsOvwrride(true);
-        offsetInfo.setExtra(true);
+        offsetInfo.setExcludedFromConstructor(true);
+        offsetInfo.setManually(true);
         operationInfo.addField(offsetInfo);
 
         FieldInfo dataCountInfo = new FieldInfo("dataCount", pageInfoDataType);
         dataCountInfo.setMarkAsOvwrride(true);
-        dataCountInfo.setExtra(true);
+        dataCountInfo.setExcludedFromConstructor(true);
+        dataCountInfo.setManually(true);
         operationInfo.addField(dataCountInfo);
 
         FieldInfo onlyDataCount = new FieldInfo("onlyDataCount", onlyDataCountDataType);
         onlyDataCount.setMarkAsOvwrride(true);
-        onlyDataCount.setExtra(true);
+        onlyDataCount.setExcludedFromConstructor(true);
+        onlyDataCount.setManually(true);
         operationInfo.addField(onlyDataCount);
 
-        loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
 

@@ -81,48 +81,6 @@ public class OperationTemplate extends PojoTemplate {
         appender.append("    }\n");
     }
 
-    void writeEquals(Appendable appender) throws IOException {
-        boolean isSelectPage = operation.getOperationKind() == OperationKind.SELECT_PAGE;
-        boolean callSuper = operation.getExtend() != null || (operation.getFields().isEmpty() && !isSelectPage);
-
-        writeStartEquals(appender, operation.getFields(), callSuper, isSelectPage);
-
-        if (isSelectPage) {
-            appender.append("        if (").append(PAGE_INFO_DATA_TYPE.generateEqualsRule("limit")).append(") {\n"
-                    + "            return false;\n"
-                    + "        }\n"
-                    + "        if (").append(PAGE_INFO_DATA_TYPE.generateEqualsRule("offset")).append(") {\n"
-                    + "            return false;\n"
-                    + "        }\n"
-                    + "        if (").append(PAGE_INFO_DATA_TYPE.generateEqualsRule("dataCount")).append(") {\n"
-                    + "            return false;\n"
-                    + "        }\n"
-                    + "        if (").append(PAGE_ONLY_DATA_COUNT_DATA_TYPE.generateEqualsRule("onlyDataCount")).append(") {\n"
-                    + "            return false;\n"
-                    + "        }\n");
-        }
-
-        writeEndEquals(appender);
-    }
-
-    void writeHashCode(Appendable appender) throws IOException {
-        boolean isSelectPage = operation.getOperationKind() == OperationKind.SELECT_PAGE;
-        boolean callSuper = operation.getExtend() != null || (operation.getFields().isEmpty() && !isSelectPage);
-        String firstPrime = Integer.toString(operation.generateFistPrimeNumberForHashCode());
-        String secondPrime = Integer.toString(operation.generateSecondPrimeNumberForHashCode());
-
-        writeStartHashCode(appender, operation.getFields(), callSuper, firstPrime, secondPrime);
-
-        if (isSelectPage) {
-            appender.append("        hash = ").append(secondPrime).append(" * hash + ").append(PAGE_INFO_DATA_TYPE.generateHashCodeRule("limit")).append(";\n"
-                    + "        hash = ").append(secondPrime).append(" * hash + ").append(PAGE_INFO_DATA_TYPE.generateHashCodeRule("offset")).append(";\n"
-                    + "        hash = ").append(secondPrime).append(" * hash + ").append(PAGE_INFO_DATA_TYPE.generateHashCodeRule("dataCount")).append(";\n"
-                    + "        hash = ").append(secondPrime).append(" * hash + ").append(PAGE_ONLY_DATA_COUNT_DATA_TYPE.generateHashCodeRule("onlyDataCount")).append(";\n");
-        }
-
-        writeEndHashCode(appender);
-    }
-
     void writeVisit(Appendable appender) throws IOException {
         String returnName = operation.getReturnDataType().getSimpleName();
         appender.append("    @Override\n"
@@ -216,11 +174,13 @@ public class OperationTemplate extends PojoTemplate {
 
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        for (FieldInfo field : operation.getFieldsWithExtras()) {
+        boolean hasExtend = operation.getExtend() != null;
+        
+        for (FieldInfo field : operation.getFields()) {
             writeField(appender, field);
         }
 
-        for (FieldInfo field : operation.getFieldsWithExtras()) {
+        for (FieldInfo field : operation.getFields()) {
             appender.append("\n");
             writeFieldGetter(appender, field);
             appender.append("\n");
@@ -233,13 +193,16 @@ public class OperationTemplate extends PojoTemplate {
         }
 
         appender.append("\n");
-        writeToString(appender, operation.getFieldsWithExtras(), operation.getExtend() != null);
+        writeToString(appender, operation.getFields(), hasExtend);
 
         appender.append("\n");
-        writeEquals(appender);
-
+        writeEquals(appender, operation.getFields(), hasExtend);
+        
+        String firstPrime = Integer.toString(operation.generateFistPrimeNumberForHashCode());
+        String secondPrime = Integer.toString(operation.generateSecondPrimeNumberForHashCode());
+        
         appender.append("\n");
-        writeHashCode(appender);
+        writeHashCode(appender, operation.getFields(), hasExtend, firstPrime, secondPrime);
 
         appender.append("\n");
         writeVisit(appender);

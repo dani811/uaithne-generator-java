@@ -93,5 +93,28 @@ public class MyBatisSqlServerSqlQueryGenerator extends MyBatisSqlQueryGenerator 
     public String selectOneRowAfterOrderBy() {
         return "fetch next 1 rows only";
     }
+
+    @Override
+    public boolean handleVersionFieldOnInsert() {
+        return false;
+    }
+
+    @Override
+    public boolean handleVersionFieldOnUpdate() {
+        return false;
+    }
+
+    @Override
+    public boolean handleVersionFieldOnDelete() {
+        return false;
+    }
+
+    @Override
+    public void appendInitialVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    }
+
+    @Override
+    public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    }
     
 }
