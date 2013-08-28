@@ -20,15 +20,11 @@ package org.uaithne.generator.processors.sql;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import org.uaithne.annotations.Comparator;
-import org.uaithne.annotations.IgnoreLogicalDeletion;
 import org.uaithne.annotations.MappedName;
-import org.uaithne.annotations.SelectOne;
 import org.uaithne.annotations.UseComparator;
 import org.uaithne.annotations.UseCustomComparator;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
-import org.uaithne.generator.commons.OperationInfo;
-import org.uaithne.generator.commons.OperationKind;
 
 public abstract class AbstractSqlGenerator implements SqlGenerator {
     
@@ -73,18 +69,6 @@ public abstract class AbstractSqlGenerator implements SqlGenerator {
         }
         return template;
     }
-    
-    public boolean limitToOneResult(OperationInfo operation) {
-        if (operation.getOperationKind() != OperationKind.SELECT_ONE) {
-            return false;
-        }
-        SelectOne selectOne = operation.getAnnotation(SelectOne.class);
-        if (selectOne != null) {
-            return selectOne.limit();
-        }
-        return false;
-    }
-    
     
     public String[] getMappedName(EntityInfo entity) {
         MappedName mappedName = entity.getAnnotation(MappedName.class);
@@ -164,26 +148,4 @@ public abstract class AbstractSqlGenerator implements SqlGenerator {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Entity rules">
-    public boolean useLogicalDeletion(EntityInfo entity) {
-        IgnoreLogicalDeletion ignoreLogicalDeletion = entity.getAnnotation(IgnoreLogicalDeletion.class);
-        if (ignoreLogicalDeletion != null) {
-            return false;
-        }
-        return entity.isLogicalDeletion();
-    }
-
-    public boolean useLogicalDeletion(OperationInfo operation) {
-        IgnoreLogicalDeletion ignoreLogicalDeletion = operation.getAnnotation(IgnoreLogicalDeletion.class);
-        if (ignoreLogicalDeletion != null) {
-            return false;
-        }
-        EntityInfo entity = operation.getEntity();
-        if (entity != null) {
-            return useLogicalDeletion(entity.getCombined());
-        }
-        return false;
-    }
-    //</editor-fold>
-    
 }

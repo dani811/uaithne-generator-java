@@ -243,6 +243,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(resultDataType);
         operationInfo.setOperationKind(OperationKind.SELECT_ONE);
+        operationInfo.setLimitToOneResult(selectOne.limit());
         operationInfo.setEntity(entityInfo);
 
         DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);

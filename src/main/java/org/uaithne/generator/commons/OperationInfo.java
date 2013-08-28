@@ -25,6 +25,7 @@ import java.util.HashSet;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import org.uaithne.annotations.Doc;
+import org.uaithne.annotations.IgnoreLogicalDeletion;
 import org.uaithne.annotations.Manually;
 
 public class OperationInfo {
@@ -46,6 +47,8 @@ public class OperationInfo {
     private boolean ordered;
     private boolean manually;
     private boolean distinct;
+    private boolean limitToOneResult;
+    private boolean ignoreLogicalDeletion;
 
     public String[] getDocumentation() {
         return documentation;
@@ -282,6 +285,30 @@ public class OperationInfo {
     public void setDistinct(boolean distinct) {
         this.distinct = distinct;
     }
+
+    public boolean isLimitToOneResult() {
+        return limitToOneResult;
+    }
+
+    public void setLimitToOneResult(boolean limitToOneResult) {
+        this.limitToOneResult = limitToOneResult;
+    }
+
+    public boolean isIgnoreLogicalDeletionEnabled() {
+        return ignoreLogicalDeletion;
+    }
+
+    public void setIgnoreLogicalDeletionEnabled(boolean ignoreLogicalDeletion) {
+        this.ignoreLogicalDeletion = ignoreLogicalDeletion;
+    }
+
+    public boolean isUseLogicalDeletion() {
+        if (ignoreLogicalDeletion) {
+            return false;
+        } else {
+            return entity.getCombined().isUseLogicalDeletion();
+        }
+    }
     
     public OperationInfo(TypeElement classElement, String packageName) {
         element = classElement;
@@ -303,6 +330,7 @@ public class OperationInfo {
             }
         }
         manually = classElement.getAnnotation(Manually.class) != null;
+        ignoreLogicalDeletion = classElement.getAnnotation(IgnoreLogicalDeletion.class) != null;
         
         Doc doc = element.getAnnotation(Doc.class);
         if (doc != null) {

@@ -23,7 +23,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.Diagnostic;
-import org.uaithne.annotations.*;
+import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.EntityQueries;
+import org.uaithne.annotations.IdQueries;
+import org.uaithne.annotations.MappedName;
+import org.uaithne.annotations.PageQueries;
+import org.uaithne.annotations.Query;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.*;
 
@@ -47,7 +52,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else {
             result = completed.split("\n");
         }
-        if (limitToOneResult(operation)) {
+        if (operation.isLimitToOneResult()) {
             return envolveInSelectOneRow(result);
         } else {
             return result;
@@ -202,7 +207,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             if (addOrderBy) {
                 appendOrderBy(appender, orderBy, customQuery);
             }
-            if (limitToOneResult(operation)) {
+            if (operation.isLimitToOneResult()) {
                 String limitOne = selectOneRowAfterOrderBy();
                 if (limitOne != null && !limitOne.isEmpty()) {
                     appender.append("\n");
@@ -248,7 +253,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         if (count) {
             result.append("\n    count(*)");
         } else {
-            if (limitToOneResult(operation)) {
+            if (operation.isLimitToOneResult()) {
                 String limitOne = selectOneRowBeforeSelect();
                 if (limitOne != null && !limitOne.isEmpty()) {
                     result.append(limitOne);
@@ -352,7 +357,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             if (field.isManually()) {
                 continue;
             }
-            if (field.getAnnotation(SetValue.class) != null) {
+            if (field.isSetValueMark()) {
                 continue;
             }
             if (field.isOrderBy()) {
@@ -391,7 +396,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             }
             requireAnd = true;
         }
-        if (limitToOneResult(operation)) {
+        if (operation.isLimitToOneResult()) {
             String limitOne = selectOneRowAfterWhere();
             if (limitOne != null && !limitOne.isEmpty()) {
                 if (requireAnd) {
@@ -416,7 +421,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             }
         }
 
-        if (useLogicalDeletion(operation)) {
+        if (operation.isUseLogicalDeletion()) {
             List<FieldInfo> entityFields = operation.getEntity().getCombined().getFields();
             for (FieldInfo field : entityFields) {
                 if (field.isManually()) {
@@ -663,7 +668,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                 for (FieldInfo field : entity.getIdFields()) {
                     if (field.isManually()) {
                         continue;
-                    } else if (field.getAnnotation(InsertDate.class) != null) {
+                    } else if (field.isInsertDateMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -697,7 +702,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         continue;
                     } else if (field.isIdentifier()) {
                         continue;
-                    } else if (field.getAnnotation(InsertDate.class) != null) {
+                    } else if (field.isInsertDateMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -711,7 +716,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         result.append("    ");
                         result.append(getColumnName(field));
                         requireComma = true;
-                    } else if (field.getAnnotation(Version.class) != null) {
+                    } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnInsert()) {
                             continue;
                         }
@@ -743,7 +748,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                 for (FieldInfo field : entity.getIdFields()) {
                     if (field.isManually()) {
                         continue;
-                    } else if (field.getAnnotation(InsertDate.class) != null) {
+                    } else if (field.isInsertDateMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -777,7 +782,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         continue;
                     } else if (field.isIdentifier()) {
                         continue;
-                    } else if (field.getAnnotation(InsertDate.class) != null) {
+                    } else if (field.isInsertDateMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -791,7 +796,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         result.append("    ");
                         appendNotDeletedValue(result, field);
                         requireComma = true;
-                    } else if (field.getAnnotation(Version.class) != null) {
+                    } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnInsert()) {
                             continue;
                         }
@@ -845,7 +850,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                 for (FieldInfo field : operation.getFields()) {
                     if (field.isManually()) {
                         continue;
-                    } else if (field.getAnnotation(SetValue.class) == null) {
+                    } else if (!field.isSetValueMark()) {
                         continue;
                     }
                     hasSetValueFields = true;
@@ -861,7 +866,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                 for (FieldInfo field : entity.getFields()) {
                     if (field.isManually()) {
                         continue;
-                    } else if (field.getAnnotation(UpdateDate.class) != null) {
+                    } else if (field.isUpdateDateMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -870,7 +875,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         result.append(" = ");
                         result.append(currentSqlDate());
                         requireComma = true;
-                    } else if (field.getAnnotation(Version.class) != null) {
+                    } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnUpdate()) {
                             continue;
                         }
@@ -914,7 +919,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else if (query == null) {
             EntityInfo entity = operation.getEntity().getCombined();
             StringBuilder result = new StringBuilder();
-            if (useLogicalDeletion(operation)) {
+            if (operation.isUseLogicalDeletion()) {
                 result.append("update");
                 appendToQueryln(result, getTableName(entity), "    ");
                 result.append("\nset\n");
@@ -922,9 +927,9 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                 for (FieldInfo field : operation.getFields()) {
                     if (field.isManually()) {
                         continue;
-                    } else if (field.getAnnotation(SetValue.class) == null) {
+                    } else if (!field.isSetValueMark()) {
                         continue;
-                    } else if (field.getAnnotation(DeleteUser.class) != null) {
+                    } else if (field.isDeleteUserMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -938,7 +943,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                 for (FieldInfo field : entity.getFields()) {
                     if (field.isManually()) {
                         continue;
-                    } else if (field.getAnnotation(DeleteDate.class) != null) {
+                    } else if (field.isDeleteDateMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -956,7 +961,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         result.append(" = ");
                         appendDeletedValue(result, field);
                         requireComma = true;
-                    } else if (field.getAnnotation(Version.class) != null) {
+                    } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnDelete()) {
                             continue;
                         }
@@ -1096,7 +1101,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append(getParameterValue(field));
                     requireAnd = true;
                 } else if (field.isDeletionMark()) {
-                    if (!useLogicalDeletion(entity)) {
+                    if (!entity.isUseLogicalDeletion()) {
                         continue;
                     }
                     if (requireWhere) {
@@ -1132,7 +1137,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             for (FieldInfo field : entity.getFields()) {
                 if (field.isManually()) {
                     continue;
-                } else if (field.getAnnotation(InsertDate.class) != null) {
+                } else if (field.isInsertDateMark()) {
                     if (requireComma) {
                         result.append(",\n");
                     }
@@ -1149,20 +1154,20 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append("    ");
                     result.append(getColumnName(field));
                     requireComma = true;
-                } else if (field.getAnnotation(InsertUser.class) != null) {
+                } else if (field.isInsertUserMark()) {
                     if (requireComma) {
                         result.append(",\n");
                     }
                     result.append("    ");
                     result.append(getColumnName(field));
                     requireComma = true;
-                } else if (field.getAnnotation(UpdateDate.class) != null) {
+                } else if (field.isUpdateDateMark()) {
                     continue;
-                } else if (field.getAnnotation(UpdateUser.class) != null) {
+                } else if (field.isUpdateUserMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteDate.class) != null) {
+                } else if (field.isDeleteDateMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteUser.class) != null) {
+                } else if (field.isDeleteUserMark()) {
                     continue;
                 } else if (field.isDeletionMark()) {
                     if (requireComma) {
@@ -1171,7 +1176,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append("    ");
                     result.append(getColumnName(field));
                     requireComma = true;
-                } else if (field.getAnnotation(Version.class) != null) {
+                } else if (field.isVersionMark()) {
                     if (!handleVersionFieldOnInsert()) {
                         continue;
                     }
@@ -1196,7 +1201,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
             for (FieldInfo field : entity.getFields()) {
                 if (field.isManually()) {
                     continue;
-                } else if (field.getAnnotation(InsertDate.class) != null) {
+                } else if (field.isInsertDateMark()) {
                     if (requireComma) {
                         result.append(",\n");
                     }
@@ -1213,20 +1218,20 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append("    ");
                     appendIdNextValue(result, entity, field);
                     requireComma = true;
-                } else if (field.getAnnotation(InsertUser.class) != null) {
+                } else if (field.isInsertUserMark()) {
                     if (requireComma) {
                         result.append(",\n");
                     }
                     result.append("    ");
                     result.append(getParameterValue(field));
                     requireComma = true;
-                } else if (field.getAnnotation(UpdateDate.class) != null) {
+                } else if (field.isUpdateDateMark()) {
                     continue;
-                } else if (field.getAnnotation(UpdateUser.class) != null) {
+                } else if (field.isUpdateUserMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteDate.class) != null) {
+                } else if (field.isDeleteDateMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteUser.class) != null) {
+                } else if (field.isDeleteUserMark()) {
                     continue;
                 } else if (field.isDeletionMark()) {
                     if (requireComma) {
@@ -1235,7 +1240,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append("    ");
                     appendNotDeletedValue(result, field);
                     requireComma = true;
-                } else if (field.getAnnotation(Version.class) != null) {
+                } else if (field.isVersionMark()) {
                     if (!handleVersionFieldOnInsert()) {
                         continue;
                     }
@@ -1296,7 +1301,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     continue;
                 } else if (field.isIdentifier()) {
                     continue;
-                } else if (field.getAnnotation(UpdateDate.class) != null) {
+                } else if (field.isUpdateDateMark()) {
                     if (requireComma) {
                         result.append(",\n");
                     }
@@ -1305,7 +1310,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append(" = ");
                     result.append(currentSqlDate());
                     requireComma = true;
-                } else if (field.getAnnotation(UpdateUser.class) != null) {
+                } else if (field.isUpdateUserMark()) {
                     if (requireComma) {
                         result.append(",\n");
                     }
@@ -1314,17 +1319,17 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append(" = ");
                     result.append(getParameterValue(field));
                     requireComma = true;
-                } else if (field.getAnnotation(InsertDate.class) != null) {
+                } else if (field.isInsertDateMark()) {
                     continue;
-                } else if (field.getAnnotation(InsertUser.class) != null) {
+                } else if (field.isInsertUserMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteDate.class) != null) {
+                } else if (field.isDeleteDateMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteUser.class) != null) {
+                } else if (field.isDeleteUserMark()) {
                     continue;
                 } else if (field.isDeletionMark()) {
                     continue;
-                } else if (field.getAnnotation(Version.class) != null) {
+                } else if (field.isVersionMark()) {
                     if (!handleVersionFieldOnUpdate()) {
                         continue;
                     }
@@ -1366,7 +1371,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append(getParameterValue(field));
                     requireAnd = true;
                 } else if (field.isDeletionMark()) {
-                    if (!useLogicalDeletion(entity)) {
+                    if (!entity.isUseLogicalDeletion()) {
                         continue;
                     }
                     if (requireWhere) {
@@ -1404,27 +1409,27 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     continue;
                 } else if (field.isIdentifier()) {
                     continue;
-                } else if (field.getAnnotation(UpdateDate.class) != null) {
+                } else if (field.isUpdateDateMark()) {
                     result.append("    ");
                     result.append(getColumnName(field));
                     result.append(" = ");
                     result.append(currentSqlDate());
                     result.append(",\n");
-                } else if (field.getAnnotation(UpdateUser.class) != null) {
+                } else if (field.isUpdateUserMark()) {
                     result.append("    ");
                     appendSetValueIfNotNull(result, field);
                     result.append("\n");
-                } else if (field.getAnnotation(InsertDate.class) != null) {
+                } else if (field.isInsertDateMark()) {
                     continue;
-                } else if (field.getAnnotation(InsertUser.class) != null) {
+                } else if (field.isInsertUserMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteDate.class) != null) {
+                } else if (field.isDeleteDateMark()) {
                     continue;
-                } else if (field.getAnnotation(DeleteUser.class) != null) {
+                } else if (field.isDeleteUserMark()) {
                     continue;
                 } else if (field.isDeletionMark()) {
                     continue;
-                } else if (field.getAnnotation(Version.class) != null) {
+                } else if (field.isVersionMark()) {
                     if (!handleVersionFieldOnUpdate()) {
                         continue;
                     }
@@ -1459,7 +1464,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                     result.append(getParameterValue(field));
                     requireAnd = true;
                 } else if (field.isDeletionMark()) {
-                    if (!useLogicalDeletion(entity)) {
+                    if (!entity.isUseLogicalDeletion()) {
                         continue;
                     }
                     if (requireWhere) {
@@ -1487,7 +1492,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         String finalQuery;
         if (query == null) {
             StringBuilder result = new StringBuilder();
-            if (useLogicalDeletion(entity)) {
+            if (entity.isUseLogicalDeletion()) {
                 result.append("update");
                 appendToQueryln(result, getTableName(entity), "    ");
                 result.append("\nset\n");
@@ -1495,7 +1500,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                 for (FieldInfo field : entity.getFields()) {
                     if (field.isManually()) {
                         continue;
-                    } else if (field.getAnnotation(DeleteDate.class) != null) {
+                    } else if (field.isDeleteDateMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -1513,7 +1518,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         result.append(" = ");
                         appendDeletedValue(result, field);
                         requireComma = true;
-                    } else if (field.getAnnotation(Version.class) != null) {
+                    } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnDelete()) {
                             continue;
                         }

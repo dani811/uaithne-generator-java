@@ -25,6 +25,7 @@ import java.util.HashSet;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import org.uaithne.annotations.Doc;
+import org.uaithne.annotations.IgnoreLogicalDeletion;
 import org.uaithne.annotations.Manually;
 
 public class EntityInfo {
@@ -39,7 +40,6 @@ public class EntityInfo {
     private ArrayList<FieldInfo> optionalFields = new ArrayList<FieldInfo>(0);
     private ArrayList<FieldInfo> idAndMandatoryFields = new ArrayList<FieldInfo>(0);
     private ArrayList<FieldInfo> mandatoryAndOptionalFields = new ArrayList<FieldInfo>(0);
-    private ArrayList<FieldInfo> deletionMarks = new ArrayList<FieldInfo>(0);
     private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
     private EntityKind entityKind;
     private TypeElement element;
@@ -48,6 +48,8 @@ public class EntityInfo {
     private HashMap<String, Object> extraInfo = new HashMap<String, Object>();
     private boolean usedInOrderedOperation;
     private boolean manually;
+    private boolean hasDeletionMark;
+    private boolean ignoreLogicalDeletion;
 
     public String[] getDocumentation() {
         return documentation;
@@ -102,7 +104,7 @@ public class EntityInfo {
             addMandatoryField(fieldInfo);
         }
         if (fieldInfo.isDeletionMark()) {
-            deletionMarks.add(fieldInfo);
+            hasDeletionMark = true;
         }
     }
     
@@ -146,10 +148,6 @@ public class EntityInfo {
     
     public ArrayList<FieldInfo> getIdFields() {
         return idFields;
-    }
-    
-    public ArrayList<FieldInfo> getDeletionMarksFields() {
-        return deletionMarks;
     }
     
     private void addIdField(FieldInfo fieldInfo) {
@@ -235,8 +233,24 @@ public class EntityInfo {
         }
     }
 
-    public boolean isLogicalDeletion() {
-        return !deletionMarks.isEmpty();
+    public boolean hasDeletionMark() {
+        return hasDeletionMark;
+    }
+
+    public boolean isIgnoreLogicalDeletionEnabled() {
+        return ignoreLogicalDeletion;
+    }
+
+    public void setIgnoreLogicalDeletionEnabled(boolean ignoreLogicalDeletion) {
+        this.ignoreLogicalDeletion = ignoreLogicalDeletion;
+    }
+
+    public boolean isUseLogicalDeletion() {
+        if (ignoreLogicalDeletion) {
+            return false;
+        } else {
+            return hasDeletionMark;
+        }
     }
     
     public int generateFistPrimeNumberForHashCode() {
@@ -271,6 +285,7 @@ public class EntityInfo {
         }
         this.entityKind = entityKind;
         manually = classElement.getAnnotation(Manually.class) != null;
+        ignoreLogicalDeletion = classElement.getAnnotation(IgnoreLogicalDeletion.class) != null;
         
         Doc doc = classElement.getAnnotation(Doc.class);
         if (doc != null) {
@@ -320,9 +335,9 @@ public class EntityInfo {
             combined.extraInfo = (HashMap<String, Object>) Utils.combine(other.extraInfo, this.extraInfo);
         }
         combined.usedInOrderedOperation = this.usedInOrderedOperation || other.usedInOrderedOperation;
-        combined.deletionMarks.addAll(other.deletionMarks);
-        combined.deletionMarks.addAll(this.deletionMarks);
         combined.manually = this.manually || other.manually;
+        combined.hasDeletionMark = this.hasDeletionMark || other.hasDeletionMark;
+        combined.ignoreLogicalDeletion = this.ignoreLogicalDeletion || other.ignoreLogicalDeletion;
     }
     
 }

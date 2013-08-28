@@ -38,7 +38,15 @@ public class FieldInfo {
     private String mappedName;
     private boolean orderBy;
     private boolean identifier;
+    private boolean setValueMark;
+    private boolean insertUserMark;
+    private boolean insertDateMark;
+    private boolean updateUserMark;
+    private boolean updateDateMark;
+    private boolean deleteUserMark;
+    private boolean deleteDateMark;
     private boolean deletionMark;
+    private boolean versionMark;
     private boolean manually;
     private FieldInfo related;
     private boolean deprecated;
@@ -184,6 +192,118 @@ public class FieldInfo {
         this.identifier = identifier;
     }
 
+    public boolean isSetValueMark() {
+        if (!setValueMark) {
+            if (related != null) {
+                return related.isSetValueMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setSetValueMark(boolean setValueMark) {
+        this.setValueMark = setValueMark;
+    }
+
+    public boolean isInsertUserMark() {
+        if (!insertUserMark) {
+            if (related != null) {
+                return related.isInsertUserMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setInsertUserMark(boolean insertUserMark) {
+        this.insertUserMark = insertUserMark;
+    }
+
+    public boolean isInsertDateMark() {
+        if (!insertDateMark) {
+            if (related != null) {
+                return related.isInsertDateMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setInsertDateMark(boolean insertDateMark) {
+        this.insertDateMark = insertDateMark;
+    }
+
+    public boolean isUpdateUserMark() {
+        if (!updateUserMark) {
+            if (related != null) {
+                return related.isUpdateUserMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setUpdateUserMark(boolean updateUserMark) {
+        this.updateUserMark = updateUserMark;
+    }
+
+    public boolean isUpdateDateMark() {
+        if (!updateDateMark) {
+            if (related != null) {
+                return related.isUpdateDateMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setUpdateDateMark(boolean updateDateMark) {
+        this.updateDateMark = updateDateMark;
+    }
+
+    public boolean isDeleteUserMark() {
+        if (!deleteUserMark) {
+            if (related != null) {
+                return related.isDeleteUserMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setDeleteUserMark(boolean deleteUserMark) {
+        this.deleteUserMark = deleteUserMark;
+    }
+
+    public boolean isDeleteDateMark() {
+        if (!deleteDateMark) {
+            if (related != null) {
+                return related.isDeleteDateMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setDeleteDateMark(boolean deleteDateMark) {
+        this.deleteDateMark = deleteDateMark;
+    }
+
     public boolean isDeletionMark() {
         if (!deletionMark) {
             if (related != null) {
@@ -198,6 +318,22 @@ public class FieldInfo {
 
     public void setDeletionMark(boolean deletionMark) {
         this.deletionMark = deletionMark;
+    }
+
+    public boolean isVersionMark() {
+        if (!versionMark) {
+            if (related != null) {
+                return related.isVersionMark();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setVersionMark(boolean versionMark) {
+        this.versionMark = versionMark;
     }
     
     public String generateEqualsRule() {
@@ -259,7 +395,15 @@ public class FieldInfo {
         orderBy = element.getAnnotation(OrderBy.class) != null;
         optional = element.getAnnotation(Optional.class) != null;
         identifier = element.getAnnotation(Id.class) != null;
+        setValueMark = element.getAnnotation(SetValue.class) != null;
+        insertUserMark = element.getAnnotation(InsertUser.class) != null;
+        insertDateMark = element.getAnnotation(InsertDate.class) != null;
+        updateUserMark = element.getAnnotation(UpdateUser.class) != null;
+        updateDateMark = element.getAnnotation(UpdateDate.class) != null;
+        deleteUserMark = element.getAnnotation(DeleteUser.class) != null;
+        deleteDateMark = element.getAnnotation(DeleteDate.class) != null;
         deletionMark = element.getAnnotation(DeletionMark.class) != null;
+        versionMark = element.getAnnotation(Version.class) != null;
         MappedName mn = element.getAnnotation(MappedName.class);
         if (mn != null) {
             String[] value = mn.value();
@@ -304,7 +448,15 @@ public class FieldInfo {
         orderBy = fieldInfo.orderBy;
         optional = fieldInfo.optional;
         identifier = fieldInfo.identifier;
+        setValueMark = fieldInfo.setValueMark;
+        insertUserMark = fieldInfo.insertUserMark;
+        insertDateMark = fieldInfo.insertDateMark;
+        updateUserMark = fieldInfo.updateUserMark;
+        updateDateMark = fieldInfo.updateDateMark;
+        deleteUserMark = fieldInfo.deleteUserMark;
+        deleteDateMark = fieldInfo.deleteDateMark;
         deletionMark = fieldInfo.deletionMark;
+        versionMark = fieldInfo.versionMark;
         manually = fieldInfo.manually;
         related = fieldInfo;
         deprecated = fieldInfo.deprecated;

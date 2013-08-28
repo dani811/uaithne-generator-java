@@ -19,13 +19,6 @@
 package org.uaithne.generator.processors.sql;
 
 import java.util.List;
-import org.uaithne.annotations.DeleteDate;
-import org.uaithne.annotations.DeleteUser;
-import org.uaithne.annotations.InsertDate;
-import org.uaithne.annotations.InsertUser;
-import org.uaithne.annotations.UpdateDate;
-import org.uaithne.annotations.UpdateUser;
-import org.uaithne.annotations.Version;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
@@ -91,7 +84,7 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
-            } else if (field.getAnnotation(InsertDate.class) != null) {
+            } else if (field.isInsertDateMark()) {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
@@ -99,13 +92,13 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 }
                 appendOutParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(InsertUser.class) != null) {
+            } else if (field.isInsertUserMark()) {
                 if (requireComma) {
                     result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(Version.class) != null) {
+            } else if (field.isVersionMark()) {
                 if (!handleVersionFieldOnInsert()) {
                     continue;
                 }
@@ -114,13 +107,13 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 }
                 appendVersionFieldOnInsert(result, entity, field);
                 requireComma = true;
-            } else if (field.getAnnotation(UpdateDate.class) != null) {
+            } else if (field.isUpdateDateMark()) {
                 continue;
-            } else if (field.getAnnotation(UpdateUser.class) != null) {
+            } else if (field.isUpdateUserMark()) {
                 continue;
-            } else if (field.getAnnotation(DeleteDate.class) != null) {
+            } else if (field.isDeleteDateMark()) {
                 continue;
-            } else if (field.getAnnotation(DeleteUser.class) != null) {
+            } else if (field.isDeleteUserMark()) {
                 continue;
             } else if (field.isDeletionMark()) {
                 continue;
@@ -166,13 +159,13 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 }
                 appendOutParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(UpdateUser.class) != null) {
+            } else if (field.isUpdateUserMark()) {
                 if (requireComma) {
                     result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(Version.class) != null) {
+            } else if (field.isVersionMark()) {
                 if (!handleVersionFieldOnUpdate()) {
                     continue;
                 }
@@ -181,15 +174,15 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 }
                 appendVersionFieldOnUpdate(result, entity, field);
                 requireComma = true;
-            } else if (field.getAnnotation(InsertDate.class) != null) {
+            } else if (field.isInsertDateMark()) {
                 continue;
-            } else if (field.getAnnotation(InsertUser.class) != null) {
+            } else if (field.isInsertUserMark()) {
                 continue;
-            } else if (field.getAnnotation(UpdateDate.class) != null) {
+            } else if (field.isUpdateDateMark()) {
                 continue;
-            } else if (field.getAnnotation(DeleteDate.class) != null) {
+            } else if (field.isDeleteDateMark()) {
                 continue;
-            } else if (field.getAnnotation(DeleteUser.class) != null) {
+            } else if (field.isDeleteUserMark()) {
                 continue;
             } else if (field.isDeletionMark()) {
                 continue;
@@ -224,13 +217,13 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 }
                 appendOutParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(UpdateUser.class) != null) {
+            } else if (field.isUpdateUserMark()) {
                 if (requireComma) {
                     result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(Version.class) != null) {
+            } else if (field.isVersionMark()) {
                 if (!handleVersionFieldOnUpdate()) {
                     continue;
                 }
@@ -239,15 +232,15 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 }
                 appendVersionFieldOnUpdate(result, entity, field);
                 requireComma = true;
-            } else if (field.getAnnotation(InsertDate.class) != null) {
+            } else if (field.isInsertDateMark()) {
                 continue;
-            } else if (field.getAnnotation(InsertUser.class) != null) {
+            } else if (field.isInsertUserMark()) {
                 continue;
-            } else if (field.getAnnotation(UpdateDate.class) != null) {
+            } else if (field.isUpdateDateMark()) {
                 continue;
-            } else if (field.getAnnotation(DeleteDate.class) != null) {
+            } else if (field.isDeleteDateMark()) {
                 continue;
-            } else if (field.getAnnotation(DeleteUser.class) != null) {
+            } else if (field.isDeleteUserMark()) {
                 continue;
             } else if (field.isDeletionMark()) {
                 continue;
@@ -282,13 +275,13 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 }
                 appendOutParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(DeleteUser.class) != null) {
+            } else if (field.isDeleteUserMark()) {
                 if (requireComma) {
                     result.append(", ");
                 }
                 appendInParameter(result, field);
                 requireComma = true;
-            } else if (field.getAnnotation(Version.class) != null) {
+            } else if (field.isVersionMark()) {
                 if (!handleVersionFieldOnDelete()) {
                     continue;
                 }
@@ -362,7 +355,7 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             } else if (field.isIdentifier()) {
                 continue;
-            } else if (field.getAnnotation(Version.class) != null) {
+            } else if (field.isVersionMark()) {
                 if (!handleVersionFieldOnInsert()) {
                     continue;
                 }
@@ -401,7 +394,7 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
-            } else if (field.getAnnotation(Version.class) != null) {
+            } else if (field.isVersionMark()) {
                 if (!handleVersionFieldOnUpdate()) {
                     continue;
                 }
@@ -442,7 +435,7 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
             for (FieldInfo field : entity.getFields()) {
                 if (field.isManually()) {
                     continue;
-                } else if (field.getAnnotation(Version.class) != null) {
+                } else if (field.isVersionMark()) {
                     if (requireComma) {
                         result.append(", ");
                     }
