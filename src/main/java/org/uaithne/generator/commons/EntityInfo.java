@@ -172,15 +172,26 @@ public class EntityInfo {
         this.usedInOrderedOperation = usedInOrderedOperation;
     }
     
-    public void appendFullImports(String currentPackage, HashSet<String> imports) {
+    public void appendImportsForConstructor(String currentPackage, HashSet<String> imports) {
         if (extend != null) {
             extend.appendImports(currentPackage, imports);
         }
         for (DataTypeInfo imp : implement) {
             imp.appendImports(currentPackage, imports);
         }
-        for (FieldInfo field : combined.fields) {
+        for (FieldInfo field : fields) {
             field.appendImports(currentPackage, imports);
+        }
+        for (FieldInfo field : combined.fields) {
+            if (field.isExcludedFromConstructor()) {
+                continue;
+            }
+            if (field.isIdentifier()) {
+                field.appendImports(currentPackage, imports);
+            }
+            if (!field.isOptional()) {
+                field.appendImports(currentPackage, imports);
+            }
         }
     }
 
