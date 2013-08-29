@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.myBatis;
+package org.uaithne.generator.processors.database.myBatis;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -30,14 +30,14 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import org.uaithne.annotations.myBatis.MyBatisCustomSqlStatementId;
 import org.uaithne.generator.commons.*;
-import org.uaithne.generator.processors.sql.SqlGenerator;
+import org.uaithne.generator.processors.database.QueryGenerator;
 import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 
 public abstract class MyBatisMappersProcessor extends TemplateProcessor {
     
-    protected SqlGenerator sqlGenerator;
+    protected QueryGenerator sqlGenerator;
 
-    public MyBatisMappersProcessor(SqlGenerator sqlGenerator) {
+    public MyBatisMappersProcessor(QueryGenerator sqlGenerator) {
         this.sqlGenerator = sqlGenerator;
     }
 

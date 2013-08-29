@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.myBatis;
+package org.uaithne.generator.processors.database.myBatis;
 
 import org.uaithne.annotations.Comparator;
 import static org.uaithne.annotations.Comparator.CONTAINS;
@@ -47,9 +47,9 @@ import static org.uaithne.annotations.Comparator.START_WITH;
 import static org.uaithne.annotations.Comparator.START_WITH_INSENSITIVE;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.FieldInfo;
-import org.uaithne.generator.processors.sql.AbstractSqlQueryGenerator;
+import org.uaithne.generator.processors.database.sql.SqlQueryGenerator;
 
-public abstract class MyBatisSqlQueryGenerator extends AbstractSqlQueryGenerator {
+public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     
     //<editor-fold defaultstate="collapsed" desc="Order by">
     @Override

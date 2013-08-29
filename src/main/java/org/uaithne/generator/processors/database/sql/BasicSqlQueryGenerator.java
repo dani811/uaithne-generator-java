@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.sql;
+package org.uaithne.generator.processors.database.sql;
 
 import org.uaithne.annotations.Comparator;
 import static org.uaithne.annotations.Comparator.CONTAINS;
@@ -49,7 +49,7 @@ import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.FieldInfo;
 
 
-public abstract class AbstractBasicSqlQueryGenerator extends AbstractSqlQueryGenerator {
+public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
     
     //<editor-fold defaultstate="collapsed" desc="Where">
     @Override

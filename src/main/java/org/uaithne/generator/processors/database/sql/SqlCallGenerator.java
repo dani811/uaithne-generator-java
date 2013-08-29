@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.sql;
+package org.uaithne.generator.processors.database.sql;
 
 import java.util.List;
 import javax.tools.Diagnostic;
@@ -24,7 +24,7 @@ import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
-public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
+public abstract class SqlCallGenerator extends SqlGenerator {
     
     //<editor-fold defaultstate="collapsed" desc="Version managment">
     public abstract boolean handleVersionFieldOnInsert();

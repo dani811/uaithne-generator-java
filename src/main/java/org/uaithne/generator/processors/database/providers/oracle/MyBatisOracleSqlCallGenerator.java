@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.myBatis.oracle;
+package org.uaithne.generator.processors.database.providers.oracle;
 
-import org.uaithne.generator.processors.myBatis.MyBatisSqlCallGenerator;
+import org.uaithne.generator.processors.database.myBatis.MyBatisSqlCallGenerator;
 
 public class MyBatisOracleSqlCallGenerator extends MyBatisSqlCallGenerator {
 
@@ -39,7 +39,7 @@ public class MyBatisOracleSqlCallGenerator extends MyBatisSqlCallGenerator {
 
     @Override
     public String getNamePrefix() {
-        return "p.";
+        return "";
     }
 
     @Override

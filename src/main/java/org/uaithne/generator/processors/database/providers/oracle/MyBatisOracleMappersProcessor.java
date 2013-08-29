@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.myBatis.sqlServer;
+package org.uaithne.generator.processors.database.providers.oracle;
 
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
@@ -26,21 +26,21 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import org.uaithne.annotations.myBatis.MyBatisSqlServerMapper;
-import org.uaithne.generator.processors.myBatis.MyBatisMappersProcessor;
+import org.uaithne.annotations.myBatis.MyBatisOracleMapper;
+import org.uaithne.generator.processors.database.myBatis.MyBatisMappersProcessor;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisSqlServerMapper")
-public class MyBatisSqlServerMappersProcessor extends MyBatisMappersProcessor {
+@SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisOracleMapper")
+public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
 
-    public MyBatisSqlServerMappersProcessor() {
-        super(new MyBatisSqlServerSqlQueryGenerator());
-        sqlGenerator.setProcessingEnv(processingEnv);
+    public MyBatisOracleMappersProcessor() {
+        super(new MyBatisOracleSqlQueryGenerator());
     }
-    
+
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
-        for (Element element : re.getElementsAnnotatedWith(MyBatisSqlServerMapper.class)) {
+        sqlGenerator.setProcessingEnv(processingEnv);
+        for (Element element : re.getElementsAnnotatedWith(MyBatisOracleMapper.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 process(re, element);
             }
@@ -55,12 +55,12 @@ public class MyBatisSqlServerMappersProcessor extends MyBatisMappersProcessor {
 
     @Override
     public String subPackage() {
-        return "myBatis.sqlServer";
+        return "myBatis.oracle";
     }
 
     @Override
     public String mapperPrefix() {
-        return "MyBatisSqlServer";
+        return "MyBatisOracle";
     }
     
 }
