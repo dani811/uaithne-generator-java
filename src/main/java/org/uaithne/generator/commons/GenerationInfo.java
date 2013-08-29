@@ -32,7 +32,6 @@ public class GenerationInfo {
     private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
     private ArrayList<ExecutorModuleInfo> executorModules = new ArrayList<ExecutorModuleInfo>();
     private HashMap<String, ExecutorModuleInfo> executorModulesByRealName = new HashMap<String, ExecutorModuleInfo>();
-    private HashMap<String, Object> extraInfo = new HashMap<String, Object>();
     private boolean generateDefaultEntityOperations;
     private boolean generateJustOperationsEnabled;
     private boolean generateSaveOperationsEnabled = true;
@@ -116,14 +115,6 @@ public class GenerationInfo {
         operationsByName.put(operation.getDataType().getQualifiedNameWithoutGenerics(), operation);
         operations.add(operation);
         executorModule.addOperation(operation);
-    }
-
-    public HashMap<String, Object> getExtraInfo() {
-        return extraInfo;
-    }
-    
-    public Object addExtraInfo(String key, Object value) {
-        return extraInfo.put(key, value);
     }
     
     public void combineAllEntities() {

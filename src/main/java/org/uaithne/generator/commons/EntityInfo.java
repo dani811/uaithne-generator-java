@@ -20,7 +20,6 @@ package org.uaithne.generator.commons;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -40,7 +39,6 @@ public class EntityInfo {
     private TypeElement element;
     private EntityInfo combined = this;
     private EntityInfo parent = null;
-    private HashMap<String, Object> extraInfo = new HashMap<String, Object>();
     private boolean usedInOrderedOperation;
     private boolean manually;
     private boolean hasDeletionMark;
@@ -154,14 +152,6 @@ public class EntityInfo {
 
     public EntityInfo getParent() {
         return parent;
-    }
-
-    public HashMap<String, Object> getExtraInfo() {
-        return extraInfo;
-    }
-    
-    public Object addExtraInfo(String key, Object value) {
-        return extraInfo.put(key, value);
     }
 
     public boolean isUsedInOrderedOperation() {
@@ -279,13 +269,6 @@ public class EntityInfo {
         combined.operations.addAll(this.operations);
         combined.entityKind = this.entityKind;
         combined.element = this.element;
-        if (other.extraInfo.isEmpty()) {
-            combined.extraInfo.putAll(this.extraInfo);
-        } else if (this.extraInfo.isEmpty()) {
-            combined.extraInfo.putAll(other.extraInfo);
-        } else {
-            combined.extraInfo = (HashMap<String, Object>) Utils.combine(other.extraInfo, this.extraInfo);
-        }
         combined.usedInOrderedOperation = this.usedInOrderedOperation || other.usedInOrderedOperation;
         combined.manually = this.manually || other.manually;
         combined.hasDeletionMark = this.hasDeletionMark || other.hasDeletionMark;

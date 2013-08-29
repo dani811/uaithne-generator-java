@@ -121,33 +121,31 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             switch (operation.getOperationKind()) {
                 case SELECT_ONE: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getExtraInfo().get("myBatisStatementId").toString()).append("\", operation);\n");
+                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_MANY: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append("        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> result = getSession().selectList(\"").append(operation.getExtraInfo().get("myBatisStatementId").toString()).append("\", operation);\n");
+                    appender.append("        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> result = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_PAGE: {
-                    String myBatisCountStatementId = operation.getExtraInfo().get("myBatisCountStatementId").toString();
-                    String myBatisStatementId = operation.getExtraInfo().get("myBatisStatementId").toString();
                     writeStartOrderByVariable(appender, operation);
                     appender.append("        ").append(returnTypeName).append(" result = new ").append(returnTypeName).append("();\n"
                             + "        ").append(PAGE_INFO_DATA).append(" count = operation.getDataCount();\n"
                             + "        if (count == null) {\n"
-                            + "            count = (").append(PAGE_INFO_DATA).append(") getSession().selectOne(\"").append(myBatisCountStatementId).append("\", operation);\n"
+                            + "            count = (").append(PAGE_INFO_DATA).append(") getSession().selectOne(\"").append(operation.getCountQueryId()).append("\", operation);\n"
                             + "        }\n"
                             + "        result.setDataCount(count);\n"
                             + "        if (operation.isOnlyDataCount()) {\n"
                             + "            return result;\n"
                             + "        }\n"
                             + "\n"
-                            + "        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(myBatisStatementId).append("\", operation);\n");
+                            + "        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        result.setData(data);\n"
                             + "        result.setLimit(operation.getLimit());\n"
@@ -220,23 +218,23 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case CUSTOM_INSERT: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(operation.getExtraInfo().get("myBatisStatementId").toString()).append("\", operation);\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        return result;\n");
                     break;
                 }
                 case CUSTOM_UPDATE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(operation.getExtraInfo().get("myBatisStatementId").toString()).append("\", operation);\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        return result;\n");
                     break;
                 }
                 case CUSTOM_DELETE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().delete(\"").append(operation.getExtraInfo().get("myBatisStatementId").toString()).append("\", operation);\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().delete(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        return result;\n");
                     break;
                 }
                 case CUSTOM_INSERT_WITH_ID: {
                     appender.append("        SqlSession session = getSession();\n"
-                            + "        Integer i = session.insert(\"").append(operation.getExtraInfo().get("myBatisStatementId").toString()).append("\", operation);\n"
+                            + "        Integer i = session.insert(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        if (i != null && i.intValue() == 1) {\n"
                             + "            ").append(returnTypeName).append(" result = session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                             + "            return result;\n"

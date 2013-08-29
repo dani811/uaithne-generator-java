@@ -37,7 +37,6 @@ public class ExecutorModuleInfo {
     private HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>(); 
     private ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
     private TypeElement element;
-    private HashMap<String, Object> extraInfo = new HashMap<String, Object>();
     private boolean containOrderedOperations;
     private String[] documentation;
 
@@ -158,14 +157,6 @@ public class ExecutorModuleInfo {
             return null;
         }
         return element.getAnnotation(type);
-    }
-
-    public HashMap<String, Object> getExtraInfo() {
-        return extraInfo;
-    }
-    
-    public Object addExtraInfo(String key, Object value) {
-        return extraInfo.put(key, value);
     }
 
     public boolean isContainOrderedOperations() {

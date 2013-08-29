@@ -20,7 +20,6 @@ package org.uaithne.generator.commons;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -41,12 +40,13 @@ public class OperationInfo {
     private OperationKind operationKind;
     private EntityInfo entity;
     private TypeElement element;
-    private HashMap<String, Object> extraInfo = new HashMap<String, Object>();
     private boolean ordered;
     private boolean manually;
     private boolean distinct;
     private boolean limitToOneResult;
     private boolean ignoreLogicalDeletion;
+    private String queryId;
+    private String countQueryId;
 
     public String[] getDocumentation() {
         return documentation;
@@ -209,14 +209,6 @@ public class OperationInfo {
         }
     }
 
-    public HashMap<String, Object> getExtraInfo() {
-        return extraInfo;
-    }
-    
-    public Object addExtraInfo(String key, Object value) {
-        return extraInfo.put(key, value);
-    }
-
     public boolean isOrdered() {
         return ordered;
     }
@@ -227,16 +219,6 @@ public class OperationInfo {
     
     public int generateSecondPrimeNumberForHashCode() {
         return dataType.generateSecondPrimeNumberForHashCode();
-    }
-    
-    @Deprecated
-    public DataTypeInfo getPageInfoDataType() {
-        return DataTypeInfo.PAGE_INFO_DATA_TYPE;
-    }
-    
-    @Deprecated
-    public DataTypeInfo getPageOnlyDataCountDataType() {
-        return DataTypeInfo.PAGE_ONLY_DATA_COUNT_DATA_TYPE;
     }
 
     public boolean isManually() {
@@ -277,6 +259,22 @@ public class OperationInfo {
         } else {
             return entity.getCombined().isUseLogicalDeletion();
         }
+    }
+
+    public String getQueryId() {
+        return queryId;
+    }
+
+    public void setQueryId(String queryId) {
+        this.queryId = queryId;
+    }
+
+    public String getCountQueryId() {
+        return countQueryId;
+    }
+
+    public void setCountQueryId(String countQueryId) {
+        this.countQueryId = countQueryId;
     }
     
     public OperationInfo(TypeElement classElement, String packageName) {

@@ -19,7 +19,6 @@
 package org.uaithne.generator.commons;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.HashSet;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
@@ -33,7 +32,6 @@ public class FieldInfo {
     private boolean markAsTransient;
     private String defaultValue;
     private VariableElement element;
-    private HashMap<String, Object> extraInfo = new HashMap<String, Object>();
     private boolean optional;
     private String mappedName;
     private boolean orderBy;
@@ -135,14 +133,6 @@ public class FieldInfo {
             return related.getAnnotation(type);
         } 
         return a;
-    }
-
-    public HashMap<String, Object> getExtraInfo() {
-        return extraInfo;
-    }
-    
-    public Object addExtraInfo(String key, Object value) {
-        return extraInfo.put(key, value);
     }
     
     public boolean isOptional() {
