@@ -18,8 +18,6 @@
  */
 package org.uaithne.generator.processors.myBatis;
 
-import javax.lang.model.type.MirroredTypeException;
-import javax.tools.Diagnostic;
 import org.uaithne.annotations.Comparator;
 import static org.uaithne.annotations.Comparator.CONTAINS;
 import static org.uaithne.annotations.Comparator.CONTAINS_INSENSITIVE;
@@ -47,13 +45,8 @@ import static org.uaithne.annotations.Comparator.SMALLER;
 import static org.uaithne.annotations.Comparator.SMALL_AS;
 import static org.uaithne.annotations.Comparator.START_WITH;
 import static org.uaithne.annotations.Comparator.START_WITH_INSENSITIVE;
-import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.CustomSqlQuery;
-import org.uaithne.annotations.sql.JdbcType;
-import org.uaithne.annotations.sql.UseJdbcType;
-import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.FieldInfo;
-import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.processors.sql.AbstractSqlQueryGenerator;
 
 public abstract class MyBatisSqlQueryGenerator extends AbstractSqlQueryGenerator {
@@ -116,71 +109,7 @@ public abstract class MyBatisSqlQueryGenerator extends AbstractSqlQueryGenerator
     //<editor-fold defaultstate="collapsed" desc="Parameter">
     @Override
     public String getParameterValue(FieldInfo field) {
-        return "#{" + field.getName() + getJdbcType(field) + getTypeHandler(field) + "}";
-    }
-
-    public String getJdbcType(FieldInfo field) {
-        UseJdbcType ujt = field.getAnnotation(UseJdbcType.class);
-        JdbcType jdbcType;
-        if (ujt != null) {
-            jdbcType = ujt.value();
-        } else {
-            jdbcType = null;
-        }
-        if (jdbcType != null) {
-            return ",jdbcType=" + jdbcType.name();
-        }
-
-        String name = field.getDataType().getSimpleName();
-        if ("String".equals(name)) {
-            return ",jdbcType=VARCHAR";
-        } else if ("Date".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("Time".equals(name)) {
-            return ",jdbcType=TIME";
-        } else if ("Timestamp".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("List<String>".equals(name)) {
-            return ",jdbcType=VARCHAR";
-        } else if ("ArrayList<String>".equals(name)) {
-            return ",jdbcType=VARCHAR";
-        } else if ("List<Date>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("ArrayList<Date>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("List<Time>".equals(name)) {
-            return ",jdbcType=TIME";
-        } else if ("ArrayList<Time>".equals(name)) {
-            return ",jdbcType=TIME";
-        } else if ("List<Timestamp>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else if ("ArrayList<Timestamp>".equals(name)) {
-            return ",jdbcType=TIMESTAMP";
-        } else {
-            return ",jdbcType=NUMERIC";
-        }
-    }
-
-    public String getTypeHandler(FieldInfo field) {
-        MyBatisTypeHandler th = field.getAnnotation(MyBatisTypeHandler.class);
-
-        if (th == null) {
-            return "";
-        }
-
-        DataTypeInfo typeHandler;
-        try {
-            typeHandler = NamesGenerator.createResultDataType(th.value());
-        } catch (MirroredTypeException ex) {
-            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-            typeHandler = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
-        }
-        if (typeHandler == null) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the type handler", field.getElement());
-            return "";
-        }
-
-        return ",typeHandler=" + typeHandler.getQualifiedNameWithoutGenerics();
+        return "#{" + field.getName() + MyBatisUtils.getJdbcType(field) + MyBatisUtils.getTypeHandler(processingEnv, field) + "}";
     }
     //</editor-fold>
 
@@ -288,9 +217,9 @@ public abstract class MyBatisSqlQueryGenerator extends AbstractSqlQueryGenerator
         } else if ("value".equals(rule) || "VALUE".equals(rule)) {
             return getParameterValue(field);
         } else if ("jdbcType".equals(rule) || "JDBC_TYPE".equals(rule)) {
-            return getJdbcType(field);
+            return MyBatisUtils.getJdbcType(field);
         } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
-            return getTypeHandler(field);
+            return MyBatisUtils.getTypeHandler(processingEnv, field);
         } else {
             return null;
         }

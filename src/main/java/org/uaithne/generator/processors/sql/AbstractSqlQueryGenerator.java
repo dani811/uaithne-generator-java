@@ -1065,7 +1065,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
 
     //<editor-fold defaultstate="collapsed" desc="Entity queries">
     @Override
-    public String[] getEntitySelectByIdQuery(EntityInfo entity) {
+    public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
         if (query == null) {
@@ -1124,12 +1124,12 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else {
             finalQuery = joinln(query.insert());
         }
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityInsertQuery(EntityInfo entity) {
+    public String[] getEntityInsertQuery(EntityInfo entity, OperationInfo operation) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
         if (query == null) {
@@ -1269,12 +1269,12 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else {
             finalQuery = joinln(query.insert());
         }
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityLastInsertedIdQuery(EntityInfo entity) {
+    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
         if (query == null) {
@@ -1282,7 +1282,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else {
             finalQuery = joinln(query.lastInsertedId());
         }
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         if (finalQuery != null) {
             return finalQuery.split("\n");
         } else {
@@ -1291,7 +1291,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
     }
 
     @Override
-    public String[] getEntityUpdateQuery(EntityInfo entity) {
+    public String[] getEntityUpdateQuery(EntityInfo entity, OperationInfo operation) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
         if (query == null) {
@@ -1393,12 +1393,12 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else {
             finalQuery = joinln(query.update());
         }
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityMergeQuery(EntityInfo entity) {
+    public String[] getEntityMergeQuery(EntityInfo entity, OperationInfo operation) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
         if (query == null) {
@@ -1486,12 +1486,12 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else {
             finalQuery = joinln(query.merge());
         }
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityDeleteByIdQuery(EntityInfo entity) {
+    public String[] getEntityDeleteByIdQuery(EntityInfo entity, OperationInfo operation) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
         if (query == null) {
@@ -1522,6 +1522,9 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
                         result.append(" = ");
                         appendDeletedValue(result, field);
                         requireComma = true;
+                    } else if (field.isDeleteUserMark()) {
+                        // TODO: deleteUser
+                        continue;
                     } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnDelete()) {
                             continue;
@@ -1575,7 +1578,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         } else {
             finalQuery = joinln(query.deleteById());
         }
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
     //</editor-fold>
@@ -1809,7 +1812,7 @@ public abstract class AbstractSqlQueryGenerator extends AbstractSqlGenerator {
         return result.toString();
     }
 
-    public String finalizeQuery(String query, EntityInfo entity) {
+    public String finalizeEntityQuery(String query, EntityInfo entity, OperationInfo operation) {
         return query;
     }
     //</editor-fold>

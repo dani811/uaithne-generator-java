@@ -19,6 +19,7 @@
 package org.uaithne.generator.processors.sql;
 
 import java.util.List;
+import javax.tools.Diagnostic;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
@@ -29,17 +30,18 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
     public abstract boolean handleVersionFieldOnInsert();
     public abstract boolean handleVersionFieldOnUpdate();
     public abstract boolean handleVersionFieldOnDelete();
-    public void appendVersionFieldOnInsert(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    public void appendVersionFieldOnInsert(StringBuilder result, EntityInfo entity, OperationInfo operation, FieldInfo field) {
         appendOutParameter(result, field);
     }
-    public void appendVersionFieldOnUpdate(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    public void appendVersionFieldOnUpdate(StringBuilder result, EntityInfo entity, OperationInfo operation, FieldInfo field) {
         appendOutParameter(result, field);
     }
-    public void appendVersionFieldOnDelete(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    public void appendVersionFieldOnDelete(StringBuilder result, EntityInfo entity, OperationInfo operation, FieldInfo field) {
         appendOutParameter(result, field);
     }
     //</editor-fold>
     
+    public abstract boolean includeIdOnInsert();
     public abstract void appendInParameter(StringBuilder query, FieldInfo field);
     public abstract void appendOutParameter(StringBuilder query, FieldInfo field);
     public abstract void appendInOutParameter(StringBuilder query, FieldInfo field);
@@ -51,17 +53,20 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
 //    public abstract void appendStartSelectPageQuery(StringBuilder query, OperationInfo operation);
 //    public abstract void appendStartEntitySelectByIdQuery(StringBuilder query, EntityInfo entity);
     
-    public abstract void appendStartEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity);
-    public abstract void appendStartEntityInsertQuery(StringBuilder query, EntityInfo entity);
-    public abstract void appendStartEntityLastInsertedIdQuery(StringBuilder query, EntityInfo entity);
-    public abstract void appendStartEntityMergeQuery(StringBuilder query, EntityInfo entity);
-    public abstract void appendStartEntityUpdateQuery(StringBuilder query, EntityInfo entity);
+    public abstract void appendStartEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation);
+    public abstract void appendStartEntityInsertQuery(StringBuilder query, EntityInfo entity, OperationInfo operation);
+    public abstract void appendStartEntityLastInsertedIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation);
+    public abstract void appendStartEntityMergeQuery(StringBuilder query, EntityInfo entity, OperationInfo operation);
+    public abstract void appendStartEntityUpdateQuery(StringBuilder query, EntityInfo entity, OperationInfo operation);
     public abstract void appendStartCustomDeleteQuery(StringBuilder query, OperationInfo operation);
     public abstract void appendStartCustomInsertQuery(StringBuilder query, OperationInfo operation);
     public abstract void appendStartCustomUpdateQuery(StringBuilder query, OperationInfo operation);
-    public abstract void appendEndQuery(StringBuilder query);
+    public abstract void appendEndQuery(StringBuilder query, boolean requireSeparator);
     
-    public String finalizeQuery(String query, EntityInfo entity) {
+    public abstract String firstFieldSeparator();
+    public abstract String fieldSeparator();
+    
+    public String finalizeEntityQuery(String query, EntityInfo entity, OperationInfo operation) {
         return query;
     }
     
@@ -71,14 +76,15 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
 
     //<editor-fold defaultstate="collapsed" desc="Entity queries">
     @Override
-    public String[] getEntitySelectByIdQuery(EntityInfo entity) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select entity by id", entity.getElement());
+        return null;
     }
 
     @Override
-    public String[] getEntityInsertQuery(EntityInfo entity) {
+    public String[] getEntityInsertQuery(EntityInfo entity, OperationInfo operation) {
         StringBuilder result = new StringBuilder();
-        appendStartEntityInsertQuery(result, entity);
+        appendStartEntityInsertQuery(result, entity, operation);
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
@@ -87,14 +93,21 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
             } else if (field.isInsertDateMark()) {
                 continue;
             } else if (field.isIdentifier()) {
+                if (!includeIdOnInsert()) {
+                    continue;
+                }
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendOutParameter(result, field);
                 requireComma = true;
             } else if (field.isInsertUserMark()) {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -103,9 +116,11 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendVersionFieldOnInsert(result, entity, field);
+                appendVersionFieldOnInsert(result, entity, operation, field);
                 requireComma = true;
             } else if (field.isUpdateDateMark()) {
                 continue;
@@ -119,35 +134,37 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             } else {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendInParameter(result, field);
                 requireComma = true;
             }
         }
 
-        appendEndQuery(result);
+        appendEndQuery(result, requireComma);
         
         String finalQuery = result.toString();
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityLastInsertedIdQuery(EntityInfo entity) {
+    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation) {
         StringBuilder result = new StringBuilder();
-        appendStartEntityLastInsertedIdQuery(result, entity);
-        appendEndQuery(result);
+        appendStartEntityLastInsertedIdQuery(result, entity, operation);
+        appendEndQuery(result, false);
         
         String finalQuery = result.toString();
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityUpdateQuery(EntityInfo entity) {
+    public String[] getEntityUpdateQuery(EntityInfo entity, OperationInfo operation) {
         StringBuilder result = new StringBuilder();
-        appendStartEntityUpdateQuery(result, entity);
+        appendStartEntityUpdateQuery(result, entity, operation);
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
@@ -155,13 +172,17 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendOutParameter(result, field);
+                appendInParameter(result, field);
                 requireComma = true;
             } else if (field.isUpdateUserMark()) {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -170,9 +191,11 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendVersionFieldOnUpdate(result, entity, field);
+                appendVersionFieldOnUpdate(result, entity, operation, field);
                 requireComma = true;
             } else if (field.isInsertDateMark()) {
                 continue;
@@ -188,24 +211,26 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             } else {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendInParameter(result, field);
                 requireComma = true;
             }
         }
 
-        appendEndQuery(result);
+        appendEndQuery(result, requireComma);
         
         String finalQuery = result.toString();
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityMergeQuery(EntityInfo entity) {
+    public String[] getEntityMergeQuery(EntityInfo entity, OperationInfo operation) {
         StringBuilder result = new StringBuilder();
-        appendStartEntityMergeQuery(result, entity);
+        appendStartEntityMergeQuery(result, entity, operation);
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
@@ -213,13 +238,17 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendOutParameter(result, field);
+                appendInParameter(result, field);
                 requireComma = true;
             } else if (field.isUpdateUserMark()) {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -228,9 +257,11 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendVersionFieldOnUpdate(result, entity, field);
+                appendVersionFieldOnUpdate(result, entity, operation, field);
                 requireComma = true;
             } else if (field.isInsertDateMark()) {
                 continue;
@@ -246,24 +277,26 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             } else {
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendInParameter(result, field);
                 requireComma = true;
             }
         }
 
-        appendEndQuery(result);
+        appendEndQuery(result, requireComma);
         
         String finalQuery = result.toString();
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
 
     @Override
-    public String[] getEntityDeleteByIdQuery(EntityInfo entity) {
+    public String[] getEntityDeleteByIdQuery(EntityInfo entity, OperationInfo operation) {
         StringBuilder result = new StringBuilder();
-        appendStartEntityDeleteByIdQuery(result, entity);
+        appendStartEntityDeleteByIdQuery(result, entity, operation);
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
@@ -271,31 +304,32 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
-                    result.append(", ");
-                }
-                appendOutParameter(result, field);
-                requireComma = true;
-            } else if (field.isDeleteUserMark()) {
-                if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
                 appendInParameter(result, field);
                 requireComma = true;
+            } else if (field.isDeleteUserMark()) {
+                // TODO: deleteUser
+                continue;
             } else if (field.isVersionMark()) {
                 if (!handleVersionFieldOnDelete()) {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendVersionFieldOnDelete(result, entity, field);
+                appendVersionFieldOnDelete(result, entity, operation, field);
                 requireComma = true;
             }
         }
-        appendEndQuery(result);
+        appendEndQuery(result, requireComma);
         
         String finalQuery = result.toString();
-        finalQuery = finalizeQuery(finalQuery, entity);
+        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
     }
     //</editor-fold>
@@ -303,22 +337,26 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
     
     @Override
     public String[] getSelectManyQuery(OperationInfo operation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select many", operation.getElement());
+        return null;
     }
 
     @Override
     public String[] getSelectOneQuery(OperationInfo operation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select one", operation.getElement());
+        return null;
     }
 
     @Override
     public String[] getSelectPageCountQuery(OperationInfo operation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select page count", operation.getElement());
+        return null;
     }
 
     @Override
     public String[] getSelectPageQuery(OperationInfo operation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select page", operation.getElement());
+        return null;
     }
 
 
@@ -330,25 +368,31 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
         appendStartCustomInsertQuery(result, operation);
 
         boolean requireComma = false;
-        for (FieldInfo field : entity.getFields()) {
-            if (field.isManually()) {
-                continue;
+        if (includeIdOnInsert()) {
+            for (FieldInfo field : entity.getFields()) {
+                if (field.isManually()) {
+                    continue;
+                }
+                if (!field.isIdentifier()) {
+                    continue;
+                }
+                if (requireComma) {
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
+                }
+                appendOutParameter(result, field);
+                requireComma = true;
             }
-            if (!field.isIdentifier()) {
-                continue;
-            }
-            if (requireComma) {
-                result.append(", ");
-            }
-            appendOutParameter(result, field);
-            requireComma = true;
         }
         for (FieldInfo field : operation.getFields()) {
             if (field.isManually()) {
                 continue;
             }
             if (requireComma) {
-                result.append(", ");
+                result.append(fieldSeparator());
+            } else {
+                result.append(firstFieldSeparator());
             }
             appendInParameter(result, field);
             requireComma = true;
@@ -363,14 +407,16 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendVersionFieldOnInsert(result, entity, field);
+                appendVersionFieldOnInsert(result, entity, operation, field);
                 requireComma = true;
             }
         }
 
-        appendEndQuery(result);
+        appendEndQuery(result, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeQuery(finalQuery, operation);
@@ -389,7 +435,9 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             }
             if (requireComma) {
-                result.append(", ");
+                result.append(fieldSeparator());
+            } else {
+                result.append(firstFieldSeparator());
             }
             appendInParameter(result, field);
             requireComma = true;
@@ -402,14 +450,16 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(", ");
+                    result.append(fieldSeparator());
+                } else {
+                    result.append(firstFieldSeparator());
                 }
-                appendVersionFieldOnUpdate(result, entity, field);
+                appendVersionFieldOnUpdate(result, entity, operation, field);
                 requireComma = true;
             }
         }
 
-        appendEndQuery(result);
+        appendEndQuery(result, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeQuery(finalQuery, operation);
@@ -429,7 +479,9 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                 continue;
             }
             if (requireComma) {
-                result.append(", ");
+                result.append(fieldSeparator());
+            } else {
+                result.append(firstFieldSeparator());
             }
             appendInParameter(result, field);
             requireComma = true;
@@ -440,15 +492,17 @@ public abstract class AbstractSqlCallGenerator extends AbstractSqlGenerator {
                     continue;
                 } else if (field.isVersionMark()) {
                     if (requireComma) {
-                        result.append(", ");
+                        result.append(fieldSeparator());
+                    } else {
+                        result.append(firstFieldSeparator());
                     }
-                    appendVersionFieldOnDelete(result, entity, field);
+                    appendVersionFieldOnDelete(result, entity, operation, field);
                     requireComma = true;
                 }
             }
         }
 
-        appendEndQuery(result);
+        appendEndQuery(result, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeQuery(finalQuery, operation);

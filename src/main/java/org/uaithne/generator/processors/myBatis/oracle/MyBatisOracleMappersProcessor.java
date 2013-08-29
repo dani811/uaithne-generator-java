@@ -35,11 +35,11 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
 
     public MyBatisOracleMappersProcessor() {
         super(new MyBatisOracleSqlQueryGenerator());
-        sqlGenerator.setProcessingEnv(processingEnv);
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+        sqlGenerator.setProcessingEnv(processingEnv);
         for (Element element : re.getElementsAnnotatedWith(MyBatisOracleMapper.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 process(re, element);

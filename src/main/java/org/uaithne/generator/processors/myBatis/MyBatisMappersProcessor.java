@@ -176,7 +176,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = sqlGenerator.getEntityDeleteByIdQuery(entity);
+                String[] query = sqlGenerator.getEntityDeleteByIdQuery(entity, operation);
                 if (query != null) {
                     writeDelete(writer,
                             operation.getMethodName(),
@@ -190,17 +190,17 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = sqlGenerator.getEntityLastInsertedIdQuery(entity);
+                String[] query = sqlGenerator.getEntityLastInsertedIdQuery(entity, operation);
                 if (query != null) {
                     writeSelectWithoutParameter(writer,
                             "lastInsertedIdFor" + entity.getDataType().getSimpleNameWithoutGenerics(),
                             operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
-                query = sqlGenerator.getEntityInsertQuery(entity);
+                query = sqlGenerator.getEntityInsertQuery(entity, operation);
                 if (query != null) {
                     writeInsert(writer,
-                            "insert" + entity.getDataType().getSimpleNameWithoutGenerics(),
+                            operation.getMethodName(),
                             entity.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
@@ -220,7 +220,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = sqlGenerator.getEntitySelectByIdQuery(entity);
+                String[] query = sqlGenerator.getEntitySelectByIdQuery(entity, operation);
                 if (query != null) {
                     writeSelect(writer,
                             operation.getMethodName(),
@@ -235,20 +235,16 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = sqlGenerator.getEntityUpdateQuery(entity);
+                String[] query = sqlGenerator.getEntityUpdateQuery(entity, operation);
                 if (query != null) {
                     writeUpdate(writer,
-                            "update" + entity.getDataType().getSimpleNameWithoutGenerics(),
+                            operation.getMethodName(),
                             entity.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
             }
             break;
             case CUSTOM_INSERT: {
-                if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
-                    break;
-                }
                 operation.setQueryId(namespace + "." + operation.getMethodName());
                 String[] query = sqlGenerator.getCustomInsertQuery(operation);
                 if (query != null) {
@@ -297,10 +293,10 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity related to the operation", operation.getElement());
                     break;
                 }
-                String[] query = sqlGenerator.getEntityMergeQuery(entity);
+                String[] query = sqlGenerator.getEntityMergeQuery(entity, operation);
                 if (query != null) {
                     writeUpdate(writer,
-                            "merge" + entity.getDataType().getSimpleNameWithoutGenerics(),
+                            operation.getMethodName(),
                             entity.getDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }

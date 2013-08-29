@@ -29,12 +29,12 @@ public interface SqlGenerator {
     public String[] getSelectOneQuery(OperationInfo operation);
     public String[] getSelectPageCountQuery(OperationInfo operation);
     public String[] getSelectPageQuery(OperationInfo operation);
-    public String[] getEntityDeleteByIdQuery(EntityInfo entity);
-    public String[] getEntityInsertQuery(EntityInfo entity);
-    public String[] getEntityLastInsertedIdQuery(EntityInfo entity);
-    public String[] getEntityMergeQuery(EntityInfo entity);
-    public String[] getEntitySelectByIdQuery(EntityInfo entity);
-    public String[] getEntityUpdateQuery(EntityInfo entity);
+    public String[] getEntityDeleteByIdQuery(EntityInfo entity, OperationInfo operation);
+    public String[] getEntityInsertQuery(EntityInfo entity, OperationInfo operation);
+    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation);
+    public String[] getEntityMergeQuery(EntityInfo entity, OperationInfo operation);
+    public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation);
+    public String[] getEntityUpdateQuery(EntityInfo entity, OperationInfo operation);
     public String[] getCustomDeleteQuery(OperationInfo operation);
     public String[] getCustomInsertQuery(OperationInfo operation);
     public String[] getCustomUpdateQuery(OperationInfo operation);
