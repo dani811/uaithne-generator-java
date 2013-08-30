@@ -330,8 +330,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 appendToQueryln(query, customQuery.beforeWhereExpression(), "    ");
                 appendToQueryln(query, customQuery.where(), "    ");
                 appendToQueryln(query, customQuery.afterWhereExpression(), "    ");
-                query.append("\n");
-                appendEndWhere(query);
+                appendEndWhere(query, "\n");
 
                 for (FieldInfo field : fields) {
                     if (field.isOrderBy()) {
@@ -375,13 +374,13 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 if (!requireAnd) {
                     result.append("    ");
                 }
-                appendConditionStartIfNotNull(result, field);
+                String separator;
                 if (requireAnd) {
-                    result.append(" and\n");
-                    result.append("    ");
+                    separator = " and\n    ";
                 } else {
-                    result.append(" ");
+                    separator = "";
                 }
+                appendConditionStartIfNotNull(result, field, separator);
                 hasOptionals = true;
             } else {
                 if (requireAnd) {
@@ -447,16 +446,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 query.append("\n");
                 query.append(result);
                 appendToQueryln(query, customQuery.afterWhereExpression(), "    ");
-                query.append("\n");
-                appendEndWhere(query);
+                appendEndWhere(query, "\n");
             } else {
                 if (hasOptionals) {
                     query.append("\n");
                     appendStartWhere(query);
                     query.append("\n");
                     query.append(result);
-                    query.append("\n");
-                    appendEndWhere(query);
+                    appendEndWhere(query, "\n");
                 } else {
                     query.append("\nwhere\n");
                     query.append(result);
@@ -468,8 +465,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendToQueryln(query, customQuery.beforeWhereExpression(), "    ");
             appendToQueryln(query, customQuery.where(), "    ");
             appendToQueryln(query, customQuery.afterWhereExpression(), "    ");
-            query.append("\n");
-            appendEndWhere(query);
+            appendEndWhere(query, "\n");
         }
         return orderBy;
     }
@@ -560,17 +556,19 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //<editor-fold defaultstate="collapsed" desc="For generate queries">
     public abstract void appendStartWhere(StringBuilder result);
 
-    public abstract void appendEndWhere(StringBuilder result);
+    public abstract void appendEndWhere(StringBuilder result, String separator);
 
     public abstract void appendStartSet(StringBuilder result);
 
-    public abstract void appendEndSet(StringBuilder result);
+    public abstract void appendEndSet(StringBuilder result, String separator);
     
-    public abstract void appendSetValueIfNotNull(StringBuilder result, FieldInfo field);
+    public abstract void appendStartSetValueIfNotNull(StringBuilder result, FieldInfo field);
+    
+    public abstract void appendEndSetValueIfNotNull(StringBuilder result, boolean requireComma);
 
-    public abstract void appendConditionStartIfNull(StringBuilder result, FieldInfo field);
+    public abstract void appendConditionStartIfNull(StringBuilder result, FieldInfo field, String separator);
 
-    public abstract void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field);
+    public abstract void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field, String separator);
 
     public abstract void appendConditionEndIf(StringBuilder result);
 
@@ -1408,21 +1406,37 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             result.append("\n");
             appendStartSet(result);
             result.append("\n");
+            boolean requireComma = false;
+            boolean requireEndSetValueIfNotNull = false;
             for (FieldInfo field : entity.getFields()) {
                 if (field.isManually()) {
                     continue;
                 } else if (field.isIdentifier()) {
                     continue;
                 } else if (field.isUpdateDateMark()) {
+                    if (requireEndSetValueIfNotNull) {
+                        appendEndSetValueIfNotNull(result, requireComma);
+                        result.append("\n");
+                        requireEndSetValueIfNotNull = false;
+                    } else if (requireComma) {
+                        result.append(",\n");
+                    }
                     result.append("    ");
                     result.append(getColumnName(field));
                     result.append(" = ");
                     result.append(currentSqlDate());
-                    result.append(",\n");
+                    requireComma = true;
                 } else if (field.isUpdateUserMark()) {
+                    if (requireEndSetValueIfNotNull) {
+                        appendEndSetValueIfNotNull(result, requireComma);
+                        result.append("\n");
+                    } else if (requireComma) {
+                        result.append(",\n");
+                    }
                     result.append("    ");
-                    appendSetValueIfNotNull(result, field);
-                    result.append("\n");
+                    appendStartSetValueIfNotNull(result, field);
+                    requireComma = true;
+                    requireEndSetValueIfNotNull = true;
                 } else if (field.isInsertDateMark()) {
                     continue;
                 } else if (field.isInsertUserMark()) {
@@ -1437,18 +1451,35 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     if (!handleVersionFieldOnUpdate()) {
                         continue;
                     }
+                    if (requireEndSetValueIfNotNull) {
+                        appendEndSetValueIfNotNull(result, requireComma);
+                        result.append("\n");
+                        requireEndSetValueIfNotNull = false;
+                    } else if (requireComma) {
+                        result.append(",\n");
+                    }
                     result.append("    ");
                     result.append(getColumnName(field));
                     result.append(" = ");
                     appendNextVersionValue(result, entity, field);
-                    result.append(",\n");
+                    requireComma = true;
                 } else {
+                    if (requireEndSetValueIfNotNull) {
+                        appendEndSetValueIfNotNull(result, requireComma);
+                        result.append("\n");
+                    } else if (requireComma) {
+                        result.append(",\n");
+                    }
                     result.append("    ");
-                    appendSetValueIfNotNull(result, field);
-                    result.append("\n");
+                    appendStartSetValueIfNotNull(result, field);
+                    requireComma = true;
+                    requireEndSetValueIfNotNull = true;
                 }
             }
-            appendEndSet(result);
+            if (requireEndSetValueIfNotNull) {
+                appendEndSetValueIfNotNull(result, false);
+            }
+            appendEndSet(result, "\n");
             boolean requireAnd = false;
             boolean requireWhere = true;
             for (FieldInfo field : entity.getFields()) {
@@ -1695,7 +1726,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         return template;
     }
 
-    private static final Pattern finalizationPattern = Pattern.compile("\\{\\{(.*?)(?:\\:(.*?))?\\}\\}");;
+    private static final Pattern finalizationPattern = Pattern.compile("\\{\\{(.*?)(?:\\:(.*?)(?:\\:(.*?))?)?\\}\\}");;
     public String finalizeQuery(String query, OperationInfo operation, CustomSqlQuery customQuery) {
         if (customQuery != null) {
             StringBuilder sb = new StringBuilder();
@@ -1734,12 +1765,20 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 template = getConditionTemplate(field, comparatorTemplate);
             } else if ("ifNull".equals(rule) || "IF_NULL".equals(rule)) {
                 StringBuilder sb = new StringBuilder();
-                appendConditionStartIfNull(sb, field);
+                String separator = matcher.group(3);
+                if (separator == null) {
+                    separator = "";
+                }
+                appendConditionStartIfNull(sb, field, separator);
                 matcher.appendReplacement(result, sb.toString());
                 continue;
             } else if ("ifNotNull".equals(rule) || "IF_NOT_NULL".equals(rule)) {
                 StringBuilder sb = new StringBuilder();
-                appendConditionStartIfNotNull(sb, field);
+                String separator = matcher.group(3);
+                if (separator == null) {
+                    separator = "";
+                }
+                appendConditionStartIfNotNull(sb, field, separator);
                 matcher.appendReplacement(result, sb.toString());
                 continue;
             } else if ("endIf".equals(rule) || "END_IF".equals(rule)) {

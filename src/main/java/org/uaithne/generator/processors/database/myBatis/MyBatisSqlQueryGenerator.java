@@ -120,7 +120,8 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     }
 
     @Override
-    public void appendEndWhere(StringBuilder result) {
+    public void appendEndWhere(StringBuilder result, String separator) {
+        result.append(separator);
         result.append("</where>");
     }
     //</editor-fold>
@@ -132,34 +133,43 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     }
 
     @Override
-    public void appendEndSet(StringBuilder result) {
+    public void appendEndSet(StringBuilder result, String separator) {
+        result.append(separator);
         result.append("</set>");
     }
     
     @Override
-    public void appendSetValueIfNotNull(StringBuilder result, FieldInfo field) {
-        appendConditionStartIfNotNull(result, field);
+    public void appendStartSetValueIfNotNull(StringBuilder result, FieldInfo field) {
+        appendConditionStartIfNotNull(result, field, "");
         result.append(getColumnName(field));
         result.append(" = ");
         result.append(getParameterValue(field));
-        result.append(",");
+    }
+    
+    @Override
+    public void appendEndSetValueIfNotNull(StringBuilder result, boolean requireComma) {
+        if (requireComma) {
+            result.append(",");
+        }
         appendConditionEndIf(result);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="If (not) null">
     @Override
-    public void appendConditionStartIfNull(StringBuilder result, FieldInfo field) {
+    public void appendConditionStartIfNull(StringBuilder result, FieldInfo field, String separator) {
         result.append("<if test='");
         result.append(field.getName());
         result.append(" == null'>");
+        result.append(separator);
     }
 
     @Override
-    public void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field) {
+    public void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field, String separator) {
         result.append("<if test='");
         result.append(field.getName());
         result.append(" != null'>");
+        result.append(separator);
     }
 
     @Override

@@ -58,7 +58,7 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
     }
 
     @Override
-    public void appendEndWhere(StringBuilder result) {
+    public void appendEndWhere(StringBuilder result, String separator) {
     }
     //</editor-fold>
 
@@ -69,28 +69,30 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
     }
 
     @Override
-    public void appendEndSet(StringBuilder result) {
+    public void appendEndSet(StringBuilder result, String separator) {
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="If (not) null">
     @Override
-    public void appendConditionStartIfNull(StringBuilder result, FieldInfo field) {
+    public void appendConditionStartIfNull(StringBuilder result, FieldInfo field, String separator) {
+        result.append(separator);
         result.append("(");
-        result.append(field.getName());
-        result.append(" not is null or (");
+        result.append(getParameterValue(field));
+        result.append(" is not null or ");
     }
 
     @Override
-    public void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field) {
+    public void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field, String separator) {
+        result.append(separator);
         result.append("(");
-        result.append(field.getName());
-        result.append(" is not null or (");
+        result.append(getParameterValue(field));
+        result.append(" is null or ");
     }
 
     @Override
     public void appendConditionEndIf(StringBuilder result) {
-        result.append("))");
+        result.append(")");
     }
     //</editor-fold>
 
