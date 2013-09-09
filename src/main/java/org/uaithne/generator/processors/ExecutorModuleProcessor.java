@@ -742,17 +742,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
     public void generateOperations(RoundEnvironment re, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
 
+        boolean defaultGenerateModuleAbstractExecutorsEnabled = generationInfo.isGenerateModuleAbstractExecutorsEnabled();
         boolean defaultGenerateModuleChainedExecutorsEnabled = generationInfo.isGenerateModuleChainedExecutorsEnabled();
         boolean defaultGenerateModuleChainedGroupingExecutorsEnabled = generationInfo.isGenerateModuleChainedGroupingExecutorsEnabled();
 
+        boolean generateModuleAbstractExecutorsEnabled;
         boolean generateModuleChainedExecutorsEnabled;
         boolean generateModuleChainedGroupingExecutorsEnabled;
 
         OperationModule operationModuleAnnotation = executorModuleInfo.getAnnotation(OperationModule.class);
         if (operationModuleAnnotation == null) {
+            generateModuleAbstractExecutorsEnabled = defaultGenerateModuleAbstractExecutorsEnabled;
             generateModuleChainedExecutorsEnabled = defaultGenerateModuleChainedExecutorsEnabled;
             generateModuleChainedGroupingExecutorsEnabled = defaultGenerateModuleChainedGroupingExecutorsEnabled;
         } else {
+            generateModuleAbstractExecutorsEnabled = operationModuleAnnotation.generateAbstractExecutor().solve(defaultGenerateModuleAbstractExecutorsEnabled);
             generateModuleChainedExecutorsEnabled = operationModuleAnnotation.generateChainedExecutor().solve(defaultGenerateModuleChainedExecutorsEnabled);
             generateModuleChainedGroupingExecutorsEnabled = operationModuleAnnotation.generateChainedGroupingExecutor().solve(defaultGenerateModuleChainedGroupingExecutorsEnabled);
         }
@@ -768,7 +772,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processClassTemplate(new ChainedExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
         }
 
-        processClassTemplate(new AbstractExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+        if (generateModuleAbstractExecutorsEnabled) {
+            processClassTemplate(new AbstractExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+        }
 
         if (generateModuleChainedGroupingExecutorsEnabled) {
             processClassTemplate(new ChainedGroupingExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());

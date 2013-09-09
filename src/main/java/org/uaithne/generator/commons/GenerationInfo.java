@@ -36,6 +36,7 @@ public class GenerationInfo {
     private boolean generateJustOperationsEnabled;
     private boolean generateSaveOperationsEnabled = true;
     private boolean generateMergeOperationsEnabled = true;
+    private boolean generateModuleAbstractExecutorsEnabled = true;
     private boolean generateModuleChainedExecutorsEnabled = true;
     private boolean generateModuleChainedGroupingExecutorsEnabled = true;
     private boolean includeGwtClientExecutors;
@@ -175,6 +176,14 @@ public class GenerationInfo {
 
     public void setGenerateMergeOperationsEnabled(boolean generateMergeOperationsEnabled) {
         this.generateMergeOperationsEnabled = generateMergeOperationsEnabled;
+    }
+
+    public boolean isGenerateModuleAbstractExecutorsEnabled() {
+        return generateModuleAbstractExecutorsEnabled;
+    }
+
+    public void setGenerateModuleAbstractExecutorsEnabled(boolean generateModuleAbstractExecutorsEnabled) {
+        this.generateModuleAbstractExecutorsEnabled = generateModuleAbstractExecutorsEnabled;
     }
 
     public boolean isGenerateModuleChainedExecutorsEnabled() {

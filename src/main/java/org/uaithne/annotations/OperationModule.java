@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface OperationModule {
+    Ternary generateAbstractExecutor() default Ternary.UNSPECIFIED;
     Ternary generateChainedExecutor() default Ternary.UNSPECIFIED;
     Ternary generateChainedGroupingExecutor() default Ternary.UNSPECIFIED;
 }
