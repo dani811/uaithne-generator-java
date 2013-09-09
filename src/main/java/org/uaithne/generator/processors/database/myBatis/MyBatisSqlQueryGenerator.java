@@ -193,8 +193,8 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             case LARGER:     return "[[column]] &gt; [[value]]";
             case SMALL_AS:   return "[[column]] &lt;= [[value]]";
             case LARGER_AS:  return "[[column]] &gt;= [[value]]";
-            case IN:         return "[[column]] in <foreach close=')' collection='[[name]]' item='_item_[[name]]' open='(' separator=','> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
-            case NOT_IN:     return "[[column]] not in <foreach close=')' collection='[[name]]' item='_item_[[name]]' open='(' separator=','> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
+            case IN:         return "[[column]] in <foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]'> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
+            case NOT_IN:     return "[[column]] not in <foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]'> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
             case LIKE:       return "[[column]] like [[value]]";
             case NOT_LIKE:   return "[[column]] not like [[value]]";
             case LIKE_INSENSITIVE:       return "lower([[column]]) like lower([[value]])";

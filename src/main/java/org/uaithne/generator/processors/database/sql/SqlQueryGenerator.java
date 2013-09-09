@@ -371,12 +371,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             }
             boolean optional = field.isOptional();
             if (optional) {
-                if (!requireAnd) {
+                if (requireAnd) {
+                    result.append("\n    ");
+                } else {
                     result.append("    ");
                 }
                 String separator;
                 if (requireAnd) {
-                    separator = " and\n    ";
+                    separator = "and ";
                 } else {
                     separator = "";
                 }
@@ -384,9 +386,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 hasOptionals = true;
             } else {
                 if (requireAnd) {
-                    result.append(" and\n");
+                    result.append("\n    and ");
+                } else {
+                    result.append("    ");
                 }
-                result.append("    ");
             }
             appendCondition(result, field, customQuery);
             hasConditions = true;
@@ -399,9 +402,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             String limitOne = selectOneRowAfterWhere();
             if (limitOne != null && !limitOne.isEmpty()) {
                 if (requireAnd) {
-                    result.append(" and\n");
+                    result.append("\n    and ");
+                } else {
+                    result.append("    ");
                 }
-                result.append("    ");
                 result.append(limitOne);
                 requireAnd = true;
                 hasConditions = true;
@@ -411,9 +415,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             String page = selectPageAfterWhere();
             if (page != null && !page.isEmpty()) {
                 if (requireAnd) {
-                    result.append(" and\n");
+                    result.append("\n    and ");
+                } else {
+                    result.append("    ");
                 }
-                result.append("    ");
                 result.append(page);
                 requireAnd = true;
                 hasConditions = true;
@@ -428,9 +433,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
                 if (field.isDeletionMark()) {
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     appendNotDeleted(result, field);
                     requireAnd = true;
                     hasConditions = true;
@@ -1095,9 +1101,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         requireWhere = false;
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     result.append(getColumnName(field));
                     result.append(" = ");
                     result.append(getParameterValue(field));
@@ -1111,9 +1118,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         requireWhere = false;
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     appendNotDeleted(result, field);
                     requireAnd = true;
                 }
@@ -1365,9 +1373,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         requireWhere = false;
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     result.append(getColumnName(field));
                     result.append(" = ");
                     result.append(getParameterValue(field));
@@ -1380,9 +1389,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append("\nwhere\n");
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     appendNotDeleted(result, field);
                     requireAnd = true;
                 }
@@ -1491,9 +1501,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         requireWhere = false;
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     result.append(getColumnName(field));
                     result.append(" = ");
                     result.append(getParameterValue(field));
@@ -1506,9 +1517,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append("\nwhere\n");
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     appendNotDeleted(result, field);
                     requireAnd = true;
                 }
@@ -1585,9 +1597,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         requireWhere = false;
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     result.append(getColumnName(field));
                     result.append(" = ");
                     result.append(getParameterValue(field));
@@ -1598,9 +1611,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         requireWhere = false;
                     }
                     if (requireAnd) {
-                        result.append(" and\n");
+                        result.append("\n    and ");
+                    } else {
+                        result.append("    ");
                     }
-                    result.append("    ");
                     appendNotDeleted(result, field);
                     requireAnd = true;
                 }
