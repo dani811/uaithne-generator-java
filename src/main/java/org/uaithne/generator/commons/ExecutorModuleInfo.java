@@ -38,6 +38,7 @@ public class ExecutorModuleInfo {
     private ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
     private TypeElement element;
     private boolean containOrderedOperations;
+    private boolean containPagedOperations;
     private String[] documentation;
 
     public HashMap<String, OperationInfo> getOperationsByRealName() {
@@ -103,6 +104,9 @@ public class ExecutorModuleInfo {
         if (operation.isOrdered()) {
             containOrderedOperations = true;
         }
+        if (operation.getOperationKind() == OperationKind.SELECT_PAGE) {
+            containPagedOperations = true;
+        }
     }
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
@@ -163,8 +167,8 @@ public class ExecutorModuleInfo {
         return containOrderedOperations;
     }
 
-    public void setContainOrderedOperations(boolean containOrderedOperations) {
-        this.containOrderedOperations = containOrderedOperations;
+    public boolean isContainPagedOperations() {
+        return containPagedOperations;
     }
 
     public String[] getDocumentation() {

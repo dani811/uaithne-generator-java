@@ -61,14 +61,15 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         setPackageName(packageName);
         addImport(OPERATION_DATA_TYPE, packageName);
         addImport("org.apache.ibatis.session.SqlSession", packageName);
-        addImport(PAGE_INFO_DATA_TYPE, packageName);
-        addImport(LIST_DATA_TYPE, packageName);
         addImport(executorModule.getOperationPackage() + "." + executorModule.getExecutorInterfaceName(), packageName);
         executorModule.appendNotMannuallyDefinitionImports(packageName, getImport());
         if (executorModule.isContainOrderedOperations()) {
             addImport(HASHMAP_DATA_TYPE, packageName);
         }
-        addImport(ARRAYLIST_DATA_TYPE, packageName);
+        if (executorModule.isContainPagedOperations()) {
+            addImport(PAGE_INFO_DATA_TYPE, packageName);
+            addImport(LIST_DATA_TYPE, packageName);            
+        }
         addImport(MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE, packageName);
         setClassName(className);
         setExecutorModule(executorModule);
@@ -128,7 +129,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 }
                 case SELECT_MANY: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append("        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> result = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        return result;\n");
                     break;
@@ -145,7 +146,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "            return result;\n"
                             + "        }\n"
                             + "\n"
-                            + "        List<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                            + "        ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        result.setData(data);\n"
                             + "        result.setLimit(operation.getLimit());\n"
