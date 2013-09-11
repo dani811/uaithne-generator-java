@@ -62,5 +62,10 @@ public class MyBatisSqlServerMappersProcessor extends MyBatisMappersProcessor {
     public String mapperPrefix() {
         return "MyBatisSqlServer";
     }
+
+    @Override
+    public boolean useGeneratedKeys() {
+        return true;
+    }
     
 }

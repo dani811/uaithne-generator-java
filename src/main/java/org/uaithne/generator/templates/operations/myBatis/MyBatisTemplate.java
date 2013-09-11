@@ -107,7 +107,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 continue;
             }
 
-            if (operation.getOperationKind() == OperationKind.INSERT) {
+            if (operation.getOperationKind() == OperationKind.INSERT && !operation.isUseIdentifierGeneratedValue()) {
                 appender.append("    public ").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(" getLastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("() {\n"
                         + "        return (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") getSession().selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                         + "    }\n"
@@ -160,11 +160,24 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case INSERT: {
-                    appender.append("        SqlSession session = getSession();\n"
-                            + "        Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", operation.getValue());\n"
-                            + "        if (i != null && i.intValue() == 1) {\n"
-                            + "            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
-                            + "            return result;\n"
+                    appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n" 
+                            + "        SqlSession session = getSession();\n"
+                            + "        Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
+                            + "        if (i != null && i.intValue() == 1) {\n");
+                    FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
+                    if (operation.isUseIdentifierGeneratedValue()) {
+                        appender.append("            ").append(returnTypeName).append(" result = ").append("operation.getValue().");
+                        if (idField.getDataType().isPrimitiveBoolean()) {
+                            appender.append("is");
+                        } else {
+                            appender.append("get");
+                        }
+                        appender.append(idField.getCapitalizedName()).append("();\n");
+                    } else {
+                        appender.append("            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
+                                + "            value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                    }
+                    appender.append("            return result;\n"
                             + "        } else {\n"
                             + "            throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
                             + "        }\n");
@@ -180,9 +193,21 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
                             + "            SqlSession session = getSession();\n"
                             + "            Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
-                            + "            if (i != null && i.intValue() == 1) {\n"
-                            + "                ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
-                            + "                return result;\n"
+                            + "            if (i != null && i.intValue() == 1) {\n");
+                    FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
+                    if (operation.isUseIdentifierGeneratedValue()) {
+                        appender.append("                ").append(returnTypeName).append(" result = ").append("operation.getValue().");
+                        if (idField.getDataType().isPrimitiveBoolean()) {
+                            appender.append("is");
+                        } else {
+                            appender.append("get");
+                        }
+                        appender.append(idField.getCapitalizedName()).append("();\n");
+                    } else {
+                        appender.append("                ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
+                                + "                value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                    }
+                    appender.append("                return result;\n"
                             + "            } else {\n"
                             + "                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
                             + "            }\n"

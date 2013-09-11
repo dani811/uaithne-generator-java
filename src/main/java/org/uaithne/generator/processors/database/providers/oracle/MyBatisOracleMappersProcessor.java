@@ -62,5 +62,10 @@ public class MyBatisOracleMappersProcessor extends MyBatisMappersProcessor {
     public String mapperPrefix() {
         return "MyBatisOracle";
     }
+
+    @Override
+    public boolean useGeneratedKeys() {
+        return true;
+    }
     
 }

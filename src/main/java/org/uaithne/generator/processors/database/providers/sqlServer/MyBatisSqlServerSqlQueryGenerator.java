@@ -51,7 +51,7 @@ public class MyBatisSqlServerSqlQueryGenerator extends MyBatisSqlQueryGenerator 
     
     @Override
     public String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select scope_identity()"};
+        return null;
     }
 
     @Override

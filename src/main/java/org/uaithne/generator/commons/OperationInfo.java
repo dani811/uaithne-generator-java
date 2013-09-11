@@ -47,6 +47,7 @@ public class OperationInfo {
     private boolean ignoreLogicalDeletion;
     private String queryId;
     private String countQueryId;
+    private boolean useIdentifierGeneratedValue;
 
     public String[] getDocumentation() {
         return documentation;
@@ -275,6 +276,14 @@ public class OperationInfo {
 
     public void setCountQueryId(String countQueryId) {
         this.countQueryId = countQueryId;
+    }
+
+    public boolean isUseIdentifierGeneratedValue() {
+        return useIdentifierGeneratedValue;
+    }
+
+    public void setUseIdentifierGeneratedValue(boolean useIdentifierGeneratedValue) {
+        this.useIdentifierGeneratedValue = useIdentifierGeneratedValue;
     }
     
     public OperationInfo(TypeElement classElement, String packageName) {

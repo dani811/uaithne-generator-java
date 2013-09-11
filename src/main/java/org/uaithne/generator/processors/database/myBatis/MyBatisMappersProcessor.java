@@ -197,12 +197,26 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                             operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                             query);
                 }
+                boolean useGeneratedKey = query == null && useGeneratedKeys();
                 query = sqlGenerator.getEntityInsertQuery(entity, operation);
                 if (query != null) {
-                    writeInsert(writer,
-                            operation.getMethodName(),
-                            entity.getDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                    if (useGeneratedKey) {
+                        FieldInfo id = entity.getFirstIdField();
+                        String keyProperty = id.getName();
+                        String keyColumn = id.getMappedNameOrName();
+                        operation.setUseIdentifierGeneratedValue(true);
+                        writeInsertWithGeneratedKey(writer,
+                                operation.getMethodName(),
+                                entity.getDataType().getQualifiedNameWithoutGenerics(),
+                                query,
+                                keyProperty,
+                                keyColumn);
+                    } else {
+                        writeInsert(writer,
+                                operation.getMethodName(),
+                                entity.getDataType().getQualifiedNameWithoutGenerics(),
+                                query);
+                    }
                 }
             }
             break;
@@ -210,6 +224,12 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             }
             break;
             case SAVE: {
+                if (useGeneratedKeys()) {
+                    String[] query = sqlGenerator.getEntityLastInsertedIdQuery(entity, operation);
+                    if (query == null) {
+                        operation.setUseIdentifierGeneratedValue(true);
+                    }
+                }
             }
             break;
             case JUST_SAVE: {
@@ -373,6 +393,26 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
         writer.write("    </insert>\n\n");
     }
 
+    public void writeInsertWithGeneratedKey(Writer writer, String id, String parameterType, String[] lines, String keyProperty, String keyColumn) throws IOException {
+        writer.write("    <insert id='");
+        writer.write(id);
+        writer.write("' parameterType='");
+        writer.write(parameterType);
+        writer.write("' useGeneratedKeys='true' keyProperty='");
+        writer.write(keyProperty);
+        writer.write("' keyColumn='");
+        writer.write(keyColumn);
+        writer.write("'>\n");
+        if (lines != null) {
+            for (int i = 0; i < lines.length; i++) {
+                writer.write("        ");
+                writer.write(lines[i]);
+                writer.write("\n");
+            }
+        }
+        writer.write("    </insert>\n\n");
+    }
+
     public void writeDelete(Writer writer, String id, String parameterType, String[] lines) throws IOException {
         writer.write("    <delete id='");
         writer.write(id);
@@ -391,6 +431,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
     //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="Configuration">
+    public abstract boolean useGeneratedKeys();
     public abstract boolean useAliasInOrderBy();
     public abstract String subPackage();
     public abstract String mapperPrefix();

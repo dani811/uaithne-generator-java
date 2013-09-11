@@ -116,6 +116,9 @@ public abstract class SqlGenerator implements QueryGenerator {
     }
 
     public String joinln(String[] strings) {
+        if (strings == null) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < strings.length - 1; i++) {
             sb.append(strings[i]);
@@ -126,6 +129,9 @@ public abstract class SqlGenerator implements QueryGenerator {
     }
 
     public String joinsp(String[] strings) {
+        if (strings == null) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < strings.length - 1; i++) {
             sb.append(strings[i]);
