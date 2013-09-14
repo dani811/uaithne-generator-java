@@ -30,7 +30,6 @@ public @interface UaithneConfiguration {
     boolean enableJustOperations() default false;
     boolean enableSaveOperations() default true;
     boolean enableMergeOperations() default true;
-    boolean useConcreteCollections() default false;
     boolean enableModuleAbstractExecutors() default true;
     boolean enableModuleChainedExecutors() default true;
     boolean enableModuleChainedGroupingExecutors() default true;
