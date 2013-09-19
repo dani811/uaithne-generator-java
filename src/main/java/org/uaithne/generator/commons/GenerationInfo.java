@@ -24,15 +24,15 @@ import javax.lang.model.element.TypeElement;
 
 public class GenerationInfo {
 
-    private HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>(); 
-    private HashMap<String, EntityInfo> entitiesByName = new HashMap<String, EntityInfo>(); 
+    private HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>();
+    private HashMap<String, EntityInfo> entitiesByName = new HashMap<String, EntityInfo>();
     private ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
     private HashMap<String, OperationInfo> operationsByRealName = new HashMap<String, OperationInfo>();
     private HashMap<String, OperationInfo> operationsByName = new HashMap<String, OperationInfo>();
     private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
     private ArrayList<ExecutorModuleInfo> executorModules = new ArrayList<ExecutorModuleInfo>();
     private HashMap<String, ExecutorModuleInfo> executorModulesByRealName = new HashMap<String, ExecutorModuleInfo>();
-    private boolean generateDefaultEntityOperations;
+    private boolean generateDefaultEntityOperations = true;
     private boolean generateJustOperationsEnabled;
     private boolean generateSaveOperationsEnabled = true;
     private boolean generateMergeOperationsEnabled = true;
@@ -49,11 +49,11 @@ public class GenerationInfo {
     public HashMap<String, EntityInfo> getEntitiesByName() {
         return entitiesByName;
     }
-    
+
     public EntityInfo getEntityByRealName(TypeElement klass) {
         return entitiesByRealName.get(klass.getQualifiedName().toString());
     }
-    
+
     public EntityInfo getEntityByName(DataTypeInfo name) {
         return entitiesByName.get(name.getQualifiedNameWithoutGenerics());
     }
@@ -69,11 +69,11 @@ public class GenerationInfo {
     public HashMap<String, OperationInfo> getOperationsByName() {
         return operationsByName;
     }
-    
+
     public OperationInfo getOperationByRealName(TypeElement klass) {
         return operationsByRealName.get(klass.getQualifiedName().toString());
     }
-    
+
     public OperationInfo getOperationByName(DataTypeInfo name) {
         return operationsByName.get(name.getQualifiedNameWithoutGenerics());
     }
@@ -89,22 +89,22 @@ public class GenerationInfo {
     public HashMap<String, ExecutorModuleInfo> getExecutorModulesByRealName() {
         return executorModulesByRealName;
     }
-    
+
     public ExecutorModuleInfo getExecutorModuleByRealName(TypeElement klass) {
         return executorModulesByRealName.get(klass.getQualifiedName().toString());
     }
-    
+
     public void addExecutorModule(ExecutorModuleInfo executorModule) {
         executorModules.add(executorModule);
         executorModulesByRealName.put(executorModule.getRealName(), executorModule);
     }
-    
+
     public void addEntity(EntityInfo entityInfo) {
         entitiesByRealName.put(entityInfo.getRealName(), entityInfo);
         entitiesByName.put(entityInfo.getDataType().getQualifiedNameWithoutGenerics(), entityInfo);
         entities.add(entityInfo);
     }
-    
+
     public void addOperation(OperationInfo operation, ExecutorModuleInfo executorModule) {
         if (operation.getRealName() != null) {
             operationsByRealName.put(operation.getRealName(), operation);
@@ -117,7 +117,7 @@ public class GenerationInfo {
         operations.add(operation);
         executorModule.addOperation(operation);
     }
-    
+
     public void combineAllEntities() {
         for (EntityInfo entity : entities) {
             entity.uncombine();
@@ -126,7 +126,7 @@ public class GenerationInfo {
             combineEntity(entity);
         }
     }
-    
+
     private void combineEntity(EntityInfo entity) {
         if (entity.getCombined() != entity) {
             return;
@@ -137,7 +137,7 @@ public class GenerationInfo {
             entity.combineWithParent(parent.getCombined());
         }
     }
-    
+
     public EntityInfo getParent(EntityInfo entity) {
         DataTypeInfo extend = entity.getExtend();
         if (extend == null) {
@@ -217,5 +217,5 @@ public class GenerationInfo {
     public void setEntitiesImplements(DataTypeInfo entitiesImplements) {
         this.entitiesImplements = entitiesImplements;
     }
-    
+
 }

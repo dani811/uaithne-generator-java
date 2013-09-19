@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.annotations;
+package org.uaithne.annotations.myBatis;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,13 +25,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface UaithneConfiguration {
-    boolean enableDefaultEntityOperations() default true;
-    boolean enableJustOperations() default false;
-    boolean enableSaveOperations() default true;
-    boolean enableMergeOperations() default true;
-    boolean enableModuleAbstractExecutors() default true;
-    boolean enableModuleChainedExecutors() default true;
-    boolean enableModuleChainedGroupingExecutors() default true;
-    Class<?> entitiesImplements() default Void.class;
+public @interface MyBatisDerbyMapper {
+    
 }

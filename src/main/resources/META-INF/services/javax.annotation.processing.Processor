@@ -8,3 +8,4 @@ org.uaithne.generator.processors.gwt.GwtRemoteServiceProcessor
 org.uaithne.generator.processors.database.myBatis.SharedMyBatisLibraryProcessor
 org.uaithne.generator.processors.database.providers.oracle.MyBatisOracleMappersProcessor
 org.uaithne.generator.processors.database.providers.sqlServer.MyBatisSqlServerMappersProcessor
+org.uaithne.generator.processors.database.providers.derby.MyBatisDerbyMappersProcessor
