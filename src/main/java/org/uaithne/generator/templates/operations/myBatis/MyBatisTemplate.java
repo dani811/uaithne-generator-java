@@ -71,6 +71,19 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             addImport(LIST_DATA_TYPE, packageName);            
         }
         addImport(MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE, packageName);
+        for (OperationInfo operation : executorModule.getOperations()) {
+            if (operation.isManually()) {
+                continue;
+            }
+            switch (operation.getOperationKind()) {
+                case INSERT:
+                case SAVE:
+                case JUST_SAVE:
+                    addImport(operation.getEntity().getDataType(), packageName);
+                    break;
+                default:
+            }
+        }
         setClassName(className);
         setExecutorModule(executorModule);
         addImplement(executorModule.getExecutorInterfaceName());
