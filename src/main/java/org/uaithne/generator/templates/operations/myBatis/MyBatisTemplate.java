@@ -71,6 +71,19 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             addImport(LIST_DATA_TYPE, packageName);            
         }
         addImport(MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE, packageName);
+        for (OperationInfo operation : executorModule.getOperations()) {
+            if (operation.isManually()) {
+                continue;
+            }
+            switch (operation.getOperationKind()) {
+                case INSERT:
+                case SAVE:
+                case JUST_SAVE:
+                    addImport(operation.getEntity().getDataType(), packageName);
+                    break;
+                default:
+            }
+        }
         setClassName(className);
         setExecutorModule(executorModule);
         addImplement(executorModule.getExecutorInterfaceName());
@@ -107,7 +120,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 continue;
             }
 
-            if (operation.getOperationKind() == OperationKind.INSERT && !operation.isUseIdentifierGeneratedValue()) {
+            if (operation.getOperationKind() == OperationKind.INSERT && !operation.isReturnIdFromObjectWhenInsert()) {
                 appender.append("    public ").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(" getLastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("() {\n"
                         + "        return (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") getSession().selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                         + "    }\n"
@@ -162,11 +175,11 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 case INSERT: {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n" 
                             + "        SqlSession session = getSession();\n"
-                            + "        Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
-                            + "        if (i != null && i.intValue() == 1) {\n");
+                            + "        int i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
+                            + "        if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
-                    if (operation.isUseIdentifierGeneratedValue()) {
-                        appender.append("            ").append(returnTypeName).append(" result = ").append("operation.getValue().");
+                    if (operation.isReturnIdFromObjectWhenInsert()) {
+                        appender.append("            ").append(returnTypeName).append(" result = ").append("value.");
                         if (idField.getDataType().isPrimitiveBoolean()) {
                             appender.append("is");
                         } else {
@@ -192,11 +205,11 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
                             + "            SqlSession session = getSession();\n"
-                            + "            Integer i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
-                            + "            if (i != null && i.intValue() == 1) {\n");
+                            + "            int i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
+                            + "            if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
-                    if (operation.isUseIdentifierGeneratedValue()) {
-                        appender.append("                ").append(returnTypeName).append(" result = ").append("operation.getValue().");
+                    if (operation.isReturnIdFromObjectWhenInsert()) {
+                        appender.append("                ").append(returnTypeName).append(" result = ").append("value.");
                         if (idField.getDataType().isPrimitiveBoolean()) {
                             appender.append("is");
                         } else {
@@ -212,8 +225,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
                             + "            }\n"
                             + "        } else {\n"
-                            + "            Integer i = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
-                            + "            if (i != null && i.intValue() == 1) {\n"
+                            + "            int i = getSession().update(\"").append(namespace).append(".update").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
+                            + "            if (i == 1) {\n"
                             + "                ").append(returnTypeName).append(" result = value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("();\n"
                             + "                return result;\n"
                             + "            } else {\n"
@@ -260,8 +273,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 }
                 case CUSTOM_INSERT_WITH_ID: {
                     appender.append("        SqlSession session = getSession();\n"
-                            + "        Integer i = session.insert(\"").append(operation.getQueryId()).append("\", operation);\n"
-                            + "        if (i != null && i.intValue() == 1) {\n"
+                            + "        int i = session.insert(\"").append(operation.getQueryId()).append("\", operation);\n"
+                            + "        if (i == 1) {\n"
                             + "            ").append(returnTypeName).append(" result = session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                             + "            return result;\n"
                             + "        } else {\n"

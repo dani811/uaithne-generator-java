@@ -47,7 +47,7 @@ public class OperationInfo {
     private boolean ignoreLogicalDeletion;
     private String queryId;
     private String countQueryId;
-    private boolean useIdentifierGeneratedValue;
+    private boolean returnIdFromObjectWhenInsert;
 
     public String[] getDocumentation() {
         return documentation;
@@ -278,12 +278,12 @@ public class OperationInfo {
         this.countQueryId = countQueryId;
     }
 
-    public boolean isUseIdentifierGeneratedValue() {
-        return useIdentifierGeneratedValue;
+    public boolean isReturnIdFromObjectWhenInsert() {
+        return returnIdFromObjectWhenInsert;
     }
 
-    public void setUseIdentifierGeneratedValue(boolean useIdentifierGeneratedValue) {
-        this.useIdentifierGeneratedValue = useIdentifierGeneratedValue;
+    public void setReturnIdFromObjectWhenInsert(boolean returnIdFromObjectWhenInsert) {
+        this.returnIdFromObjectWhenInsert = returnIdFromObjectWhenInsert;
     }
     
     public OperationInfo(TypeElement classElement, String packageName) {
