@@ -31,10 +31,10 @@ public class EntityInfo {
     private String[] documentation;
     private String realName;
     private DataTypeInfo extend;
-    private HashSet<DataTypeInfo> implement = new HashSet<DataTypeInfo>();
+    private final HashSet<DataTypeInfo> implement = new HashSet<DataTypeInfo>(0);
     private DataTypeInfo dataType;
-    private ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(0);
-    private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
+    private final ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(0);
+    private final ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>(0);
     private EntityKind entityKind;
     private TypeElement element;
     private EntityInfo combined = this;

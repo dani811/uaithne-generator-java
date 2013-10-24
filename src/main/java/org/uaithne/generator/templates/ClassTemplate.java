@@ -32,9 +32,9 @@ public abstract class ClassTemplate {
     private String className;
     private String extend;
     private String documentation[];
-    private HashSet<String> implement = new HashSet<String>(0);
-    private HashSet<String> imports = new HashSet<String>(0);
-    private ArrayList<String> genericArguments = new ArrayList<String>(0);
+    private final HashSet<String> implement = new HashSet<String>(0);
+    private final HashSet<String> imports = new HashSet<String>(0);
+    private final ArrayList<String> genericArguments = new ArrayList<String>(0);
     private boolean isInterface;
     private boolean isAbstract;
 

@@ -21,7 +21,7 @@ package org.uaithne.generator.commons;
 import java.util.HashSet;
 
 public class DataTypeInfo {
-    private HashSet<String> imports = new HashSet<String>(0);
+    private final HashSet<String> imports = new HashSet<String>(0);
     private String packageName;
     private String simpleName;
     private String simpleNameWithoutGenerics;

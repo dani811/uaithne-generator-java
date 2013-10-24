@@ -73,7 +73,7 @@ public class DataPageTemplate extends ClassTemplate {
                 + "     * @return the maxRowCount\n"
                 + "     */\n"
                 + "    public ").append(PAGE_INFO_DATA).append(" getMaxRowNumber() {\n");
-        if (PAGE_INFO_DATA_TYPE.getPackageName().equals("")) {
+        if (PAGE_INFO_DATA_TYPE.getPackageName().isEmpty()) {
             appender.append("        return limit + offset;\n");
         } else {
             appender.append("        if (limit == null) {\n"

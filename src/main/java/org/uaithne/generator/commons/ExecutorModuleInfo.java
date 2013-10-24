@@ -32,11 +32,11 @@ public class ExecutorModuleInfo {
     private String operationPackage;
     private String realName;
     private String executorInterfaceName;
-    private HashMap<String, OperationInfo> operationsByRealName = new HashMap<String, OperationInfo>();
-    private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
-    private HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>(); 
-    private ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
-    private TypeElement element;
+    private final HashMap<String, OperationInfo> operationsByRealName = new HashMap<String, OperationInfo>();
+    private final ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
+    private final HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>(); 
+    private final ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
+    private final TypeElement element;
     private boolean containOrderedOperations;
     private boolean containPagedOperations;
     private String[] documentation;

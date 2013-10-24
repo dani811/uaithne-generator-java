@@ -30,7 +30,7 @@ import org.uaithne.generator.templates.ClassTemplate;
 
 public abstract class TemplateProcessor extends AbstractProcessor {
 
-    private static GenerationInfo GENERATION_INFO = new GenerationInfo();
+    private static final GenerationInfo GENERATION_INFO = new GenerationInfo();
 
     public static GenerationInfo getGenerationInfo() {
         return GENERATION_INFO;

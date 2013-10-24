@@ -31,7 +31,7 @@ public class Utils {
             }
         }
         String packageName = name;
-        int lastDot = packageName.lastIndexOf(".");
+        int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         }

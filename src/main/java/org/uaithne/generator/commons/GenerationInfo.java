@@ -24,14 +24,14 @@ import javax.lang.model.element.TypeElement;
 
 public class GenerationInfo {
 
-    private HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>();
-    private HashMap<String, EntityInfo> entitiesByName = new HashMap<String, EntityInfo>();
-    private ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
-    private HashMap<String, OperationInfo> operationsByRealName = new HashMap<String, OperationInfo>();
-    private HashMap<String, OperationInfo> operationsByName = new HashMap<String, OperationInfo>();
-    private ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
-    private ArrayList<ExecutorModuleInfo> executorModules = new ArrayList<ExecutorModuleInfo>();
-    private HashMap<String, ExecutorModuleInfo> executorModulesByRealName = new HashMap<String, ExecutorModuleInfo>();
+    private final HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>();
+    private final HashMap<String, EntityInfo> entitiesByName = new HashMap<String, EntityInfo>();
+    private final ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
+    private final HashMap<String, OperationInfo> operationsByRealName = new HashMap<String, OperationInfo>();
+    private final HashMap<String, OperationInfo> operationsByName = new HashMap<String, OperationInfo>();
+    private final ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
+    private final ArrayList<ExecutorModuleInfo> executorModules = new ArrayList<ExecutorModuleInfo>();
+    private final HashMap<String, ExecutorModuleInfo> executorModulesByRealName = new HashMap<String, ExecutorModuleInfo>();
     private boolean generateDefaultEntityOperations = true;
     private boolean generateJustOperationsEnabled;
     private boolean generateSaveOperationsEnabled = true;

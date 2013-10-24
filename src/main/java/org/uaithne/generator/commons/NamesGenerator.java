@@ -49,7 +49,7 @@ public class NamesGenerator {
 
     public static String createGenericPackageName(TypeElement element, String subpackageName) {
         String packageName = element.getQualifiedName().toString();
-        int lastDot = packageName.lastIndexOf(".");
+        int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         }
@@ -66,7 +66,7 @@ public class NamesGenerator {
     public static String createOperationsPackageName(TypeElement element) {
         String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
         String packageName = element.getQualifiedName().toString();
-        int lastDot = packageName.lastIndexOf(".");
+        int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         }
@@ -91,14 +91,14 @@ public class NamesGenerator {
         // TODO: add generic params support
         String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
         String packageName = element.getQualifiedName().toString();
-        int lastDot = packageName.lastIndexOf(".");
+        int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         } else {
             packageName = "";
         }
         if (element.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
-            lastDot = packageName.lastIndexOf(".");
+            lastDot = packageName.lastIndexOf('.');
             if (lastDot >= 0 && lastDot < packageName.length()) {
                 packageName = packageName.substring(0, lastDot);
             }
@@ -116,13 +116,13 @@ public class NamesGenerator {
     private static DataTypeInfo createEntityDataType(Class klass) {
         String simpleName = Utils.dropFirstUnderscore(klass.getSimpleName());
         String packageName = klass.getCanonicalName();
-        int lastDot = packageName.lastIndexOf(".");
+        int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         } else {
             packageName = "";
         }
-        lastDot = packageName.lastIndexOf(".");
+        lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         }
@@ -153,7 +153,7 @@ public class NamesGenerator {
 
         String containerSimpleName = Utils.dropFirstUnderscore(container.getSimpleName().toString());
         String containerPackageName = container.getQualifiedName().toString();
-        int lastDot = containerPackageName.lastIndexOf(".");
+        int lastDot = containerPackageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < containerPackageName.length()) {
             containerPackageName = containerPackageName.substring(0, lastDot);
         }
@@ -183,7 +183,7 @@ public class NamesGenerator {
 
         String containerSimpleName = Utils.dropFirstUnderscore(container.getSimpleName().toString());
         String containerPackageName = container.getCanonicalName().toString();
-        int lastDot = containerPackageName.lastIndexOf(".");
+        int lastDot = containerPackageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < containerPackageName.length()) {
             containerPackageName = containerPackageName.substring(0, lastDot);
         }
@@ -244,7 +244,7 @@ public class NamesGenerator {
         }
         String simpleName = Utils.dropFirstUnderscore(klass.getSimpleName());
         String packageName = klass.getCanonicalName();
-        int lastDot = packageName.lastIndexOf(".");
+        int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         } else {
@@ -260,7 +260,7 @@ public class NamesGenerator {
         }
         String simpleName;
         String packageName;
-        int lastDot = className.lastIndexOf(".");
+        int lastDot = className.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < className.length()) {
             packageName = className.substring(0, lastDot);
             simpleName = Utils.dropFirstUnderscore(className.substring(lastDot + 1));
@@ -274,7 +274,7 @@ public class NamesGenerator {
     public static DataTypeInfo createClassBasedDataType(TypeElement element) {
         String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
         String packageName = element.getQualifiedName().toString();
-        int lastDot = packageName.lastIndexOf(".");
+        int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
             packageName = packageName.substring(0, lastDot);
         } else {

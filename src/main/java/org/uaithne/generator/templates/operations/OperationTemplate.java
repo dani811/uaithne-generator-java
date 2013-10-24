@@ -67,7 +67,7 @@ public class OperationTemplate extends PojoTemplate {
     void writeGetMaxRowNumber(Appendable appender) throws IOException {
         appender.append("    @Override\n");
         appender.append("    public ").append(PAGE_INFO_DATA_TYPE.getSimpleName()).append(" getMaxRowNumber() {\n");
-        if (PAGE_INFO_DATA_TYPE.getPackageName().equals("")) {
+        if (PAGE_INFO_DATA_TYPE.getPackageName().isEmpty()) {
             appender.append("        return limit + offset;\n");
         } else {
             appender.append("        if (limit == null) {\n"

@@ -36,8 +36,8 @@ public enum OperationKind {
     CUSTOM_INSERT_WITH_ID(14, "CustomInsertWithId"),
     MERGE(15, "Merge");
     
-    private int id;
-    private String name;
+    private final int id;
+    private final String name;
 
     public int getId() {
         return id;

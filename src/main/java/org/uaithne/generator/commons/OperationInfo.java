@@ -35,8 +35,8 @@ public class OperationInfo {
     private String methodName;
     private DataTypeInfo dataType;
     private DataTypeInfo extend;
-    private HashSet<DataTypeInfo> implement = new HashSet<DataTypeInfo>();
-    private ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(0);
+    private final HashSet<DataTypeInfo> implement = new HashSet<DataTypeInfo>(0);
+    private final ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(0);
     private OperationKind operationKind;
     private EntityInfo entity;
     private TypeElement element;
