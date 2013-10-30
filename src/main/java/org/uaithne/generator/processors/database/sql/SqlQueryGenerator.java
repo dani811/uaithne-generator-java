@@ -657,7 +657,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             EntityInfo entity = operation.getEntity().getCombined();
             StringBuilder result = new StringBuilder();
             result.append("insert into");
-            appendToQueryln(result, getTableName(entity), "    ");
+            if (customQuery != null && hasQueryValue(customQuery.from())) {
+                appendToQueryln(result, customQuery.from(), "    ");
+            } else {
+                appendToQueryln(result, getTableName(entity), "    ");
+            }
             result.append("\n(");
 
             if (customQuery != null) {
@@ -842,7 +846,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             EntityInfo entity = operation.getEntity().getCombined();
             StringBuilder result = new StringBuilder();
             result.append("update");
-            appendToQueryln(result, getTableName(entity), "    ");
+            if (customQuery != null && hasQueryValue(customQuery.from())) {
+                appendToQueryln(result, customQuery.from(), "    ");
+            } else {
+                appendToQueryln(result, getTableName(entity), "    ");
+            }
             result.append("\nset");
 
             if (customQuery != null) {
@@ -929,7 +937,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             StringBuilder result = new StringBuilder();
             if (operation.isUseLogicalDeletion()) {
                 result.append("update");
-                appendToQueryln(result, getTableName(entity), "    ");
+                if (customQuery != null && hasQueryValue(customQuery.from())) {
+                    appendToQueryln(result, customQuery.from(), "    ");
+                } else {
+                    appendToQueryln(result, getTableName(entity), "    ");
+                }
                 result.append("\nset\n");
                 boolean requireComma = false;
                 for (FieldInfo field : operation.getFields()) {
@@ -985,7 +997,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else {
                 result.append("delete from");
-                appendToQueryln(result, getTableName(entity), "    ");
+                if (customQuery != null && hasQueryValue(customQuery.from())) {
+                    appendToQueryln(result, customQuery.from(), "    ");
+                } else {
+                    appendToQueryln(result, getTableName(entity), "    ");
+                }
             }
             appendWhere(result, operation, false, customQuery, false);
             finalQuery = result.toString();
