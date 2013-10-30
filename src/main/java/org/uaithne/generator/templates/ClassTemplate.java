@@ -37,6 +37,7 @@ public abstract class ClassTemplate {
     private final ArrayList<String> genericArguments = new ArrayList<String>(0);
     private boolean isInterface;
     private boolean isAbstract;
+    private boolean isDeprecated;
 
     public String getPackageName() {
         return packageName;
@@ -112,6 +113,14 @@ public abstract class ClassTemplate {
 
     public void setAbstract(boolean isAbstract) {
         this.isAbstract = isAbstract;
+    }
+
+    public boolean isDeprecated() {
+        return isDeprecated;
+    }
+
+    public void setDeprecated(boolean isDeprecated) {
+        this.isDeprecated = isDeprecated;
     }
     
     public void write(Appendable appender) throws IOException {
@@ -194,6 +203,8 @@ public abstract class ClassTemplate {
     }
     
     protected void writeClassAnnotations(Appendable appender) throws IOException {
-        
+        if (isDeprecated) {
+            appender.append("@Deprecated\n");
+        }
     }
 }

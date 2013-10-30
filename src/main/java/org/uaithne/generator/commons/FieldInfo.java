@@ -425,15 +425,8 @@ public class FieldInfo {
             documentation = doc.value();
         }
         
-        Deprecated deprecatedAnnotation = element.getAnnotation(Deprecated.class);
-        if (deprecatedAnnotation != null) {
-            this.deprecated = true;
-        }
-        
-        ExcludeFromConstructor excludeFromConstructorAnnotation = element.getAnnotation(ExcludeFromConstructor.class);
-        if (excludeFromConstructorAnnotation != null) {
-            this.excludedFromConstructor = true;
-        }
+        deprecated = element.getAnnotation(Deprecated.class) != null;
+        excludedFromConstructor = element.getAnnotation(ExcludeFromConstructor.class) != null;
     }
 
     public FieldInfo(String name, DataTypeInfo dataType) {

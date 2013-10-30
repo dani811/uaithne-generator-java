@@ -48,6 +48,7 @@ public class OperationInfo {
     private String queryId;
     private String countQueryId;
     private boolean returnIdFromObjectWhenInsert;
+    private boolean deprecated;
 
     public String[] getDocumentation() {
         return documentation;
@@ -285,6 +286,14 @@ public class OperationInfo {
     public void setReturnIdFromObjectWhenInsert(boolean returnIdFromObjectWhenInsert) {
         this.returnIdFromObjectWhenInsert = returnIdFromObjectWhenInsert;
     }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
+    }
     
     public OperationInfo(TypeElement classElement, String packageName) {
         element = classElement;
@@ -312,6 +321,8 @@ public class OperationInfo {
         if (doc != null) {
             documentation = doc.value();
         }
+        
+        deprecated = element.getAnnotation(Deprecated.class) != null;
     }
 
     public OperationInfo(DataTypeInfo dataType) {

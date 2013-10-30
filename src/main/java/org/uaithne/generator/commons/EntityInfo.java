@@ -44,6 +44,7 @@ public class EntityInfo {
     private boolean hasDeletionMark;
     private boolean ignoreLogicalDeletion;
     private FieldInfo firstIdField;
+    private boolean deprecated;
 
     public String[] getDocumentation() {
         return documentation;
@@ -220,6 +221,14 @@ public class EntityInfo {
     public void setManually(boolean manually) {
         this.manually = manually;
     }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
+    }
     
     public EntityInfo(TypeElement classElement, EntityKind entityKind) {
         element = classElement;
@@ -243,6 +252,8 @@ public class EntityInfo {
         if (doc != null) {
             documentation = doc.value();
         }
+        
+        deprecated = element.getAnnotation(Deprecated.class) != null;
     }
 
     private EntityInfo() {

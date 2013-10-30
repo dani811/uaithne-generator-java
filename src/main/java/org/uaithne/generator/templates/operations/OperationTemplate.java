@@ -60,6 +60,7 @@ public class OperationTemplate extends PojoTemplate {
         for (DataTypeInfo type : operation.getImplement()) {
             addImplement(type.getSimpleName());
         }
+        setDeprecated(operation.isDeprecated());
         this.executorName = executorName;
         this.operation = operation;
     }

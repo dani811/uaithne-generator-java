@@ -48,6 +48,7 @@ public class EntityTemplate extends PojoTemplate {
         for (DataTypeInfo type : entity.getImplement()) {
             addImplement(type.getSimpleName());
         }
+        setDeprecated(entity.isDeprecated());
         this.entity = entity;
     }
     
