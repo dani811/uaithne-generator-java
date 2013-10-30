@@ -33,7 +33,7 @@ public class MappedExecutorGroupTemplate extends ClassTemplate {
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    private HashMap<Object, Executor> executorMap = new HashMap<Object, Executor>();\n"
+        appender.append("    private final HashMap<Object, Executor> executorMap = new HashMap<Object, Executor>();\n"
                 + "    \n"
                 + "    public Executor addExecutor(Executor executor) {\n"
                 + "        if (executor == null) {\n"

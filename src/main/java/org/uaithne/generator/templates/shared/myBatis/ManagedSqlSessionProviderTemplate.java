@@ -37,9 +37,9 @@ public class ManagedSqlSessionProviderTemplate extends ClassTemplate {
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    private SqlSessionFactory sqlSessionFactory;\n"
-                + "    private ThreadLocal<SqlSession> currentSqlSession = new ThreadLocal<SqlSession>();\n"
-                + "    private ThreadLocal<Integer> currentSessionLevel = new ThreadLocal<Integer>();\n"
+        appender.append("    private final SqlSessionFactory sqlSessionFactory;\n"
+                + "    private final ThreadLocal<SqlSession> currentSqlSession = new ThreadLocal<SqlSession>();\n"
+                + "    private final ThreadLocal<Integer> currentSessionLevel = new ThreadLocal<Integer>();\n"
                 + "\n"
                 + "    public ManagedSqlSessionProvider(String configurationUrl) throws IOException {\n"
                 + "        InputStream inputStream = Resources.getResourceAsStream(configurationUrl);\n"
@@ -78,6 +78,7 @@ public class ManagedSqlSessionProviderTemplate extends ClassTemplate {
                 + "        return currentSqlSession.get() != null;\n"
                 + "    }\n"
                 + "\n"
+                + "    @Override"
                 + "    public SqlSession getSqlSession() {\n"
                 + "        SqlSession result = currentSqlSession.get();\n"
                 + "        if (result == null) {\n"
