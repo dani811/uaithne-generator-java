@@ -1650,8 +1650,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         return getMappedName(entity);
     }
     
-    public abstract boolean insertQueryIncludeId();
-
     public abstract String getParameterValue(FieldInfo field);
     
     public boolean includeIdOnInsert(EntityInfo entity, FieldInfo field) {
@@ -1666,7 +1664,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (idQueries != null) {
                 return true;
             } else {
-                return insertQueryIncludeId();
+                return !useAutoIncrementId();
             }
         }
     }
@@ -1684,7 +1682,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (idQueries != null) {
                 return idQueries.selectNextValue();
             } else {
-                return getDefaultIdNextValue(entity, field);
+                return getIdSequenceNextValue(entity, field);
             }
         }
     }
@@ -1711,15 +1709,15 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (idQueries != null) {
                 return idQueries.selectCurrentValue();
             } else {
-                return getDefaultIdCurrentValue(entity, field);
+                return getIdSequenceCurrentValue(entity, field);
             }
         }
 
     }
 
-    public abstract String[] getDefaultIdNextValue(EntityInfo entity, FieldInfo field);
+    public abstract String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field);
 
-    public abstract String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field);
+    public abstract String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field);
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Inline query elements managment">

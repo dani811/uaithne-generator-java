@@ -20,30 +20,63 @@ package org.uaithne.generator.processors.database.myBatis;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 import org.uaithne.annotations.myBatis.MyBatisCustomSqlStatementId;
+import org.uaithne.annotations.myBatis.MyBatisMapper;
 import org.uaithne.generator.commons.*;
 import org.uaithne.generator.processors.database.QueryGenerator;
 import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 
-public abstract class MyBatisMappersProcessor extends TemplateProcessor {
+@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedAnnotationTypes("org.uaithne.annotations.myBatis.MyBatisMapper")
+public class MyBatisMapperProcessor extends TemplateProcessor {
     
-    protected QueryGenerator sqlGenerator;
-
-    public MyBatisMappersProcessor(QueryGenerator sqlGenerator) {
-        this.sqlGenerator = sqlGenerator;
+    @Override
+    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+        for (Element element : re.getElementsAnnotatedWith(MyBatisMapper.class)) {
+            if (element.getKind() == ElementKind.CLASS) {
+                MyBatisMapper myBatisMapper = element.getAnnotation(MyBatisMapper.class);
+                if (myBatisMapper != null) {
+                    MyBatisBackendConfiguration[] configurations = myBatisMapper.backendConfigurations();
+                    if (configurations.length <= 0) {
+                        configurations = getGenerationInfo().getMyBatisBackends();
+                    }
+                    for (MyBatisBackendConfiguration configuration : configurations) {
+                        try {
+                            process(re, element, configuration);
+                        } catch(Exception ex) {
+                            Logger.getLogger(MyBatisMapperProcessor.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }
+        }
+        return true; // no further processing of this annotation type
     }
 
     //<editor-fold defaultstate="collapsed" desc="Process">
-    public void process(RoundEnvironment re, Element element) {
+    public void process(RoundEnvironment re, Element element, MyBatisBackendConfiguration configuration) {
         TypeElement classElement = (TypeElement) element;
+        
+        QueryGenerator sqlGenerator = configuration.backend().getGenerator();
+        boolean useAutoIncrementId = configuration.useAutoIncrementId().solve(configuration.backend().useAutoIncrementId());
+        sqlGenerator.setProcessingEnv(processingEnv);
+        sqlGenerator.setUseAutoIncrementId(useAutoIncrementId);
+        sqlGenerator.setSequenceRegex(configuration.sequenceRegex());
+        sqlGenerator.setSequenceReplacement(configuration.sequenceReplacement());
 
         ExecutorModuleInfo module = getGenerationInfo().getExecutorModuleByRealName(classElement);
         if (module == null) {
@@ -51,8 +84,8 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             return;
         }
 
-        String packageName = NamesGenerator.createGenericPackageName(classElement, subPackage());
-        String name = mapperPrefix() + module.getNameUpper() + "Mapper";
+        String packageName = NamesGenerator.createGenericPackageName(classElement, configuration.subPackageName());
+        String name = configuration.mapperPrefix() + module.getNameUpper() + configuration.mapperSuffix();
 
         String namespace;
         if (packageName == null || packageName.isEmpty()) {
@@ -72,27 +105,27 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
             writer.write(namespace);
             writer.write("'>\n\n");
             for (OperationInfo operation : module.getOperations()) {
-                processOperation(operation, namespace, writer);
+                processOperation(sqlGenerator, operation, namespace, writer, useAutoIncrementId);
                 hasUnimplementedOperations = hasUnimplementedOperations || operation.isManually();
             }
             writer.write("</mapper>");
         } catch (IOException ex) {
-            Logger.getLogger(MyBatisMappersProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MyBatisMapperProcessor.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 if (writer != null) {
                     writer.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(MyBatisMappersProcessor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MyBatisMapperProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        processClassTemplate(new MyBatisTemplate(module, packageName, name, namespace, useAliasInOrderBy(), hasUnimplementedOperations), element);
+        processClassTemplate(new MyBatisTemplate(module, packageName, name, namespace, sqlGenerator.useAliasInOrderByTranslation(), hasUnimplementedOperations), element);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Process operation">
-    public void processOperation(OperationInfo operation, String namespace, Writer writer) throws IOException {
+    public void processOperation(QueryGenerator sqlGenerator, OperationInfo operation, String namespace, Writer writer, boolean useAutoIncrementId) throws IOException {
         if (operation.isManually()) {
             return;
         }
@@ -200,7 +233,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                                 operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
                                 query);
                     }
-                    useGeneratedKey = query == null && useGeneratedKeys();
+                    useGeneratedKey = query == null && useAutoIncrementId;
                 } else {
                     operation.setReturnIdFromObjectWhenInsert(true);
                 }
@@ -236,7 +269,7 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
                 FieldInfo id = entity.getFirstIdField();
                 boolean useGeneratedKey = id.isIdentifierAutogenerated();
                 if (useGeneratedKey) {
-                    if (useGeneratedKeys()) {
+                    if (useAutoIncrementId) {
                         String[] query = sqlGenerator.getEntityLastInsertedIdQuery(entity, operation);
                         if (query == null) {
                             operation.setReturnIdFromObjectWhenInsert(true);
@@ -349,9 +382,9 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
         writer.write(parameterType);
         writer.write("'>\n");
         if (lines != null) {
-            for (int i = 0; i < lines.length; i++) {
+            for (String line : lines) {
                 writer.write("        ");
-                writer.write(lines[i]);
+                writer.write(line);
                 writer.write("\n");
             }
         }
@@ -367,9 +400,9 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
         writer.write(resultType);
         writer.write("'>\n");
         if (lines != null) {
-            for (int i = 0; i < lines.length; i++) {
+            for (String line : lines) {
                 writer.write("        ");
-                writer.write(lines[i]);
+                writer.write(line);
                 writer.write("\n");
             }
         }
@@ -383,9 +416,9 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
         writer.write(resultType);
         writer.write("'>\n");
         if (lines != null) {
-            for (int i = 0; i < lines.length; i++) {
+            for (String line : lines) {
                 writer.write("        ");
-                writer.write(lines[i]);
+                writer.write(line);
                 writer.write("\n");
             }
         }
@@ -399,9 +432,9 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
         writer.write(parameterType);
         writer.write("'>\n");
         if (lines != null) {
-            for (int i = 0; i < lines.length; i++) {
+            for (String line : lines) {
                 writer.write("        ");
-                writer.write(lines[i]);
+                writer.write(line);
                 writer.write("\n");
             }
         }
@@ -419,9 +452,9 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
         writer.write(keyColumn);
         writer.write("'>\n");
         if (lines != null) {
-            for (int i = 0; i < lines.length; i++) {
+            for (String line : lines) {
                 writer.write("        ");
-                writer.write(lines[i]);
+                writer.write(line);
                 writer.write("\n");
             }
         }
@@ -435,20 +468,13 @@ public abstract class MyBatisMappersProcessor extends TemplateProcessor {
         writer.write(parameterType);
         writer.write("'>\n");
         if (lines != null) {
-            for (int i = 0; i < lines.length; i++) {
+            for (String line : lines) {
                 writer.write("        ");
-                writer.write(lines[i]);
+                writer.write(line);
                 writer.write("\n");
             }
         }
         writer.write("    </delete>\n\n");
     }
-    //</editor-fold>
-    
-    //<editor-fold defaultstate="collapsed" desc="Configuration">
-    public abstract boolean useGeneratedKeys();
-    public abstract boolean useAliasInOrderBy();
-    public abstract String subPackage();
-    public abstract String mapperPrefix();
     //</editor-fold>
 }

@@ -21,6 +21,7 @@ package org.uaithne.generator.commons;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.lang.model.element.TypeElement;
+import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 
 public class GenerationInfo {
 
@@ -41,6 +42,7 @@ public class GenerationInfo {
     private boolean generateModuleChainedGroupingExecutorsEnabled = true;
     private boolean includeGwtClientExecutors;
     private DataTypeInfo entitiesImplements;
+    private MyBatisBackendConfiguration[] myBatisBackends;
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
         return entitiesByRealName;
@@ -216,6 +218,14 @@ public class GenerationInfo {
 
     public void setEntitiesImplements(DataTypeInfo entitiesImplements) {
         this.entitiesImplements = entitiesImplements;
+    }
+
+    public MyBatisBackendConfiguration[] getMyBatisBackends() {
+        return myBatisBackends;
+    }
+
+    public void setMyBatisBackends(MyBatisBackendConfiguration[] myBatisBackends) {
+        this.myBatisBackends = myBatisBackends;
     }
 
 }

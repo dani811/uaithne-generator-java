@@ -22,7 +22,7 @@ import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
 
-public class MyBatisOracleSqlQueryGenerator extends MyBatisSqlQueryGenerator {
+public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerator {
     
     @Override
     public String currentSqlDate() {
@@ -38,20 +38,15 @@ public class MyBatisOracleSqlQueryGenerator extends MyBatisSqlQueryGenerator {
     public String trueValue() {
         return "1";
     }
-
+    
     @Override
-    public boolean insertQueryIncludeId() {
-        return true;
+    public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
+        return new String[] {getSequenceName(getTableName(entity)) + ".nextval"};
     }
     
     @Override
-    public String[] getDefaultIdNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"seq_" + getTableName(entity)[0] + ".nextval"};
-    }
-    
-    @Override
-    public String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select seq_" + getTableName(entity)[0] + ".currval from dual"};
+    public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
+        return new String[] {"select " + getSequenceName(getTableName(entity)) + ".currval from dual"};
     }
 
     @Override

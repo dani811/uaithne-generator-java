@@ -16,47 +16,46 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.database.providers.derby;
+package org.uaithne.generator.processors.database.providers.oracle;
 
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
 
-public class MyBatisDerbySqlQueryGenerator extends MyBatisSqlQueryGenerator {
-
+public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
+    
     @Override
     public String currentSqlDate() {
         return "current_timestamp";
     }
-
+    
     @Override
     public String falseValue() {
-        return "false";
+        return "0";
     }
-
+    
     @Override
     public String trueValue() {
-        return "true";
+        return "1";
     }
-
+    
     @Override
-    public boolean insertQueryIncludeId() {
-        return false;
+    public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
+        return new String[] {getSequenceName(getTableName(entity)) + ".nextval"};
     }
-
+    
     @Override
-    public String[] getDefaultIdNextValue(EntityInfo entity, FieldInfo field) {
-        return null;
-    }
-
-    @Override
-    public String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field) {
-        return null;
+    public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
+        return new String[] {"select " + getSequenceName(getTableName(entity)) + ".currval from dual"};
     }
 
     @Override
     public String[] envolveInSelectPage(String[] query) {
-        return query;
+        String[] r = new String[query.length + 2];
+        r[0] = "<if test='offset != null and maxRowNumber != null'> select * from (select t.*, rownum as oracle__rownum__ from (</if>";
+        System.arraycopy(query, 0, r, 1, query.length);
+        r[r.length - 1] = "<if test='offset != null and maxRowNumber != null'>) t) <where> <if test='offset != null'>oracle__rownum__ &gt; #{offset,jdbcType=NUMERIC}</if> <if test='maxRowNumber != null'>and oracle__rownum__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if></where></if>";
+        return r;
     }
 
     @Override
@@ -68,10 +67,10 @@ public class MyBatisDerbySqlQueryGenerator extends MyBatisSqlQueryGenerator {
     public String selectPageAfterWhere() {
         return null;
     }
-
+    
     @Override
     public String selectPageAfterOrderBy() {
-        return "<if test='offset != null and maxRowNumber != null'><if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if><if test='maxRowNumber != null'>fetch next #{maxRowNumber,jdbcType=NUMERIC} rows only</if></if>";
+        return null;
     }
 
     @Override
@@ -86,12 +85,12 @@ public class MyBatisDerbySqlQueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public String selectOneRowAfterWhere() {
-        return null;
+        return "rownum = 1";
     }
 
     @Override
     public String selectOneRowAfterOrderBy() {
-        return "fetch next 1 rows only";
+        return null;
     }
 
     @Override
@@ -116,5 +115,5 @@ public class MyBatisDerbySqlQueryGenerator extends MyBatisSqlQueryGenerator {
     @Override
     public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
     }
-
+    
 }

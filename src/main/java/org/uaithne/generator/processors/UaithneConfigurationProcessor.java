@@ -53,6 +53,7 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setGenerateModuleAbstractExecutorsEnabled(configuration.enableModuleAbstractExecutors());
                     generationInfo.setGenerateModuleChainedExecutorsEnabled(configuration.enableModuleChainedExecutors());
                     generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(configuration.enableModuleChainedGroupingExecutors());
+                    generationInfo.setMyBatisBackends(configuration.myBatisBackendConfigurations());
                     
                     DataTypeInfo entitiesImplementsDataType;
                     try {

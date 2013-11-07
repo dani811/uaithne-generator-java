@@ -30,6 +30,9 @@ import org.uaithne.generator.commons.FieldInfo;
 public abstract class SqlGenerator implements QueryGenerator {
     
     protected ProcessingEnvironment processingEnv;
+    private boolean useAutoIncrementId;
+    private String sequenceRegex;
+    private String sequenceReplacement;
 
     @Override
     public ProcessingEnvironment getProcessingEnv() {
@@ -39,6 +42,45 @@ public abstract class SqlGenerator implements QueryGenerator {
     @Override
     public void setProcessingEnv(ProcessingEnvironment processingEnv) {
         this.processingEnv = processingEnv;
+    }
+    
+    @Override
+    public boolean useAliasInOrderByTranslation() {
+        return false;
+    }
+    
+    @Override
+    public boolean useAutoIncrementId() {
+        return useAutoIncrementId;
+    }
+    
+    @Override
+    public void setUseAutoIncrementId(boolean useAutoIncrementId) {
+        this.useAutoIncrementId = useAutoIncrementId;
+    }
+    
+    @Override
+    public String getSequenceRegex() {
+        return sequenceRegex;
+    }
+    
+    @Override
+    public void setSequenceRegex(String sequenceRegex) {
+        this.sequenceRegex = sequenceRegex;
+    }
+    
+    @Override
+    public String getSequenceReplacement() {
+        return sequenceReplacement;
+    }
+    
+    @Override
+    public void setSequenceReplacement(String sequenceReplacement) {
+        this.sequenceReplacement = sequenceReplacement;
+    }
+    
+    public String getSequenceName(String[] tableName) {
+        return joinsp(tableName).replaceAll(sequenceRegex, sequenceReplacement);
     }
     
     //<editor-fold defaultstate="collapsed" desc="Annotated info">
@@ -135,7 +177,7 @@ public abstract class SqlGenerator implements QueryGenerator {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < strings.length - 1; i++) {
             sb.append(strings[i]);
-            sb.append("\n");
+            sb.append(" ");
         }
         sb.append(strings[strings.length - 1]);
         return sb.toString();

@@ -16,41 +16,36 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.database.providers.sqlServer;
+package org.uaithne.generator.processors.database.providers.sql;
 
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
 
-public class MyBatisSqlServerSqlQueryGenerator extends MyBatisSqlQueryGenerator {
-    
+public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
+
     @Override
     public String currentSqlDate() {
         return "current_timestamp";
     }
-    
+
     @Override
     public String falseValue() {
-        return "0";
-    }
-    
-    @Override
-    public String trueValue() {
-        return "1";
+        return "false";
     }
 
     @Override
-    public boolean insertQueryIncludeId() {
-        return false;
+    public String trueValue() {
+        return "true";
     }
-    
+
     @Override
-    public String[] getDefaultIdNextValue(EntityInfo entity, FieldInfo field) {
+    public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
         return null;
     }
-    
+
     @Override
-    public String[] getDefaultIdCurrentValue(EntityInfo entity, FieldInfo field) {
+    public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
         return null;
     }
 
@@ -68,7 +63,7 @@ public class MyBatisSqlServerSqlQueryGenerator extends MyBatisSqlQueryGenerator 
     public String selectPageAfterWhere() {
         return null;
     }
-    
+
     @Override
     public String selectPageAfterOrderBy() {
         return "<if test='offset != null and maxRowNumber != null'><if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if><if test='maxRowNumber != null'>fetch next #{maxRowNumber,jdbcType=NUMERIC} rows only</if></if>";
@@ -116,5 +111,5 @@ public class MyBatisSqlServerSqlQueryGenerator extends MyBatisSqlQueryGenerator 
     @Override
     public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
     }
-    
+
 }

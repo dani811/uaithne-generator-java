@@ -22,6 +22,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
@@ -34,4 +35,5 @@ public @interface UaithneConfiguration {
     boolean enableModuleChainedExecutors() default true;
     boolean enableModuleChainedGroupingExecutors() default true;
     Class<?> entitiesImplements() default Void.class;
+    MyBatisBackendConfiguration[] myBatisBackendConfigurations() default {};
 }

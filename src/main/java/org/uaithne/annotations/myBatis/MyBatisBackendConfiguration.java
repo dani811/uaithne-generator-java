@@ -18,13 +18,14 @@
  */
 package org.uaithne.annotations.myBatis;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.uaithne.annotations.Ternary;
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-public @interface MyBatisDerbyMapper {
-    
+public @interface MyBatisBackendConfiguration {
+    MyBatisBackend backend();
+    String subPackageName() default "myBatis";
+    String mapperPrefix() default "MyBatis";
+    String mapperSuffix() default "Mapper";
+    String sequenceRegex() default "^(.*)$";
+    String sequenceReplacement() default "seq_$1";
+    Ternary useAutoIncrementId() default Ternary.UNSPECIFIED;
 }

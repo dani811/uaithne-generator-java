@@ -16,15 +16,22 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.annotations.myBatis;
+package org.uaithne.generator.processors.database.providers.oracle;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.uaithne.generator.commons.EntityInfo;
+import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.processors.database.providers.sql.MyBatisSql2008QueryGenerator;
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-public @interface MyBatisOracleMapper {
+public class MyBatisOracle12SqlQueryGenerator extends MyBatisSql2008QueryGenerator {
+    
+    @Override
+    public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
+        return new String[] {getSequenceName(getTableName(entity)) + ".nextval"};
+    }
+    
+    @Override
+    public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
+        return new String[] {"select " + getSequenceName(getTableName(entity)) + ".currval from dual"};
+    }
     
 }

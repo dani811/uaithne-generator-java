@@ -16,19 +16,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.generator.processors.database.providers.oracle;
+package org.uaithne.generator.processors.database.providers.sqlServer;
 
-import javax.tools.Diagnostic;
-import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
-import org.uaithne.generator.processors.database.sql.BasicSqlQueryGenerator;
+import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
 
-public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
+public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenerator {
     
     @Override
     public String currentSqlDate() {
-        return "sysdate";
+        return "current_timestamp";
     }
     
     @Override
@@ -43,21 +41,17 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     
     @Override
     public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"seq_" + getTableName(entity)[0] + ".nextval"};
+        return new String[] {"next value for " + getSequenceName(getTableName(entity))};
     }
     
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select seq_" + getTableName(entity)[0] + ".currval from dual"};
+        return new String[] {"select current_value from sys.sequences where name = '" + getSequenceName(getTableName(entity)) + "'"};
     }
 
     @Override
     public String[] envolveInSelectPage(String[] query) {
-        String[] r = new String[query.length + 2];
-        r[0] = "select * from (select t.*, rownum as oracle__rownum__ from (";
-        System.arraycopy(query, 0, r, 1, query.length);
-        r[r.length - 1] = ") t) where (@offset is null or oracle__rownum__ > @offset) and (@maxRowNumber is null or oracle__rownum__ <= @maxRowNumber)";
-        return r;
+        return query;
     }
 
     @Override
@@ -72,7 +66,7 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     
     @Override
     public String selectPageAfterOrderBy() {
-        return null;
+        return "<if test='offset != null and maxRowNumber != null'><if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if><if test='maxRowNumber != null'>fetch next #{maxRowNumber,jdbcType=NUMERIC} rows only</if></if>";
     }
 
     @Override
@@ -87,12 +81,12 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
 
     @Override
     public String selectOneRowAfterWhere() {
-        return "rownum = 1";
+        return null;
     }
 
     @Override
     public String selectOneRowAfterOrderBy() {
-        return null;
+        return "fetch next 1 rows only";
     }
 
     @Override
@@ -116,37 +110,6 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
 
     @Override
     public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
-    }
-
-    @Override
-    public void appendOrderBy(StringBuilder result, FieldInfo orderBy, CustomSqlQuery customQuery) {
-        if (orderBy != null) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql order by generation", orderBy.getElement());
-        }
-    }
-    
-    @Override
-    public void appendStartSetValueIfNotNull(StringBuilder result, FieldInfo field) {
-        result.append(getColumnName(field))
-                .append(" = ")
-                .append("NVL(")
-                .append(getParameterValue(field))
-                .append(", ")
-                .append(getColumnName(field))
-                .append(")");
-    }
-    
-    @Override
-    public void appendEndSetValueIfNotNull(StringBuilder result, boolean requireComma) {
-        if (requireComma) {
-            result.append(",");
-        }
-        
-    }
-
-    @Override
-    public String getParameterValue(FieldInfo field) {
-        return "@" + field.getName();
     }
     
 }

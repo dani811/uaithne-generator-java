@@ -25,6 +25,12 @@ import org.uaithne.generator.commons.OperationInfo;
 public interface QueryGenerator {
     public ProcessingEnvironment getProcessingEnv();
     public void setProcessingEnv(ProcessingEnvironment processingEnv);
+    public boolean useAutoIncrementId();
+    public void setUseAutoIncrementId(boolean useAutoIncrementId);
+    public String getSequenceRegex();
+    public void setSequenceRegex(String sequenceRegex);
+    public String getSequenceReplacement();
+    public void setSequenceReplacement(String sequenceReplacement);
     public String[] getSelectManyQuery(OperationInfo operation);
     public String[] getSelectOneQuery(OperationInfo operation);
     public String[] getSelectPageCountQuery(OperationInfo operation);
@@ -38,4 +44,5 @@ public interface QueryGenerator {
     public String[] getCustomDeleteQuery(OperationInfo operation);
     public String[] getCustomInsertQuery(OperationInfo operation);
     public String[] getCustomUpdateQuery(OperationInfo operation);
+    public boolean useAliasInOrderByTranslation();
 }
