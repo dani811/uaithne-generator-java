@@ -35,14 +35,14 @@ import org.uaithne.generator.commons.*;
 public abstract class SqlQueryGenerator extends SqlGenerator {
     
     //<editor-fold defaultstate="collapsed" desc="Complete query">
-    public String[] completeQuery(String[] query, OperationInfo operation, boolean count) {
+    public String[] completeQuery(String[] query, OperationInfo operation, boolean count, boolean selectPage) {
         CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
         String completed;
         if (query == null) {
-            completed = completeQueryWithoutEnvolve(null, operation, count, customQuery);
+            completed = completeQueryWithoutEnvolve(null, operation, count, selectPage, customQuery);
         } else {
             completed = joinln(query);
-            completed = completeQueryWithoutEnvolve(completed, operation, count, customQuery);
+            completed = completeQueryWithoutEnvolve(completed, operation, count, selectPage, customQuery);
         }
         completed = finalizeQuery(completed, operation, customQuery);
 
@@ -60,7 +60,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     }
 
-    public String completeQueryWithoutEnvolve(String query, OperationInfo operation, boolean count, CustomSqlQuery customQuery) {
+    public String completeQueryWithoutEnvolve(String query, OperationInfo operation, boolean count, boolean selectPage, CustomSqlQuery customQuery) {
         boolean addSelect = false;
         boolean addFrom = false;
         boolean addWhere = false;
@@ -68,7 +68,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         boolean addOrderBy = false;
         boolean ignoreQuery = false;
         boolean prepend = false;
-        FieldInfo orderBy = null;
         StringBuilder appender = new StringBuilder();
         EntityInfo entity = operation.getEntity();
         if (entity != null) {
@@ -186,6 +185,19 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
             }
         }
+        
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>(0);
+        for (FieldInfo field : operation.getFields()) {
+            if (field.isManually()) {
+                continue;
+            }
+            if (field.isSetValueMark()) {
+                continue;
+            }
+            if (field.isOrderBy()) {
+                orderBys.add(field);
+            }
+        }
 
         if (prepend && !ignoreQuery) {
             appender.append(query);
@@ -194,18 +206,25 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         if (addSelect) {
             appendSelect(appender, operation, entity, count, customQuery);
         }
+        if (selectPage && !count && (addSelect || addFrom)) {
+            appendOrderByAfterSelectForSelectPage(appender, orderBys, customQuery);
+        }
         if (addFrom) {
             appendFrom(appender, entity, customQuery);
         }
         if (addWhere) {
-            orderBy = appendWhere(appender, operation, addOrderBy, customQuery, count);
+            appendWhere(appender, operation, customQuery, count);
         }
         if (addGroupBy) {
             appendGroupBy(appender, operation, entity, customQuery);
         }
         if (!count) {
             if (addOrderBy) {
-                appendOrderBy(appender, orderBy, customQuery);
+                if (selectPage) {
+                    appendOrderByForSelectPage(appender, orderBys, customQuery);
+                } else {
+                    appendOrderBy(appender, orderBys, customQuery);
+                }
             }
             if (operation.isLimitToOneResult()) {
                 String limitOne = selectOneRowAfterOrderBy();
@@ -256,6 +275,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (operation.isLimitToOneResult()) {
                 String limitOne = selectOneRowBeforeSelect();
                 if (limitOne != null && !limitOne.isEmpty()) {
+                    result.append(" ");
                     result.append(limitOne);
                     result.append(" ");
                 }
@@ -316,11 +336,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
     }
 
-    /**
-     * Return the field with the OrderBy annotation
-     */
-    public FieldInfo appendWhere(StringBuilder query, OperationInfo operation, boolean onlyOneOrderBy, CustomSqlQuery customQuery, boolean count) {
-        FieldInfo orderBy = null;
+    public void appendWhere(StringBuilder query, OperationInfo operation, CustomSqlQuery customQuery, boolean count) {
         ArrayList<FieldInfo> fields = operation.getFields();
 
         if (customQuery != null) {
@@ -330,21 +346,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 appendToQueryln(query, customQuery.beforeWhereExpression(), "    ");
                 appendToQueryln(query, customQuery.where(), "    ");
                 appendToQueryln(query, customQuery.afterWhereExpression(), "    ");
+                appendSelectPageAfterWhere(query, true);
                 appendEndWhere(query, "\n");
-
-                for (FieldInfo field : fields) {
-                    if (field.isOrderBy()) {
-                        if (orderBy != null && onlyOneOrderBy) {
-                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                                    "Only one field marked with OrderBy annotation is allowed when the query is automatically generated",
-                                    field.getElement());
-                        } else {
-                            orderBy = field;
-                        }
-                        continue;
-                    }
-                }
-                return orderBy;
             }
         }
 
@@ -360,13 +363,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 continue;
             }
             if (field.isOrderBy()) {
-                if (orderBy != null && onlyOneOrderBy) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Only one field marked with OrderBy annotation is allowed when the query is automatically generated",
-                            field.getElement());
-                } else {
-                    orderBy = field;
-                }
                 continue;
             }
             boolean optional = field.isOptional();
@@ -411,20 +407,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 hasConditions = true;
             }
         }
-        if (!count && operation.getOperationKind() == OperationKind.SELECT_PAGE) {
-            String page = selectPageAfterWhere();
-            if (page != null && !page.isEmpty()) {
-                if (requireAnd) {
-                    result.append("\n    and ");
-                } else {
-                    result.append("    ");
-                }
-                result.append(page);
-                requireAnd = true;
-                hasConditions = true;
-            }
-        }
-
         if (operation.isUseLogicalDeletion()) {
             List<FieldInfo> entityFields = operation.getEntity().getCombined().getFields();
             for (FieldInfo field : entityFields) {
@@ -442,6 +424,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     hasConditions = true;
                 }
             }
+        }
+        if (!count && operation.getOperationKind() == OperationKind.SELECT_PAGE) {
+            hasConditions = hasConditions || appendSelectPageAfterWhere(result, requireAnd);
         }
 
         if (hasConditions) {
@@ -473,7 +458,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendToQueryln(query, customQuery.afterWhereExpression(), "    ");
             appendEndWhere(query, "\n");
         }
-        return orderBy;
     }
 
     public void appendCondition(StringBuilder result, FieldInfo field, CustomSqlQuery customQuery) {
@@ -500,7 +484,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
     }
 
-    public abstract void appendOrderBy(StringBuilder result, FieldInfo orderBy, CustomSqlQuery customQuery);
+    public abstract void appendOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    public abstract void appendOrderByForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    public abstract void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Utils for generate the select query">
@@ -594,7 +580,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     public abstract String selectPageBeforeSelect();
 
-    public abstract String selectPageAfterWhere();
+    public abstract boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd);
     
     public abstract String selectPageAfterOrderBy();
 
@@ -916,7 +902,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (customQuery != null) {
                 appendToQueryln(result, customQuery.afterUpdateSetExpression(), "    ");
             }
-            appendWhere(result, operation, false, customQuery, false);
+            appendWhere(result, operation, customQuery, false);
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.value());
@@ -1003,7 +989,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     appendToQueryln(result, getTableName(entity), "    ");
                 }
             }
-            appendWhere(result, operation, false, customQuery, false);
+            appendWhere(result, operation, customQuery, false);
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.value());
@@ -1018,9 +1004,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     public String[] getSelectOneQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
         if (query == null) {
-            return completeQuery(null, operation, false);
+            return completeQuery(null, operation, false, false);
         }
-        return completeQuery(query.value(), operation, false);
+        return completeQuery(query.value(), operation, false, false);
 
     }
 
@@ -1028,9 +1014,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     public String[] getSelectManyQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
         if (query == null) {
-            return completeQuery(null, operation, false);
+            return completeQuery(null, operation, false, false);
         }
-        return completeQuery(query.value(), operation, false);
+        return completeQuery(query.value(), operation, false, false);
     }
 
     @Override
@@ -1040,9 +1026,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             Query query = operation.getAnnotation(Query.class);
             String[] result;
             if (query == null) {
-                result = completeQuery(null, operation, false);
+                result = completeQuery(null, operation, false, true);
             } else {
-                result = completeQuery(query.value(), operation, false);
+                result = completeQuery(query.value(), operation, false, true);
             }
 
             if (result != null && result.length > 0) {
@@ -1051,7 +1037,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 return result;
             }
         }
-        return completeQuery(pageQueries.selectPage(), operation, false);
+        return completeQuery(pageQueries.selectPage(), operation, false, true);
     }
 
     @Override
@@ -1061,9 +1047,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             Query query = operation.getAnnotation(Query.class);
             String[] result;
             if (query == null) {
-                result = completeQuery(null, operation, true);
+                result = completeQuery(null, operation, true, true);
             } else {
-                result = completeQuery(query.value(), operation, true);
+                result = completeQuery(query.value(), operation, true, true);
             }
             if (result != null) {
                 String s = joinsp(result);
@@ -1079,7 +1065,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             }
             return result;
         }
-        return completeQuery(pageQueries.selectCount(), operation, true);
+        return completeQuery(pageQueries.selectCount(), operation, true, true);
     }
     //</editor-fold>
 

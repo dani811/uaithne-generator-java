@@ -18,6 +18,7 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
+import java.util.ArrayList;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
@@ -66,8 +67,8 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
-    public String selectPageAfterWhere() {
-        return null;
+    public boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd) {
+        return false;
     }
     
     @Override
@@ -119,8 +120,8 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
-    public void appendOrderBy(StringBuilder result, FieldInfo orderBy, CustomSqlQuery customQuery) {
-        if (orderBy != null) {
+    public void appendOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        for (FieldInfo orderBy : orderBys) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql order by generation", orderBy.getElement());
         }
     }
@@ -147,6 +148,15 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     @Override
     public String getParameterValue(FieldInfo field) {
         return "@" + field.getName();
+    }
+
+    @Override
+    public void appendOrderByForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOrderBy(result, orderBys, customQuery);
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
     
 }

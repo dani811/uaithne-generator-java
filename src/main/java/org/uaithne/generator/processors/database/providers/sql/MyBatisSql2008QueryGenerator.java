@@ -18,6 +18,9 @@
  */
 package org.uaithne.generator.processors.database.providers.sql;
 
+import java.util.ArrayList;
+import javax.tools.Diagnostic;
+import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
@@ -41,11 +44,17 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                            "Unable to automatically generate the next and current id value query",
+                            field.getElement());
         return null;
     }
 
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                            "Unable to automatically generate the current and next id value query",
+                            field.getElement());
         return null;
     }
 
@@ -60,13 +69,16 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
-    public String selectPageAfterWhere() {
-        return null;
+    public boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd) {
+        return false;
     }
 
     @Override
     public String selectPageAfterOrderBy() {
-        return "<if test='offset != null and maxRowNumber != null'><if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if><if test='maxRowNumber != null'>fetch next #{maxRowNumber,jdbcType=NUMERIC} rows only</if></if>";
+        return "<if test='offset != null or maxRowNumber != null'>\n"
+             + "    <if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if>\n"
+             + "    <if test='maxRowNumber != null'>fetch next #{limit,jdbcType=NUMERIC} rows only</if>\n"
+             + "</if>";
     }
 
     @Override
@@ -110,6 +122,15 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    }
+
+    @Override
+    public void appendOrderByForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOrderBy(result, orderBys, customQuery);
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
 }

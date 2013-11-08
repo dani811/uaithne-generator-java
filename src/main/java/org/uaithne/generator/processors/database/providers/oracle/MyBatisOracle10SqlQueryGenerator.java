@@ -18,6 +18,8 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
+import java.util.ArrayList;
+import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
@@ -51,10 +53,17 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public String[] envolveInSelectPage(String[] query) {
-        String[] r = new String[query.length + 2];
-        r[0] = "<if test='offset != null and maxRowNumber != null'> select * from (select t.*, rownum as oracle__rownum__ from (</if>";
-        System.arraycopy(query, 0, r, 1, query.length);
-        r[r.length - 1] = "<if test='offset != null and maxRowNumber != null'>) t) <where> <if test='offset != null'>oracle__rownum__ &gt; #{offset,jdbcType=NUMERIC}</if> <if test='maxRowNumber != null'>and oracle__rownum__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if></where></if>";
+        String[] r = new String[query.length + 9];
+        r[0] = "<if test='offset != null or maxRowNumber != null'> select * from (</if>";
+        r[1] = "";
+        System.arraycopy(query, 0, r, 2, query.length);
+        r[r.length - 7] = "";
+        r[r.length - 6] = "<if test='offset != null or maxRowNumber != null'> ) t";
+        r[r.length - 5] = "    <where>";
+        r[r.length - 4] = "        <if test='offset != null'>rownumber__ &gt; #{offset,jdbcType=NUMERIC}</if>";
+        r[r.length - 3] = "        <if test='maxRowNumber != null'>and rownumber__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if>";
+        r[r.length - 2] = "    </where>";
+        r[r.length - 1] = "</if>";
         return r;
     }
 
@@ -64,8 +73,8 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
-    public String selectPageAfterWhere() {
-        return null;
+    public boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd) {
+        return false;
     }
     
     @Override
@@ -114,6 +123,15 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    }
+
+    @Override
+    public void appendOrderByForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOptionalOrderByContent(result, orderBys, ",\n    ", "", ", ", "row_number() over (order by ", ") as rownumber__");
     }
     
 }

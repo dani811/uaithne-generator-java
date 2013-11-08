@@ -18,6 +18,8 @@
  */
 package org.uaithne.generator.processors.database.providers.sqlServer;
 
+import java.util.ArrayList;
+import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
@@ -51,7 +53,18 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
 
     @Override
     public String[] envolveInSelectPage(String[] query) {
-        return query;
+        String[] r = new String[query.length + 9];
+        r[0] = "<if test='offset != null or maxRowNumber != null'> select * from (</if>";
+        r[1] = "";
+        System.arraycopy(query, 0, r, 2, query.length);
+        r[r.length - 7] = "";
+        r[r.length - 6] = "<if test='offset != null or maxRowNumber != null'> ) t";
+        r[r.length - 5] = "    <where>";
+        r[r.length - 4] = "        <if test='offset != null'>rownumber__ &gt; #{offset,jdbcType=NUMERIC}</if>";
+        r[r.length - 3] = "        <if test='maxRowNumber != null'>and rownumber__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if>";
+        r[r.length - 2] = "    </where>";
+        r[r.length - 1] = "</if>";
+        return r;
     }
 
     @Override
@@ -60,13 +73,13 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     }
 
     @Override
-    public String selectPageAfterWhere() {
-        return null;
+    public boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd) {
+        return false;
     }
     
     @Override
     public String selectPageAfterOrderBy() {
-        return "<if test='offset != null and maxRowNumber != null'><if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if><if test='maxRowNumber != null'>fetch next #{maxRowNumber,jdbcType=NUMERIC} rows only</if></if>";
+        return null;
     }
 
     @Override
@@ -76,7 +89,7 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
 
     @Override
     public String selectOneRowBeforeSelect() {
-        return null;
+        return "top 1";
     }
 
     @Override
@@ -86,7 +99,7 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
 
     @Override
     public String selectOneRowAfterOrderBy() {
-        return "fetch next 1 rows only";
+        return null;
     }
 
     @Override
@@ -110,6 +123,15 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
 
     @Override
     public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    }
+
+    @Override
+    public void appendOrderByForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOptionalOrderByContent(result, orderBys, ",\n    ", "", ", ", "row_number() over (order by ", ") as rownumber__");
     }
     
 }

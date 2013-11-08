@@ -18,6 +18,8 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
+import java.util.ArrayList;
+import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
@@ -52,6 +54,7 @@ public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerato
     @Override
     public String[] envolveInSelectPage(String[] query) {
         String[] r = new String[query.length + 2];
+        // Note: 'offset != null and maxRowNumber != null' must be 'offset != null or maxRowNumber != null'
         r[0] = "<if test='offset != null and maxRowNumber != null'> select * from (select t.*, rownum as oracle__rownum__ from (</if>";
         System.arraycopy(query, 0, r, 1, query.length);
         r[r.length - 1] = "<if test='offset != null and maxRowNumber != null'>) t) <where> <if test='offset != null'>oracle__rownum__ &gt; #{offset,jdbcType=NUMERIC}</if> <if test='maxRowNumber != null'>and oracle__rownum__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if></where></if>";
@@ -64,8 +67,8 @@ public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerato
     }
 
     @Override
-    public String selectPageAfterWhere() {
-        return null;
+    public boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd) {
+        return false;
     }
     
     @Override
@@ -114,6 +117,15 @@ public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerato
 
     @Override
     public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
+    }
+
+    @Override
+    public void appendOrderByForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOrderBy(result, orderBys, customQuery);
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
     
 }

@@ -18,6 +18,7 @@
  */
 package org.uaithne.generator.processors.database.myBatis;
 
+import java.util.ArrayList;
 import org.uaithne.annotations.Comparator;
 import static org.uaithne.annotations.Comparator.CONTAINS;
 import static org.uaithne.annotations.Comparator.CONTAINS_INSENSITIVE;
@@ -53,7 +54,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     
     //<editor-fold defaultstate="collapsed" desc="Order by">
     @Override
-    public void appendOrderBy(StringBuilder result, FieldInfo orderBy, CustomSqlQuery customQuery) {
+    public void appendOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         if (customQuery != null) {
             if (hasQueryValue(customQuery.orderBy())) {
                 result.append("\norder by");
@@ -63,45 +64,83 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             } else if (hasQueryValue(customQuery.beforeOrderByExpression()) || hasQueryValue(customQuery.afterOrderByExpression())) {
                 result.append("\norder by");
                 appendToQueryln(result, customQuery.beforeOrderByExpression(), "    ");
-                if (orderBy != null) {
-                    if (orderBy.isOptional()) {
-                        result.append("\n    <if test='");
-                        result.append(orderBy.getName());
-                        result.append(" != null'> ${");
-                        result.append(orderBy.getName());
-                        result.append("} </if>");
-                    } else {
-                        result.append("\n    ${");
-                        result.append(orderBy.getName());
-                        result.append("}");
-                    }
-                }
+                appendOrderByContent(result, orderBys, "\n    ", ",\n    ");
                 appendToQueryln(result, customQuery.afterOrderByExpression(), "    ");
-            } else if (orderBy != null) {
-                if (orderBy.isOptional()) {
-                    result.append("\n<if test='");
-                    result.append(orderBy.getName());
-                    result.append(" != null'> order by ${");
-                    result.append(orderBy.getName());
-                    result.append("} </if>");
-                } else {
-                    result.append("\norder by ${");
-                    result.append(orderBy.getName());
-                    result.append("}");
-                }
+            } else {
+                appendOptionalOrderByContent(result, orderBys, "\n", "", ", ", "order by ", " ");
             }
-        } else if (orderBy != null) {
+        } else {
+            appendOptionalOrderByContent(result, orderBys, "\n", "", ", ", "order by ", " ");
+        }
+    }
+    
+    public void appendOrderByContent(StringBuilder result, ArrayList<FieldInfo> orderBys, String separator, String commaSeparator) {
+        boolean requireComma = false;
+        for (FieldInfo orderBy : orderBys) {
+            if (requireComma) {
+                result.append(commaSeparator);
+            } else {
+                result.append(separator);
+            }
             if (orderBy.isOptional()) {
-                result.append("\n<if test='");
+                result.append("<if test='");
                 result.append(orderBy.getName());
-                result.append(" != null'> order by ${");
+                result.append(" != null'> ${");
                 result.append(orderBy.getName());
                 result.append("} </if>");
             } else {
-                result.append("\norder by ${");
+                result.append("${");
                 result.append(orderBy.getName());
                 result.append("}");
             }
+        }
+    }
+    
+    public void appendOptionalOrderByContent(StringBuilder result, ArrayList<FieldInfo> orderBys, String start, String separator, String commaSeparator, String startOrderBy, String endOrderBy) {
+        if (orderBys.isEmpty()) {
+            return;
+        }
+        
+        boolean requireComma = false;
+        boolean optional = false;
+        result.append(start);
+        for (FieldInfo orderBy : orderBys) {
+            optional = optional || orderBy.isOptional();
+        }
+        if (optional) {
+            result.append("<if test='");
+            boolean requireOr = false;
+            for (FieldInfo orderBy : orderBys) {
+                if (requireOr) {
+                    result.append(" or ");
+                }
+                result.append(orderBy.getName());
+                result.append(" != null");
+            }
+            result.append("'> ");
+        }
+        result.append(startOrderBy);
+        for (FieldInfo orderBy : orderBys) {
+            if (requireComma) {
+                result.append(commaSeparator);
+            } else {
+                result.append(separator);
+            }
+            if (orderBy.isOptional() && orderBys.size() > 1) {
+                result.append("<if test='");
+                result.append(orderBy.getName());
+                result.append(" != null'> ${");
+                result.append(orderBy.getName());
+                result.append("} </if>");
+            } else {
+                result.append("${");
+                result.append(orderBy.getName());
+                result.append("}");
+            }
+        }
+        result.append(endOrderBy);
+        if (optional) {
+            result.append("</if>");
         }
     }
     //</editor-fold>
