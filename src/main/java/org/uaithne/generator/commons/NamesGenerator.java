@@ -90,6 +90,7 @@ public class NamesGenerator {
     public static DataTypeInfo createEntityDataType(TypeElement element) {
         // TODO: add generic params support
         String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
+        simpleName = Utils.firstUpper(simpleName);
         String packageName = element.getQualifiedName().toString();
         int lastDot = packageName.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < packageName.length()) {
