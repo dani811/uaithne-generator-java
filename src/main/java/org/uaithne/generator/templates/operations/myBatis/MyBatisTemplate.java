@@ -113,12 +113,13 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         appender.append("\n");
 
         writeExecuteMethods(appender);
-        appender.append("\n");
 
         for (OperationInfo operation : getExecutorModule().getOperations()) {
             if (operation.isManually() || operation.getOperationKind() == OperationKind.CUSTOM) {
                 continue;
             }
+            
+            appender.append("\n");
 
             if (operation.getOperationKind() == OperationKind.INSERT && !operation.isReturnIdFromObjectWhenInsert()) {
                 appender.append("    public ").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(" getLastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("() {\n"
