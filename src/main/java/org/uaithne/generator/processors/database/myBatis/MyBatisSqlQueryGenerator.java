@@ -227,7 +227,9 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             case EQUAL:      return "[[column]] = [[value]]";
             case NOT_EQUAL:  return "[[column]] &lt;&gt; [[value]]";
             case EQUAL_NULLABLE:         return "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>";
-            case NOT_EQUAL_NULLABLE:     return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
+            case EQUAL_NOT_NULLABLE:     return "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
+            case NOT_EQUAL_NULLABLE:     return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>";
+            case NOT_EQUAL_NOT_NULLABLE: return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
             case SMALLER:    return "[[column]] &lt; [[value]]";
             case LARGER:     return "[[column]] &gt; [[value]]";
             case SMALL_AS:   return "[[column]] &lt;= [[value]]";

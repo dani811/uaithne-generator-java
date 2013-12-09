@@ -106,7 +106,9 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
             case EQUAL:      return "[[column]] = [[value]]";
             case NOT_EQUAL:  return "[[column]] <> [[value]]";
             case EQUAL_NULLABLE:         return "(([[value]] is null and [[column]] is null) or ([[column]] = [[value]]))";
-            case NOT_EQUAL_NULLABLE:     return "(([[value]] is not null and [[column]] <> [[value]]) or ([[value]] is null and [[column]] is not null))";
+            case EQUAL_NOT_NULLABLE:     return "(([[value]] is null and [[column]] is not null) or ([[column]] = [[value]]))";
+            case NOT_EQUAL_NULLABLE:     return "(([[value]] is not null and [[column]] <> [[value]]) or ([[value]] is null and [[column]] is null))";
+            case NOT_EQUAL_NOT_NULLABLE: return "(([[value]] is not null and [[column]] <> [[value]]) or ([[value]] is null and [[column]] is not null))";
             case SMALLER:    return "[[column]] < [[value]]";
             case LARGER:     return "[[column]] > [[value]]";
             case SMALL_AS:   return "[[column]] <= [[value]]";
