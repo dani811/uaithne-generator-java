@@ -348,6 +348,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 appendToQueryln(query, customQuery.afterWhereExpression(), "    ");
                 appendSelectPageAfterWhere(query, true);
                 appendEndWhere(query, "\n");
+                return;
             }
         }
 
