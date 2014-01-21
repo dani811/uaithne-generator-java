@@ -141,6 +141,18 @@ public class OperationInfo {
         }
         return null;
     }
+    
+    public boolean hasReferenceToField(FieldInfo fieldInfo) {
+        for (FieldInfo field : fields) {
+            if (field == fieldInfo) {
+                return true;
+            }
+            if (field.getRelated() == fieldInfo) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public EntityInfo getEntity() {
         return entity;

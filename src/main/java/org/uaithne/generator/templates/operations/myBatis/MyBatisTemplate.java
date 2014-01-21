@@ -275,9 +275,24 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 case CUSTOM_INSERT_WITH_ID: {
                     appender.append("        SqlSession session = getSession();\n"
                             + "        int i = session.insert(\"").append(operation.getQueryId()).append("\", operation);\n"
-                            + "        if (i == 1) {\n"
-                            + "            ").append(returnTypeName).append(" result = session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
-                            + "            return result;\n"
+                            + "        if (i == 1) {\n");
+                    
+                    FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
+                    if (operation.isReturnIdFromObjectWhenInsert()) {
+                        appender.append("            ").append(returnTypeName).append(" result = ").append("operation.");
+                        if (idField.getDataType().isPrimitiveBoolean()) {
+                            appender.append("is");
+                        } else {
+                            appender.append("get");
+                        }
+                        appender.append(idField.getCapitalizedName()).append("();\n");
+                    } else {
+                        appender.append("            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n");
+                        if (operation.hasReferenceToField(idField)) {
+                            appender.append("            operation.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        }
+                    }
+                    appender.append("            return result;\n"
                             + "        } else {\n"
                             + "            throw new IllegalStateException(\"Unable to insert. Operation: \" + operation + \". Insertion result: \" + i);\n"
                             + "        }\n");
