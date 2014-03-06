@@ -18,6 +18,7 @@
  */
 package org.uaithne.generator.processors.database.providers.postgreSql;
 
+import org.uaithne.annotations.Comparator;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.providers.sql.MyBatisSql2008QueryGenerator;
@@ -34,4 +35,22 @@ public class MyBatisPostgreSql2008QueryGenerator extends MyBatisSql2008QueryGene
         return new String[] {"select currval('" + getSequenceName(getTableName(entity)) + "')"};
     }
 
+    @Override
+    public String translateComparator(Comparator comparator) {
+        if (comparator == null) {
+            return super.translateComparator(comparator);
+        }
+        switch (comparator) {
+            case LIKE_INSENSITIVE:       return "[[column]] ilike [[value]]";
+            case NOT_LIKE_INSENSITIVE:   return "[[column]] not ilike [[value]]";
+            case START_WITH_INSENSITIVE:     return "[[column]] ilike ([[value]] || '%')";
+            case NOT_START_WITH_INSENSITIVE: return "[[column]] not ilike ([[value]] || '%')";
+            case END_WITH_INSENSITIVE:       return "[[column]] ilike ('%' || [[value]])";
+            case NOT_END_WITH_INSENSITIVE:   return "[[column]] not ilike ('%' || [[value]])";
+            case CONTAINS_INSENSITIVE:       return "[[column]] ilike ('%' || [[value]] || '%')";
+            case NOT_CONTAINS_INSENSITIVE:   return "[[column]] not ilike ('%' || [[value]] || '%')";
+            default:
+                return super.translateComparator(comparator);
+        }
+    }
 }
