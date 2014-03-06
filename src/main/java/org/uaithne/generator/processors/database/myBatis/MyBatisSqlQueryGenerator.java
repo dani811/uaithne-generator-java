@@ -242,12 +242,12 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             case NOT_LIKE_INSENSITIVE:   return "lower([[column]]) not like lower([[value]])";
             case START_WITH:     return "[[column]] like ([[value]] || '%')";
             case NOT_START_WITH: return "[[column]] not like ([[value]] || '%')";
-            case END_WITH:       return "[[column]] like ('%' || [[value]]";
-            case NOT_END_WITH:   return "[[column]] not like ('%' || [[value]]";
+            case END_WITH:       return "[[column]] like ('%' || [[value]])";
+            case NOT_END_WITH:   return "[[column]] not like ('%' || [[value]])";
             case START_WITH_INSENSITIVE:     return "lower([[column]]) like (lower([[value]]) || '%')";
             case NOT_START_WITH_INSENSITIVE: return "lower([[column]]) not like (lower([[value]]) || '%')";
-            case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]])";
-            case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]])";
+            case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]]))";
+            case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' || lower([[value]]))";
             case CONTAINS:       return "[[column]] like ('%' || [[value]] || '%')";
             case NOT_CONTAINS:   return "[[column]] not like ('%' || [[value]] || '%')";
             case CONTAINS_INSENSITIVE:       return "lower([[column]]) like ('%' || lower([[value]]) || '%')";
