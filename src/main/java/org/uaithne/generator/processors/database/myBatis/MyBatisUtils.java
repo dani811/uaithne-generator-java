@@ -52,9 +52,9 @@ public class MyBatisUtils {
         } else if ("Timestamp".equals(name)) {
             return ",jdbcType=TIMESTAMP";
         } else if ("Boolean".equals(name)) {
-            return ",jdbcType=BIT";
+            return ",jdbcType=BOOLEAN";
         } else if ("boolean".equals(name)) {
-            return ",jdbcType=BIT";
+            return ",jdbcType=BOOLEAN";
         } else if ("List<String>".equals(name)) {
             return ",jdbcType=VARCHAR";
         } else if ("ArrayList<String>".equals(name)) {
@@ -72,9 +72,9 @@ public class MyBatisUtils {
         } else if ("ArrayList<Timestamp>".equals(name)) {
             return ",jdbcType=TIMESTAMP";
         } else if ("List<Boolean>".equals(name)) {
-            return ",jdbcType=BIT";
+            return ",jdbcType=BOOLEAN";
         } else if ("ArrayList<Boolean>".equals(name)) {
-            return ",jdbcType=BIT";
+            return ",jdbcType=BOOLEAN";
         } else {
             return ",jdbcType=NUMERIC";
         }
