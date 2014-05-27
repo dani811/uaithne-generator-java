@@ -87,7 +87,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             appender.append("    @Override\n");
         }
         if (field.isDeprecated()) {
-            appender.append("    @Deprecated");
+            appender.append("    @Deprecated\n");
         }
 
         appender.append("    public ").append(field.getDataType().getSimpleName());
@@ -107,7 +107,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             appender.append("    @Override\n");
         }
         if (field.isDeprecated()) {
-            appender.append("    @Deprecated");
+            appender.append("    @Deprecated\n");
         }
         appender.append("    public void set").append(field.getCapitalizedName()).append("(").append(field.getDataType().getSimpleName()).append(" ").append(field.getName()).append(") {\n");
         appender.append("        this.").append(field.getName()).append(" = ").append(field.getName()).append(";\n");
@@ -135,8 +135,10 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             appender.append("            \"").append(field.getName()).append("=\" + ").append(field.getName()).append(" + ");
         }
         if (callSuper) {
-            appender.append("\"| \" +\n"
-                    + "            \"superclass=\" + super.toString() +");
+            if (requireSeparator) {
+                appender.append("\"| \" +\n");
+            }
+            appender.append("            \"superclass=\" + super.toString() +");
             requireSeparator = true;
         }
         if (requireSeparator) {
