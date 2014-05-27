@@ -19,6 +19,7 @@
 package org.uaithne.generator.commons;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.HashSet;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
@@ -50,6 +51,7 @@ public class FieldInfo {
     private FieldInfo related;
     private boolean deprecated;
     private boolean excludedFromConstructor;
+    private HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
 
     public String[] getDocumentation() {
         if (documentation == null && related != null) {
@@ -123,17 +125,36 @@ public class FieldInfo {
     }
     
     public <A extends Annotation> A getAnnotation(Class<A> type) {
-        if (element == null) {
-            if (related != null) {
-                return related.getAnnotation(type);
-            }
-            return null;
-        }
-        A a = element.getAnnotation(type);
+        A a = getOwnAnnotation(type);
         if (a == null && related != null) {
             return related.getAnnotation(type);
-        } 
+        }
         return a;
+    }
+    
+    public <A extends Annotation> A getOwnAnnotation(Class<A> type) {
+        A annotation = (A) annotations.get(type);
+        if (annotation != null) {
+            return annotation;
+        }
+        if (annotations.containsKey(type)) {
+            return null;
+        }
+        if (element == null) {
+            annotations.put(type, null);
+            return null;
+        }
+        annotation = element.getAnnotation(type);
+        annotations.put(type, annotation);
+        return annotation;
+    }
+    
+    public void addAnnotation(Annotation annotation) {
+        annotations.put(annotation.annotationType(), annotation);
+    }
+    
+    public <A extends Annotation> void removeAnnotation(Class<A> type) {
+        annotations.put(type, null);
     }
     
     public boolean isOptional() {

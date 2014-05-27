@@ -40,6 +40,7 @@ public class ExecutorModuleInfo {
     private boolean containOrderedOperations;
     private boolean containPagedOperations;
     private String[] documentation;
+    private HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
 
     public HashMap<String, OperationInfo> getOperationsByRealName() {
         return operationsByRealName;
@@ -157,10 +158,28 @@ public class ExecutorModuleInfo {
     }
     
     public <A extends Annotation> A getAnnotation(Class<A> type) {
-        if (element == null) {
+        A annotation = (A) annotations.get(type);
+        if (annotation != null) {
+            return annotation;
+        }
+        if (annotations.containsKey(type)) {
             return null;
         }
-        return element.getAnnotation(type);
+        if (element == null) {
+            annotations.put(type, null);
+            return null;
+        }
+        annotation = element.getAnnotation(type);
+        annotations.put(type, annotation);
+        return annotation;
+    }
+    
+    public void addAnnotation(Annotation annotation) {
+        annotations.put(annotation.annotationType(), annotation);
+    }
+    
+    public <A extends Annotation> void removeAnnotation(Class<A> type) {
+        annotations.put(type, null);
     }
 
     public boolean isContainOrderedOperations() {

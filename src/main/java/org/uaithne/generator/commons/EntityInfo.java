@@ -20,6 +20,7 @@ package org.uaithne.generator.commons;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -45,6 +46,7 @@ public class EntityInfo {
     private boolean ignoreLogicalDeletion;
     private FieldInfo firstIdField;
     private boolean deprecated;
+    private HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
 
     public String[] getDocumentation() {
         return documentation;
@@ -141,10 +143,28 @@ public class EntityInfo {
     }
     
     public <A extends Annotation> A getAnnotation(Class<A> type) {
-        if (element == null) {
+        A annotation = (A) annotations.get(type);
+        if (annotation != null) {
+            return annotation;
+        }
+        if (annotations.containsKey(type)) {
             return null;
         }
-        return element.getAnnotation(type);
+        if (element == null) {
+            annotations.put(type, null);
+            return null;
+        }
+        annotation = element.getAnnotation(type);
+        annotations.put(type, annotation);
+        return annotation;
+    }
+    
+    public void addAnnotation(Annotation annotation) {
+        annotations.put(annotation.annotationType(), annotation);
+    }
+    
+    public <A extends Annotation> void removeAnnotation(Class<A> type) {
+        annotations.put(type, null);
     }
 
     public EntityInfo getCombined() {
@@ -256,6 +276,12 @@ public class EntityInfo {
         deprecated = element.getAnnotation(Deprecated.class) != null;
     }
 
+    public EntityInfo(DataTypeInfo dataType, EntityKind entityKind) {
+        this.dataType = dataType;
+        this.entityKind = entityKind;
+        this.realName = dataType.getQualifiedNameWithoutGenerics();
+    }
+    
     private EntityInfo() {
         
     }
@@ -288,6 +314,7 @@ public class EntityInfo {
         if (combined.firstIdField == null) {
             combined.firstIdField = other.firstIdField;
         }
+        combined.annotations.putAll(this.annotations);
     }
     
 }

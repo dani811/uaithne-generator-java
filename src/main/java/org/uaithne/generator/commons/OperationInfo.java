@@ -20,6 +20,7 @@ package org.uaithne.generator.commons;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -28,6 +29,7 @@ import org.uaithne.annotations.IgnoreLogicalDeletion;
 import org.uaithne.annotations.Manually;
 
 public class OperationInfo {
+
     private String[] documentation;
     private String realName;
     private DataTypeInfo returnDataType;
@@ -49,6 +51,7 @@ public class OperationInfo {
     private String countQueryId;
     private boolean returnIdFromObjectWhenInsert;
     private boolean deprecated;
+    private HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
 
     public String[] getDocumentation() {
         return documentation;
@@ -81,7 +84,7 @@ public class OperationInfo {
     public void setOneItemReturnDataType(DataTypeInfo oneItemReturnDataType) {
         this.oneItemReturnDataType = oneItemReturnDataType;
     }
-    
+
     public DataTypeInfo getResultItem() {
         if (oneItemReturnDataType != null) {
             return oneItemReturnDataType;
@@ -117,7 +120,7 @@ public class OperationInfo {
     public HashSet<DataTypeInfo> getImplement() {
         return implement;
     }
-    
+
     public void addImplement(DataTypeInfo name) {
         implement.add(name);
     }
@@ -125,23 +128,23 @@ public class OperationInfo {
     public ArrayList<FieldInfo> getFields() {
         return fields;
     }
-    
+
     public void addField(FieldInfo fieldInfo) {
         fields.add(fieldInfo);
         if (fieldInfo.isOrderBy()) {
             ordered = true;
         }
     }
-    
+
     public FieldInfo getFieldByName(String name) {
-        for(FieldInfo field : fields) {
+        for (FieldInfo field : fields) {
             if (field.getName().equals(name)) {
                 return field;
             }
         }
         return null;
     }
-    
+
     public boolean hasReferenceToField(FieldInfo fieldInfo) {
         for (FieldInfo field : fields) {
             if (field == fieldInfo) {
@@ -169,12 +172,30 @@ public class OperationInfo {
     public void setElement(TypeElement element) {
         this.element = element;
     }
-    
+
     public <A extends Annotation> A getAnnotation(Class<A> type) {
-        if (element == null) {
+        A annotation = (A) annotations.get(type);
+        if (annotation != null) {
+            return annotation;
+        }
+        if (annotations.containsKey(type)) {
             return null;
         }
-        return element.getAnnotation(type);
+        if (element == null) {
+            annotations.put(type, null);
+            return null;
+        }
+        annotation = element.getAnnotation(type);
+        annotations.put(type, annotation);
+        return annotation;
+    }
+
+    public void addAnnotation(Annotation annotation) {
+        annotations.put(annotation.annotationType(), annotation);
+    }
+
+    public <A extends Annotation> void removeAnnotation(Class<A> type) {
+        annotations.put(type, null);
     }
 
     public OperationKind getOperationKind() {
@@ -184,7 +205,7 @@ public class OperationInfo {
     public void setOperationKind(OperationKind operationKind) {
         this.operationKind = operationKind;
     }
-    
+
     public void appendFullImports(String currentPackage, HashSet<String> imports) {
         if (extend != null) {
             extend.appendImports(currentPackage, imports);
@@ -198,12 +219,12 @@ public class OperationInfo {
         returnDataType.appendImports(currentPackage, imports);
         dataType.appendImports(currentPackage, imports);
     }
-    
+
     public void appendUseImports(String currentPackage, HashSet<String> imports) {
         returnDataType.appendImports(currentPackage, imports);
         dataType.appendImports(currentPackage, imports);
     }
-    
+
     public void appendPlainImplementationImports(String currentPackage, HashSet<String> imports) {
         for (FieldInfo field : fields) {
             field.appendImports(currentPackage, imports);
@@ -211,7 +232,7 @@ public class OperationInfo {
         returnDataType.appendImports(currentPackage, imports);
         dataType.appendImports(currentPackage, imports);
     }
-    
+
     public void appendPlainDefinitionImports(String currentPackage, HashSet<String> imports) {
         for (FieldInfo field : fields) {
             field.appendImports(currentPackage, imports);
@@ -226,11 +247,11 @@ public class OperationInfo {
     public boolean isOrdered() {
         return ordered;
     }
-    
+
     public int generateFistPrimeNumberForHashCode() {
         return dataType.generateFistPrimeNumberForHashCode();
     }
-    
+
     public int generateSecondPrimeNumberForHashCode() {
         return dataType.generateSecondPrimeNumberForHashCode();
     }
@@ -270,8 +291,10 @@ public class OperationInfo {
     public boolean isUseLogicalDeletion() {
         if (ignoreLogicalDeletion) {
             return false;
-        } else {
+        } else if (entity != null) {
             return entity.getCombined().isUseLogicalDeletion();
+        } else {
+            return false;
         }
     }
 
@@ -306,16 +329,16 @@ public class OperationInfo {
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
     }
-    
+
     public OperationInfo(TypeElement classElement, String packageName) {
         element = classElement;
         realName = classElement.getQualifiedName().toString();
         dataType = NamesGenerator.createOperationDataType(element, packageName);
-        
+
         String elementName = classElement.getSimpleName().toString();
         elementName = Utils.dropFirstUnderscore(elementName);
         methodName = Utils.firstLower(elementName);
-        
+
         extend = NamesGenerator.createDataTypeFor(classElement.getSuperclass());
         if (extend != null && extend.isObject()) {
             extend = null;
@@ -328,12 +351,12 @@ public class OperationInfo {
         }
         manually = classElement.getAnnotation(Manually.class) != null;
         ignoreLogicalDeletion = classElement.getAnnotation(IgnoreLogicalDeletion.class) != null;
-        
+
         Doc doc = element.getAnnotation(Doc.class);
         if (doc != null) {
             documentation = doc.value();
         }
-        
+
         deprecated = element.getAnnotation(Deprecated.class) != null;
     }
 
@@ -341,5 +364,4 @@ public class OperationInfo {
         this.dataType = dataType;
         methodName = Utils.firstLower(dataType.getSimpleNameWithoutGenerics());
     }
-
 }
