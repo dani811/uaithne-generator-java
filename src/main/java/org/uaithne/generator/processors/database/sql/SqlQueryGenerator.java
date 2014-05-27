@@ -161,10 +161,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     addGroupBy = addOrderBy = prepend = true;
                     query = query.substring(0, query.length() - "group...".length());
                 }
-            } else if (queryLowerCase.startsWith("order...")) {
+            } else if (queryLowerCase.endsWith("order...")) {
                 if (entity == null) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
                     addOrderBy = prepend = true;
@@ -177,9 +177,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
         if (customQuery != null) {
             if (hasQueryValue(customQuery.query())) {
-                appendToQueryln(appender, customQuery.beforeQuery(), "");
                 appendToQueryln(appender, customQuery.query(), "");
-                appendToQueryln(appender, customQuery.afterQuery(), "");
                 return appender.toString();
             } else if (query == null) {
                 addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
@@ -233,7 +231,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     appender.append(limitOne);
                 }
             }
-            if (operation.getOperationKind() == OperationKind.SELECT_PAGE) {
+            if (selectPage) {
                 String page = selectPageAfterOrderBy();
                 if (page != null && !page.isEmpty()) {
                     appender.append("\n");
@@ -250,16 +248,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (query != null && !query.isEmpty()) {
                 result = result + "\n" + query;
             }
-        }
-        if (customQuery != null) {
-            StringBuilder sb = new StringBuilder();
-            appendToQueryln(sb, customQuery.beforeQuery(), "");
-            if (sb.length() > 0) {
-                sb.append("\n");
-            }
-            sb.append(result);
-            appendToQueryln(sb, customQuery.afterQuery(), "");
-            result = sb.toString();
         }
         return result;
     }
@@ -451,7 +439,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     query.append(result);
                 }
             }
-        } else if (customQuery != null && (hasQueryValue(customQuery.beforeWhereExpression()) || hasQueryValue(customQuery.where()) || hasQueryValue(customQuery.afterWhereExpression())) ) {
+        } else if (customQuery != null && (hasQueryValue(customQuery.beforeWhereExpression()) || hasQueryValue(customQuery.afterWhereExpression())) ) {
             query.append("\n");
             appendStartWhere(query);
             appendToQueryln(query, customQuery.beforeWhereExpression(), "    ");
@@ -738,7 +726,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             }
 
             if (customQuery != null && hasQueryValue(customQuery.insertValues())) {
-                appendToQueryln(result, customQuery.insertInto(), "    ");
+                appendToQueryln(result, customQuery.insertValues(), "    ");
             } else {
                 result.append("\n");
                 boolean requireComma = false;
@@ -1131,7 +1119,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             }
             finalQuery = result.toString();
         } else {
-            finalQuery = joinln(query.insert());
+            finalQuery = joinln(query.selectById());
         }
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");
@@ -1391,6 +1379,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     }
                     if (requireWhere) {
                         result.append("\nwhere\n");
+                        requireWhere = false;
                     }
                     if (requireAnd) {
                         result.append("\n    and ");
@@ -1519,6 +1508,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     }
                     if (requireWhere) {
                         result.append("\nwhere\n");
+                        requireWhere = false;
                     }
                     if (requireAnd) {
                         result.append("\n    and ");
@@ -1745,7 +1735,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         matcher.appendTail(sb);
         template = sb.toString();
-
+        
         return template;
     }
 
@@ -1783,8 +1773,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 matcher.appendReplacement(result, value);
                 continue;
             } else if (rule == null || "custom".equals(rule) || "CUSTOM".equals(rule)) {
-                comparator = getComparator(field);
-                comparatorTemplate = translateComparator(comparator);
+                comparatorTemplate = matcher.group(3);
+                if(comparatorTemplate == null) {
+                    comparator = getComparator(field);
+                    comparatorTemplate = translateComparator(comparator);
+                }
                 template = getConditionTemplate(field, comparatorTemplate);
             } else if ("ifNull".equals(rule) || "IF_NULL".equals(rule)) {
                 StringBuilder sb = new StringBuilder();
@@ -1856,7 +1849,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     comparator = Comparator.CONTAINS;
                 } else if ("notContains".equals(rule) || "NOT_CONTAINS".equals(rule)) {
                     comparator = Comparator.NOT_CONTAINS;
-                } else if ("icontains".equals(rule) || "ICONTAINST".equals(rule) || "containsInsensitive".equals(rule) || "CONTAINS_INSENSITIVE".equals(rule)) {
+                } else if ("icontains".equals(rule) || "ICONTAINS".equals(rule) || "containsInsensitive".equals(rule) || "CONTAINS_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.CONTAINS_INSENSITIVE;
                 } else if ("notIcontains".equals(rule) || "NOT_ICONTAINS".equals(rule) || "notContainsInsensitive".equals(rule) || "NOT_CONTAINS_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.NOT_CONTAINS_INSENSITIVE;
