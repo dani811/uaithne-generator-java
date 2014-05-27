@@ -187,13 +187,13 @@ public abstract class SqlGenerator implements QueryGenerator {
         if (array == null || array.length <= 0) {
             return false;
         }
-        if (array.length == 1) {
-            String s = array[0];
-            if (s == null || s.isEmpty()) {
-                return false;
+        
+        for (String s : array) {
+            if (s != null && !s.isEmpty()) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
     //</editor-fold>
 
