@@ -131,7 +131,7 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
 
     @Override
     public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        appendOptionalOrderByContent(result, orderBys, ",\n    ", "", ", ", "row_number() over (order by ", ") as rownumber__");
+        appendOrderByContent(result, orderBys, ",\n    ", "", ", ", "row_number() over (order by ", ") as rownumber__");
     }
     
 }
