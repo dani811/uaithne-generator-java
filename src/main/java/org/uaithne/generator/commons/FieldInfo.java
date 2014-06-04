@@ -51,7 +51,7 @@ public class FieldInfo {
     private FieldInfo related;
     private boolean deprecated;
     private boolean excludedFromConstructor;
-    private HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
+    private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
 
     public String[] getDocumentation() {
         if (documentation == null && related != null) {

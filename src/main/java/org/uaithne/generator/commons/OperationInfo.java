@@ -51,7 +51,7 @@ public class OperationInfo {
     private String countQueryId;
     private boolean returnIdFromObjectWhenInsert;
     private boolean deprecated;
-    private HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
+    private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
 
     public String[] getDocumentation() {
         return documentation;
