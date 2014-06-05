@@ -47,8 +47,13 @@ public class EntityInfo {
     private FieldInfo firstIdField;
     private boolean deprecated;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
+    private DataTypeInfo relatedType;
+    private EntityInfo related;
 
     public String[] getDocumentation() {
+        if (documentation == null && related != null) {
+            return related.getDocumentation();
+        }
         return documentation;
     }
 
@@ -143,6 +148,14 @@ public class EntityInfo {
     }
     
     public <A extends Annotation> A getAnnotation(Class<A> type) {
+        A a = getOwnAnnotation(type);
+        if (a == null && related != null) {
+            return related.getAnnotation(type);
+        }
+        return a;
+    }
+    
+    public <A extends Annotation> A getOwnAnnotation(Class<A> type) {
         A annotation = (A) annotations.get(type);
         if (annotation != null) {
             return annotation;
@@ -249,6 +262,22 @@ public class EntityInfo {
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
     }
+
+    public DataTypeInfo getRelatedType() {
+        return relatedType;
+    }
+
+    public void setRelatedType(DataTypeInfo relatedType) {
+        this.relatedType = relatedType;
+    }
+
+    public EntityInfo getRelated() {
+        return related;
+    }
+
+    public void setRelated(EntityInfo related) {
+        this.related = related;
+    }
     
     public EntityInfo(TypeElement classElement, EntityKind entityKind) {
         element = classElement;
@@ -315,6 +344,15 @@ public class EntityInfo {
             combined.firstIdField = other.firstIdField;
         }
         combined.annotations.putAll(this.annotations);
+    }
+    
+    public void handleRelated(EntityInfo related) {
+        this.related = related;
+        EntityInfo relatedCombined = related.getCombined();
+        for (FieldInfo field : fields) {
+            FieldInfo relatedField = relatedCombined.getFieldByName(field.getName());
+            field.setRelated(relatedField);
+        }
     }
     
 }

@@ -20,7 +20,9 @@ package org.uaithne.generator.commons;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 
 public class GenerationInfo {
@@ -120,23 +122,35 @@ public class GenerationInfo {
         executorModule.addOperation(operation);
     }
 
-    public void combineAllEntities() {
+    public void combineAllEntities(boolean processRelated, ProcessingEnvironment processingEnv) {
         for (EntityInfo entity : entities) {
             entity.uncombine();
         }
         for (EntityInfo entity : entities) {
-            combineEntity(entity);
+            combineEntity(entity, processRelated, processingEnv);
         }
     }
 
-    private void combineEntity(EntityInfo entity) {
+    private void combineEntity(EntityInfo entity, boolean processRelated, ProcessingEnvironment processingEnv) {
         if (entity.getCombined() != entity) {
             return;
         }
         EntityInfo parent = getParent(entity);
         if (parent != null) {
-            combineEntity(parent);
+            combineEntity(parent, processRelated, processingEnv);
+            if (processRelated) {
+                handleRelated(entity, processingEnv);
+            }
             entity.combineWithParent(parent.getCombined());
+        } else if (processRelated) {
+            handleRelated(entity, processingEnv);
+        }
+    }
+    
+    public void handleRelated(EntityInfo entity, ProcessingEnvironment processingEnv) {
+        EntityInfo related = getRelated(entity, processingEnv);
+        if (related != null) {
+            entity.handleRelated(related);
         }
     }
 
@@ -146,6 +160,18 @@ public class GenerationInfo {
             return null;
         }
         return getEntityByName(extend);
+    }
+
+    public EntityInfo getRelated(EntityInfo entity, ProcessingEnvironment processingEnv) {
+        DataTypeInfo relatedType = entity.getRelatedType();
+        if (relatedType == null) {
+            return null;
+        }
+        EntityInfo related = getEntityByName(relatedType);
+        if (related == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", entity.getElement());
+        }
+        return related;
     }
 
     public boolean isGenerateDefaultEntityOperations() {

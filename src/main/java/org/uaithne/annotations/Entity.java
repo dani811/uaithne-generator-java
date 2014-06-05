@@ -34,4 +34,5 @@ public @interface Entity {
     Ternary generateSelectByIdOperation() default Ternary.UNSPECIFIED;
     Ternary generateUpdateOperation() default Ternary.UNSPECIFIED;
     Ternary generateMergeOperation() default Ternary.UNSPECIFIED;
+    Class<?> related() default Void.class;
 }

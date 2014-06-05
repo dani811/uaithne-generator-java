@@ -55,7 +55,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
         }
         if (generate) {
-            getGenerationInfo().combineAllEntities();
+            getGenerationInfo().combineAllEntities(false, processingEnv);
             for (ExecutorModuleInfo module : getGenerationInfo().getExecutorModules()) {
                 generateOperations(re, module);
             }

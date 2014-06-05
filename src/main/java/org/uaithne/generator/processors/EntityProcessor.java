@@ -27,6 +27,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.MirroredTypeException;
 import org.uaithne.annotations.Entity;
 import org.uaithne.annotations.EntityView;
 import org.uaithne.generator.commons.*;
@@ -42,18 +43,42 @@ public class EntityProcessor extends TemplateProcessor {
         boolean generate = false;
         for (Element element : re.getElementsAnnotatedWith(Entity.class)) {
             if (element.getKind() == ElementKind.CLASS) {
-                process(re, element, EntityKind.ENTITY);
+                EntityInfo entity = process(re, element, EntityKind.ENTITY);
                 generate = true;
+                
+                Entity entityAnnotation = entity.getAnnotation(Entity.class);
+                DataTypeInfo relatedDataType;
+                try {
+                    relatedDataType = NamesGenerator.createResultDataType(entityAnnotation.related());
+                } catch (MirroredTypeException ex) {
+                    // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                    relatedDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                }
+                if (relatedDataType != null && !relatedDataType.isVoid()) {
+                    entity.setRelatedType(relatedDataType);
+                }
             }
         }
         for (Element element : re.getElementsAnnotatedWith(EntityView.class)) {
             if (element.getKind() == ElementKind.CLASS) {
-                process(re, element, EntityKind.VIEW);
+                EntityInfo entity = process(re, element, EntityKind.VIEW);
                 generate = true;
+                
+                EntityView entityAnnotation = entity.getAnnotation(EntityView.class);
+                DataTypeInfo relatedDataType;
+                try {
+                    relatedDataType = NamesGenerator.createResultDataType(entityAnnotation.related());
+                } catch (MirroredTypeException ex) {
+                    // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                    relatedDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                }
+                if (relatedDataType != null && !relatedDataType.isVoid()) {
+                    entity.setRelatedType(relatedDataType);
+                }
             }
         }
         if (generate) {
-            getGenerationInfo().combineAllEntities();
+            getGenerationInfo().combineAllEntities(true, processingEnv);
             for (EntityInfo entity : getGenerationInfo().getEntities()) {
                 processClassTemplate(new EntityTemplate(entity), entity.getElement());
             }
@@ -61,7 +86,7 @@ public class EntityProcessor extends TemplateProcessor {
         return true; // no further processing of this annotation type
     }
 
-    public void process(RoundEnvironment re, Element element, EntityKind entityKind) {
+    public EntityInfo process(RoundEnvironment re, Element element, EntityKind entityKind) {
         TypeElement classElement = (TypeElement) element;
         EntityInfo entityInfo = new EntityInfo(classElement, entityKind);
         entityInfo.addImplement(DataTypeInfo.SERIALIZABLE_DATA_TYPE);
@@ -83,6 +108,7 @@ public class EntityProcessor extends TemplateProcessor {
             }
         }
         getGenerationInfo().addEntity(entityInfo);
+        return entityInfo;
     }
 
 }
