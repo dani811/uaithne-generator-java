@@ -25,6 +25,7 @@ import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.UseComparator;
 import org.uaithne.annotations.UseCustomComparator;
 import org.uaithne.generator.commons.EntityInfo;
+import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.FieldInfo;
 
 public abstract class SqlGenerator implements QueryGenerator {
@@ -81,6 +82,14 @@ public abstract class SqlGenerator implements QueryGenerator {
     
     public String getSequenceName(String[] tableName) {
         return joinsp(tableName).replaceAll(sequenceRegex, sequenceReplacement);
+    }
+
+    @Override
+    public void begin(ExecutorModuleInfo module, String packageName, String name) {
+    }
+
+    @Override
+    public void end() {
     }
     
     //<editor-fold defaultstate="collapsed" desc="Annotated info">

@@ -3670,7 +3670,7 @@ public class SqlQueryGeneratorTest {
             } else if ("value".equals(rule) || "VALUE".equals(rule)) {
                 return getParameterValue(field);
             } else if ("jdbcType".equals(rule) || "JDBC_TYPE".equals(rule)) {
-                return MyBatisUtils.getJdbcType(field);
+                return MyBatisUtils.getJdbcTypeAttribute(field);
             } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
                 return MyBatisUtils.getTypeHandler(processingEnv, field);
             } else {

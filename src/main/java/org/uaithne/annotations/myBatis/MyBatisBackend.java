@@ -18,9 +18,10 @@
  */
 package org.uaithne.annotations.myBatis;
 
-import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
+import org.uaithne.generator.processors.database.QueryGenerator;
 import org.uaithne.generator.processors.database.providers.derby.MyBatisDerbySql2008QueryGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10OldSqlQueryGenerator;
+import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10ProcedureGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10SqlQueryGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle12SqlQueryGenerator;
 import org.uaithne.generator.processors.database.providers.postgreSql.MyBatisPostgreSql2008QueryGenerator;
@@ -33,6 +34,7 @@ public enum MyBatisBackend {
     ORACLE_10         (MyBatisOracle10SqlQueryGenerator.class,      false ),
     ORACLE_11         (MyBatisOracle10SqlQueryGenerator.class,      false ),
     ORACLE_12         (MyBatisOracle12SqlQueryGenerator.class,      false ),
+    ORACLE_10_PROCEDURE(MyBatisOracle10ProcedureGenerator.class,     false ),
     SQL_SERVER_2005   (MyBatisSqlServer2005SqlQueryGenerator.class, true  ),
     SQL_SERVER_2008   (MyBatisSqlServer2005SqlQueryGenerator.class, true  ),
     SQL_SERVER_2008_R2(MyBatisSqlServer2005SqlQueryGenerator.class, true  ),
@@ -49,17 +51,17 @@ public enum MyBatisBackend {
     DERBY_10_10       (MyBatisDerbySql2008QueryGenerator.class,     true  ),
     SQL_2008          (MyBatisSql2008QueryGenerator.class,          true  );
     
-    private final Class genetator;
+    private final Class generator;
     private final boolean useAutoIncrementId;
 
-    private MyBatisBackend(Class genetator, boolean useAutoIncrementId) {
-        this.genetator = genetator;
+    private MyBatisBackend(Class generator, boolean useAutoIncrementId) {
+        this.generator = generator;
         this.useAutoIncrementId = useAutoIncrementId;
     }
     
-    public MyBatisSqlQueryGenerator getGenerator() {
+    public QueryGenerator getGenerator() {
         try {
-            return (MyBatisSqlQueryGenerator) genetator.newInstance();
+            return (QueryGenerator) generator.newInstance();
         } catch (InstantiationException ex) {
             throw new RuntimeException(ex);
         } catch (IllegalAccessException ex) {

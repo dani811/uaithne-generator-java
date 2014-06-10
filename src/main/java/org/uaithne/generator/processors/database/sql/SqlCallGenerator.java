@@ -61,7 +61,15 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     public abstract void appendStartCustomDeleteQuery(StringBuilder query, OperationInfo operation);
     public abstract void appendStartCustomInsertQuery(StringBuilder query, OperationInfo operation);
     public abstract void appendStartCustomUpdateQuery(StringBuilder query, OperationInfo operation);
-    public abstract void appendEndQuery(StringBuilder query, boolean requireSeparator);
+    
+    public abstract void appendEndEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator);
+    public abstract void appendEndEntityInsertQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator);
+    public abstract void appendEndEntityLastInsertedIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator);
+    public abstract void appendEndEntityMergeQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator);
+    public abstract void appendEndEntityUpdateQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator);
+    public abstract void appendEndCustomDeleteQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator);
+    public abstract void appendEndCustomInsertQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator);
+    public abstract void appendEndCustomUpdateQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator);
     
     public abstract String firstFieldSeparator();
     public abstract String fieldSeparator();
@@ -143,7 +151,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             }
         }
 
-        appendEndQuery(result, requireComma);
+        appendEndEntityInsertQuery(result, entity, operation, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
@@ -154,7 +162,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation) {
         StringBuilder result = new StringBuilder();
         appendStartEntityLastInsertedIdQuery(result, entity, operation);
-        appendEndQuery(result, false);
+        appendEndEntityLastInsertedIdQuery(result, entity, operation, false);
         
         String finalQuery = result.toString();
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
@@ -220,7 +228,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             }
         }
 
-        appendEndQuery(result, requireComma);
+        appendEndEntityUpdateQuery(result, entity, operation, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
@@ -286,7 +294,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             }
         }
 
-        appendEndQuery(result, requireComma);
+        appendEndEntityMergeQuery(result, entity, operation, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
@@ -326,7 +334,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 requireComma = true;
             }
         }
-        appendEndQuery(result, requireComma);
+        appendEndEntityDeleteByIdQuery(result, entity, operation, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
@@ -416,7 +424,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             }
         }
 
-        appendEndQuery(result, requireComma);
+        appendEndCustomInsertQuery(result, operation, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeQuery(finalQuery, operation);
@@ -459,7 +467,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             }
         }
 
-        appendEndQuery(result, requireComma);
+        appendEndCustomUpdateQuery(result, operation, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeQuery(finalQuery, operation);
@@ -502,7 +510,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             }
         }
 
-        appendEndQuery(result, requireComma);
+        appendEndCustomDeleteQuery(result, operation, requireComma);
         
         String finalQuery = result.toString();
         finalQuery = finalizeQuery(finalQuery, operation);

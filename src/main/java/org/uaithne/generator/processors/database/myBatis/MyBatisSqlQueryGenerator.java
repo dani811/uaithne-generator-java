@@ -166,7 +166,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     //<editor-fold defaultstate="collapsed" desc="Parameter">
     @Override
     public String getParameterValue(FieldInfo field) {
-        return "#{" + field.getName() + MyBatisUtils.getJdbcType(field) + MyBatisUtils.getTypeHandler(processingEnv, field) + "}";
+        return "#{" + field.getName() + MyBatisUtils.getJdbcTypeAttribute(field) + MyBatisUtils.getTypeHandler(processingEnv, field) + "}";
     }
     //</editor-fold>
 
@@ -286,7 +286,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         } else if ("value".equals(rule) || "VALUE".equals(rule)) {
             return getParameterValue(field);
         } else if ("jdbcType".equals(rule) || "JDBC_TYPE".equals(rule)) {
-            return MyBatisUtils.getJdbcType(field);
+            return MyBatisUtils.getJdbcTypeAttribute(field);
         } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
             return MyBatisUtils.getTypeHandler(processingEnv, field);
         } else {

@@ -24,34 +24,34 @@ import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.processors.database.sql.SqlCallGenerator;
 
 public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
-    
+
     public abstract String getNamePrefix();
-    
+
     @Override
     public void appendInParameter(StringBuilder query, FieldInfo field) {
         query.append("#{")
                 .append(field.getName())
-                .append(MyBatisUtils.getJdbcType(field))
+                .append(MyBatisUtils.getJdbcTypeAttribute(field))
                 .append(MyBatisUtils.getTypeHandler(processingEnv, field))
                 .append(",mode=IN}");
     }
 
     @Override
     public void appendOutParameter(StringBuilder query, FieldInfo field) {
-        
+
         query.append("#{")
                 .append(field.getName())
-                .append(MyBatisUtils.getJdbcType(field))
+                .append(MyBatisUtils.getJdbcTypeAttribute(field))
                 .append(MyBatisUtils.getTypeHandler(processingEnv, field))
                 .append(",mode=OUT}");
     }
 
     @Override
     public void appendInOutParameter(StringBuilder query, FieldInfo field) {
-        
+
         query.append("#{")
                 .append(field.getName())
-                .append(MyBatisUtils.getJdbcType(field))
+                .append(MyBatisUtils.getJdbcTypeAttribute(field))
                 .append(MyBatisUtils.getTypeHandler(processingEnv, field))
                 .append(",mode=INOUT}");
     }
@@ -61,7 +61,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("call ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
-                .append("(");
+                .append(" (");
     }
 
     @Override
@@ -69,7 +69,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("call ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
-                .append("(");
+                .append(" (");
     }
 
     @Override
@@ -78,7 +78,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
                 .append(getNamePrefix())
                 .append("lastInsertedIdFor")
                 .append(entity.getDataType().getSimpleNameWithoutGenerics())
-                .append("(");
+                .append(" (");
     }
 
     @Override
@@ -86,7 +86,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("call ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
-                .append("(");
+                .append(" (");
     }
 
     @Override
@@ -94,7 +94,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("call ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
-                .append("(");
+                .append(" (");
     }
 
     @Override
@@ -102,7 +102,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("call ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
-                .append("(");
+                .append(" (");
     }
 
     @Override
@@ -110,7 +110,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("call ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
-                .append("(");
+                .append(" (");
     }
 
     @Override
@@ -118,10 +118,49 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("call ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
-                .append("(");
+                .append(" (");
     }
 
     @Override
+    public void appendEndEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
+    @Override
+    public void appendEndEntityInsertQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
+    @Override
+    public void appendEndEntityLastInsertedIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
+    @Override
+    public void appendEndEntityMergeQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
+    @Override
+    public void appendEndEntityUpdateQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
+    @Override
+    public void appendEndCustomDeleteQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
+    @Override
+    public void appendEndCustomInsertQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
+    @Override
+    public void appendEndCustomUpdateQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator) {
+        appendEndQuery(query, requireSeparator);
+    }
+
     public void appendEndQuery(StringBuilder query, boolean requireSeparator) {
         if (requireSeparator) {
             query.append("\n)");
@@ -134,10 +173,9 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
     public String firstFieldSeparator() {
         return "\n    ";
     }
-    
+
     @Override
     public String fieldSeparator() {
         return ",\n    ";
     }
-
 }

@@ -20,6 +20,7 @@ package org.uaithne.generator.processors.database;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import org.uaithne.generator.commons.EntityInfo;
+import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
 public interface QueryGenerator {
@@ -31,6 +32,8 @@ public interface QueryGenerator {
     public void setSequenceRegex(String sequenceRegex);
     public String getSequenceReplacement();
     public void setSequenceReplacement(String sequenceReplacement);
+    public void begin(ExecutorModuleInfo module, String packageName, String name);
+    public void end();
     public String[] getSelectManyQuery(OperationInfo operation);
     public String[] getSelectOneQuery(OperationInfo operation);
     public String[] getSelectPageCountQuery(OperationInfo operation);

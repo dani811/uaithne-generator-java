@@ -23,6 +23,7 @@ import javax.tools.Diagnostic;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.Utils;
 import org.uaithne.generator.processors.database.sql.BasicSqlQueryGenerator;
 
 public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
@@ -147,7 +148,7 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
 
     @Override
     public String getParameterValue(FieldInfo field) {
-        return "@" + field.getName();
+        return "p" + Utils.firstUpper(field.getName());
     }
 
     @Override

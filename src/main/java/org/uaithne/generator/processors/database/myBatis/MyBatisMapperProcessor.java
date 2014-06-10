@@ -105,11 +105,13 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
             writer.write("<mapper namespace='");
             writer.write(namespace);
             writer.write("'>\n\n");
+            sqlGenerator.begin(module, packageName, name);
             HashSet<EntityInfo> entitiesWithLastInsertedId = new HashSet<EntityInfo>();
             for (OperationInfo operation : module.getOperations()) {
                 processOperation(sqlGenerator, operation, namespace, writer, useAutoIncrementId, entitiesWithLastInsertedId);
                 hasUnimplementedOperations = hasUnimplementedOperations || operation.isManually();
             }
+            sqlGenerator.end();
             writer.write("</mapper>");
         } catch (IOException ex) {
             Logger.getLogger(MyBatisMapperProcessor.class.getName()).log(Level.SEVERE, null, ex);
