@@ -438,9 +438,11 @@ public class DataTypeInfo {
     
     private static final String DEFAULT_SHARED_MYBATIS_PACKAGE = "org.uaithne.shared.myBatys";
     public static DataTypeInfo MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_MYBATIS_PACKAGE, "SqlSessionProvider", DEFAULT_SHARED_MYBATIS_PACKAGE + ".SqlSessionProvider");
+    public static DataTypeInfo MYBATIS_RETAIN_ID_PLUGIN_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_MYBATIS_PACKAGE, "SqlSessionProvider", DEFAULT_SHARED_MYBATIS_PACKAGE + ".SqlSessionProvider");
     
     public static void updateSharedMyBatisPackage(String sharedMyBatisPackage) {
         MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE = new DataTypeInfo(sharedMyBatisPackage, "SqlSessionProvider", sharedMyBatisPackage + ".SqlSessionProvider");
+        MYBATIS_RETAIN_ID_PLUGIN_DATA_TYPE = new DataTypeInfo(sharedMyBatisPackage, "RetainIdPlugin", sharedMyBatisPackage + ".RetainIdPlugin");
     }
     
     private static final String DEFAULT_SHARED_GWT_PACKAGE = "org.uaithne.shared.myBatys";

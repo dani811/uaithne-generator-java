@@ -49,7 +49,7 @@ public class OperationInfo {
     private boolean ignoreLogicalDeletion;
     private String queryId;
     private String countQueryId;
-    private boolean returnIdFromObjectWhenInsert;
+    private InsertedIdOrigin insertedIdOrigin;
     private boolean deprecated;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
 
@@ -314,12 +314,12 @@ public class OperationInfo {
         this.countQueryId = countQueryId;
     }
 
-    public boolean isReturnIdFromObjectWhenInsert() {
-        return returnIdFromObjectWhenInsert;
+    public InsertedIdOrigin getInsertedIdOrigin() {
+        return insertedIdOrigin;
     }
 
-    public void setReturnIdFromObjectWhenInsert(boolean returnIdFromObjectWhenInsert) {
-        this.returnIdFromObjectWhenInsert = returnIdFromObjectWhenInsert;
+    public void setInsertedIdOrigin(InsertedIdOrigin insertedIdOrigin) {
+        this.insertedIdOrigin = insertedIdOrigin;
     }
 
     public boolean isDeprecated() {

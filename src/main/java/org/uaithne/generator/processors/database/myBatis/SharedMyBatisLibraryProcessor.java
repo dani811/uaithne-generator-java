@@ -32,6 +32,7 @@ import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
 import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionProviderTemplate;
+import org.uaithne.generator.templates.shared.myBatis.RetainIdPluginTemplate;
 import org.uaithne.generator.templates.shared.myBatis.SqlSessionProviderTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -45,6 +46,7 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 TypeElement classElement = (TypeElement) element;
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
 
+                boolean includeRetainIdPlugin = true;
                 SharedMyBatisLibrary sl = element.getAnnotation(SharedMyBatisLibrary.class);
                 if (sl != null) {
                     if (packageName == null || packageName.isEmpty()) {
@@ -52,6 +54,7 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                     } else {
                         DataTypeInfo.updateSharedMyBatisPackage(packageName);
                     }
+                    includeRetainIdPlugin = sl.includeRetainIdPlugin();
                     if (!sl.generate()) {
                         continue;
                     }
@@ -60,6 +63,9 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 processClassTemplate(new SqlSessionProviderTemplate(packageName), element);
                 processClassTemplate(new ManagedSqlSessionProviderTemplate(packageName), element);
                 processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName), element);
+                if (includeRetainIdPlugin) {
+                    processClassTemplate(new RetainIdPluginTemplate(packageName), element);
+                }
             }
         }
         return true; // no further processing of this annotation type

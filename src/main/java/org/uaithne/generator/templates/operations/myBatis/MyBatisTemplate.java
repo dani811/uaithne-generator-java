@@ -23,6 +23,7 @@ import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.InsertedIdOrigin;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.commons.OperationKind;
 import org.uaithne.generator.templates.operations.ExecutorModuleTemplate;
@@ -83,6 +84,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 default:
             }
+            if (operation.getInsertedIdOrigin() == InsertedIdOrigin.RETAINED) {
+                addImport(MYBATIS_RETAIN_ID_PLUGIN_DATA_TYPE, packageName);
+            }
         }
         setClassName(className);
         setExecutorModule(executorModule);
@@ -121,7 +125,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             
             appender.append("\n");
 
-            if (operation.getOperationKind() == OperationKind.INSERT && !operation.isReturnIdFromObjectWhenInsert()) {
+            if (operation.getOperationKind() == OperationKind.INSERT && operation.getInsertedIdOrigin() == InsertedIdOrigin.QUERY) {
                 appender.append("    public ").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(" getLastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("() {\n"
                         + "        return (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") getSession().selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                         + "    }\n"
@@ -179,7 +183,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "        int i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
                             + "        if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
-                    if (operation.isReturnIdFromObjectWhenInsert()) {
+                    InsertedIdOrigin idOrigin = operation.getInsertedIdOrigin();
+                    if (idOrigin == InsertedIdOrigin.FIELD) {
                         appender.append("            ").append(returnTypeName).append(" result = ").append("value.");
                         if (idField.getDataType().isPrimitiveBoolean()) {
                             appender.append("is");
@@ -187,6 +192,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             appender.append("get");
                         }
                         appender.append(idField.getCapitalizedName()).append("();\n");
+                    } else if (idOrigin == InsertedIdOrigin.RETAINED) {
+                        appender.append("            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") RetainIdPlugin.getRetainedId();\n");
                     } else {
                         appender.append("            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                                 + "            value.set").append(idField.getCapitalizedName()).append("(result);\n");
@@ -209,7 +216,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "            int i = session.insert(\"").append(namespace).append(".insert").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\", value);\n"
                             + "            if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
-                    if (operation.isReturnIdFromObjectWhenInsert()) {
+                    InsertedIdOrigin idOrigin = operation.getInsertedIdOrigin();
+                    if (idOrigin == InsertedIdOrigin.FIELD) {
                         appender.append("                ").append(returnTypeName).append(" result = ").append("value.");
                         if (idField.getDataType().isPrimitiveBoolean()) {
                             appender.append("is");
@@ -217,6 +225,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             appender.append("get");
                         }
                         appender.append(idField.getCapitalizedName()).append("();\n");
+                    } else if (idOrigin == InsertedIdOrigin.RETAINED) {
+                        appender.append("                ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") RetainIdPlugin.getRetainedId();\n");
                     } else {
                         appender.append("                ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                                 + "                value.set").append(idField.getCapitalizedName()).append("(result);\n");
@@ -278,7 +288,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "        if (i == 1) {\n");
                     
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
-                    if (operation.isReturnIdFromObjectWhenInsert()) {
+                    InsertedIdOrigin idOrigin = operation.getInsertedIdOrigin();
+                    if (idOrigin == InsertedIdOrigin.FIELD) {
                         appender.append("            ").append(returnTypeName).append(" result = ").append("operation.");
                         if (idField.getDataType().isPrimitiveBoolean()) {
                             appender.append("is");
@@ -286,6 +297,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             appender.append("get");
                         }
                         appender.append(idField.getCapitalizedName()).append("();\n");
+                    } else if (idOrigin == InsertedIdOrigin.RETAINED) {
+                        appender.append("            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") RetainIdPlugin.getRetainedId();\n");
                     } else {
                         appender.append("            ").append(returnTypeName).append(" result = (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n");
                         if (operation.hasReferenceToField(idField)) {
