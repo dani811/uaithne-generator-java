@@ -359,7 +359,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             operationKind = OperationKind.CUSTOM_INSERT_WITH_ID;
             FieldInfo id = entity.getCombined().getFirstIdField();
             if (id != null) {
-                resultDataType = id.getDataType();
+                resultDataType = id.getDataType().ensureBoxed();
             } else {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
                 return;
@@ -515,7 +515,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         idInfo.setMarkAsOvwrride(true);
         idInfo.setOptional(false);
         idInfo.setIdentifier(true);
-        DataTypeInfo idDataType = idInfo.getDataType();
+        
+        DataTypeInfo idDataType = idInfo.getDataType().ensureBoxed();
+        idInfo.setDataType(idDataType);
 
         DataTypeInfo entityDataType = entityInfo.getDataType();
         FieldInfo valueInfo = new FieldInfo("value", entityDataType);

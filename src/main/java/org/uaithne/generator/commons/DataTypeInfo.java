@@ -27,6 +27,7 @@ public class DataTypeInfo {
     private String simpleNameWithoutGenerics;
     private String qualifiedName;
     private String qualifiedNameWithoutGenerics;
+    private DataTypeInfo boxed;
 
     public String getSimpleName() {
         return simpleName;
@@ -128,6 +129,11 @@ public class DataTypeInfo {
         
     }
     
+    public DataTypeInfo(String simpleName, DataTypeInfo boxed) {
+        this(simpleName);
+        this.boxed = boxed;
+    }
+    
     public DataTypeInfo(String simpleName) {
         if (simpleName == null) {
             throw new IllegalArgumentException("The simple name cannot be null");
@@ -169,6 +175,11 @@ public class DataTypeInfo {
         }
     }
 
+    public DataTypeInfo(String packageName, String simpleName, String qualifiedName, DataTypeInfo boxed) {
+        this(packageName, simpleName, qualifiedName);
+        this.boxed = boxed;
+    }
+    
     public DataTypeInfo(String packageName, String simpleName, String qualifiedName) {
         if (simpleName == null) {
             throw new IllegalArgumentException("The simple name cannot be null");
@@ -334,6 +345,44 @@ public class DataTypeInfo {
         return result;
     }
     
+    public DataTypeInfo ensureBoxed() {
+        if (!packageName.isEmpty()) {
+            return this;
+        } else if (boxed != null) {
+            return boxed;
+        } else if ("int".equals(qualifiedName)) {
+            return BOXED_INT_DATA_TYPE;
+        } else if ("double".equals(qualifiedName)) {
+            return BOXED_DOUBLE_DATA_TYPE;
+        } else if ("long".equals(qualifiedName)) {
+            return BOXED_LONG_DATA_TYPE;
+        } else if ("boolean".equals(qualifiedName)) {
+            return BOXED_BOOLEAN_DATA_TYPE;
+        } else if ("float".equals(qualifiedName)) {
+            return BOXED_FLOAT_DATA_TYPE;
+        } else if ("byte".equals(qualifiedName)) {
+            return BOXED_BYTE_DATA_TYPE;
+        } else if ("char".equals(qualifiedName)) {
+            return BOXED_CHAR_DATA_TYPE;
+        } else if ("short".equals(qualifiedName)) {
+            return BOXED_SHORT_DATA_TYPE;
+        } else {
+            return this;
+        }
+    }
+    
+    public boolean isPrimitive() {
+        return packageName.isEmpty() && (
+                "int".equals(qualifiedName) ||
+                "double".equals(qualifiedName) ||
+                "long".equals(qualifiedName) ||
+                "boolean".equals(qualifiedName) ||
+                "float".equals(qualifiedName) ||
+                "byte".equals(qualifiedName) ||
+                "char".equals(qualifiedName) ||
+                "short".equals(qualifiedName));
+    }
+    
     public boolean isPrimitiveBoolean() {
         return "boolean".equals(qualifiedName);
     }
@@ -387,10 +436,28 @@ public class DataTypeInfo {
     
     private static final int[] PRIMES = new int[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
 
+    public static final DataTypeInfo BOXED_INT_DATA_TYPE = new DataTypeInfo("java.lang", "Integer", "java.lang.Integer");
+    public static final DataTypeInfo BOXED_DOUBLE_DATA_TYPE = new DataTypeInfo("java.lang", "Double", "java.lang.Double");
+    public static final DataTypeInfo BOXED_LONG_DATA_TYPE = new DataTypeInfo("java.lang", "Long", "java.lang.Long");
+    public static final DataTypeInfo BOXED_BOOLEAN_DATA_TYPE = new DataTypeInfo("java.lang", "Boolean", "java.lang.Boolean");
+    public static final DataTypeInfo BOXED_FLOAT_DATA_TYPE = new DataTypeInfo("java.lang", "Float", "java.lang.Float");
+    public static final DataTypeInfo BOXED_BYTE_DATA_TYPE = new DataTypeInfo("java.lang", "Byte", "java.lang.Byte");
+    public static final DataTypeInfo BOXED_CHAR_DATA_TYPE = new DataTypeInfo("java.lang", "Character", "java.lang.Character");
+    public static final DataTypeInfo BOXED_SHORT_DATA_TYPE = new DataTypeInfo("java.lang", "Short", "java.lang.Short");
+    
+    public static final DataTypeInfo INT_DATA_TYPE = new DataTypeInfo("int", BOXED_INT_DATA_TYPE);
+    public static final DataTypeInfo DOUBLE_DATA_TYPE = new DataTypeInfo("double", BOXED_DOUBLE_DATA_TYPE);
+    public static final DataTypeInfo LONG_DATA_TYPE = new DataTypeInfo("long", BOXED_LONG_DATA_TYPE);
+    public static final DataTypeInfo BOOLEAN_DATA_TYPE = new DataTypeInfo("boolean", BOXED_BOOLEAN_DATA_TYPE);
+    public static final DataTypeInfo FLOAT_DATA_TYPE = new DataTypeInfo("float", BOXED_FLOAT_DATA_TYPE);
+    public static final DataTypeInfo BYTE_DATA_TYPE = new DataTypeInfo("byte", BOXED_BYTE_DATA_TYPE);
+    public static final DataTypeInfo CHAR_DATA_TYPE = new DataTypeInfo("char", BOXED_CHAR_DATA_TYPE);
+    public static final DataTypeInfo SHORT_DATA_TYPE = new DataTypeInfo("short", BOXED_SHORT_DATA_TYPE);
+        
     public static final String PAGE_INFO_DATA = "BigInteger";
     public static final DataTypeInfo PAGE_INFO_DATA_TYPE = new DataTypeInfo("java.math", PAGE_INFO_DATA, "java.math.BigInteger");
     public static final String PAGE_ONLY_DATA_COUNT_DATA = "boolean";
-    public static final DataTypeInfo PAGE_ONLY_DATA_COUNT_DATA_TYPE = new DataTypeInfo(PAGE_ONLY_DATA_COUNT_DATA);
+    public static final DataTypeInfo PAGE_ONLY_DATA_COUNT_DATA_TYPE = new DataTypeInfo(PAGE_ONLY_DATA_COUNT_DATA, BOXED_BOOLEAN_DATA_TYPE);
     public static final String SERIALIZABLE_DATA = "Serializable";
     public static final DataTypeInfo SERIALIZABLE_DATA_TYPE = new DataTypeInfo("java.io", SERIALIZABLE_DATA, "java.io.Serializable");
     public static final String AFFECTED_ROW_COUNT_DATA = "Integer";
