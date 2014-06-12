@@ -21,8 +21,10 @@ package org.uaithne.generator.commons;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.HashSet;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.*;
 
 public class FieldInfo {
@@ -404,7 +406,7 @@ public class FieldInfo {
         this.excludedFromConstructor = excludedFromConstructor;
     }
     
-    public FieldInfo(VariableElement element) {
+    public FieldInfo(VariableElement element, ProcessingEnvironment processingEnv) {
         this.element = element;
         name = element.getSimpleName().toString();
         if (element.getModifiers().contains(Modifier.TRANSIENT)) {
@@ -413,6 +415,9 @@ public class FieldInfo {
         dataType = NamesGenerator.createDataTypeFor(element.asType());
         defaultValue = Utils.getDefaultValue(dataType, element);
         orderBy = element.getAnnotation(OrderBy.class) != null;
+        if (orderBy && !dataType.isString()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "The data type of an OrderBy field must be String", element);
+        }
         optional = element.getAnnotation(Optional.class) != null;
         Id id = element.getAnnotation(Id.class);
         if (id != null) {

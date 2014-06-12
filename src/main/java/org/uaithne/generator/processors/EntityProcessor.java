@@ -100,7 +100,7 @@ public class EntityProcessor extends TemplateProcessor {
             if (enclosedElement.getKind() == ElementKind.FIELD) {
                 VariableElement ve = (VariableElement) enclosedElement;
                 
-                FieldInfo fi = new FieldInfo(ve);
+                FieldInfo fi = new FieldInfo(ve, processingEnv);
                 if (fi.isIdentifier()) {
                     fi.setOptional(false);
                 }
