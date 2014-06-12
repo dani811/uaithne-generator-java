@@ -1811,6 +1811,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     comparator = Comparator.NOT_EQUAL;
                 } else if ("=?".equals(rule) || "==?".equals(rule) || "equalNullable".equals(rule) || "EQUAL_NULLABLE".equals(rule)) {
                     comparator = Comparator.EQUAL_NULLABLE;
+                } else if ("=!?".equals(rule) || "==!?".equals(rule) || "equalNotNullable".equals(rule) || "EQUAL_NOT_NULLABLE".equals(rule)) {
+                    comparator = Comparator.EQUAL_NOT_NULLABLE;
+                } else if ("!=?".equals(rule) || "<>?".equals(rule) || "notEqualNullable".equals(rule) || "NOT_EQUAL_NULLABLE".equals(rule)) {
+                    comparator = Comparator.NOT_EQUAL_NULLABLE;
+                } else if ("!=!?".equals(rule) || "<>!?".equals(rule) || "notEqualNotNullable".equals(rule) || "NOT_EQUAL_NOT_NULLABLE".equals(rule)) {
+                    comparator = Comparator.NOT_EQUAL_NOT_NULLABLE;
                 } else if ("<".equals(rule) || "smaller".equals(rule) || "SMALLER".equals(rule)) {
                     comparator = Comparator.SMALLER;
                 } else if (">".equals(rule) || "larger".equals(rule) || "LARGER".equals(rule)) {
@@ -1825,6 +1831,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     comparator = Comparator.NOT_IN;
                 } else if ("like".equals(rule) || "LIKE".equals(rule)) {
                     comparator = Comparator.LIKE;
+                } else if ("notLike".equals(rule) || "NOT_LIKE".equals(rule)) {
+                    comparator = Comparator.NOT_LIKE;
                 } else if ("ilike".equals(rule) || "ILIKE".equals(rule) || "likeInsensitive".equals(rule) || "LIKE_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.LIKE_INSENSITIVE;
                 } else if ("notIlike".equals(rule) || "NOT_ILIKE".equals(rule) || "notLikeInsensitive".equals(rule) || "NOT_LIKE_INSENSITIVE".equals(rule)) {
