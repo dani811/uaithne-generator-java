@@ -419,6 +419,9 @@ public class FieldInfo {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "The data type of an OrderBy field must be String", element);
         }
         optional = element.getAnnotation(Optional.class) != null;
+        if (optional && dataType.isPrimitive()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Optional fields must allow null values, but a primitive data types do not allow it; you must use " + dataType.ensureBoxed().getSimpleName() + " instead of " + dataType.getSimpleName(), element);
+        }
         Id id = element.getAnnotation(Id.class);
         if (id != null) {
             identifier = true;
