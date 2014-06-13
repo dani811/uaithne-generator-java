@@ -153,7 +153,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
                 return;
             }
-            entityInfo = relatedEntityInfo;
+            if (entityInfo == null) {
+                entityInfo = relatedEntityInfo;
+            } else {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Related is not allowed when the operation result is an entity", element);
+            }
         }
 
         DataTypeInfo pageResultDataType = DataTypeInfo.DATA_PAGE_DATA_TYPE.of(resultDataType);
@@ -237,7 +241,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
                 return;
             }
-            entityInfo = relatedEntityInfo;
+            if (entityInfo == null) {
+                entityInfo = relatedEntityInfo;
+            } else {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Related is not allowed when the operation result is an entity", element);
+            }
         }
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
@@ -286,7 +294,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
                 return;
             }
-            entityInfo = relatedEntityInfo;
+            if (entityInfo == null) {
+                entityInfo = relatedEntityInfo;
+            } else {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Related is not allowed when the operation result is an entity", element);
+            }
+            
         }
 
         DataTypeInfo listResultDataType = DataTypeInfo.LIST_DATA_TYPE.of(resultDataType);
