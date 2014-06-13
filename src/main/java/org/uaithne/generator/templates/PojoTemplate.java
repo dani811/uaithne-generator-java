@@ -20,7 +20,19 @@ package org.uaithne.generator.templates;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.NamesGenerator;
 
 public abstract class PojoTemplate extends WithFieldsTemplate {
 
@@ -66,6 +78,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
 
     protected void writeField(Appendable appender, FieldInfo field) throws IOException {
         writeDocumentation(appender, field.getDocumentation());
+        appendFieldBeanValidations(appender, field);
         appender.append("    private ");
         if (field.isMarkAsTransient()) {
             appender.append("transient ");
@@ -164,7 +177,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
                 filteredFields.add(field);
             }
         }
-        
+
         if (callSuper || filteredFields.isEmpty()) {
             appender.append("        if (!super.equals(obj)) {\n"
                     + "            return false;\n"
@@ -179,7 +192,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
                         + "        }\n");
             }
         }
-        
+
         appender.append("        return true;\n"
                 + "    }\n");
     }
@@ -188,23 +201,163 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
         appender.append("    @Override\n"
                 + "    public int hashCode() {\n"
                 + "        int hash = ").append(firstPrime).append(";\n");
-        
+
         ArrayList<FieldInfo> filteredFields = new ArrayList<FieldInfo>(fields.size());
         for (FieldInfo field : fields) {
             if (!field.isMarkAsTransient()) {
                 filteredFields.add(field);
             }
         }
-        
+
         if (callSuper || filteredFields.isEmpty()) {
             appender.append("        hash = ").append(secondPrime).append(" * hash + super.hashCode();\n");
         }
-        
+
         for (FieldInfo field : filteredFields) {
             appender.append("        hash = ").append(secondPrime).append(" * hash + ").append(field.generateHashCodeRule()).append(";\n");
         }
-        
+
         appender.append("        return hash;\n"
                 + "    }\n");
+    }
+
+    protected void appendAnnotationImports(String currentPackage, HashSet<String> imports, FieldInfo field) {
+        VariableElement element = field.getElement();
+        if (element == null) {
+            return;
+        }
+
+        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+            appendAnnotationImports(currentPackage, imports, annotation, true);
+        }
+    }
+
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, boolean ignoreUaithne) {
+        DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
+        String packageName = dataType.getPackageName();
+        if (ignoreUaithne && packageName != null && packageName.startsWith("org.uaithne.")) {
+            return;
+        }
+        dataType.appendImports(currentPackage, imports);
+        for (AnnotationValue value : annotation.getElementValues().values()) {
+            appendAnnotationImports(currentPackage, imports, value);
+        }
+    }
+
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue) {
+        Object value = annotationValue.getValue();
+        if (value instanceof TypeMirror) {
+            DataTypeInfo type = NamesGenerator.createDataTypeFor((TypeMirror) value, true);
+            type.appendImports(currentPackage, imports);
+        } else if (value instanceof VariableElement) {
+            VariableElement variableElement = (VariableElement) value;
+            DataTypeInfo type = NamesGenerator.createDataTypeFor(variableElement.asType(), true);
+            type.appendImports(currentPackage, imports);
+        } else if (value instanceof AnnotationMirror) {
+            appendAnnotationImports(currentPackage, imports, (AnnotationMirror) value, false);
+        } else if (value instanceof List) {
+            List<? extends AnnotationValue> annotations = (List<? extends AnnotationValue>) value;
+            for (AnnotationValue annotation : annotations) {
+                appendAnnotationImports(currentPackage, imports, annotation);
+            }
+        }
+    }
+
+    private void appendAnnotationParamsContent(Appendable appender, AnnotationValue annotationValue, String ident) {
+        Object value = annotationValue.getValue();
+        try {
+
+            if (value instanceof String) {
+                appender.append("\"").append(value.toString().replace("\"", "\\\"")).append("\"");
+            } else if (value instanceof VariableElement) {
+                VariableElement variableElement = (VariableElement) value;
+                DataTypeInfo type = NamesGenerator.createDataTypeFor(variableElement.asType(), true);
+                appender.append(type.getSimpleName());
+                appender.append(".");
+                appender.append(variableElement.getSimpleName());
+            } else if (value instanceof TypeMirror) {
+                DataTypeInfo type = NamesGenerator.createDataTypeFor((TypeMirror) value, true);
+                appender.append(type.getSimpleName());
+                appender.append(".class");
+            } else if (value instanceof AnnotationMirror) {
+                AnnotationMirror annotation = ((AnnotationMirror) value);
+                DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
+                appendAnnotation(appender, dataType, annotation, ident + "    ", false);
+            } else if (value instanceof List) {
+                List<? extends AnnotationValue> annotations = (List<? extends AnnotationValue>) value;
+                int listSize = annotations.size();
+                if (listSize > 1) {
+                    appender.append("{");
+                }
+                boolean requireComma = false;
+                for (AnnotationValue annotation : annotations) {
+                    if (requireComma) {
+                        appender.append(", ");
+                    }
+                    appendAnnotationParamsContent(appender, annotation, ident);
+                    requireComma = true;
+                }
+                if (listSize > 1) {
+                    appender.append("}");
+                }
+            } else { // a wrapper class for a primitive type
+                appender.append(value.toString());
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void appendFieldBeanValidations(Appendable appender, FieldInfo field) {
+        VariableElement element = field.getElement();
+        if (element == null) {
+            return;
+        }
+
+        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+            DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
+            String packageName = dataType.getPackageName();
+            if (packageName != null && !packageName.startsWith("org.uaithne.")) {
+                appendAnnotation(appender, dataType, annotation, "    ", true);
+            }
+        }
+    }
+
+    private void appendAnnotation(Appendable appender, DataTypeInfo dataType, AnnotationMirror annotation, String ident, boolean identFirstLevel) {
+        try {
+            if (!identFirstLevel) {
+                appender.append("\n");
+            }
+            appender.append(ident);
+            appender.append("@");
+            appender.append(dataType.getSimpleName());
+
+            int numberOfElements = annotation.getElementValues().size();
+            if (numberOfElements != 0) {
+                appender.append("(");
+            }
+            boolean requireComma = false;
+            boolean hasOnlyOne = numberOfElements == 1;
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotation.getElementValues().entrySet()) {
+                if (requireComma) {
+                    appender.append(", ");
+                }
+                String name = entry.getKey().getSimpleName().toString();
+                if (!"value".equals(name) || !hasOnlyOne) {
+                    appender.append(name);
+                    appender.append(" = ");
+                }
+                appendAnnotationParamsContent(appender, entry.getValue(), ident);
+                requireComma = true;
+            }
+            if (numberOfElements != 0) {
+                appender.append(")");
+            }
+            if (identFirstLevel) {
+                appender.append("\n");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

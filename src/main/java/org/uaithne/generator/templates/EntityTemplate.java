@@ -25,7 +25,7 @@ import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 
 public class EntityTemplate extends PojoTemplate {
-    
+
     private EntityInfo entity;
 
     public EntityInfo getEntity() {
@@ -48,10 +48,13 @@ public class EntityTemplate extends PojoTemplate {
         for (DataTypeInfo type : entity.getImplement()) {
             addImplement(type.getSimpleName());
         }
+        for (FieldInfo field : entity.getFields()) {
+            appendAnnotationImports(packageName, getImport(), field);
+        }
         setDeprecated(entity.isDeprecated());
         this.entity = entity;
     }
-    
+
     void writeConstructors(Appendable appender) throws IOException {
         ArrayList<FieldInfo> fields = entity.getFields();
         ArrayList<FieldInfo> filteredMandatoryFields = new ArrayList<FieldInfo>(fields.size());
@@ -66,7 +69,7 @@ public class EntityTemplate extends PojoTemplate {
                 filteredMandatoryFields.add(field);
             }
         }
-        
+
         ArrayList<FieldInfo> combinedFields = entity.getCombined().getFields();
         ArrayList<FieldInfo> filteredCombinedMandatoryFields = new ArrayList<FieldInfo>(combinedFields.size());
         for (FieldInfo field : combinedFields) {
@@ -80,7 +83,7 @@ public class EntityTemplate extends PojoTemplate {
                 filteredCombinedMandatoryFields.add(field);
             }
         }
-        
+
         if (!filteredCombinedMandatoryFields.isEmpty()) {
             appender.append("    public ").append(getClassName()).append("() {\n"
                     + "    }\n"
@@ -104,7 +107,7 @@ public class EntityTemplate extends PojoTemplate {
                     filteredCombinedParentMandatoryFields.add(field);
                 }
             }
-        
+
             appender.append("        super(");
             writeCallArguments(appender, filteredCombinedParentMandatoryFields);
             appender.append(");\n");
@@ -130,7 +133,7 @@ public class EntityTemplate extends PojoTemplate {
                 filteredCombinedIdFields.add(field);
             }
         }
-        
+
         ArrayList<FieldInfo> filteredCombinedIdAndMandatoryFields = new ArrayList<FieldInfo>(combinedFields.size());
         for (FieldInfo field : combinedFields) {
             if (field.isIdentifier() || !field.isOptional()) {
@@ -155,7 +158,7 @@ public class EntityTemplate extends PojoTemplate {
                         }
                     }
                 }
-                
+
                 appender.append("        super(");
                 writeCallArguments(appender, filteredCombinedParentIdAndMandatoryFields);
                 appender.append(");\n");
@@ -164,7 +167,7 @@ public class EntityTemplate extends PojoTemplate {
             appender.append("    }");
         }
     }
-    
+
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         boolean hasExtend = entity.getExtend() != null;
@@ -182,21 +185,20 @@ public class EntityTemplate extends PojoTemplate {
             appender.append("\n");
             writeFieldSetter(appender, field);
         }
-        
+
         appender.append("\n");
         writeToString(appender, entity.getFields(), hasExtend);
-        
+
         appender.append("\n");
         writeEquals(appender, idFields, hasExtend);
-        
+
         String firstPrime = Integer.toString(entity.generateFistPrimeNumberForHashCode());
         String secondPrime = Integer.toString(entity.generateSecondPrimeNumberForHashCode());
 
         appender.append("\n");
         writeHashCode(appender, idFields, hasExtend, firstPrime, secondPrime);
-        
+
         appender.append("\n");
         writeConstructors(appender);
     }
-    
 }

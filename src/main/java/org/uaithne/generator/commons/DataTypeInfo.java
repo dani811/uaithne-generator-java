@@ -21,6 +21,7 @@ package org.uaithne.generator.commons;
 import java.util.HashSet;
 
 public class DataTypeInfo {
+
     private final HashSet<String> imports = new HashSet<String>(0);
     private String packageName;
     private String simpleName;
@@ -80,7 +81,7 @@ public class DataTypeInfo {
     public HashSet<String> getImports() {
         return imports;
     }
-    
+
     public void appendImports(String currentPackage, HashSet<String> importsList) {
         for (String imp : imports) {
             Utils.appendImportIfRequired(importsList, currentPackage, imp);
@@ -140,36 +141,36 @@ public class DataTypeInfo {
         } else if (simpleName.isEmpty()) {
             throw new IllegalArgumentException("The simple name cannot be empty");
         }
-        
+
         this.packageName = "";
         this.simpleName = simpleName;
         this.simpleNameWithoutGenerics = simpleName;
         this.qualifiedName = simpleName;
         this.qualifiedNameWithoutGenerics = simpleName;
     }
-    
+
     public DataTypeInfo(String packageName, String simpleName) {
         if (simpleName == null) {
             throw new IllegalArgumentException("The simple name cannot be null");
         } else if (simpleName.isEmpty()) {
             throw new IllegalArgumentException("The simple name cannot be empty");
         }
-        
+
         if (packageName == null) {
             packageName = "";
         }
-        
+
         if (packageName.isEmpty()) {
             qualifiedName = simpleName;
         } else {
             qualifiedName = packageName + "." + simpleName;
         }
         qualifiedNameWithoutGenerics = qualifiedName;
-        
+
         this.packageName = packageName;
         this.simpleName = simpleName;
         this.simpleNameWithoutGenerics = simpleName;
-        
+
         if (!qualifiedName.isEmpty()) {
             imports.add(qualifiedName);
         }
@@ -186,26 +187,52 @@ public class DataTypeInfo {
         } else if (simpleName.isEmpty()) {
             throw new IllegalArgumentException("The simple name cannot be empty");
         }
-        
+
         if (packageName == null) {
             packageName = "";
         }
-        
+
         if (qualifiedName == null) {
             qualifiedName = "";
         }
-        
+
         this.packageName = packageName;
         this.simpleName = simpleName;
         this.simpleNameWithoutGenerics = simpleName;
         this.qualifiedName = qualifiedName;
         this.qualifiedNameWithoutGenerics = qualifiedName;
-        
+
         if (!qualifiedName.isEmpty()) {
             imports.add(qualifiedName);
         }
     }
-    
+
+    public DataTypeInfo(String packageName, String simpleName, String qualifiedName, String importt) {
+        if (simpleName == null) {
+            throw new IllegalArgumentException("The simple name cannot be null");
+        } else if (simpleName.isEmpty()) {
+            throw new IllegalArgumentException("The simple name cannot be empty");
+        }
+
+        if (packageName == null) {
+            packageName = "";
+        }
+
+        if (qualifiedName == null) {
+            qualifiedName = "";
+        }
+
+        this.packageName = packageName;
+        this.simpleName = simpleName;
+        this.simpleNameWithoutGenerics = simpleName;
+        this.qualifiedName = qualifiedName;
+        this.qualifiedNameWithoutGenerics = qualifiedName;
+
+        if (importt != null && !importt.isEmpty()) {
+            imports.add(importt);
+        }
+    }
+
     public DataTypeInfo(DataTypeInfo other) {
         imports.addAll(other.imports);
         packageName = other.packageName;
@@ -214,7 +241,7 @@ public class DataTypeInfo {
         qualifiedName = other.qualifiedName;
         qualifiedNameWithoutGenerics = other.qualifiedNameWithoutGenerics;
     }
-    
+
     public DataTypeInfo of(DataTypeInfo genericArgument) {
         DataTypeInfo result = new DataTypeInfo();
         result.packageName = packageName;
@@ -226,7 +253,7 @@ public class DataTypeInfo {
         result.imports.addAll(genericArgument.imports);
         return result;
     }
-    
+
     public DataTypeInfo of(DataTypeInfo genericArgument, DataTypeInfo genericArgument2) {
         DataTypeInfo result = new DataTypeInfo();
         result.packageName = packageName;
@@ -239,7 +266,7 @@ public class DataTypeInfo {
         result.imports.addAll(genericArgument2.imports);
         return result;
     }
-    
+
     public String generateEqualsRule(String name) {
         // See how netbeans generate it: http://hg.netbeans.org/main/file/84453ca69694/java.editor/src/org/netbeans/modules/java/editor/codegen/EqualsHashCodeGenerator.java
         if ("boolean".equals(qualifiedName)) {
@@ -282,7 +309,7 @@ public class DataTypeInfo {
             return "this." + name + " != other." + name + " && (this." + name + " == null || !this." + name + ".equals(other." + name + "))";
         }
     }
-    
+
     public String generateHashCodeRule(String name) {
         // See how netbeans generate it: http://hg.netbeans.org/main/file/84453ca69694/java.editor/src/org/netbeans/modules/java/editor/codegen/EqualsHashCodeGenerator.java
         if ("boolean".equals(qualifiedName)) {
@@ -325,17 +352,17 @@ public class DataTypeInfo {
             return "(this." + name + " != null ? this." + name + ".hashCode() : 0)";
         }
     }
-    
+
     public int generateFistPrimeNumberForHashCode() {
         int index = calculatePrimeIndex(4);
         return PRIMES[index];
     }
-    
+
     public int generateSecondPrimeNumberForHashCode() {
         int index = calculatePrimeIndex(21);
         return PRIMES[index + 4];
     }
-    
+
     private int calculatePrimeIndex(int maxItem) {
         int result = 0;
         for (int i = 0; i < qualifiedName.length(); i++) {
@@ -386,50 +413,50 @@ public class DataTypeInfo {
     public boolean isPrimitiveBoolean() {
         return "boolean".equals(qualifiedName);
     }
-    
+
     public boolean isBoolean() {
-        return "boolean".equals(qualifiedName) ||
-            "java.lang.Boolean".equals(qualifiedName);
+        return "boolean".equals(qualifiedName)
+                || "java.lang.Boolean".equals(qualifiedName);
     }
-    
+
     public boolean isNumeric() {
-        return "byte".equals(qualifiedName) ||
-                "java.lang.Byte".equals(qualifiedName) || 
-                "short".equals(qualifiedName) || 
-                "java.lang.Short".equals(qualifiedName) || 
-                "int".equals(qualifiedName) || 
-                "java.lang.Integer".equals(qualifiedName) ||
-                "long".equals(qualifiedName) || 
-                "java.lang.Long".equals(qualifiedName) ||
-                "java.math.BigDecimal".equals(qualifiedName) ||
-                "java.math.BigInteger".equals(qualifiedName);
+        return "byte".equals(qualifiedName)
+                || "java.lang.Byte".equals(qualifiedName)
+                || "short".equals(qualifiedName)
+                || "java.lang.Short".equals(qualifiedName)
+                || "int".equals(qualifiedName)
+                || "java.lang.Integer".equals(qualifiedName)
+                || "long".equals(qualifiedName)
+                || "java.lang.Long".equals(qualifiedName)
+                || "java.math.BigDecimal".equals(qualifiedName)
+                || "java.math.BigInteger".equals(qualifiedName);
     }
-    
+
     public boolean isChar() {
-        return "char".equals(qualifiedName) || 
-                "java.lang.Character".equals(qualifiedName);
+        return "char".equals(qualifiedName)
+                || "java.lang.Character".equals(qualifiedName);
     }
-    
+
     public boolean isString() {
         return "java.lang.String".equals(qualifiedName);
     }
-    
+
     public boolean isDate() {
-        return "java.util.Date".equals(qualifiedName) ||
-                "java.sql.Date".equals(qualifiedName) ||
-                "java.sql.Time".equals(qualifiedName) ||
-                "java.sql.Timestamp".equals(qualifiedName);
+        return "java.util.Date".equals(qualifiedName)
+                || "java.sql.Date".equals(qualifiedName)
+                || "java.sql.Time".equals(qualifiedName)
+                || "java.sql.Timestamp".equals(qualifiedName);
     }
-    
+
     public boolean isList() {
-        return "java.util.List".equals(qualifiedNameWithoutGenerics) || 
-                "java.util.ArrayList".equals(qualifiedNameWithoutGenerics);
+        return "java.util.List".equals(qualifiedNameWithoutGenerics)
+                || "java.util.ArrayList".equals(qualifiedNameWithoutGenerics);
     }
-    
+
     public boolean isVoid() {
         return "java.lang.Void".equals(qualifiedName);
     }
-    
+
     public boolean isObject() {
         return "java.lang.Object".equals(qualifiedName);
     }
@@ -467,7 +494,6 @@ public class DataTypeInfo {
     public static final String ARRAYLIST_DATA = "ArrayList";
     public static final DataTypeInfo ARRAYLIST_DATA_TYPE = new DataTypeInfo("java.util", ARRAYLIST_DATA, "java.util.ArrayList");
     public static final DataTypeInfo HASHMAP_DATA_TYPE = new DataTypeInfo("java.util", "HashMap", "java.util.HashMap");
-    
     private static final String DEFAULT_SHARED_PACKAGE = "org.uaithne.shared";
     // All of this field are no final because the user can change it's package name
     public static DataTypeInfo DATA_PAGE_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "DataPage", DEFAULT_SHARED_PACKAGE + ".DataPage");
@@ -485,7 +511,7 @@ public class DataTypeInfo {
     public static DataTypeInfo EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "ExecutorGroup", DEFAULT_SHARED_PACKAGE + ".ExecutorGroup");
     public static DataTypeInfo CHAINED_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_PACKAGE, "ChainedExecutorGroup", DEFAULT_SHARED_PACKAGE + ".ChainedExecutorGroup");
     // end of no final fields
-    
+
     public static void updateSharedPackage(String sharedPackage) {
         DATA_PAGE_DATA_TYPE = new DataTypeInfo(sharedPackage, "DataPage", sharedPackage + ".DataPage");
         OPERATION_DATA_TYPE = new DataTypeInfo(sharedPackage, "Operation", sharedPackage + ".Operation");
@@ -502,7 +528,6 @@ public class DataTypeInfo {
         EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(sharedPackage, "ExecutorGroup", sharedPackage + ".ExecutorGroup");
         CHAINED_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(sharedPackage, "ChainedExecutorGroup", sharedPackage + ".ChainedExecutorGroup");
     }
-    
     private static final String DEFAULT_SHARED_MYBATIS_PACKAGE = "org.uaithne.shared.myBatys";
     public static DataTypeInfo MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_MYBATIS_PACKAGE, "SqlSessionProvider", DEFAULT_SHARED_MYBATIS_PACKAGE + ".SqlSessionProvider");
     public static DataTypeInfo MYBATIS_RETAIN_ID_PLUGIN_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_MYBATIS_PACKAGE, "SqlSessionProvider", DEFAULT_SHARED_MYBATIS_PACKAGE + ".SqlSessionProvider");
@@ -511,7 +536,6 @@ public class DataTypeInfo {
         MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE = new DataTypeInfo(sharedMyBatisPackage, "SqlSessionProvider", sharedMyBatisPackage + ".SqlSessionProvider");
         MYBATIS_RETAIN_ID_PLUGIN_DATA_TYPE = new DataTypeInfo(sharedMyBatisPackage, "RetainIdPlugin", sharedMyBatisPackage + ".RetainIdPlugin");
     }
-    
     private static final String DEFAULT_SHARED_GWT_PACKAGE = "org.uaithne.shared.myBatys";
     public static DataTypeInfo GWT_ASYNC_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".client", "AsyncExecutorGroup", DEFAULT_SHARED_GWT_PACKAGE + ".client.AsyncExecutorGroup");
     public static DataTypeInfo GWT_AWAIT_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "AwaitGwtOperation", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.AwaitGwtOperation");
@@ -521,7 +545,7 @@ public class DataTypeInfo {
     public static DataTypeInfo GWT_EXECUTOR_GROUP_RPC_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "ExecutorGroupRpc", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.ExecutorGroupRpc");
     public static DataTypeInfo GWT_EXECUTOR_GROUP_RPC_ASYNC_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "ExecutorGroupRpcAsync", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.ExecutorGroupRpcAsync");
     public static DataTypeInfo GWT_RPC_EXCEPTION_DATA_TYPE = new DataTypeInfo(DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc", "RpcException", DEFAULT_SHARED_GWT_PACKAGE + ".shared.rpc.RpcException");
-    
+
     public static void updateSharedGwtPackage(String sharedGwtPackage) {
         GWT_ASYNC_EXECUTOR_GROUP_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".client", "AsyncExecutorGroup", sharedGwtPackage + ".client.AsyncExecutorGroup");
         GWT_AWAIT_GWT_OPERATION_DATA_TYPE = new DataTypeInfo(sharedGwtPackage + ".shared.rpc", "AwaitGwtOperation", sharedGwtPackage + ".shared.rpc.AwaitGwtOperation");

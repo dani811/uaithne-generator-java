@@ -60,6 +60,9 @@ public class OperationTemplate extends PojoTemplate {
         for (DataTypeInfo type : operation.getImplement()) {
             addImplement(type.getSimpleName());
         }
+        for (FieldInfo field : operation.getFields()) {
+            appendAnnotationImports(packageName, getImport(), field);
+        }
         setDeprecated(operation.isDeprecated());
         this.executorName = executorName;
         this.operation = operation;
@@ -117,7 +120,7 @@ public class OperationTemplate extends PojoTemplate {
                 filteredMandatoryFields.add(field);
             }
         }
-        
+
         if (!filteredMandatoryFields.isEmpty()) {
             appender.append("    public ").append(getClassName()).append("() {\n"
                     + "    }\n"
@@ -179,7 +182,7 @@ public class OperationTemplate extends PojoTemplate {
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         boolean hasExtend = operation.getExtend() != null;
-        
+
         for (FieldInfo field : operation.getFields()) {
             writeField(appender, field);
         }
@@ -201,10 +204,10 @@ public class OperationTemplate extends PojoTemplate {
 
         appender.append("\n");
         writeEquals(appender, operation.getFields(), hasExtend);
-        
+
         String firstPrime = Integer.toString(operation.generateFistPrimeNumberForHashCode());
         String secondPrime = Integer.toString(operation.generateSecondPrimeNumberForHashCode());
-        
+
         appender.append("\n");
         writeHashCode(appender, operation.getFields(), hasExtend, firstPrime, secondPrime);
 

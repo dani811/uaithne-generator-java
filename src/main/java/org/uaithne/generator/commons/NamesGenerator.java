@@ -144,9 +144,9 @@ public class NamesGenerator {
             container = (TypeElement) enclosing;
         }
         if (container == null) {
-            return createDataType(element.getQualifiedName().toString());
+            return createDataType(element.getQualifiedName().toString(), null);
         }
-        
+
         DataTypeInfo mirror = handleMirrors(element.getQualifiedName().toString());
         if (mirror != null) {
             return mirror;
@@ -165,7 +165,7 @@ public class NamesGenerator {
         }
         containerPackageName = createPackageNameFromFullName(containerPackageName);
         String packageName = containerPackageName + "." + Utils.firstLower(containerSimpleName);
-        
+
         String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
 
         return new DataTypeInfo(packageName, simpleName);
@@ -174,9 +174,9 @@ public class NamesGenerator {
     private static DataTypeInfo createOperationDataType(Class klass) {
         Class container = klass.getEnclosingClass();
         if (container == null) {
-            return createDataType(klass);
+            return createDataType(klass, null);
         }
-        
+
         DataTypeInfo mirror = handleMirrors(klass.getCanonicalName());
         if (mirror != null) {
             return mirror;
@@ -195,50 +195,88 @@ public class NamesGenerator {
         }
         containerPackageName = createPackageNameFromFullName(containerPackageName);
         String packageName = containerPackageName + "." + Utils.firstLower(containerSimpleName);
-        
+
         String simpleName = Utils.dropFirstUnderscore(klass.getSimpleName());
 
         return new DataTypeInfo(packageName, simpleName);
     }
 
-    @SuppressWarnings("unchecked")
     public static DataTypeInfo createResultDataType(Class klass) {
+        return createResultDataType(klass, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static DataTypeInfo createResultDataType(Class klass, boolean useEnclosing) {
         if (klass.getAnnotation(Entity.class) != null) {
             return createEntityDataType(klass);
         } else if (klass.getAnnotation(EntityView.class) != null) {
             return createEntityDataType(klass);
-        } else if (klass.getAnnotation(Operation.class) != null ||
-                klass.getAnnotation(SelectOne.class) != null ||
-                klass.getAnnotation(SelectMany.class) != null ||
-                klass.getAnnotation(SelectPage.class) != null ||
-                klass.getAnnotation(Insert.class) != null ||
-                klass.getAnnotation(Update.class) != null ||
-                klass.getAnnotation(Delete.class) != null) {
+        } else if (klass.getAnnotation(Operation.class) != null
+                || klass.getAnnotation(SelectOne.class) != null
+                || klass.getAnnotation(SelectMany.class) != null
+                || klass.getAnnotation(SelectPage.class) != null
+                || klass.getAnnotation(Insert.class) != null
+                || klass.getAnnotation(Update.class) != null
+                || klass.getAnnotation(Delete.class) != null) {
             return createOperationDataType(klass);
         } else {
-            return createDataType(klass);
+            if (useEnclosing) {
+                Class enclosing = klass;
+                while (klass.getEnclosingClass() != null) {
+                    enclosing = klass.getEnclosingClass();
+                }
+                String suffix;
+                String className = klass.getCanonicalName();
+                if (enclosing != klass) {
+                    String enclosingName = enclosing.getCanonicalName();
+                    suffix = className.substring(enclosingName.length());
+                } else {
+                    suffix = null;
+                }
+                return createDataType(enclosing, suffix);
+            } else {
+                return createDataType(klass, null);
+            }
         }
     }
 
-    private static DataTypeInfo createResultDataType(TypeElement te) {
+    private static DataTypeInfo createResultDataType(TypeElement te, boolean useEnclosing) {
         if (te.getAnnotation(Entity.class) != null) {
             return createEntityDataType(te);
         } else if (te.getAnnotation(EntityView.class) != null) {
             return createEntityDataType(te);
-        } else if (te.getAnnotation(Operation.class) != null ||
-                te.getAnnotation(SelectOne.class) != null ||
-                te.getAnnotation(SelectMany.class) != null ||
-                te.getAnnotation(SelectPage.class) != null ||
-                te.getAnnotation(Insert.class) != null ||
-                te.getAnnotation(Update.class) != null ||
-                te.getAnnotation(Delete.class) != null) {
+        } else if (te.getAnnotation(Operation.class) != null
+                || te.getAnnotation(SelectOne.class) != null
+                || te.getAnnotation(SelectMany.class) != null
+                || te.getAnnotation(SelectPage.class) != null
+                || te.getAnnotation(Insert.class) != null
+                || te.getAnnotation(Update.class) != null
+                || te.getAnnotation(Delete.class) != null) {
             return createOperationDataType(te);
         } else {
-            return createDataType(te.getQualifiedName().toString());
+            if (useEnclosing) {
+                Element enclosing = te;
+                while (enclosing.getEnclosingElement() != null && enclosing.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
+                    enclosing = enclosing.getEnclosingElement();
+                }
+                String suffix;
+                String className = te.getQualifiedName().toString();
+                String enclosingName;
+                if (enclosing != te && enclosing instanceof TypeElement) {
+                    enclosingName = ((TypeElement) enclosing).getQualifiedName().toString();
+                    suffix = className.substring(enclosingName.length());
+                } else {
+                    enclosingName = className;
+                    suffix = null;
+                }
+                return createDataType(enclosingName, suffix);
+            } else {
+                return createDataType(te.getQualifiedName().toString(), null);
+            }
         }
     }
 
-    private static DataTypeInfo createDataType(Class klass) {
+    private static DataTypeInfo createDataType(Class klass, String suffix) {
         DataTypeInfo mirror = handleMirrors(klass.getCanonicalName());
         if (mirror != null) {
             return mirror;
@@ -251,10 +289,30 @@ public class NamesGenerator {
         } else {
             packageName = "";
         }
-        return new DataTypeInfo(packageName, simpleName);
+
+        if (packageName == null) {
+            packageName = "";
+        }
+
+        if (suffix == null) {
+            suffix = "";
+        }
+
+        String qualifiedName;
+        String importt;
+        if (packageName.isEmpty()) {
+            qualifiedName = simpleName + suffix;
+            importt = simpleName;
+            simpleName = simpleName + suffix;
+        } else {
+            qualifiedName = packageName + "." + simpleName + suffix;
+            importt = packageName + "." + simpleName;
+            simpleName = simpleName + suffix;
+        }
+        return new DataTypeInfo(packageName, simpleName, qualifiedName, importt);
     }
 
-    private static DataTypeInfo createDataType(String className) {
+    private static DataTypeInfo createDataType(String className, String suffix) {
         DataTypeInfo mirror = handleMirrors(className);
         if (mirror != null) {
             return mirror;
@@ -269,7 +327,27 @@ public class NamesGenerator {
             packageName = "";
             simpleName = Utils.dropFirstUnderscore(className);
         }
-        return new DataTypeInfo(packageName, simpleName);
+
+        if (packageName == null) {
+            packageName = "";
+        }
+
+        if (suffix == null) {
+            suffix = "";
+        }
+
+        String qualifiedName;
+        String importt;
+        if (packageName.isEmpty()) {
+            qualifiedName = simpleName + suffix;
+            importt = simpleName;
+            simpleName = simpleName + suffix;
+        } else {
+            qualifiedName = packageName + "." + simpleName + suffix;
+            importt = packageName + "." + simpleName;
+            simpleName = simpleName + suffix;
+        }
+        return new DataTypeInfo(packageName, simpleName, qualifiedName, importt);
     }
 
     public static DataTypeInfo createClassBasedDataType(TypeElement element) {
@@ -287,6 +365,10 @@ public class NamesGenerator {
     }
 
     public static DataTypeInfo createDataTypeFor(TypeMirror t) {
+        return createDataTypeFor(t, false);
+    }
+
+    public static DataTypeInfo createDataTypeFor(TypeMirror t, boolean useEnclosing) {
         if (t == null) {
             return null;
         }
@@ -303,22 +385,22 @@ public class NamesGenerator {
             case NONE: return new DataTypeInfo("/*none*/");
             case NULL: return new DataTypeInfo("null");
             case ARRAY: {
-                    ArrayType at = (ArrayType) t;
-                    DataTypeInfo result = createDataTypeFor(at.getComponentType());
-                    result.setSimpleName(result.getSimpleName() + "[]");
-                    result.setQualifiedName(result.getQualifiedName()+ "[]");
-                    return result;
-                }
+                ArrayType at = (ArrayType) t;
+                DataTypeInfo result = createDataTypeFor(at.getComponentType(), useEnclosing);
+                result.setSimpleName(result.getSimpleName() + "[]");
+                result.setQualifiedName(result.getQualifiedName() + "[]");
+                return result;
+            }
             case WILDCARD:
                 if (t instanceof WildcardType) {
                     WildcardType wt = (WildcardType) t;
                     if (wt.getExtendsBound() != null) {
-                        DataTypeInfo result = createDataTypeFor(wt.getExtendsBound());
+                        DataTypeInfo result = createDataTypeFor(wt.getExtendsBound(), useEnclosing);
                         result.setSimpleName("? extends " + result.getSimpleName());
                         result.setQualifiedName("? extends " + result.getQualifiedName());
                         return result;
                     } else if (wt.getSuperBound() != null) {
-                        DataTypeInfo result = createDataTypeFor(wt.getSuperBound());
+                        DataTypeInfo result = createDataTypeFor(wt.getSuperBound(), useEnclosing);
                         result.setSimpleName("? super " + result.getSimpleName());
                         result.setQualifiedName("? super " + result.getQualifiedName());
                         return result;
@@ -333,21 +415,21 @@ public class NamesGenerator {
                     TypeElement te = (TypeElement) e;
                     List<? extends TypeMirror> typeArguments = dt.getTypeArguments();
                     if (typeArguments != null && !typeArguments.isEmpty()) {
-                        DataTypeInfo result = createResultDataType(te);
+                        DataTypeInfo result = createResultDataType(te, useEnclosing);
                         StringBuilder simple = new StringBuilder(result.getSimpleName());
                         StringBuilder qualified = new StringBuilder(result.getQualifiedName());
                         simple.append("<");
                         qualified.append("<");
                         int limit = typeArguments.size() - 1;
                         for (int i = 0; i < limit; i++) {
-                            DataTypeInfo innerElementName = createDataTypeFor(typeArguments.get(i));
+                            DataTypeInfo innerElementName = createDataTypeFor(typeArguments.get(i), useEnclosing);
                             result.getImports().addAll(innerElementName.getImports());
                             simple.append(innerElementName.getSimpleName());
                             simple.append(", ");
                             qualified.append(innerElementName.getQualifiedName());
                             qualified.append(", ");
                         }
-                        DataTypeInfo innerElementName = createDataTypeFor(typeArguments.get(limit));
+                        DataTypeInfo innerElementName = createDataTypeFor(typeArguments.get(limit), useEnclosing);
                         result.getImports().addAll(innerElementName.getImports());
                         simple.append(innerElementName.getSimpleName());
                         simple.append(">");
@@ -357,26 +439,34 @@ public class NamesGenerator {
                         result.setQualifiedName(qualified.toString());
                         return result;
                     } else {
-                        return createResultDataType(te);
+                        return createResultDataType(te, useEnclosing);
                     }
                 } else {
                     return new DataTypeInfo("/*declared*/");
                 }
-            case ERROR: return new DataTypeInfo("/*error*/");
-            case TYPEVAR: return new DataTypeInfo("/*typevar*/"); // TODO
-            case PACKAGE: return new DataTypeInfo("/*package*/");
-            case EXECUTABLE: return new DataTypeInfo("/*executable*/"); // TODO
-            case OTHER: return new DataTypeInfo("/*other*/");
-            default: return new DataTypeInfo("/*default*/");
+            case ERROR:
+                return new DataTypeInfo("/*error*/");
+            case TYPEVAR:
+                return new DataTypeInfo("/*typevar*/"); // TODO
+            case PACKAGE:
+                return new DataTypeInfo("/*package*/");
+            case EXECUTABLE:
+                return new DataTypeInfo("/*executable*/"); // TODO
+            case OTHER:
+                return new DataTypeInfo("/*other*/");
+            default:
+                return new DataTypeInfo("/*default*/");
         }
     }
 
     private static DataTypeInfo handleMirrors(String className) {
         if ("org.uaithne.mirror.OtherOperation".equals(className)) {
             return new DataTypeInfo(DataTypeInfo.OPERATION_DATA_TYPE);
-        } if ("org.uaithne.mirror.DataListMirror".equals(className)) {
+        }
+        if ("org.uaithne.mirror.DataListMirror".equals(className)) {
             return new DataTypeInfo(DataTypeInfo.LIST_DATA_TYPE);
-        } if ("org.uaithne.mirror.DataPageMirror".equals(className)) {
+        }
+        if ("org.uaithne.mirror.DataPageMirror".equals(className)) {
             return new DataTypeInfo(DataTypeInfo.DATA_PAGE_DATA_TYPE);
         } else {
             return null;
@@ -385,5 +475,4 @@ public class NamesGenerator {
 
     private NamesGenerator() {
     }
-
 }
