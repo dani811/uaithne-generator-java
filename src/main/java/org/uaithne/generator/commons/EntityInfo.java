@@ -45,6 +45,7 @@ public class EntityInfo {
     private boolean hasDeletionMark;
     private boolean ignoreLogicalDeletion;
     private FieldInfo firstIdField;
+    private boolean hasMultiplesIds;
     private boolean deprecated;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
     private DataTypeInfo relatedType;
@@ -99,8 +100,12 @@ public class EntityInfo {
     
     public void addField(FieldInfo fieldInfo) {
         fields.add(fieldInfo);
-        if (fieldInfo.isIdentifier() && firstIdField == null) {
-            firstIdField = fieldInfo;
+        if (fieldInfo.isIdentifier()) {
+            if (firstIdField == null) {
+                firstIdField = fieldInfo;
+            } else {
+                hasMultiplesIds = true;
+            }
         }
         if (fieldInfo.isDeletionMark()) {
             hasDeletionMark = true;
@@ -129,6 +134,10 @@ public class EntityInfo {
 
     public FieldInfo getFirstIdField() {
         return firstIdField;
+    }
+
+    public boolean hasMultiplesIds() {
+        return hasMultiplesIds;
     }
 
     public EntityKind getEntityKind() {
@@ -339,9 +348,12 @@ public class EntityInfo {
         combined.manually = this.manually || other.manually;
         combined.hasDeletionMark = this.hasDeletionMark || other.hasDeletionMark;
         combined.ignoreLogicalDeletion = this.ignoreLogicalDeletion || other.ignoreLogicalDeletion;
+        combined.hasMultiplesIds = this.hasMultiplesIds || other.hasMultiplesIds;
         combined.firstIdField = this.firstIdField;
         if (combined.firstIdField == null) {
             combined.firstIdField = other.firstIdField;
+        } else if (other.firstIdField != null) {
+            hasMultiplesIds = true;
         }
         combined.annotations.putAll(this.annotations);
     }

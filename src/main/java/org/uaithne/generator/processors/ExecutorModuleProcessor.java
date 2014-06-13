@@ -116,6 +116,36 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     processDelete(re, (TypeElement) enclosedModuleElement, executorModuleInfo, delete);
                     continue;
                 }
+                InsertEntity insertEntity = enclosedModuleElement.getAnnotation(InsertEntity.class);
+                if (insertEntity != null) {
+                    processInsertEntity(re, (TypeElement) enclosedModuleElement, executorModuleInfo, insertEntity);
+                    continue;
+                }
+                UpdateEntity updateEntity = enclosedModuleElement.getAnnotation(UpdateEntity.class);
+                if (updateEntity != null) {
+                    processUpdateEntity(re, (TypeElement) enclosedModuleElement, executorModuleInfo, updateEntity);
+                    continue;
+                }
+                DeleteEntityById deleteEntityById = enclosedModuleElement.getAnnotation(DeleteEntityById.class);
+                if (deleteEntityById != null) {
+                    processDeleteEntityById(re, (TypeElement) enclosedModuleElement, executorModuleInfo, deleteEntityById);
+                    continue;
+                }
+                SelectEntityById selectEntityById = enclosedModuleElement.getAnnotation(SelectEntityById.class);
+                if (selectEntityById != null) {
+                    processSelectEntityById(re, (TypeElement) enclosedModuleElement, executorModuleInfo, selectEntityById);
+                    continue;
+                }
+                SaveEntity saveEntity = enclosedModuleElement.getAnnotation(SaveEntity.class);
+                if (saveEntity != null) {
+                    processSaveEntity(re, (TypeElement) enclosedModuleElement, executorModuleInfo, saveEntity);
+                    continue;
+                }
+                MergeEntity mergeEntity = enclosedModuleElement.getAnnotation(MergeEntity.class);
+                if (mergeEntity != null) {
+                    processMergeEntity(re, (TypeElement) enclosedModuleElement, executorModuleInfo, mergeEntity);
+                    continue;
+                }
             }
         }
     }
@@ -372,12 +402,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (operation.returnLastInsertedId()) {
             operationKind = OperationKind.CUSTOM_INSERT_WITH_ID;
             FieldInfo id = entity.getCombined().getFirstIdField();
-            if (id != null) {
-                resultDataType = id.getDataType().ensureBoxed();
-            } else {
+            if (id == null) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
                 return;
+            } else if (entity.getCombined().hasMultiplesIds()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an insert operation that return the last inserted id", element);
+                return;
             }
+            resultDataType = id.getDataType().ensureBoxed();
         } else {
             resultDataType = DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE;
             operationKind = OperationKind.CUSTOM_INSERT;
@@ -504,19 +536,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
 
         EntityInfo combinedEntity = entityInfo.getCombined();
-        FieldInfo idInfo;
-        boolean firstIdFieldFound = false;
-        boolean secondIdFieldFound = false;
-        for (FieldInfo field : combinedEntity.getFields()) {
-            if (field.isIdentifier()) {
-                secondIdFieldFound = firstIdFieldFound;
-                firstIdFieldFound = true;
-            }
-        }
-        if (!firstIdFieldFound) {
+        FieldInfo idInfo = combinedEntity.getFirstIdField();
+        if (idInfo == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define an id for use in an executor group", element);
             return;
-        } else if (secondIdFieldFound) {
+        } else if (combinedEntity.hasMultiplesIds()) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an executor group", element);
             return;
         } else {
@@ -653,6 +677,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         /* ****************************************************************************************
          * *** Save operation
          */
+        
+        if (generateSaveOperation || generateJustSaveOperation) {
+            DataTypeInfo realIdDataType = combinedEntity.getFirstIdField().getDataType();
+            if (realIdDataType.isPrimitive()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For generate the save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + realIdDataType.ensureBoxed().getSimpleName() + " instead of " + realIdDataType.getSimpleName(), element);
+            }   
+        }
+        
         if (generateSaveOperation) {
             DataTypeInfo saveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Save" + entityDataType.getSimpleNameWithoutGenerics());
@@ -753,6 +785,356 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             mergeOperationInfo.setManually(entityInfo.getCombined().isManually());
             generationInfo.addOperation(mergeOperationInfo, executorModuleInfo);
         }
+    }
+    
+    private boolean hasMembers(TypeElement element) {
+        for (Element enclosedElement : element.getEnclosedElements()) {
+            if (enclosedElement.getKind() == ElementKind.FIELD) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void processInsertEntity(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, InsertEntity operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo entityDataType;
+
+        try {
+            entityDataType = NamesGenerator.createResultDataType(operation.value());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            entityDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (entityDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", element);
+            return;
+        }
+
+        EntityInfo entity = generationInfo.getEntityByName(entityDataType);
+        if (entity == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
+            return;
+        }
+        
+        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
+        valueInfo.setMarkAsOvwrride(true);
+        valueInfo.setOptional(false);
+        valueInfo.setIdentifier(false);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setEntity(entity);
+        operationInfo.addField(valueInfo);
+        
+        if (operation.justInsert()) {
+            operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+            operationInfo.setOperationKind(OperationKind.JUST_INSERT);
+
+            DataTypeInfo justInsertOperationInterface = DataTypeInfo.JUST_INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+            operationInfo.addImplement(justInsertOperationInterface);
+        } else {
+            FieldInfo id = entity.getCombined().getFirstIdField();
+            if (id == null) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
+                return;
+            } else if (entity.getCombined().hasMultiplesIds()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an insert entity operation that return the last inserted id", element);
+                return;
+            }
+            DataTypeInfo idDataType = id.getDataType().ensureBoxed();
+            operationInfo.setReturnDataType(idDataType);
+            operationInfo.setOperationKind(OperationKind.INSERT);
+
+            DataTypeInfo insertOperationInterface = DataTypeInfo.INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
+            operationInfo.addImplement(insertOperationInterface);
+        }
+        
+        if (hasMembers(element)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Insert entity operations do not allow define members", element);
+        }
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processUpdateEntity(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, UpdateEntity operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo entityDataType;
+
+        try {
+            entityDataType = NamesGenerator.createResultDataType(operation.value());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            entityDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (entityDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", element);
+            return;
+        }
+
+        EntityInfo entity = generationInfo.getEntityByName(entityDataType);
+        if (entity == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
+            return;
+        }
+        
+        FieldInfo id = entity.getCombined().getFirstIdField();
+        if (id == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
+            return;
+        } else if (entity.getCombined().hasMultiplesIds()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an update entity operation", element);
+            return;
+        }
+        
+        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
+        valueInfo.setMarkAsOvwrride(true);
+        valueInfo.setOptional(false);
+        valueInfo.setIdentifier(false);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        operationInfo.setOperationKind(OperationKind.UPDATE);
+
+        DataTypeInfo updateOperationInterface = DataTypeInfo.UPDATE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        operationInfo.addImplement(updateOperationInterface);
+
+        operationInfo.addField(valueInfo);
+        operationInfo.setEntity(entity);
+        
+        if (hasMembers(element)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Update entity operations do not allow define members", element);
+        }
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processDeleteEntityById(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, DeleteEntityById operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo entityDataType;
+
+        try {
+            entityDataType = NamesGenerator.createResultDataType(operation.related());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            entityDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (entityDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", element);
+            return;
+        }
+
+        EntityInfo entity = generationInfo.getEntityByName(entityDataType);
+        if (entity == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
+            return;
+        }
+        
+        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
+        valueInfo.setMarkAsOvwrride(true);
+        valueInfo.setOptional(false);
+        valueInfo.setIdentifier(false);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        FieldInfo id = entity.getCombined().getFirstIdField();
+        if (id == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
+            return;
+        } else if (entity.getCombined().hasMultiplesIds()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an delete entity by id operation", element);
+            return;
+        }
+        id = new FieldInfo("id", id);
+        id.setMarkAsOvwrride(true);
+        id.setOptional(false);
+        id.setIdentifier(true);
+
+        DataTypeInfo idDataType = id.getDataType().ensureBoxed();
+        id.setDataType(idDataType);
+
+        operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        operationInfo.setOperationKind(OperationKind.DELETE_BY_ID);
+
+        DataTypeInfo deleteOperationInterface = DataTypeInfo.DELETE_BY_ID_OPERATION_DATA_TYPE.of(idDataType, DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        operationInfo.addImplement(deleteOperationInterface);
+
+        operationInfo.addField(id);
+        operationInfo.setEntity(entity);
+        
+        if (hasMembers(element)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Delete entity by id operations do not allow define members", element);
+        }
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processSelectEntityById(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, SelectEntityById operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo entityDataType;
+
+        try {
+            entityDataType = NamesGenerator.createResultDataType(operation.result());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            entityDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (entityDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", element);
+            return;
+        }
+
+        EntityInfo entity = generationInfo.getEntityByName(entityDataType);
+        if (entity == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
+            return;
+        }
+        
+        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
+        valueInfo.setMarkAsOvwrride(true);
+        valueInfo.setOptional(false);
+        valueInfo.setIdentifier(false);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        FieldInfo id = entity.getCombined().getFirstIdField();
+        if (id == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
+            return;
+        } else if (entity.getCombined().hasMultiplesIds()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an select entity by id operation", element);
+            return;
+        } 
+        id = new FieldInfo("id", id);
+        id.setMarkAsOvwrride(true);
+        id.setOptional(false);
+        id.setIdentifier(true);
+
+        DataTypeInfo idDataType = id.getDataType().ensureBoxed();
+        id.setDataType(idDataType);
+
+        operationInfo.setReturnDataType(entityDataType);
+        operationInfo.setOperationKind(OperationKind.SELECT_BY_ID);
+
+        DataTypeInfo selectOperationInterface = DataTypeInfo.SELECT_BY_ID_OPERATION_DATA_TYPE.of(idDataType, entityDataType);
+        operationInfo.addImplement(selectOperationInterface);
+
+        operationInfo.addField(id);
+        operationInfo.setEntity(entity);
+        
+        if (hasMembers(element)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Select entity by id operations do not allow define members", element);
+        }
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processSaveEntity(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, SaveEntity operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo entityDataType;
+
+        try {
+            entityDataType = NamesGenerator.createResultDataType(operation.value());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            entityDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (entityDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", element);
+            return;
+        }
+
+        EntityInfo entity = generationInfo.getEntityByName(entityDataType);
+        if (entity == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
+            return;
+        }
+        
+        FieldInfo id = entity.getCombined().getFirstIdField();
+        if (id == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
+            return;
+        } else if (entity.getCombined().hasMultiplesIds()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an save entity operation", element);
+            return;
+        }
+        DataTypeInfo idDataType = id.getDataType();
+        if (idDataType.isPrimitive()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For use a save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + idDataType.ensureBoxed().getSimpleName() + " instead of " + idDataType.getSimpleName(), element);
+        }
+        
+        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
+        valueInfo.setMarkAsOvwrride(true);
+        valueInfo.setOptional(false);
+        valueInfo.setIdentifier(false);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setEntity(entity);
+        operationInfo.addField(valueInfo);
+        
+        if (operation.justSave()) {
+            operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+            operationInfo.setOperationKind(OperationKind.JUST_SAVE);
+
+            DataTypeInfo justSaveOperationInterface = DataTypeInfo.JUST_SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+            operationInfo.addImplement(justSaveOperationInterface);
+        } else {
+            idDataType = idDataType.ensureBoxed();
+            operationInfo.setReturnDataType(idDataType);
+            operationInfo.setOperationKind(OperationKind.SAVE);
+
+            DataTypeInfo saveOperationInterface = DataTypeInfo.SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
+            operationInfo.addImplement(saveOperationInterface);
+        }
+        
+        if (hasMembers(element)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Save entity operations do not allow define members", element);
+        }
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processMergeEntity(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, MergeEntity operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo entityDataType;
+
+        try {
+            entityDataType = NamesGenerator.createResultDataType(operation.value());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            entityDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (entityDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", element);
+            return;
+        }
+
+        EntityInfo entity = generationInfo.getEntityByName(entityDataType);
+        if (entity == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
+            return;
+        }
+        
+        FieldInfo id = entity.getCombined().getFirstIdField();
+        if (id == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);
+            return;
+        } else if (entity.getCombined().hasMultiplesIds()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an merge entity operation", element);
+            return;
+        }
+        
+        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
+        valueInfo.setMarkAsOvwrride(true);
+        valueInfo.setOptional(false);
+        valueInfo.setIdentifier(false);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        operationInfo.setOperationKind(OperationKind.MERGE);
+
+        DataTypeInfo mergeOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        operationInfo.addImplement(mergeOperationInterface);
+
+        operationInfo.addField(valueInfo);
+        operationInfo.setEntity(entity);
+        
+        if (hasMembers(element)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Merge entity operations do not allow define members", element);
+        }
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
 
     public void generateOperations(RoundEnvironment re, ExecutorModuleInfo executorModuleInfo) {
