@@ -152,7 +152,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -200,7 +200,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -248,7 +248,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -285,7 +285,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -345,7 +345,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -384,7 +384,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -497,7 +497,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -537,7 +537,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -575,7 +575,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -615,7 +615,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
@@ -653,7 +653,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);

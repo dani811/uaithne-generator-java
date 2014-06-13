@@ -392,6 +392,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
     }
 
     void writeStartOrderByVariable(Appendable appender, OperationInfo operation) throws IOException {
+        if (!operation.isOrdered() || operation.getEntity() == null) {
+            return;
+        }
         for (FieldInfo field : operation.getFields()) {
             if (field.isOrderBy()) {
                 appender.append("        ").append(field.getDataType().getSimpleName()).append(" ").append(field.getName()).append("Old = operation.get").append(field.getCapitalizedName()).append("();\n"
@@ -401,6 +404,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
     }
 
     void writeEndOrderByVariable(Appendable appender, OperationInfo operation) throws IOException {
+        if (!operation.isOrdered() || operation.getEntity() == null) {
+            return;
+        }
         for (FieldInfo field : operation.getFields()) {
             if (field.isOrderBy()) {
                 appender.append("        operation.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append("Old);\n");

@@ -78,7 +78,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         if (query == null && customQuery == null) {
             if (entity == null) {
                 getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                        "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                        "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                         operation.getElement());
                 return null;
             }
@@ -89,7 +89,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (query.isEmpty()) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                            "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                             operation.getElement());
                     return null;
                 }
@@ -97,7 +97,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.startsWith("from")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addSelect = true;
@@ -105,7 +105,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.startsWith("where")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addSelect = addFrom = true;
@@ -113,7 +113,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.startsWith("group")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                            "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addSelect = addFrom = addWhere = true;
@@ -121,7 +121,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.startsWith("order")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
+                            "Unable to automatically generate the query for this operation, enter the query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addSelect = addFrom = addWhere = addGroupBy = true;
@@ -129,7 +129,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.endsWith("select...")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addSelect = addFrom = addWhere = addGroupBy = addOrderBy = prepend = true;
@@ -138,7 +138,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.endsWith("from...")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addFrom = addWhere = addGroupBy = addOrderBy = prepend = true;
@@ -147,7 +147,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.endsWith("where...")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addWhere = addGroupBy = addOrderBy = prepend = true;
@@ -156,7 +156,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.endsWith("group...")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addGroupBy = addOrderBy = prepend = true;
@@ -165,7 +165,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else if (queryLowerCase.endsWith("order...")) {
                 if (entity == null) {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
+                            "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
                             operation.getElement());
                 } else {
                     addOrderBy = prepend = true;
@@ -181,7 +181,21 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 appendToQueryln(appender, customQuery.query(), "");
                 return appender.toString();
             } else if (query == null) {
-                addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
+                if (entity == null) {
+                    if (!hasQueryValue(customQuery.select()) || !hasQueryValue(customQuery.from())) {
+                        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
+                                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
+                                operation.getElement());
+                    } else if (operation.isOrdered()) {
+                        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
+                                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
+                                operation.getElement());
+                    } else {
+                        addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
+                    }
+                } else {
+                    addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
+                }
             }
         }
         
@@ -397,7 +411,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 hasConditions = true;
             }
         }
-        if (operation.isUseLogicalDeletion()) {
+        if (operation.isUseLogicalDeletion() && operation.getEntity() != null) {
             List<FieldInfo> entityFields = operation.getEntity().getCombined().getFields();
             for (FieldInfo field : entityFields) {
                 if (field.isManually()) {
