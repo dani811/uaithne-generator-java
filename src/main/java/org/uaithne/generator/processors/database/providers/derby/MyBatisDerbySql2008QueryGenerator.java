@@ -26,12 +26,12 @@ public class MyBatisDerbySql2008QueryGenerator extends MyBatisSql2008QueryGenera
 
     @Override
     public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"next value for " + getSequenceName(getTableName(entity))};
+        return new String[] {"next value for " + getIdSequenceName(entity, field)};
     }
     
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select currentvalue from sys.syssequences where sequencename = '" + getSequenceName(getTableName(entity)) + "'"};
+        return new String[] {"select currentvalue from sys.syssequences where sequencename = '" + getIdSequenceName(entity, field) + "'"};
     }
 
 }

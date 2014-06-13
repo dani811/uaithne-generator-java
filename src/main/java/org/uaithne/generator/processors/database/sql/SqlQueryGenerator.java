@@ -26,6 +26,7 @@ import javax.tools.Diagnostic;
 import org.uaithne.annotations.Comparator;
 import org.uaithne.annotations.EntityQueries;
 import org.uaithne.annotations.IdQueries;
+import org.uaithne.annotations.IdSequenceName;
 import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.PageQueries;
 import org.uaithne.annotations.Query;
@@ -76,7 +77,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
         if (query == null && customQuery == null) {
             if (entity == null) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                         "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
                         operation.getElement());
                 return null;
@@ -87,7 +88,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             String queryLowerCase = query.toLowerCase();
             if (query.isEmpty()) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
                             operation.getElement());
                     return null;
@@ -95,7 +96,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 addSelect = addFrom = addWhere = addGroupBy = addOrderBy = ignoreQuery = true;
             } else if (queryLowerCase.startsWith("from")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -103,7 +104,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.startsWith("where")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -111,7 +112,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.startsWith("group")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -119,7 +120,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.startsWith("order")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically generate the query for this operation, enter the query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -127,7 +128,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.endsWith("select...")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -136,7 +137,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.endsWith("from...")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -145,7 +146,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.endsWith("where...")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -154,7 +155,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.endsWith("group...")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -163,7 +164,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else if (queryLowerCase.endsWith("order...")) {
                 if (entity == null) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation",
                             operation.getElement());
                 } else {
@@ -882,7 +883,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
                 
                 if (!hasSetValueFields) {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An update operation must has SetValue fields for generate the query", operation.getElement());
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "An update operation must has SetValue fields for generate the query", operation.getElement());
                     return new String[]{""};
                 }
 
@@ -1272,11 +1273,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     }
 
     @Override
-    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation) {
+    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation, boolean excludeSequenceQuery) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
         if (query == null) {
-            finalQuery = joinln(getIdCurrentValue(entity, entity.getFirstIdField()));
+            finalQuery = joinln(getIdCurrentValue(entity, entity.getFirstIdField(), excludeSequenceQuery));
+            if (finalQuery == null) {
+                return null;
+            }
         } else {
             finalQuery = joinln(query.lastInsertedId());
         }
@@ -1623,6 +1627,42 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="For generate entity queries">
+    private static final Pattern idSecuenceNameTemplatePattern = Pattern.compile("\\[\\[(.*?)\\]\\]");
+    public String getIdSequenceName(EntityInfo entity, FieldInfo field) {
+        String table = joinsp(getTableName(entity));
+        String column = getColumnName(field);
+        String template;
+        IdSequenceName idSequenceName = field.getAnnotation(IdSequenceName.class);
+        if (idSequenceName != null) {
+            template = idSequenceName.value();
+        } else {
+            idSequenceName = entity.getAnnotation(IdSequenceName.class);
+            if (idSequenceName != null) {
+                template = idSequenceName.value();
+            } else {
+                template = getConfiguration().getIdSecuenceNameTemplate();
+            }
+        }
+        Matcher matcher = idSecuenceNameTemplatePattern.matcher(template);
+        StringBuffer sb = new StringBuffer(template.length());
+        while (matcher.find()) {
+            String rule = matcher.group(1);
+            if ("column".equals(rule)) {
+                matcher.appendReplacement(sb, column);
+            } else if ("COLUMN".equals(rule)) {
+                matcher.appendReplacement(sb, column);
+            } else if ("table".equals(rule)) {
+                matcher.appendReplacement(sb, table);
+            } else if ("TABLE".equals(rule)) {
+                matcher.appendReplacement(sb, table);
+            } else {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid template rule for generate the id sequence name: " + matcher.group(), field.getElement());
+            }
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
     public String[] getTableName(EntityInfo entity) {
         return getMappedName(entity);
     }
@@ -1640,10 +1680,18 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             idQueries = entity.getAnnotation(IdQueries.class);
             if (idQueries != null) {
                 return true;
-            } else {
-                return !useAutoIncrementId();
             }
         }
+        IdSequenceName idSequenceName = field.getAnnotation(IdSequenceName.class);
+        if (idSequenceName != null) {
+            return true;
+        } else {
+            idSequenceName = entity.getAnnotation(IdSequenceName.class);
+            if (idSequenceName != null) {
+                return true;
+            }
+        }
+        return !getConfiguration().useAutoIncrementId();
     }
 
     public String[] getIdNextValue(EntityInfo entity, FieldInfo field) {
@@ -1677,7 +1725,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
     }
 
-    public String[] getIdCurrentValue(EntityInfo entity, FieldInfo field) {
+    public String[] getIdCurrentValue(EntityInfo entity, FieldInfo field, boolean excludeSequenceQuery) {
         IdQueries idQueries = field.getAnnotation(IdQueries.class);
         if (idQueries != null) {
             return idQueries.selectCurrentValue();
@@ -1685,8 +1733,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             idQueries = entity.getAnnotation(IdQueries.class);
             if (idQueries != null) {
                 return idQueries.selectCurrentValue();
-            } else {
+            } else if (!excludeSequenceQuery) {
                 return getIdSequenceCurrentValue(entity, field);
+            } else {
+                return null;
             }
         }
 
@@ -1720,7 +1770,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         String rulec = matcherc.group(1);
                         String valuec = getConditionElementValue(rulec, field, customQuery);
                         if (valuec == null) {
-                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator rule element: " + matcherc.group(), field.getElement());
+                            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator rule element: " + matcherc.group(), field.getElement());
                         } else {
                             matcherc.appendReplacement(sbc, valuec);
                         }
@@ -1730,7 +1780,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
                 matcher.appendReplacement(sb, condition);
             } else {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator element: " + matcher.group(), field.getElement());
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator element: " + matcher.group(), field.getElement());
             }
         }
         matcher.appendTail(sb);
@@ -1760,7 +1810,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             String name = matcher.group(1);
             FieldInfo field = operation.getFieldByName(name);
             if (field == null) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
                 continue;
             }
 
@@ -1862,7 +1912,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 } else if ("notIcontains".equals(rule) || "NOT_ICONTAINS".equals(rule) || "notContainsInsensitive".equals(rule) || "NOT_CONTAINS_INSENSITIVE".equals(rule)) {
                     comparator = Comparator.NOT_CONTAINS_INSENSITIVE;
                 } else {
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator rule used in: " + matcher.group(), operation.getElement());
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator rule used in: " + matcher.group(), operation.getElement());
                     continue;
                 }
                 comparatorTemplate = translateComparator(comparator);

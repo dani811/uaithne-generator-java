@@ -34,17 +34,6 @@ import org.uaithne.generator.commons.OperationInfo;
 public class SqlGeneratorTest {
 
     @Test
-    public void testGetSequenceName() {
-        String[] tableName = new String[]{"test", "for", "get", "sequenceName"};
-        SqlGenerator instance = new SqlGeneratorImpl();
-        instance.setSequenceRegex("[eo][nr]|e$");
-        instance.setSequenceReplacement("x");
-        String expResult = "test fx get sequxceNamx";
-        String result = instance.getSequenceName(tableName);
-        assertEquals(expResult, result);
-    }
-
-    @Test
     public void testGetComparatorFromFieldWithUseComparatorAnnotation() {
         FieldInfo field = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         field.addAnnotation(new UseComparator() {
@@ -313,7 +302,7 @@ public class SqlGeneratorTest {
         }
 
         @Override
-        public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation) {
+        public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation, boolean excludeSequenceQuery) {
             throw new UnsupportedOperationException("No needed for test");
         }
 

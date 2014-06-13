@@ -16,15 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.annotations.myBatis;
+package org.uaithne.annotations;
 
-import org.uaithne.annotations.Ternary;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-public @interface MyBatisBackendConfiguration {
-    MyBatisBackend backend();
-    String subPackageName() default "myBatis";
-    String mapperPrefix() default "MyBatis";
-    String mapperSuffix() default "Mapper";
-    String idSecuenceNameTemplate() default "[[table]]_[[column]]_seq";
-    Ternary useAutoIncrementId() default Ternary.UNSPECIFIED;
+@Retention(RetentionPolicy.SOURCE)
+public @interface IdSequenceName {
+    public String value();
 }

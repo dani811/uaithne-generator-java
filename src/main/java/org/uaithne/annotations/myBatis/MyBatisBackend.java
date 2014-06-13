@@ -30,33 +30,35 @@ import org.uaithne.generator.processors.database.providers.sqlServer.MyBatisSqlS
 import org.uaithne.generator.processors.database.providers.sqlServer.MyBatisSqlServer2012SqlQueryGenerator;
 
 public enum MyBatisBackend {
-    ORACLE_10_OLD     (MyBatisOracle10OldSqlQueryGenerator.class,   false ),
-    ORACLE_10         (MyBatisOracle10SqlQueryGenerator.class,      false ),
-    ORACLE_11         (MyBatisOracle10SqlQueryGenerator.class,      false ),
-    ORACLE_12         (MyBatisOracle12SqlQueryGenerator.class,      false ),
-    ORACLE_10_PROCEDURE(MyBatisOracle10ProcedureGenerator.class,     false ),
-    SQL_SERVER_2005   (MyBatisSqlServer2005SqlQueryGenerator.class, true  ),
-    SQL_SERVER_2008   (MyBatisSqlServer2005SqlQueryGenerator.class, true  ),
-    SQL_SERVER_2008_R2(MyBatisSqlServer2005SqlQueryGenerator.class, true  ),
-    SQL_SERVER_2012   (MyBatisSqlServer2012SqlQueryGenerator.class, true  ),
-    POSTGRE_SQL_8_4   (MyBatisPostgreSql2008QueryGenerator.class,   true  ),
-    POSTGRE_SQL_9_0   (MyBatisPostgreSql2008QueryGenerator.class,   true  ),
-    POSTGRE_SQL_9_1   (MyBatisPostgreSql2008QueryGenerator.class,   true  ),
-    POSTGRE_SQL_9_2   (MyBatisPostgreSql2008QueryGenerator.class,   true  ),
-    POSTGRE_SQL_9_3   (MyBatisPostgreSql2008QueryGenerator.class,   true  ),
-    DERBY_10_6        (MyBatisDerbySql2008QueryGenerator.class,     true  ),
-    DERBY_10_7        (MyBatisDerbySql2008QueryGenerator.class,     true  ),
-    DERBY_10_8        (MyBatisDerbySql2008QueryGenerator.class,     true  ),
-    DERBY_10_9        (MyBatisDerbySql2008QueryGenerator.class,     true  ),
-    DERBY_10_10       (MyBatisDerbySql2008QueryGenerator.class,     true  ),
-    SQL_2008          (MyBatisSql2008QueryGenerator.class,          true  );
+    ORACLE_10_OLD     (MyBatisOracle10OldSqlQueryGenerator.class,   false, false ),
+    ORACLE_10         (MyBatisOracle10SqlQueryGenerator.class,      false, true  ),
+    ORACLE_11         (MyBatisOracle10SqlQueryGenerator.class,      false, true  ),
+    ORACLE_12         (MyBatisOracle12SqlQueryGenerator.class,      false, true  ),
+    ORACLE_10_PROCEDURE(MyBatisOracle10ProcedureGenerator.class,    false, true  ),
+    SQL_SERVER_2005   (MyBatisSqlServer2005SqlQueryGenerator.class, true,  true  ),
+    SQL_SERVER_2008   (MyBatisSqlServer2005SqlQueryGenerator.class, true,  true  ),
+    SQL_SERVER_2008_R2(MyBatisSqlServer2005SqlQueryGenerator.class, true,  true  ),
+    SQL_SERVER_2012   (MyBatisSqlServer2012SqlQueryGenerator.class, true,  true  ),
+    POSTGRE_SQL_8_4   (MyBatisPostgreSql2008QueryGenerator.class,   true,  true  ),
+    POSTGRE_SQL_9_0   (MyBatisPostgreSql2008QueryGenerator.class,   true,  true  ),
+    POSTGRE_SQL_9_1   (MyBatisPostgreSql2008QueryGenerator.class,   true,  true  ),
+    POSTGRE_SQL_9_2   (MyBatisPostgreSql2008QueryGenerator.class,   true,  true  ),
+    POSTGRE_SQL_9_3   (MyBatisPostgreSql2008QueryGenerator.class,   true,  true  ),
+    DERBY_10_6        (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
+    DERBY_10_7        (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
+    DERBY_10_8        (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
+    DERBY_10_9        (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
+    DERBY_10_10       (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
+    SQL_2008          (MyBatisSql2008QueryGenerator.class,          true,  true  );
     
     private final Class generator;
     private final boolean useAutoIncrementId;
+    private final boolean useGeneratedKeys;
 
-    private MyBatisBackend(Class generator, boolean useAutoIncrementId) {
+    private MyBatisBackend(Class generator, boolean useAutoIncrementId, boolean useGeneratedKeys) {
         this.generator = generator;
         this.useAutoIncrementId = useAutoIncrementId;
+        this.useGeneratedKeys = useGeneratedKeys;
     }
     
     public QueryGenerator getGenerator() {
@@ -71,6 +73,10 @@ public enum MyBatisBackend {
 
     public boolean useAutoIncrementId() {
         return useAutoIncrementId;
+    }
+
+    public boolean useGeneratedKeys() {
+        return useGeneratedKeys;
     }
     
 }

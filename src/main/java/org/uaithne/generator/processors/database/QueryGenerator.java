@@ -18,21 +18,13 @@
  */
 package org.uaithne.generator.processors.database;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import org.uaithne.generator.commons.EntityInfo;
-import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.OperationInfo;
 
 public interface QueryGenerator {
-    public ProcessingEnvironment getProcessingEnv();
-    public void setProcessingEnv(ProcessingEnvironment processingEnv);
-    public boolean useAutoIncrementId();
-    public void setUseAutoIncrementId(boolean useAutoIncrementId);
-    public String getSequenceRegex();
-    public void setSequenceRegex(String sequenceRegex);
-    public String getSequenceReplacement();
-    public void setSequenceReplacement(String sequenceReplacement);
-    public void begin(ExecutorModuleInfo module, String packageName, String name);
+    public QueryGeneratorConfiguration getConfiguration();
+    public void setConfiguration(QueryGeneratorConfiguration configuration);
+    public void begin();
     public void end();
     public String[] getSelectManyQuery(OperationInfo operation);
     public String[] getSelectOneQuery(OperationInfo operation);
@@ -40,7 +32,7 @@ public interface QueryGenerator {
     public String[] getSelectPageQuery(OperationInfo operation);
     public String[] getEntityDeleteByIdQuery(EntityInfo entity, OperationInfo operation);
     public String[] getEntityInsertQuery(EntityInfo entity, OperationInfo operation);
-    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation);
+    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation, boolean excludeSequenceQuery);
     public String[] getEntityMergeQuery(EntityInfo entity, OperationInfo operation);
     public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation);
     public String[] getEntityUpdateQuery(EntityInfo entity, OperationInfo operation);

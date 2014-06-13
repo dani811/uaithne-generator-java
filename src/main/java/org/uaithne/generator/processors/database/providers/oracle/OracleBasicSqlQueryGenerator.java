@@ -123,7 +123,7 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     @Override
     public void appendOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         for (FieldInfo orderBy : orderBys) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql order by generation", orderBy.getElement());
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql order by generation", orderBy.getElement());
         }
     }
     

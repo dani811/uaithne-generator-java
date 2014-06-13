@@ -25,24 +25,28 @@ import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.UseComparator;
 import org.uaithne.annotations.UseCustomComparator;
 import org.uaithne.generator.commons.EntityInfo;
-import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
 
 public abstract class SqlGenerator implements QueryGenerator {
     
-    protected ProcessingEnvironment processingEnv;
-    private boolean useAutoIncrementId;
-    private String sequenceRegex;
-    private String sequenceReplacement;
+    private QueryGeneratorConfiguration configuration;
 
     @Override
-    public ProcessingEnvironment getProcessingEnv() {
-        return processingEnv;
+    public QueryGeneratorConfiguration getConfiguration() {
+        return configuration;
     }
 
     @Override
-    public void setProcessingEnv(ProcessingEnvironment processingEnv) {
-        this.processingEnv = processingEnv;
+    public void setConfiguration(QueryGeneratorConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    public ProcessingEnvironment getProcessingEnv() {
+        if (configuration == null) {
+            return null;
+        }
+        return configuration.getProcessingEnv();
     }
     
     @Override
@@ -51,41 +55,7 @@ public abstract class SqlGenerator implements QueryGenerator {
     }
     
     @Override
-    public boolean useAutoIncrementId() {
-        return useAutoIncrementId;
-    }
-    
-    @Override
-    public void setUseAutoIncrementId(boolean useAutoIncrementId) {
-        this.useAutoIncrementId = useAutoIncrementId;
-    }
-    
-    @Override
-    public String getSequenceRegex() {
-        return sequenceRegex;
-    }
-    
-    @Override
-    public void setSequenceRegex(String sequenceRegex) {
-        this.sequenceRegex = sequenceRegex;
-    }
-    
-    @Override
-    public String getSequenceReplacement() {
-        return sequenceReplacement;
-    }
-    
-    @Override
-    public void setSequenceReplacement(String sequenceReplacement) {
-        this.sequenceReplacement = sequenceReplacement;
-    }
-    
-    public String getSequenceName(String[] tableName) {
-        return joinsp(tableName).replaceAll(sequenceRegex, sequenceReplacement);
-    }
-
-    @Override
-    public void begin(ExecutorModuleInfo module, String packageName, String name) {
+    public void begin() {
     }
 
     @Override

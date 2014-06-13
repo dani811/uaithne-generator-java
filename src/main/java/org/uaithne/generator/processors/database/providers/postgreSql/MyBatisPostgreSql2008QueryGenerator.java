@@ -27,12 +27,12 @@ public class MyBatisPostgreSql2008QueryGenerator extends MyBatisSql2008QueryGene
 
     @Override
     public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"nextval('" + getSequenceName(getTableName(entity)) + "')"};
+        return new String[] {"nextval('" + getIdSequenceName(entity, field) + "')"};
     }
     
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select currval('" + getSequenceName(getTableName(entity)) + "')"};
+        return new String[] {"select currval('" + getIdSequenceName(entity, field) + "')"};
     }
 
     @Override

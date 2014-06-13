@@ -22,13 +22,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import org.uaithne.generator.commons.EntityInfo;
-import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.processors.database.QueryGenerator;
+import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
 import org.uaithne.generator.processors.database.sql.SqlGenerator;
 
 public class MyBatisSqlCallOrQueryGenerator extends SqlGenerator {
@@ -41,9 +40,6 @@ public class MyBatisSqlCallOrQueryGenerator extends SqlGenerator {
     private QueryGenerator callGenerator;
     private QueryGenerator queryGenerator;
     private QueryGenerator procedureGenerator;
-    private ExecutorModuleInfo module;
-    private String packageName;
-    private String name;
     private Writer writer;
 
     public MyBatisSqlCallOrQueryGenerator(QueryGenerator callGenerator, QueryGenerator queryGenerator, QueryGenerator procedureGenerator) {
@@ -117,76 +113,31 @@ public class MyBatisSqlCallOrQueryGenerator extends SqlGenerator {
     }
 
     @Override
-    public void setProcessingEnv(ProcessingEnvironment processingEnv) {
-        super.setProcessingEnv(processingEnv);
+    public void setConfiguration(QueryGeneratorConfiguration configuration) {
+        super.setConfiguration(configuration);
         if (callGenerator != null) {
-            callGenerator.setProcessingEnv(processingEnv);
+            callGenerator.setConfiguration(configuration);
         }
         if (queryGenerator != null) {
-            queryGenerator.setProcessingEnv(processingEnv);
+            queryGenerator.setConfiguration(configuration);
         }
         if (procedureGenerator != null) {
-            procedureGenerator.setProcessingEnv(processingEnv);
+            procedureGenerator.setConfiguration(configuration);
         }
     }
 
     @Override
-    public void setUseAutoIncrementId(boolean useAutoIncrementId) {
-        super.setUseAutoIncrementId(useAutoIncrementId);
+    public void begin() {
+        super.begin();
         if (callGenerator != null) {
-            callGenerator.setUseAutoIncrementId(useAutoIncrementId);
+            callGenerator.begin();
         }
         if (queryGenerator != null) {
-            queryGenerator.setUseAutoIncrementId(useAutoIncrementId);
+            queryGenerator.begin();
         }
         if (procedureGenerator != null) {
-            procedureGenerator.setUseAutoIncrementId(useAutoIncrementId);
+            procedureGenerator.begin();
         }
-    }
-
-    @Override
-    public void setSequenceRegex(String sequenceRegex) {
-        super.setSequenceRegex(sequenceRegex);
-        if (callGenerator != null) {
-            callGenerator.setSequenceRegex(sequenceRegex);
-        }
-        if (queryGenerator != null) {
-            queryGenerator.setSequenceRegex(sequenceRegex);
-        }
-        if (procedureGenerator != null) {
-            procedureGenerator.setSequenceRegex(sequenceRegex);
-        }
-    }
-
-    @Override
-    public void setSequenceReplacement(String sequenceReplacement) {
-        super.setSequenceReplacement(sequenceReplacement);
-        if (callGenerator != null) {
-            callGenerator.setSequenceReplacement(sequenceReplacement);
-        }
-        if (queryGenerator != null) {
-            queryGenerator.setSequenceReplacement(sequenceReplacement);
-        }
-        if (procedureGenerator != null) {
-            procedureGenerator.setSequenceReplacement(sequenceReplacement);
-        }
-    }
-
-    @Override
-    public void begin(ExecutorModuleInfo module, String packageName, String name) {
-        super.begin(module, packageName, name);
-        if (callGenerator != null) {
-            callGenerator.begin(module, packageName, name);
-        }
-        if (queryGenerator != null) {
-            queryGenerator.begin(module, packageName, name);
-        }
-        if (procedureGenerator != null) {
-            procedureGenerator.begin(module, packageName, name);
-        }
-        this.module = module;
-        this.packageName = packageName;
-        this.name = name;
     }
 
     @Override
@@ -209,9 +160,6 @@ public class MyBatisSqlCallOrQueryGenerator extends SqlGenerator {
             Logger.getLogger(MyBatisSqlCallOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        this.module = null;
-        this.packageName = null;
-        this.name = null;
         this.writer = null;
     }
 
@@ -220,7 +168,8 @@ public class MyBatisSqlCallOrQueryGenerator extends SqlGenerator {
             return;
         }
         try {
-            FileObject fo = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, packageName, name + ".sql", module.getElement());
+            QueryGeneratorConfiguration config = getConfiguration();
+            FileObject fo = getProcessingEnv().getFiler().createResource(StandardLocation.SOURCE_OUTPUT, config.getPackageName(), config.getName() + ".sql", config.getModule().getElement());
             writer = fo.openWriter();
         } catch (IOException ex) {
             Logger.getLogger(MyBatisSqlCallOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
@@ -309,13 +258,13 @@ public class MyBatisSqlCallOrQueryGenerator extends SqlGenerator {
     }
 
     @Override
-    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation) {
+    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation, boolean excludeSequenceQuery) {
         if (useCallForGetLastInsertedId) {
-            String[] procedure = procedureGenerator.getEntityLastInsertedIdQuery(entity, operation);
+            String[] procedure = procedureGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery);
             write(procedure);
-            return callGenerator.getEntityLastInsertedIdQuery(entity, operation);
+            return callGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery);
         } else {
-            return queryGenerator.getEntityLastInsertedIdQuery(entity, operation);
+            return queryGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery);
         }
     }
 

@@ -85,7 +85,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     //<editor-fold defaultstate="collapsed" desc="Entity queries">
     @Override
     public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select entity by id", entity.getElement());
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select entity by id", entity.getElement());
         return null;
     }
 
@@ -159,7 +159,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     }
 
     @Override
-    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation) {
+    public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation, boolean excludeSequenceQuery) {
         StringBuilder result = new StringBuilder();
         appendStartEntityLastInsertedIdQuery(result, entity, operation);
         appendEndEntityLastInsertedIdQuery(result, entity, operation, false);
@@ -345,25 +345,25 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     
     @Override
     public String[] getSelectManyQuery(OperationInfo operation) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select many", operation.getElement());
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select many", operation.getElement());
         return null;
     }
 
     @Override
     public String[] getSelectOneQuery(OperationInfo operation) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select one", operation.getElement());
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select one", operation.getElement());
         return null;
     }
 
     @Override
     public String[] getSelectPageCountQuery(OperationInfo operation) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select page count", operation.getElement());
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select page count", operation.getElement());
         return null;
     }
 
     @Override
     public String[] getSelectPageQuery(OperationInfo operation) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select page", operation.getElement());
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select page", operation.getElement());
         return null;
     }
 

@@ -32,7 +32,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("#{")
                 .append(field.getName())
                 .append(MyBatisUtils.getJdbcTypeAttribute(field))
-                .append(MyBatisUtils.getTypeHandler(processingEnv, field))
+                .append(MyBatisUtils.getTypeHandler(getProcessingEnv(), field))
                 .append(",mode=IN}");
     }
 
@@ -42,7 +42,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("#{")
                 .append(field.getName())
                 .append(MyBatisUtils.getJdbcTypeAttribute(field))
-                .append(MyBatisUtils.getTypeHandler(processingEnv, field))
+                .append(MyBatisUtils.getTypeHandler(getProcessingEnv(), field))
                 .append(",mode=OUT}");
     }
 
@@ -52,7 +52,7 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
         query.append("#{")
                 .append(field.getName())
                 .append(MyBatisUtils.getJdbcTypeAttribute(field))
-                .append(MyBatisUtils.getTypeHandler(processingEnv, field))
+                .append(MyBatisUtils.getTypeHandler(getProcessingEnv(), field))
                 .append(",mode=INOUT}");
     }
 

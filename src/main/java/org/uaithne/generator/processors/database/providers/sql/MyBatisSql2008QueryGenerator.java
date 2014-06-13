@@ -44,7 +44,7 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically generate the next and current id value query",
                             field.getElement());
         return null;
@@ -52,7 +52,7 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Unable to automatically generate the current and next id value query",
                             field.getElement());
         return null;

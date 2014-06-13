@@ -26,12 +26,12 @@ public class MyBatisOracle12SqlQueryGenerator extends MyBatisSql2008QueryGenerat
     
     @Override
     public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {getSequenceName(getTableName(entity)) + ".nextval"};
+        return new String[] {getIdSequenceName(entity, field) + ".nextval"};
     }
     
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select " + getSequenceName(getTableName(entity)) + ".currval from dual"};
+        return new String[] {"select " + getIdSequenceName(entity, field) + ".currval from dual"};
     }
     
 }

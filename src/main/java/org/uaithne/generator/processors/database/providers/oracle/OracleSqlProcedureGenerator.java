@@ -18,16 +18,15 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.sql.JdbcType;
 import org.uaithne.generator.commons.EntityInfo;
-import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.commons.Utils;
 import org.uaithne.generator.processors.database.QueryGenerator;
+import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
 import org.uaithne.generator.processors.database.myBatis.MyBatisUtils;
 import org.uaithne.generator.processors.database.sql.SqlCallGenerator;
 
@@ -36,42 +35,18 @@ public class OracleSqlProcedureGenerator extends SqlCallGenerator {
     private QueryGenerator queryGenerator = new OracleBasicSqlQueryGenerator();
 
     @Override
-    public void setProcessingEnv(ProcessingEnvironment processingEnv) {
-        super.setProcessingEnv(processingEnv);
+    public void setConfiguration(QueryGeneratorConfiguration configuration) {
+        super.setConfiguration(configuration);
         if (queryGenerator != null) {
-            queryGenerator.setProcessingEnv(processingEnv);
+            queryGenerator.setConfiguration(configuration);
         }
     }
 
     @Override
-    public void setUseAutoIncrementId(boolean useAutoIncrementId) {
-        super.setUseAutoIncrementId(useAutoIncrementId);
+    public void begin() {
+        super.begin();
         if (queryGenerator != null) {
-            queryGenerator.setUseAutoIncrementId(useAutoIncrementId);
-        }
-    }
-
-    @Override
-    public void setSequenceRegex(String sequenceRegex) {
-        super.setSequenceRegex(sequenceRegex);
-        if (queryGenerator != null) {
-            queryGenerator.setSequenceRegex(sequenceRegex);
-        }
-    }
-
-    @Override
-    public void setSequenceReplacement(String sequenceReplacement) {
-        super.setSequenceReplacement(sequenceReplacement);
-        if (queryGenerator != null) {
-            queryGenerator.setSequenceReplacement(sequenceReplacement);
-        }
-    }
-
-    @Override
-    public void begin(ExecutorModuleInfo module, String packageName, String name) {
-        super.begin(module, packageName, name);
-        if (queryGenerator != null) {
-            queryGenerator.begin(module, packageName, name);
+            queryGenerator.begin();
         }
     }
 
@@ -86,7 +61,7 @@ public class OracleSqlProcedureGenerator extends SqlCallGenerator {
     public String JdbcTypeToOracleDataType(JdbcType jdbcType, Element element) {
         switch (jdbcType) {
             case ARRAY:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "ARRAY";
             case BIGINT:
                 return "NUMBER";
@@ -103,14 +78,14 @@ public class OracleSqlProcedureGenerator extends SqlCallGenerator {
             case CLOB:
                 return "CLOB";
             case DATALINK:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "DATALINK";
             case DATE:
                 return "DATE";
             case DECIMAL:
                 return "NUMBER";
             case DISTINCT:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "DISTINCT";
             case DOUBLE:
                 return "NUMBER";
@@ -119,27 +94,27 @@ public class OracleSqlProcedureGenerator extends SqlCallGenerator {
             case INTEGER:
                 return "NUMBER";
             case JAVA_OBJECT:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "JAVA_OBJECT";
             case LONGVARBINARY:
                 return "LONG RAW";
             case NULL:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "NULL";
             case NUMERIC:
                 return "NUMBER";
             case OTHER:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "OTHER";
             case REAL:
                 return "NUMBER";
             case REF:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "REF";
             case SMALLINT:
                 return "NUMBER";
             case STRUCT:
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
                 return "STRUCT";
             case TIME:
                 return "DATE";
@@ -275,7 +250,7 @@ public class OracleSqlProcedureGenerator extends SqlCallGenerator {
             query.append("\nis\n");
         }
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getEntityLastInsertedIdQuery(entity, operation), "    ");
+        appendToQuery(query, queryGenerator.getEntityLastInsertedIdQuery(entity, operation, false), "    ");
         query.append(";\nend ")
                 .append(getNamePrefix())
                 .append(operation.getMethodName())
