@@ -32,9 +32,7 @@ public class ExecutorModuleInfo {
     private String operationPackage;
     private String realName;
     private String executorInterfaceName;
-    private final HashMap<String, OperationInfo> operationsByRealName = new HashMap<String, OperationInfo>();
     private final ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
-    private final HashMap<String, EntityInfo> entitiesByRealName = new HashMap<String, EntityInfo>(); 
     private final ArrayList<EntityInfo> entities = new ArrayList<EntityInfo>();
     private final TypeElement element;
     private boolean containOrderedOperations;
@@ -42,10 +40,6 @@ public class ExecutorModuleInfo {
     private String[] documentation;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
     private final HashMap<String, OperationInfo> operationsByName = new HashMap<String, OperationInfo>(0);
-
-    public HashMap<String, OperationInfo> getOperationsByRealName() {
-        return operationsByRealName;
-    }
 
     public ArrayList<OperationInfo> getOperations() {
         return operations;
@@ -99,9 +93,6 @@ public class ExecutorModuleInfo {
     }
     
     public void addOperation(OperationInfo operation) {
-        if (operation.getRealName() != null) {
-            operationsByRealName.put(operation.getRealName(), operation);
-        }
         operations.add(operation);
         operationsByName.put(operation.getDataType().getQualifiedNameWithoutGenerics(), operation);
         if (operation.isOrdered()) {
@@ -112,16 +103,11 @@ public class ExecutorModuleInfo {
         }
     }
 
-    public HashMap<String, EntityInfo> getEntitiesByRealName() {
-        return entitiesByRealName;
-    }
-
     public ArrayList<EntityInfo> getEntities() {
         return entities;
     }
     
     public void addEntity(EntityInfo entityInfo) {
-        entitiesByRealName.put(entityInfo.getRealName(), entityInfo);
         entities.add(entityInfo);
     }
     
