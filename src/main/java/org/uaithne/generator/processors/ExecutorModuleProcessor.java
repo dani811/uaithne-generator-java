@@ -71,11 +71,6 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         for (Element enclosedModuleElement : moduleElement.getEnclosedElements()) {
             if (enclosedModuleElement.getKind() == ElementKind.CLASS) {
-                Entity entity = enclosedModuleElement.getAnnotation(Entity.class);
-                if (entity != null) {
-                    processEntityElement(re, (TypeElement) enclosedModuleElement, executorModuleInfo);
-                    continue;
-                }
                 EntityView entityView = enclosedModuleElement.getAnnotation(EntityView.class);
                 if (entityView != null) {
                     processEntityViewElement(re, (TypeElement) enclosedModuleElement, executorModuleInfo);
@@ -144,7 +139,15 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 MergeEntity mergeEntity = enclosedModuleElement.getAnnotation(MergeEntity.class);
                 if (mergeEntity != null) {
                     processMergeEntity(re, (TypeElement) enclosedModuleElement, executorModuleInfo, mergeEntity);
-                    continue;
+                }
+            }
+        }
+        
+        for (Element enclosedModuleElement : moduleElement.getEnclosedElements()) {
+            if (enclosedModuleElement.getKind() == ElementKind.CLASS) {
+                Entity entity = enclosedModuleElement.getAnnotation(Entity.class);
+                if (entity != null) {
+                    processEntityElement(re, (TypeElement) enclosedModuleElement, executorModuleInfo);
                 }
             }
         }
@@ -500,17 +503,15 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
     public void loadShared(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, OperationInfo operationInfo) {
         boolean generateNotNullValidation = getGenerationInfo().isGenerateNotNullValidationForMandatoryFields();
+        EntityInfo entityInfo = operationInfo.getEntity();
         for (Element enclosedElement : element.getEnclosedElements()) {
             if (enclosedElement.getKind() == ElementKind.FIELD) {
                 VariableElement ve = (VariableElement) enclosedElement;
 
                 FieldInfo fi = new FieldInfo(ve, generateNotNullValidation, processingEnv);
-                if (fi.getMappedName() == null) {
-                    EntityInfo entityInfo = operationInfo.getEntity();
-                    if (entityInfo != null) {
-                        FieldInfo fieldInEntity = entityInfo.getFieldByName(fi.getName());
-                        fi.setRelated(fieldInEntity);
-                    }
+                if (entityInfo != null) {
+                    FieldInfo fieldInEntity = entityInfo.getFieldByName(fi.getName());
+                    fi.setRelated(fieldInEntity);
                 }
                 operationInfo.addField(fi);
             }
@@ -550,6 +551,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 return;
             }
         }
+        DataTypeInfo realIdDataType = idInfo.getDataType();
+        
         idInfo = new FieldInfo("id", idInfo);
         idInfo.setMarkAsOvwrride(true);
         idInfo.setOptional(false);
@@ -617,19 +620,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generateDeleteByIdOperation) {
             DataTypeInfo deleteOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Delete" + entityDataType.getSimpleNameWithoutGenerics()+ "ById");
-            OperationInfo deleteOperationInfo = new OperationInfo(deleteOperationName);
-            deleteOperationInfo.setReturnDataType(affectedRowCountDataType);
-            deleteOperationInfo.setOperationKind(OperationKind.DELETE_BY_ID);
+            if (executorModuleInfo.getOperationByName(deleteOperationName) == null) {
+                OperationInfo deleteOperationInfo = new OperationInfo(deleteOperationName);
+                deleteOperationInfo.setReturnDataType(affectedRowCountDataType);
+                deleteOperationInfo.setOperationKind(OperationKind.DELETE_BY_ID);
 
-            DataTypeInfo deleteOperationInterface = DataTypeInfo.DELETE_BY_ID_OPERATION_DATA_TYPE.of(idDataType, affectedRowCountDataType);
-            deleteOperationInterface.getImports().addAll(idDataType.getImports());
-            deleteOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-            deleteOperationInfo.addImplement(deleteOperationInterface);
+                DataTypeInfo deleteOperationInterface = DataTypeInfo.DELETE_BY_ID_OPERATION_DATA_TYPE.of(idDataType, affectedRowCountDataType);
+                deleteOperationInterface.getImports().addAll(idDataType.getImports());
+                deleteOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+                deleteOperationInfo.addImplement(deleteOperationInterface);
 
-            deleteOperationInfo.addField(idInfo);
-            deleteOperationInfo.setEntity(entityInfo);
-            deleteOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(deleteOperationInfo, executorModuleInfo);
+                deleteOperationInfo.addField(idInfo);
+                deleteOperationInfo.setEntity(entityInfo);
+                deleteOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(deleteOperationInfo, executorModuleInfo);
+            }
         }
 
         /* ****************************************************************************************
@@ -638,19 +643,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generateInsertOperation) {
             DataTypeInfo insertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Insert" + entityDataType.getSimpleNameWithoutGenerics());
-            OperationInfo insertOperationInfo = new OperationInfo(insertOperationName);
-            insertOperationInfo.setReturnDataType(idDataType);
-            insertOperationInfo.setOperationKind(OperationKind.INSERT);
+            if (executorModuleInfo.getOperationByName(insertOperationName) == null) {
+                OperationInfo insertOperationInfo = new OperationInfo(insertOperationName);
+                insertOperationInfo.setReturnDataType(idDataType);
+                insertOperationInfo.setOperationKind(OperationKind.INSERT);
 
-            DataTypeInfo insertOperationInterface = DataTypeInfo.INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
-            insertOperationInterface.getImports().addAll(entityDataType.getImports());
-            insertOperationInterface.getImports().addAll(idDataType.getImports());
-            insertOperationInfo.addImplement(insertOperationInterface);
+                DataTypeInfo insertOperationInterface = DataTypeInfo.INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
+                insertOperationInterface.getImports().addAll(entityDataType.getImports());
+                insertOperationInterface.getImports().addAll(idDataType.getImports());
+                insertOperationInfo.addImplement(insertOperationInterface);
 
-            insertOperationInfo.addField(valueInfo);
-            insertOperationInfo.setEntity(entityInfo);
-            insertOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(insertOperationInfo, executorModuleInfo);
+                insertOperationInfo.addField(valueInfo);
+                insertOperationInfo.setEntity(entityInfo);
+                insertOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(insertOperationInfo, executorModuleInfo);
+            }
         }
 
         /* ****************************************************************************************
@@ -659,48 +666,56 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generateJustInsertOperation) {
             DataTypeInfo justInsertOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "JustInsert" + entityDataType.getSimpleNameWithoutGenerics());
-            OperationInfo justInsertOperationInfo = new OperationInfo(justInsertOperationName);
-            justInsertOperationInfo.setReturnDataType(affectedRowCountDataType);
-            justInsertOperationInfo.setOperationKind(OperationKind.JUST_INSERT);
+            if (executorModuleInfo.getOperationByName(justInsertOperationName) == null) {
+                OperationInfo justInsertOperationInfo = new OperationInfo(justInsertOperationName);
+                justInsertOperationInfo.setReturnDataType(affectedRowCountDataType);
+                justInsertOperationInfo.setOperationKind(OperationKind.JUST_INSERT);
 
-            DataTypeInfo justInsertOperationInterface = DataTypeInfo.JUST_INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
-            justInsertOperationInterface.getImports().addAll(entityDataType.getImports());
-            justInsertOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-            justInsertOperationInfo.addImplement(justInsertOperationInterface);
+                DataTypeInfo justInsertOperationInterface = DataTypeInfo.JUST_INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
+                justInsertOperationInterface.getImports().addAll(entityDataType.getImports());
+                justInsertOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+                justInsertOperationInfo.addImplement(justInsertOperationInterface);
 
-            justInsertOperationInfo.addField(valueInfo);
-            justInsertOperationInfo.setEntity(entityInfo);
-            justInsertOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo);
+                justInsertOperationInfo.addField(valueInfo);
+                justInsertOperationInfo.setEntity(entityInfo);
+                justInsertOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo);
+            }
         }
 
         /* ****************************************************************************************
          * *** Save operation
          */
         
+        boolean showSaveError = false;
         if (generateSaveOperation || generateJustSaveOperation) {
-            DataTypeInfo realIdDataType = combinedEntity.getFirstIdField().getDataType();
             if (realIdDataType.isPrimitive()) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For generate the save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + realIdDataType.ensureBoxed().getSimpleName() + " instead of " + realIdDataType.getSimpleName(), element);
+                showSaveError = true;
             }   
         }
         
         if (generateSaveOperation) {
             DataTypeInfo saveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Save" + entityDataType.getSimpleNameWithoutGenerics());
-            OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
-            saveOperationInfo.setReturnDataType(idDataType);
-            saveOperationInfo.setOperationKind(OperationKind.SAVE);
+            if (executorModuleInfo.getOperationByName(saveOperationName) == null) {
+                if (showSaveError) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For generate the save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + realIdDataType.ensureBoxed().getSimpleName() + " instead of " + realIdDataType.getSimpleName(), element);
+                    showSaveError = false;
+                }
+                OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
+                saveOperationInfo.setReturnDataType(idDataType);
+                saveOperationInfo.setOperationKind(OperationKind.SAVE);
 
-            DataTypeInfo saveOperationInterface = DataTypeInfo.SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
-            saveOperationInterface.getImports().addAll(entityDataType.getImports());
-            saveOperationInterface.getImports().addAll(idDataType.getImports());
-            saveOperationInfo.addImplement(saveOperationInterface);
+                DataTypeInfo saveOperationInterface = DataTypeInfo.SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
+                saveOperationInterface.getImports().addAll(entityDataType.getImports());
+                saveOperationInterface.getImports().addAll(idDataType.getImports());
+                saveOperationInfo.addImplement(saveOperationInterface);
 
-            saveOperationInfo.addField(valueInfo);
-            saveOperationInfo.setEntity(entityInfo);
-            saveOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
+                saveOperationInfo.addField(valueInfo);
+                saveOperationInfo.setEntity(entityInfo);
+                saveOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
+            }
         }
 
         /* ****************************************************************************************
@@ -709,19 +724,24 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generateJustSaveOperation) {
             DataTypeInfo justSaveOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "JustSave" + entityDataType.getSimpleNameWithoutGenerics());
-            OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
-            justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
-            justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
+            if (executorModuleInfo.getOperationByName(justSaveOperationName) == null) {
+                if (showSaveError) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For generate the save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + realIdDataType.ensureBoxed().getSimpleName() + " instead of " + realIdDataType.getSimpleName(), element);
+                }
+                OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
+                justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
+                justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
 
-            DataTypeInfo justSaveOperationInterface = DataTypeInfo.JUST_SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
-            justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
-            justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-            justSaveOperationInfo.addImplement(justSaveOperationInterface);
+                DataTypeInfo justSaveOperationInterface = DataTypeInfo.JUST_SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
+                justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
+                justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+                justSaveOperationInfo.addImplement(justSaveOperationInterface);
 
-            justSaveOperationInfo.addField(valueInfo);
-            justSaveOperationInfo.setEntity(entityInfo);
-            justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
+                justSaveOperationInfo.addField(valueInfo);
+                justSaveOperationInfo.setEntity(entityInfo);
+                justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
+            }
         }
 
         /* ****************************************************************************************
@@ -730,18 +750,20 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generateSelectByIdOperation) {
             DataTypeInfo selectOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Select" + entityDataType.getSimpleNameWithoutGenerics()+ "ById");
-            OperationInfo selectOperationInfo = new OperationInfo(selectOperationName);
-            selectOperationInfo.setReturnDataType(entityDataType);
-            selectOperationInfo.setOperationKind(OperationKind.SELECT_BY_ID);
+            if (executorModuleInfo.getOperationByName(selectOperationName) == null) {
+                OperationInfo selectOperationInfo = new OperationInfo(selectOperationName);
+                selectOperationInfo.setReturnDataType(entityDataType);
+                selectOperationInfo.setOperationKind(OperationKind.SELECT_BY_ID);
 
-            DataTypeInfo selectOperationInterface = DataTypeInfo.SELECT_BY_ID_OPERATION_DATA_TYPE.of(idDataType, entityDataType);
-            selectOperationInterface.getImports().addAll(entityDataType.getImports());
-            selectOperationInfo.addImplement(selectOperationInterface);
+                DataTypeInfo selectOperationInterface = DataTypeInfo.SELECT_BY_ID_OPERATION_DATA_TYPE.of(idDataType, entityDataType);
+                selectOperationInterface.getImports().addAll(entityDataType.getImports());
+                selectOperationInfo.addImplement(selectOperationInterface);
 
-            selectOperationInfo.addField(idInfo);
-            selectOperationInfo.setEntity(entityInfo);
-            selectOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(selectOperationInfo, executorModuleInfo);
+                selectOperationInfo.addField(idInfo);
+                selectOperationInfo.setEntity(entityInfo);
+                selectOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(selectOperationInfo, executorModuleInfo);
+            }
         }
 
         /* ****************************************************************************************
@@ -750,19 +772,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generateUpdateOperation) {
             DataTypeInfo updateOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Update" + entityDataType.getSimpleNameWithoutGenerics());
-            OperationInfo updateOperationInfo = new OperationInfo(updateOperationName);
-            updateOperationInfo.setReturnDataType(affectedRowCountDataType);
-            updateOperationInfo.setOperationKind(OperationKind.UPDATE);
+            if (executorModuleInfo.getOperationByName(updateOperationName) == null) {
+                OperationInfo updateOperationInfo = new OperationInfo(updateOperationName);
+                updateOperationInfo.setReturnDataType(affectedRowCountDataType);
+                updateOperationInfo.setOperationKind(OperationKind.UPDATE);
 
-            DataTypeInfo updateOperationInterface = DataTypeInfo.UPDATE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
-            updateOperationInterface.getImports().addAll(entityDataType.getImports());
-            updateOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-            updateOperationInfo.addImplement(updateOperationInterface);
+                DataTypeInfo updateOperationInterface = DataTypeInfo.UPDATE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
+                updateOperationInterface.getImports().addAll(entityDataType.getImports());
+                updateOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+                updateOperationInfo.addImplement(updateOperationInterface);
 
-            updateOperationInfo.addField(valueInfo);
-            updateOperationInfo.setEntity(entityInfo);
-            updateOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(updateOperationInfo, executorModuleInfo);
+                updateOperationInfo.addField(valueInfo);
+                updateOperationInfo.setEntity(entityInfo);
+                updateOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(updateOperationInfo, executorModuleInfo);
+            }
         }
 
         /* ****************************************************************************************
@@ -771,19 +795,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (generateMergeOperation) {
             DataTypeInfo mergeOperationName = new DataTypeInfo(executorModuleInfo.getOperationPackage(),
                     "Merge" + entityDataType.getSimpleNameWithoutGenerics());
-            OperationInfo mergeOperationInfo = new OperationInfo(mergeOperationName);
-            mergeOperationInfo.setReturnDataType(affectedRowCountDataType);
-            mergeOperationInfo.setOperationKind(OperationKind.MERGE);
+            if (executorModuleInfo.getOperationByName(mergeOperationName) == null) {
+                OperationInfo mergeOperationInfo = new OperationInfo(mergeOperationName);
+                mergeOperationInfo.setReturnDataType(affectedRowCountDataType);
+                mergeOperationInfo.setOperationKind(OperationKind.MERGE);
 
-            DataTypeInfo mergeOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
-            mergeOperationInterface.getImports().addAll(entityDataType.getImports());
-            mergeOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-            mergeOperationInfo.addImplement(mergeOperationInterface);
+                DataTypeInfo mergeOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
+                mergeOperationInterface.getImports().addAll(entityDataType.getImports());
+                mergeOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+                mergeOperationInfo.addImplement(mergeOperationInterface);
 
-            mergeOperationInfo.addField(valueInfo);
-            mergeOperationInfo.setEntity(entityInfo);
-            mergeOperationInfo.setManually(entityInfo.getCombined().isManually());
-            generationInfo.addOperation(mergeOperationInfo, executorModuleInfo);
+                mergeOperationInfo.addField(valueInfo);
+                mergeOperationInfo.setEntity(entityInfo);
+                mergeOperationInfo.setManually(entityInfo.getCombined().isManually());
+                generationInfo.addOperation(mergeOperationInfo, executorModuleInfo);
+            }
         }
     }
     

@@ -50,6 +50,7 @@ public class EntityInfo {
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
     private DataTypeInfo relatedType;
     private EntityInfo related;
+    private final HashMap<String, FieldInfo> fieldsByName = new HashMap<String, FieldInfo>(0);
 
     public String[] getDocumentation() {
         if (documentation == null && related != null) {
@@ -110,15 +111,11 @@ public class EntityInfo {
         if (fieldInfo.isDeletionMark()) {
             hasDeletionMark = true;
         }
+        fieldsByName.put(fieldInfo.getName(), fieldInfo);
     }
     
     public FieldInfo getFieldByName(String name) {
-        for(FieldInfo field : fields) {
-            if (field.getName().equals(name)) {
-                return field;
-            }
-        }
-        return null;
+        return fieldsByName.get(name);
     }
 
     public ArrayList<OperationInfo> getOperations() {
@@ -287,6 +284,10 @@ public class EntityInfo {
     public void setRelated(EntityInfo related) {
         this.related = related;
     }
+
+    public HashMap<String, FieldInfo> getFieldsByName() {
+        return fieldsByName;
+    }
     
     public EntityInfo(TypeElement classElement, EntityKind entityKind) {
         element = classElement;
@@ -356,13 +357,16 @@ public class EntityInfo {
             hasMultiplesIds = true;
         }
         combined.annotations.putAll(this.annotations);
+        combined.fieldsByName.putAll(other.fieldsByName);
+        combined.fieldsByName.putAll(this.fieldsByName);
     }
     
     public void handleRelated(EntityInfo related) {
         this.related = related;
         EntityInfo relatedCombined = related.getCombined();
+        HashMap<String, FieldInfo> relatedFieldsByName = relatedCombined.fieldsByName;
         for (FieldInfo field : fields) {
-            FieldInfo relatedField = relatedCombined.getFieldByName(field.getName());
+            FieldInfo relatedField = relatedFieldsByName.get(field.getName());
             field.setRelated(relatedField);
         }
     }

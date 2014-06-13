@@ -40,7 +40,8 @@ public class ExecutorModuleInfo {
     private boolean containOrderedOperations;
     private boolean containPagedOperations;
     private String[] documentation;
-    private HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
+    private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
+    private final HashMap<String, OperationInfo> operationsByName = new HashMap<String, OperationInfo>(0);
 
     public HashMap<String, OperationInfo> getOperationsByRealName() {
         return operationsByRealName;
@@ -102,6 +103,7 @@ public class ExecutorModuleInfo {
             operationsByRealName.put(operation.getRealName(), operation);
         }
         operations.add(operation);
+        operationsByName.put(operation.getDataType().getQualifiedNameWithoutGenerics(), operation);
         if (operation.isOrdered()) {
             containOrderedOperations = true;
         }
@@ -196,6 +198,14 @@ public class ExecutorModuleInfo {
 
     public void setDocumentation(String[] documentation) {
         this.documentation = documentation;
+    }
+
+    public HashMap<String, OperationInfo> getOperationsByName() {
+        return operationsByName;
+    }
+    
+    public OperationInfo getOperationByName(DataTypeInfo dataType) {
+        return operationsByName.get(dataType.getQualifiedNameWithoutGenerics());
     }
     
     public ExecutorModuleInfo(TypeElement classElement) {
