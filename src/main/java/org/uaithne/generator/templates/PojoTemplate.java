@@ -227,21 +227,30 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             return;
         }
 
+        boolean hasNotNull = false;
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            appendAnnotationImports(currentPackage, imports, annotation, true);
+            boolean isNotNullAnnotation = appendAnnotationImports(currentPackage, imports, annotation, true);
+            hasNotNull = hasNotNull || isNotNullAnnotation;
+        }
+        if (!hasNotNull && field.isGenerateNotNullValidation()) {
+            imports.add("javax.validation.constraints.NotNull");
         }
     }
 
-    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, boolean ignoreUaithne) {
+    private boolean appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, boolean ignoreUaithne) {
         DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
         String packageName = dataType.getPackageName();
+
         if (ignoreUaithne && packageName != null && packageName.startsWith("org.uaithne.")) {
-            return;
+            return false;
         }
         dataType.appendImports(currentPackage, imports);
         for (AnnotationValue value : annotation.getElementValues().values()) {
             appendAnnotationImports(currentPackage, imports, value);
         }
+
+        boolean isNotNullAnnotation = "javax.validation.constraints.NotNull".equals(dataType.getQualifiedName());
+        return isNotNullAnnotation;
     }
 
     private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue) {
@@ -314,11 +323,22 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             return;
         }
 
+        boolean hasNotNull = false;
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
             DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
             String packageName = dataType.getPackageName();
             if (packageName != null && !packageName.startsWith("org.uaithne.")) {
                 appendAnnotation(appender, dataType, annotation, "    ", true);
+            }
+            boolean isNotNullAnnotation = "javax.validation.constraints.NotNull".equals(dataType.getQualifiedName());
+            hasNotNull = hasNotNull || isNotNullAnnotation;
+        }
+
+        if (!hasNotNull && field.isGenerateNotNullValidation()) {
+            try {
+                appender.append("    @NotNull\n");
+            } catch (IOException ex) {
+                Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

@@ -45,6 +45,7 @@ public class GenerationInfo {
     private boolean includeGwtClientExecutors;
     private DataTypeInfo entitiesImplements;
     private MyBatisBackendConfiguration[] myBatisBackends;
+    private boolean generateNotNullValidationForMandatoryFields;
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
         return entitiesByRealName;
@@ -252,6 +253,14 @@ public class GenerationInfo {
 
     public void setMyBatisBackends(MyBatisBackendConfiguration[] myBatisBackends) {
         this.myBatisBackends = myBatisBackends;
+    }
+
+    public boolean isGenerateNotNullValidationForMandatoryFields() {
+        return generateNotNullValidationForMandatoryFields;
+    }
+
+    public void setGenerateNotNullValidationForMandatoryFields(boolean generateNotNullValidationForMandatoryFields) {
+        this.generateNotNullValidationForMandatoryFields = generateNotNullValidationForMandatoryFields;
     }
 
 }

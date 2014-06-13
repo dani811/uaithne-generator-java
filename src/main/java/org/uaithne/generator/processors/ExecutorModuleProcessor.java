@@ -32,6 +32,7 @@ import javax.tools.Diagnostic;
 import org.uaithne.annotations.*;
 import org.uaithne.annotations.executors.PlainExecutor;
 import org.uaithne.generator.commons.*;
+import static org.uaithne.generator.commons.TemplateProcessor.getGenerationInfo;
 import org.uaithne.generator.templates.operations.AbstractExecutorTemplate;
 import org.uaithne.generator.templates.operations.ChainedExecutorTemplate;
 import org.uaithne.generator.templates.operations.ChainedGroupingExecutorTemplate;
@@ -453,11 +454,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
     }
 
     public void loadShared(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, OperationInfo operationInfo) {
+        boolean generateNotNullValidation = getGenerationInfo().isGenerateNotNullValidationForMandatoryFields();
         for (Element enclosedElement : element.getEnclosedElements()) {
             if (enclosedElement.getKind() == ElementKind.FIELD) {
                 VariableElement ve = (VariableElement) enclosedElement;
 
-                FieldInfo fi = new FieldInfo(ve, processingEnv);
+                FieldInfo fi = new FieldInfo(ve, generateNotNullValidation, processingEnv);
                 if (fi.getMappedName() == null) {
                     EntityInfo entityInfo = operationInfo.getEntity();
                     if (entityInfo != null) {

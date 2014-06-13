@@ -54,6 +54,7 @@ public class FieldInfo {
     private boolean deprecated;
     private boolean excludedFromConstructor;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
+    private boolean generateNotNullValidation;
 
     public String[] getDocumentation() {
         if (documentation == null && related != null) {
@@ -405,8 +406,16 @@ public class FieldInfo {
     public void setExcludedFromConstructor(boolean excludedFromConstructor) {
         this.excludedFromConstructor = excludedFromConstructor;
     }
+
+    public boolean isGenerateNotNullValidation() {
+        return generateNotNullValidation;
+    }
+
+    public void setGenerateNotNullValidation(boolean generateNotNullValidation) {
+        this.generateNotNullValidation = generateNotNullValidation;
+    }
     
-    public FieldInfo(VariableElement element, ProcessingEnvironment processingEnv) {
+    public FieldInfo(VariableElement element, boolean generateNotNullValidationWhenMandatory, ProcessingEnvironment processingEnv) {
         this.element = element;
         name = element.getSimpleName().toString();
         if (element.getModifiers().contains(Modifier.TRANSIENT)) {
@@ -456,6 +465,7 @@ public class FieldInfo {
         
         deprecated = element.getAnnotation(Deprecated.class) != null;
         excludedFromConstructor = element.getAnnotation(ExcludeFromConstructor.class) != null;
+        generateNotNullValidation = !optional && generateNotNullValidationWhenMandatory;
     }
 
     public FieldInfo(String name, DataTypeInfo dataType) {
@@ -488,5 +498,6 @@ public class FieldInfo {
         excludedFromConstructor = fieldInfo.excludedFromConstructor;
         markAsOvwrride = fieldInfo.markAsOvwrride;
         markAsTransient = fieldInfo.markAsTransient;
+        generateNotNullValidation = fieldInfo.generateNotNullValidation;
     }
 }

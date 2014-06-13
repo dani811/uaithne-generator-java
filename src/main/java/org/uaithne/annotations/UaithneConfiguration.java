@@ -36,4 +36,5 @@ public @interface UaithneConfiguration {
     boolean enableModuleChainedGroupingExecutors() default true;
     Class<?> entitiesImplements() default Void.class;
     MyBatisBackendConfiguration[] myBatisBackendConfigurations() default {};
+    boolean generateNotNullValidationForMandatoryFields() default false;
 }
