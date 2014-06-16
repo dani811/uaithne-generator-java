@@ -688,9 +688,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
          */
         
         boolean showSaveError = false;
+        boolean hasSaveError = false;
         if (generateSaveOperation || generateJustSaveOperation) {
             if (realIdDataType.isPrimitive()) {
                 showSaveError = true;
+                hasSaveError = true;
             }   
         }
         
@@ -701,20 +703,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 if (showSaveError) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For generate the save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + realIdDataType.ensureBoxed().getSimpleName() + " instead of " + realIdDataType.getSimpleName(), element);
                     showSaveError = false;
+                } else if (!hasSaveError) {
+                    OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
+                    saveOperationInfo.setReturnDataType(idDataType);
+                    saveOperationInfo.setOperationKind(OperationKind.SAVE);
+
+                    DataTypeInfo saveOperationInterface = DataTypeInfo.SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
+                    saveOperationInterface.getImports().addAll(entityDataType.getImports());
+                    saveOperationInterface.getImports().addAll(idDataType.getImports());
+                    saveOperationInfo.addImplement(saveOperationInterface);
+
+                    saveOperationInfo.addField(valueInfo);
+                    saveOperationInfo.setEntity(entityInfo);
+                    saveOperationInfo.setManually(entityInfo.getCombined().isManually());
+                    generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
                 }
-                OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
-                saveOperationInfo.setReturnDataType(idDataType);
-                saveOperationInfo.setOperationKind(OperationKind.SAVE);
-
-                DataTypeInfo saveOperationInterface = DataTypeInfo.SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
-                saveOperationInterface.getImports().addAll(entityDataType.getImports());
-                saveOperationInterface.getImports().addAll(idDataType.getImports());
-                saveOperationInfo.addImplement(saveOperationInterface);
-
-                saveOperationInfo.addField(valueInfo);
-                saveOperationInfo.setEntity(entityInfo);
-                saveOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
             }
         }
 
@@ -727,20 +730,21 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             if (executorModuleInfo.getOperationByName(justSaveOperationName) == null) {
                 if (showSaveError) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For generate the save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + realIdDataType.ensureBoxed().getSimpleName() + " instead of " + realIdDataType.getSimpleName(), element);
+                } else if (!hasSaveError) {
+                    OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
+                    justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
+                    justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
+
+                    DataTypeInfo justSaveOperationInterface = DataTypeInfo.JUST_SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
+                    justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
+                    justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
+                    justSaveOperationInfo.addImplement(justSaveOperationInterface);
+
+                    justSaveOperationInfo.addField(valueInfo);
+                    justSaveOperationInfo.setEntity(entityInfo);
+                    justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
+                    generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
                 }
-                OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
-                justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
-                justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
-
-                DataTypeInfo justSaveOperationInterface = DataTypeInfo.JUST_SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
-                justSaveOperationInterface.getImports().addAll(entityDataType.getImports());
-                justSaveOperationInterface.getImports().addAll(affectedRowCountDataType.getImports());
-                justSaveOperationInfo.addImplement(justSaveOperationInterface);
-
-                justSaveOperationInfo.addField(valueInfo);
-                justSaveOperationInfo.setEntity(entityInfo);
-                justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
             }
         }
 
