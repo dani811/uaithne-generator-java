@@ -373,14 +373,14 @@ public class NamesGenerator {
             return null;
         }
         switch (t.getKind()) {
-            case BOOLEAN: return DataTypeInfo.BOOLEAN_DATA_TYPE;
-            case BYTE: return DataTypeInfo.BYTE_DATA_TYPE;
-            case SHORT: return DataTypeInfo.SHORT_DATA_TYPE;
-            case INT: return DataTypeInfo.INT_DATA_TYPE;
-            case LONG: return DataTypeInfo.LONG_DATA_TYPE;
-            case CHAR: return DataTypeInfo.CHAR_DATA_TYPE;
-            case FLOAT: return DataTypeInfo.FLOAT_DATA_TYPE;
-            case DOUBLE: return DataTypeInfo.DOUBLE_DATA_TYPE;
+            case BOOLEAN: return new DataTypeInfo(DataTypeInfo.BOOLEAN_DATA_TYPE);
+            case BYTE: return new DataTypeInfo(DataTypeInfo.BYTE_DATA_TYPE);
+            case SHORT: return new DataTypeInfo(DataTypeInfo.SHORT_DATA_TYPE);
+            case INT: return new DataTypeInfo(DataTypeInfo.INT_DATA_TYPE);
+            case LONG: return new DataTypeInfo(DataTypeInfo.LONG_DATA_TYPE);
+            case CHAR: return new DataTypeInfo(DataTypeInfo.CHAR_DATA_TYPE);
+            case FLOAT: return new DataTypeInfo(DataTypeInfo.FLOAT_DATA_TYPE);
+            case DOUBLE: return new DataTypeInfo(DataTypeInfo.DOUBLE_DATA_TYPE);
             case VOID: return new DataTypeInfo("void");
             case NONE: return new DataTypeInfo("/*none*/");
             case NULL: return new DataTypeInfo("null");
