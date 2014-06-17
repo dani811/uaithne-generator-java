@@ -68,8 +68,8 @@ public class RetainIdPluginTemplate extends ClassTemplate {
     protected void writeContent(Appendable appender) throws IOException {
         appender.append("    private static Field keyGeneratorField;\n" +
             "    private static final RetainKeyGenerator retainKeyGenerator = new RetainKeyGenerator();\n" +
-            "    private static final ThreadLocal retain = new ThreadLocal();\n" +
-            "    private static final ThreadLocal<Boolean> configured = new ThreadLocal();\n" +
+            "    private static final ThreadLocal<Object> retain = new ThreadLocal<Object>();\n" +
+            "    private static final ThreadLocal<Boolean> configured = new ThreadLocal<Boolean>();\n" +
             "\n" +
             "    public static Object getRetainedId() {\n" +
             "        if (configured.get() != Boolean.TRUE) {\n" +
