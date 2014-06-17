@@ -82,18 +82,10 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 processClassTemplate(new ExecutorGroupTemplate(packageName), element);
                 processClassTemplate(new DeleteByIdOperationTemplate(packageName), element);
                 processClassTemplate(new InsertValueOperationTemplate(packageName), element);
-                if (generationInfo.isGenerateJustOperationsEnabled()) {
-                    processClassTemplate(new JustInsertValueOperationTemplate(packageName), element);
-                    if (generationInfo.isGenerateSaveOperationsEnabled()) {
-                        processClassTemplate(new JustSaveValueOperationTemplate(packageName), element);
-                    }
-                }
-                if (generationInfo.isGenerateSaveOperationsEnabled()) {
-                    processClassTemplate(new SaveValueOperationTemplate(packageName), element);
-                }
-                if (generationInfo.isGenerateMergeOperationsEnabled()) {
-                    processClassTemplate(new MergeValueOperationTemplate(packageName), element);
-                }
+                processClassTemplate(new JustInsertValueOperationTemplate(packageName), element);
+                processClassTemplate(new JustSaveValueOperationTemplate(packageName), element);
+                processClassTemplate(new SaveValueOperationTemplate(packageName), element);
+                processClassTemplate(new MergeValueOperationTemplate(packageName), element);
                 processClassTemplate(new SelectByIdOperationTemplate(packageName), element);
                 processClassTemplate(new UpdateValueOperationTemplate(packageName), element);
                 processClassTemplate(new ChainedMappedExecutorGroupTemplate(packageName), element);
