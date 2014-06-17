@@ -96,12 +96,11 @@ public class EntityProcessor extends TemplateProcessor {
             entityInfo.addImplement(generationInfo.getEntitiesImplements());
         }
         
-        boolean generateNotNullValidation = getGenerationInfo().isGenerateNotNullValidationForMandatoryFields();
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (enclosedElement.getKind() == ElementKind.FIELD) {
                 VariableElement ve = (VariableElement) enclosedElement;
                 
-                FieldInfo fi = new FieldInfo(ve, generateNotNullValidation, processingEnv);
+                FieldInfo fi = new FieldInfo(ve, generationInfo, processingEnv);
                 if (fi.isIdentifier()) {
                     fi.setOptional(false);
                 }

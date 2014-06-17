@@ -227,17 +227,18 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             return;
         }
 
-        boolean hasNotNull = false;
+        boolean hasValidationAnnotation = false;
+        DataTypeInfo validationAnnotation = field.getValidationAnnotation();
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            boolean isNotNullAnnotation = appendAnnotationImports(currentPackage, imports, annotation, true);
-            hasNotNull = hasNotNull || isNotNullAnnotation;
+            boolean hasAnnotation = appendAnnotationImports(currentPackage, imports, annotation, validationAnnotation, true);
+            hasValidationAnnotation = hasValidationAnnotation || hasAnnotation;
         }
-        if (!hasNotNull && field.isGenerateNotNullValidation()) {
-            imports.add("javax.validation.constraints.NotNull");
+        if (!hasValidationAnnotation && validationAnnotation != null) {
+            validationAnnotation.appendImports(currentPackage, imports);
         }
     }
 
-    private boolean appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, boolean ignoreUaithne) {
+    private boolean appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, DataTypeInfo validationAnnotation, boolean ignoreUaithne) {
         DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
         String packageName = dataType.getPackageName();
 
@@ -246,14 +247,18 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
         }
         dataType.appendImports(currentPackage, imports);
         for (AnnotationValue value : annotation.getElementValues().values()) {
-            appendAnnotationImports(currentPackage, imports, value);
+            appendAnnotationImports(currentPackage, imports, value, validationAnnotation);
+        }
+        
+        if (validationAnnotation == null) {
+            return false;
         }
 
-        boolean isNotNullAnnotation = "javax.validation.constraints.NotNull".equals(dataType.getQualifiedName());
-        return isNotNullAnnotation;
+        boolean hasValidationAnnotation = validationAnnotation.getQualifiedNameWithoutGenerics().equals(dataType.getQualifiedName());
+        return hasValidationAnnotation;
     }
 
-    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue) {
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue, DataTypeInfo validationAnnotation) {
         Object value = annotationValue.getValue();
         if (value instanceof TypeMirror) {
             DataTypeInfo type = NamesGenerator.createDataTypeFor((TypeMirror) value, true);
@@ -263,11 +268,11 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             DataTypeInfo type = NamesGenerator.createDataTypeFor(variableElement.asType(), true);
             type.appendImports(currentPackage, imports);
         } else if (value instanceof AnnotationMirror) {
-            appendAnnotationImports(currentPackage, imports, (AnnotationMirror) value, false);
+            appendAnnotationImports(currentPackage, imports, (AnnotationMirror) value, validationAnnotation, false);
         } else if (value instanceof List) {
             List<? extends AnnotationValue> annotations = (List<? extends AnnotationValue>) value;
             for (AnnotationValue annotation : annotations) {
-                appendAnnotationImports(currentPackage, imports, annotation);
+                appendAnnotationImports(currentPackage, imports, annotation, validationAnnotation);
             }
         }
     }
@@ -323,20 +328,24 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             return;
         }
 
-        boolean hasNotNull = false;
+        DataTypeInfo validationAnnotation = field.getValidationAnnotation();
+        boolean hasValidationAnnotation = false;
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
             DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
             String packageName = dataType.getPackageName();
             if (packageName != null && !packageName.startsWith("org.uaithne.")) {
                 appendAnnotation(appender, dataType, annotation, "    ", true);
             }
-            boolean isNotNullAnnotation = "javax.validation.constraints.NotNull".equals(dataType.getQualifiedName());
-            hasNotNull = hasNotNull || isNotNullAnnotation;
+            if (validationAnnotation != null && validationAnnotation.getPrintableQualifiedNameWithoutGenerics().equals(dataType.getQualifiedName())) {
+                hasValidationAnnotation = true;
+            }
         }
 
-        if (!hasNotNull && field.isGenerateNotNullValidation()) {
+        if (!hasValidationAnnotation && validationAnnotation != null) {
             try {
-                appender.append("    @NotNull\n");
+                appender.append("    @");
+                appender.append(validationAnnotation.getSimpleName());
+                appender.append("\n");
             } catch (IOException ex) {
                 Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -45,7 +45,11 @@ public class GenerationInfo {
     private boolean includeGwtClientExecutors;
     private DataTypeInfo entitiesImplements;
     private MyBatisBackendConfiguration[] myBatisBackends;
-    private boolean generateNotNullValidationForMandatoryFields;
+    private DataTypeInfo idValidationAnnotation;
+    private DataTypeInfo mandatoryValidationAnnotation;
+    private DataTypeInfo optionalValidationAnnotation;
+    private boolean ignoreIdValidationOnPrimitives = true;
+    private boolean ignoreMandatoryValidationOnPrimitives = true;
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
         return entitiesByRealName;
@@ -255,12 +259,44 @@ public class GenerationInfo {
         this.myBatisBackends = myBatisBackends;
     }
 
-    public boolean isGenerateNotNullValidationForMandatoryFields() {
-        return generateNotNullValidationForMandatoryFields;
+    public DataTypeInfo getIdValidationAnnotation() {
+        return idValidationAnnotation;
     }
 
-    public void setGenerateNotNullValidationForMandatoryFields(boolean generateNotNullValidationForMandatoryFields) {
-        this.generateNotNullValidationForMandatoryFields = generateNotNullValidationForMandatoryFields;
+    public void setIdValidationAnnotation(DataTypeInfo idValidationAnnotation) {
+        this.idValidationAnnotation = idValidationAnnotation;
+    }
+
+    public DataTypeInfo getMandatoryValidationAnnotation() {
+        return mandatoryValidationAnnotation;
+    }
+
+    public void setMandatoryValidationAnnotation(DataTypeInfo mandatoryValidationAnnotation) {
+        this.mandatoryValidationAnnotation = mandatoryValidationAnnotation;
+    }
+
+    public DataTypeInfo getOptionalValidationAnnotation() {
+        return optionalValidationAnnotation;
+    }
+
+    public void setOptionalValidationAnnotation(DataTypeInfo optionalValidationAnnotation) {
+        this.optionalValidationAnnotation = optionalValidationAnnotation;
+    }
+
+    public boolean isIgnoreIdValidationOnPrimitives() {
+        return ignoreIdValidationOnPrimitives;
+    }
+
+    public void setIgnoreIdValidationOnPrimitives(boolean ignoreIdValidationOnPrimitives) {
+        this.ignoreIdValidationOnPrimitives = ignoreIdValidationOnPrimitives;
+    }
+
+    public boolean isIgnoreMandatoryValidationOnPrimitives() {
+        return ignoreMandatoryValidationOnPrimitives;
+    }
+
+    public void setIgnoreMandatoryValidationOnPrimitives(boolean ignoreMandatoryValidationOnPrimitives) {
+        this.ignoreMandatoryValidationOnPrimitives = ignoreMandatoryValidationOnPrimitives;
     }
 
 }

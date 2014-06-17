@@ -502,13 +502,13 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
     }
 
     public void loadShared(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, OperationInfo operationInfo) {
-        boolean generateNotNullValidation = getGenerationInfo().isGenerateNotNullValidationForMandatoryFields();
+        GenerationInfo generationInfo = getGenerationInfo();
         EntityInfo entityInfo = operationInfo.getEntity();
         for (Element enclosedElement : element.getEnclosedElements()) {
             if (enclosedElement.getKind() == ElementKind.FIELD) {
                 VariableElement ve = (VariableElement) enclosedElement;
 
-                FieldInfo fi = new FieldInfo(ve, generateNotNullValidation, processingEnv);
+                FieldInfo fi = new FieldInfo(ve, generationInfo, processingEnv);
                 if (entityInfo != null) {
                     FieldInfo fieldInEntity = entityInfo.getFieldByName(fi.getName());
                     fi.setRelated(fieldInEntity);

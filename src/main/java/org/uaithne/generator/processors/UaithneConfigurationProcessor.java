@@ -54,7 +54,41 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setGenerateModuleChainedExecutorsEnabled(configuration.enableModuleChainedExecutors());
                     generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(configuration.enableModuleChainedGroupingExecutors());
                     generationInfo.setMyBatisBackends(configuration.myBatisBackendConfigurations());
-                    generationInfo.setGenerateNotNullValidationForMandatoryFields(configuration.generateNotNullValidationForMandatoryFields());
+                    generationInfo.setIgnoreIdValidationOnPrimitives(configuration.ignoreIdValidationOnPrimitives());
+                    generationInfo.setIgnoreMandatoryValidationOnPrimitives(configuration.ignoreMandatoryValidationOnPrimitives());
+                    
+                    DataTypeInfo idValidationAnnotation;
+                    try {
+                        idValidationAnnotation = NamesGenerator.createResultDataType(configuration.idValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        idValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!idValidationAnnotation.isVoid()) {
+                        generationInfo.setIdValidationAnnotation(idValidationAnnotation);
+                    }
+                    
+                    DataTypeInfo mandatoryValidationAnnotation;
+                    try {
+                        mandatoryValidationAnnotation = NamesGenerator.createResultDataType(configuration.mandatoryValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        mandatoryValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!mandatoryValidationAnnotation.isVoid()) {
+                        generationInfo.setMandatoryValidationAnnotation(mandatoryValidationAnnotation);
+                    }
+                    
+                    DataTypeInfo optionalValidationAnnotation;
+                    try {
+                        optionalValidationAnnotation = NamesGenerator.createResultDataType(configuration.optionalValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        optionalValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!optionalValidationAnnotation.isVoid()) {
+                        generationInfo.setOptionalValidationAnnotation(optionalValidationAnnotation);
+                    }
                     
                     DataTypeInfo entitiesImplementsDataType;
                     try {
