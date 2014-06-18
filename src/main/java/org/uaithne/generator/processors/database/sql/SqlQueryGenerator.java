@@ -1078,160 +1078,195 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     @Override
     public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation) {
         EntityQueries entityQueries = entity.getAnnotation(EntityQueries.class);
-        if (entityQueries == null) {
+        if (entityQueries != null && hasQueryValue(entityQueries.selectById())) {
+            return completeQuery(entityQueries.selectById(), operation, false, false);
+        } else {
             Query query = operation.getAnnotation(Query.class);
-            if (query == null) {
-                return completeQuery(null, operation, false, false);
-            } else {
+            if (query != null) {
                 return completeQuery(query.value(), operation, false, false);
+            } else {
+                return completeQuery(null, operation, false, false);
             }
         }
-        return completeQuery(entityQueries.selectById(), operation, false, false);
     }
 
     @Override
     public String[] getEntityInsertQuery(EntityInfo entity, OperationInfo operation) {
-        EntityQueries query = entity.getAnnotation(EntityQueries.class);
+        EntityQueries entityQueries = entity.getAnnotation(EntityQueries.class);
+        Query query = operation.getAnnotation(Query.class);
+        CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
         String finalQuery;
-        if (query == null) {
+        if (entityQueries != null && hasQueryValue(entityQueries.insert())) {
+            finalQuery = joinln(entityQueries.insert());
+        } else if (customQuery != null && hasQueryValue(customQuery.query())) {
+            finalQuery = joinln(customQuery.query());
+        } else if (query != null) {
+            finalQuery = joinln(query.value());
+        } else {
             StringBuilder result = new StringBuilder();
             result.append("insert into");
-            appendToQueryln(result, getTableName(entity), "    ");
-            result.append("\n(\n");
-            boolean requireComma = false;
-            for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
-                    continue;
-                } else if (field.isInsertDateMark()) {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    requireComma = true;
-                } else if (field.isIdentifier()) {
-                    
-                    if (!includeIdOnInsert(entity, field)) {
+            if (customQuery != null && hasQueryValue(customQuery.from())) {
+                appendToQueryln(result, customQuery.from(), "    ");
+            } else {
+                appendToQueryln(result, getTableName(entity), "    ");
+            }
+            result.append("\n(");
+
+            if (customQuery != null) {
+                appendToQueryln(result, customQuery.beforeInsertIntoExpression(), "    ");
+            }
+
+            if (customQuery != null && hasQueryValue(customQuery.insertInto())) {
+                appendToQueryln(result, customQuery.insertInto(), "    ");
+            } else {
+                result.append("\n");
+                boolean requireComma = false;
+                for (FieldInfo field : entity.getFields()) {
+                    if (field.isManually()) {
                         continue;
-                    }
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    requireComma = true;
-                } else if (field.isInsertUserMark()) {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    requireComma = true;
-                } else if (field.isUpdateDateMark()) {
-                    continue;
-                } else if (field.isUpdateUserMark()) {
-                    continue;
-                } else if (field.isDeleteDateMark()) {
-                    continue;
-                } else if (field.isDeleteUserMark()) {
-                    continue;
-                } else if (field.isDeletionMark()) {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    requireComma = true;
-                } else if (field.isVersionMark()) {
-                    if (!handleVersionFieldOnInsert()) {
+                    } else if (field.isInsertDateMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        requireComma = true;
+                    } else if (field.isIdentifier()) {
+
+                        if (!includeIdOnInsert(entity, field)) {
+                            continue;
+                        }
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        requireComma = true;
+                    } else if (field.isInsertUserMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        requireComma = true;
+                    } else if (field.isUpdateDateMark()) {
                         continue;
+                    } else if (field.isUpdateUserMark()) {
+                        continue;
+                    } else if (field.isDeleteDateMark()) {
+                        continue;
+                    } else if (field.isDeleteUserMark()) {
+                        continue;
+                    } else if (field.isDeletionMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        requireComma = true;
+                    } else if (field.isVersionMark()) {
+                        if (!handleVersionFieldOnInsert()) {
+                            continue;
+                        }
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        requireComma = true;
+                    } else {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        requireComma = true;
                     }
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    requireComma = true;
-                } else {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getColumnName(field));
-                    requireComma = true;
                 }
             }
 
-            result.append("\n) values (\n");
-            requireComma = false;
-            for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
-                    continue;
-                } else if (field.isInsertDateMark()) {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(currentSqlDate());
-                    requireComma = true;
-                } else if (field.isIdentifier()) {
-                    if (!includeIdOnInsert(entity, field)) {
+            result.append("\n) values (");
+
+            if (customQuery != null) {
+                appendToQueryln(result, customQuery.beforeInsertValuesExpression(), "    ");
+            }
+
+            if (customQuery != null && hasQueryValue(customQuery.insertValues())) {
+                appendToQueryln(result, customQuery.insertValues(), "    ");
+            } else {
+                result.append("\n");
+                boolean requireComma = false;
+                for (FieldInfo field : entity.getFields()) {
+                    if (field.isManually()) {
                         continue;
-                    }
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    appendIdNextValue(result, entity, field);
-                    requireComma = true;
-                } else if (field.isInsertUserMark()) {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getParameterValue(field));
-                    requireComma = true;
-                } else if (field.isUpdateDateMark()) {
-                    continue;
-                } else if (field.isUpdateUserMark()) {
-                    continue;
-                } else if (field.isDeleteDateMark()) {
-                    continue;
-                } else if (field.isDeleteUserMark()) {
-                    continue;
-                } else if (field.isDeletionMark()) {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    appendNotDeletedValue(result, field);
-                    requireComma = true;
-                } else if (field.isVersionMark()) {
-                    if (!handleVersionFieldOnInsert()) {
+                    } else if (field.isInsertDateMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(currentSqlDate());
+                        requireComma = true;
+                    } else if (field.isIdentifier()) {
+                        if (!includeIdOnInsert(entity, field)) {
+                            continue;
+                        }
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        appendIdNextValue(result, entity, field);
+                        requireComma = true;
+                    } else if (field.isInsertUserMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getParameterValue(field));
+                        requireComma = true;
+                    } else if (field.isUpdateDateMark()) {
                         continue;
+                    } else if (field.isUpdateUserMark()) {
+                        continue;
+                    } else if (field.isDeleteDateMark()) {
+                        continue;
+                    } else if (field.isDeleteUserMark()) {
+                        continue;
+                    } else if (field.isDeletionMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        appendNotDeletedValue(result, field);
+                        requireComma = true;
+                    } else if (field.isVersionMark()) {
+                        if (!handleVersionFieldOnInsert()) {
+                            continue;
+                        }
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        appendInitialVersionValue(result, entity, field);
+                        requireComma = true;
+                    } else {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getParameterValue(field));
+                        requireComma = true;
                     }
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    appendInitialVersionValue(result, entity, field);
-                    requireComma = true;
-                } else {
-                    if (requireComma) {
-                        result.append(",\n");
-                    }
-                    result.append("    ");
-                    result.append(getParameterValue(field));
-                    requireComma = true;
                 }
+            }
+
+            if (customQuery != null) {
+                appendToQueryln(result, customQuery.afterInsertValuesExpression(), "    ");
             }
 
             result.append("\n)");
             finalQuery = result.toString();
-        } else {
-            finalQuery = joinln(query.insert());
         }
-        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
+        finalQuery = finalizeQuery(finalQuery, operation, customQuery);
         return finalQuery.split("\n");
     }
 
@@ -1239,13 +1274,13 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation, boolean excludeSequenceQuery) {
         EntityQueries query = entity.getAnnotation(EntityQueries.class);
         String finalQuery;
-        if (query == null) {
+        if (query != null && hasQueryValue(query.lastInsertedId())) {
+            finalQuery = joinln(query.lastInsertedId());
+        } else {
             finalQuery = joinln(getIdCurrentValue(entity, entity.getFirstIdField(), excludeSequenceQuery));
             if (finalQuery == null) {
                 return null;
             }
-        } else {
-            finalQuery = joinln(query.lastInsertedId());
         }
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         if (finalQuery != null) {

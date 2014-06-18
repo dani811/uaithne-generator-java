@@ -2168,18 +2168,35 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntitySelectByIdQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = getEntityForSelectByIdQuery(true);
-        entity.addAnnotation(getEntityQueriesSample(false));
+        entity.addAnnotation(getEntityQueriesSample());
         OperationInfo operation = getEntitySelectByIdOperation(entity);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"selectById", "code"};
         String[] result = instance.getEntitySelectByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
+    
+    private OperationInfo getEntityInsertOperation(EntityInfo entity) {
+        DataTypeInfo idDataType = entity.getFirstIdField().getDataType();
+        FieldInfo value = new FieldInfo("value", entity.getDataType());
+
+        DataTypeInfo insertOperationName = new DataTypeInfo("InsertEntity");
+        OperationInfo insertOperation = new OperationInfo(insertOperationName);
+        insertOperation.setReturnDataType(idDataType);
+        insertOperation.setOperationKind(OperationKind.INSERT);
+        
+        DataTypeInfo insertOperationInterface = DataTypeInfo.INSERT_VALUE_OPERATION_DATA_TYPE.of(entity.getDataType(), idDataType);
+        insertOperation.addImplement(insertOperationInterface);
+
+        insertOperation.addField(value);
+        insertOperation.setEntity(entity);
+        return insertOperation;
+    }
 
     @Test
     public void testGetEntityInsertQueryHandleVersionFieldOnInsert() {
         EntityInfo entity = getEntityForInsertQuery();
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityInsertOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnInsert = true;
         instance.getConfiguration().setUseAutoIncrementId(true);
@@ -2209,7 +2226,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityInsertQueryWithoutHandleVersionFieldOnInsert() {
         EntityInfo entity = getEntityForInsertQuery();
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityInsertOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnInsert = false;
         instance.getConfiguration().setUseAutoIncrementId(true);
@@ -2234,7 +2251,7 @@ public class SqlQueryGeneratorTest {
         assertArrayEquals(expResult, result);
     }
 
-    private EntityQueries getEntityQueriesSample(final boolean nullLastInsertedId) {
+    private EntityQueries getEntityQueriesSample() {
         return new EntityQueries() {
             @Override
             public String[] selectById() {
@@ -2248,9 +2265,6 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public String[] lastInsertedId() {
-                if (nullLastInsertedId) {
-                    return null;
-                }
                 return new String[]{"last", "inserted", "value"};
             }
 
@@ -2279,8 +2293,11 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityInsertQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
-        entity.addAnnotation(getEntityQueriesSample(false));
-        OperationInfo operation = null;
+        FieldInfo id = new FieldInfo("id", DataTypeInfo.INT_DATA_TYPE);
+        id.setIdentifier(true);
+        entity.addField(id);
+        entity.addAnnotation(getEntityQueriesSample());
+        OperationInfo operation = getEntityInsertOperation(entity);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"insert", "code"};
         String[] result = instance.getEntityInsertQuery(entity, operation);
@@ -2351,21 +2368,10 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityLastInsertedIdQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
-        entity.addAnnotation(getEntityQueriesSample(false));
+        entity.addAnnotation(getEntityQueriesSample());
         OperationInfo operation = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"last", "inserted", "value"};
-        String[] result = instance.getEntityLastInsertedIdQuery(entity, operation, false);
-        assertArrayEquals(expResult, result);
-    }
-
-    @Test
-    public void testGetEntityLastInsertedIdQueryWithNullLastInsertedId() {
-        EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
-        entity.addAnnotation(getEntityQueriesSample(true));
-        OperationInfo operation = null;
-        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String[] expResult = null;
         String[] result = instance.getEntityLastInsertedIdQuery(entity, operation, false);
         assertArrayEquals(expResult, result);
     }
@@ -2504,7 +2510,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityUpdateQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
-        entity.addAnnotation(getEntityQueriesSample(false));
+        entity.addAnnotation(getEntityQueriesSample());
         OperationInfo operation = null;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"update", "query"};
@@ -2675,7 +2681,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityMergeQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
-        entity.addAnnotation(getEntityQueriesSample(false));
+        entity.addAnnotation(getEntityQueriesSample());
         OperationInfo operation = null;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"merge", "query"};
@@ -2797,7 +2803,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityDeleteByIdQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
-        entity.addAnnotation(getEntityQueriesSample(true));
+        entity.addAnnotation(getEntityQueriesSample());
         OperationInfo operation = null;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"deleteById", "query"};
