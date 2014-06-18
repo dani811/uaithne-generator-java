@@ -27,4 +27,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface SelectEntityById {
     Class<?> result();
+    boolean limit() default false;
 }

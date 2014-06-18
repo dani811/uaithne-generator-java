@@ -2084,31 +2084,28 @@ public class SqlQueryGeneratorTest {
         String[] result = instance.getSelectPageCountQuery(operation);
         assertArrayEquals(expResult, result);
     }
+    
+    private OperationInfo getEntitySelectByIdOperation(EntityInfo entity) {
+        FieldInfo id = new FieldInfo("id", entity.getFirstIdField());
 
-    @Test
-    public void testGetEntitySelectByIdQueryWithEntityWithoutEntityQueriesAnnotation() {
-        EntityInfo entity = getEntityForSelectByIdQuery(false);
-        OperationInfo operation = null;
-        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String[] expResult = new String[]{"select",
-            "    mappedName as \"mappedField\",",
-            "    field,",
-            "    deletionMarkField,",
-            "    identifierField",
-            "from",
-            "    MyEntity ",
-            "where",
-            "    deletionMarkField = false",
-            "    and identifierField = parameterValue"};
-        String[] result = instance.getEntitySelectByIdQuery(entity, operation);
-        assertArrayEquals(expResult, result);
+        DataTypeInfo selectOperationName = new DataTypeInfo("SelectEntityById");
+        OperationInfo selectOperation = new OperationInfo(selectOperationName);
+        selectOperation.setReturnDataType(entity.getDataType());
+        selectOperation.setOperationKind(OperationKind.SELECT_BY_ID);
+
+        DataTypeInfo selectOperationInterface = DataTypeInfo.SELECT_BY_ID_OPERATION_DATA_TYPE.of(id.getDataType(), entity.getDataType());
+        selectOperation.addImplement(selectOperationInterface);
+
+        selectOperation.addField(id);
+        selectOperation.setEntity(entity);
+        return selectOperation;
     }
 
     @Test
-    public void testGetEntitySelectByIdQueryWithEntityWithoutEntityQueriesAnnotationReverseAnds() {
+    public void testGetEntitySelectByIdQueryWithEntityWithoutEntityQueriesAnnotation() {
         EntityInfo entity = getEntityForSelectByIdQuery(true);
-        OperationInfo operation = null;
-        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        OperationInfo operation = getEntitySelectByIdOperation(entity);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl(false);
         String[] expResult = new String[]{"select",
             "    mappedName as \"mappedField\",",
             "    field,",
@@ -2127,8 +2124,8 @@ public class SqlQueryGeneratorTest {
     public void testGetEntitySelectByIdQueryWithEntityWithoutEntityQueriesAnnotationAndEntityWithoutLogicalDeletion() {
         EntityInfo entity = getEntityForSelectByIdQuery(false);
         entity.setIgnoreLogicalDeletionEnabled(true);
-        OperationInfo operation = null;
-        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        OperationInfo operation = getEntitySelectByIdOperation(entity);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl(false);
         String[] expResult = new String[]{"select",
             "    mappedName as \"mappedField\",",
             "    field,",
@@ -2150,7 +2147,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field2 = new FieldInfo("manuallyField", DataTypeInfo.LIST_DATA_TYPE);
         field2.setManually(true);
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
-        FieldInfo field4 = new FieldInfo("identifierField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field4 = new FieldInfo("identifierField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
         FieldInfo field5 = new FieldInfo("deletionMarkField", DataTypeInfo.LIST_DATA_TYPE);
         field5.setDeletionMark(true);
@@ -2170,9 +2167,9 @@ public class SqlQueryGeneratorTest {
 
     @Test
     public void testGetEntitySelectByIdQueryWithEntityWithEntityQueriesAnnotation() {
-        EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
+        EntityInfo entity = getEntityForSelectByIdQuery(true);
         entity.addAnnotation(getEntityQueriesSample(false));
-        OperationInfo operation = null;
+        OperationInfo operation = getEntitySelectByIdOperation(entity);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"selectById", "code"};
         String[] result = instance.getEntitySelectByIdQuery(entity, operation);
@@ -3523,9 +3520,13 @@ public class SqlQueryGeneratorTest {
         public boolean handleVersionFieldOnInsert = false;
         public boolean handleVersionFieldOnUpdate = false;
         public boolean handleVersionFieldOnDelete = false;
+        public boolean useOrderBy = true;
 
         @Override
         public void appendOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+            if (!useOrderBy) {
+                return;
+            }
             result.append("\norder by");// Always add order by to verify method invocation, even if it is not required
             for (FieldInfo fieldInfo : orderBys) {
                 result.append(" ").append(fieldInfo.getName());
@@ -3539,6 +3540,9 @@ public class SqlQueryGeneratorTest {
 
         @Override
         public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+            if (!useOrderBy) {
+                return;
+            }
             result.append("appendOrderByAfterSelectForSelectPage");
         }
 
@@ -3790,6 +3794,11 @@ public class SqlQueryGeneratorTest {
             QueryGeneratorConfiguration config = new QueryGeneratorConfiguration();
             config.setProcessingEnv(new ProcessingEnviromentImpl());
             setConfiguration(config);
+        }
+        
+        public SqlQueryGeneratorImpl(boolean useOrderBy) {
+            this();
+            this.useOrderBy = useOrderBy;
         }
 
         @Override

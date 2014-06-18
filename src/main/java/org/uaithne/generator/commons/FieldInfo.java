@@ -514,5 +514,10 @@ public class FieldInfo {
         markAsOvwrride = fieldInfo.markAsOvwrride;
         markAsTransient = fieldInfo.markAsTransient;
         validationAnnotation = fieldInfo.validationAnnotation;
+        if (!name.equals(fieldInfo.name)) {
+            if (getMappedName() == null) {
+                mappedName = fieldInfo.name;
+            }
+        }
     }
 }

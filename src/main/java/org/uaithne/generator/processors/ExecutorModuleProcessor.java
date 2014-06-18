@@ -1006,6 +1006,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setIdentifier(false);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setLimitToOneResult(operation.limit());
         FieldInfo id = entity.getCombined().getFirstIdField();
         if (id == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity id field", element);

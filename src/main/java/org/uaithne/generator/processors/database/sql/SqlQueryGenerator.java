@@ -495,10 +495,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     //<editor-fold defaultstate="collapsed" desc="Utils for generate the select query">
     public String getColumnNameForSelect(FieldInfo field, CustomSqlQuery customQuery) {
-        String mappedName = field.getMappedName();
+        String mappedName = field.getMappedNameOrName();
+        String name = field.getName();
         String result;
-        if (mappedName == null || mappedName.isEmpty()) {
-            result = field.getName();
+        if (name.equals(mappedName)) {
+            result = name;
         } else {
             result = mappedName + " as \"" + field.getName() + "\"";
         }
@@ -1076,68 +1077,16 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //<editor-fold defaultstate="collapsed" desc="Entity queries">
     @Override
     public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation) {
-        EntityQueries query = entity.getAnnotation(EntityQueries.class);
-        String finalQuery;
-        if (query == null) {
-            StringBuilder result = new StringBuilder();
-            result.append("select");
-            boolean requireComma = false;
-            for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
-                    continue;
-                }
-                if (requireComma) {
-                    result.append(",\n    ");
-                } else {
-                    result.append("\n    ");
-                }
-                result.append(getColumnNameForSelect(field, null));
-                requireComma = true;
+        EntityQueries entityQueries = entity.getAnnotation(EntityQueries.class);
+        if (entityQueries == null) {
+            Query query = operation.getAnnotation(Query.class);
+            if (query == null) {
+                return completeQuery(null, operation, false, false);
+            } else {
+                return completeQuery(query.value(), operation, false, false);
             }
-            result.append("\nfrom");
-            appendToQueryln(result, getTableNameForSelect(entity, null), "    ");
-            boolean requireWhere = true;
-            boolean requireAnd = false;
-            for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
-                    continue;
-                } else if (field.isIdentifier()) {
-                    if (requireWhere) {
-                        result.append("\nwhere\n");
-                        requireWhere = false;
-                    }
-                    if (requireAnd) {
-                        result.append("\n    and ");
-                    } else {
-                        result.append("    ");
-                    }
-                    result.append(getColumnName(field));
-                    result.append(" = ");
-                    result.append(getParameterValue(field));
-                    requireAnd = true;
-                } else if (field.isDeletionMark()) {
-                    if (!entity.isUseLogicalDeletion()) {
-                        continue;
-                    }
-                    if (requireWhere) {
-                        result.append("\nwhere\n");
-                        requireWhere = false;
-                    }
-                    if (requireAnd) {
-                        result.append("\n    and ");
-                    } else {
-                        result.append("    ");
-                    }
-                    appendNotDeleted(result, field);
-                    requireAnd = true;
-                }
-            }
-            finalQuery = result.toString();
-        } else {
-            finalQuery = joinln(query.selectById());
         }
-        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
-        return finalQuery.split("\n");
+        return completeQuery(entityQueries.selectById(), operation, false, false);
     }
 
     @Override
