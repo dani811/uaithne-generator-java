@@ -2103,6 +2103,25 @@ public class SqlQueryGeneratorTest {
 
     @Test
     public void testGetEntitySelectByIdQueryWithEntityWithoutEntityQueriesAnnotation() {
+        EntityInfo entity = getEntityForSelectByIdQuery(false);
+        OperationInfo operation = getEntitySelectByIdOperation(entity);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl(false);
+        String[] expResult = new String[]{"select",
+            "    mappedName as \"mappedField\",",
+            "    field,",
+            "    deletionMarkField,",
+            "    identifierField",
+            "from",
+            "    MyEntity ",
+            "where",
+            "    identifierField = parameterValue",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntitySelectByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntitySelectByIdQueryWithEntityWithoutEntityQueriesAnnotationReverseAnds() {
         EntityInfo entity = getEntityForSelectByIdQuery(true);
         OperationInfo operation = getEntitySelectByIdOperation(entity);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl(false);
@@ -2167,7 +2186,10 @@ public class SqlQueryGeneratorTest {
 
     @Test
     public void testGetEntitySelectByIdQueryWithEntityWithEntityQueriesAnnotation() {
-        EntityInfo entity = getEntityForSelectByIdQuery(true);
+        EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
+        FieldInfo id = new FieldInfo("id", DataTypeInfo.INT_DATA_TYPE);
+        id.setIdentifier(true);
+        entity.addField(id);
         entity.addAnnotation(getEntityQueriesSample());
         OperationInfo operation = getEntitySelectByIdOperation(entity);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
@@ -2376,7 +2398,7 @@ public class SqlQueryGeneratorTest {
         assertArrayEquals(expResult, result);
     }
 
-    private EntityInfo getEntityForUpdateQuery() {
+    private EntityInfo getEntityForUpdateQuery(boolean changeOrder) {
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
 
 
@@ -2408,8 +2430,13 @@ public class SqlQueryGeneratorTest {
         entity.addField(field1);
         entity.addField(field2);
         entity.addField(field3);
-        entity.addField(field4);
-        entity.addField(field5);
+        if (changeOrder) {
+            entity.addField(field5);
+            entity.addField(field4);
+        } else {
+            entity.addField(field4);
+            entity.addField(field5);
+        }
         entity.addField(field6);
         entity.addField(field7);
         entity.addField(field8);
@@ -2439,7 +2466,28 @@ public class SqlQueryGeneratorTest {
 
     @Test
     public void testGetEntityUpdateQuery() {
-        EntityInfo entity = getEntityForUpdateQuery();
+        EntityInfo entity = getEntityForUpdateQuery(false);
+        OperationInfo operation = getEntityUpdateOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "set",
+            "    mappedName = parameterValue,",
+            "    field = parameterValue,",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateUserMarkField = parameterValue,",
+            "    versionMarkField = nextVersion",
+            "where",
+            "    idField = parameterValue",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityUpdateQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityUpdateQueryChangingFieldsOrder() {
+        EntityInfo entity = getEntityForUpdateQuery(true);
         OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = true;
@@ -2460,7 +2508,7 @@ public class SqlQueryGeneratorTest {
 
     @Test
     public void testGetEntityUpdateQueryWithoutHandlingVersionFieldOnUpdate() {
-        EntityInfo entity = getEntityForUpdateQuery();
+        EntityInfo entity = getEntityForUpdateQuery(false);
         OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = false;
@@ -2480,7 +2528,7 @@ public class SqlQueryGeneratorTest {
 
     @Test
     public void testGetEntityUpdateQueryWithoutUsingLogicalDeletion() {
-        EntityInfo entity = getEntityForUpdateQuery();
+        EntityInfo entity = getEntityForUpdateQuery(false);
         entity.setIgnoreLogicalDeletionEnabled(true);
         OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
@@ -2591,6 +2639,32 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityMergeQuery() {
         EntityInfo entity = getEntityForMergeQuery(false);
+        OperationInfo operation = getEntityMergeOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='mappedField != null'>mappedName = parameterValue,</if>",
+            "    <if test='field != null'>field = parameterValue,</if>",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateDateMarkFieldBIS = current_timestamp,",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue,</if>",
+            "    versionMarkField = nextVersion,",
+            "    versionMarkFieldBIS = nextVersion,",
+            "    <if test='normalField != null'>normalField = parameterValue</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityMergeQueryChangingOrder() {
+        EntityInfo entity = getEntityForMergeQuery(true);
         OperationInfo operation = getEntityMergeOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = true;
