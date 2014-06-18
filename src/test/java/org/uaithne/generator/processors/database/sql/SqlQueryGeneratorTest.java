@@ -2376,7 +2376,7 @@ public class SqlQueryGeneratorTest {
         assertArrayEquals(expResult, result);
     }
 
-    private EntityInfo getEntityForUpdateQuery(boolean changeOrder) {
+    private EntityInfo getEntityForUpdateQuery() {
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
 
 
@@ -2385,7 +2385,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field2 = new FieldInfo("manuallyField", DataTypeInfo.LIST_DATA_TYPE);
         field2.setManually(true);
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
-        FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
         FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
         field5.setDeletionMark(true);
@@ -2408,13 +2408,8 @@ public class SqlQueryGeneratorTest {
         entity.addField(field1);
         entity.addField(field2);
         entity.addField(field3);
-        if (changeOrder) {
-            entity.addField(field5);
-            entity.addField(field4);
-        } else {
-            entity.addField(field4);
-            entity.addField(field5);
-        }
+        entity.addField(field4);
+        entity.addField(field5);
         entity.addField(field6);
         entity.addField(field7);
         entity.addField(field8);
@@ -2425,11 +2420,27 @@ public class SqlQueryGeneratorTest {
 
         return entity;
     }
+    
+    private OperationInfo getEntityUpdateOperation(EntityInfo entity) {
+        FieldInfo value = new FieldInfo("value", entity.getDataType());
+
+        DataTypeInfo updateOperationName = new DataTypeInfo("UpdateEntity");
+        OperationInfo updateOperation = new OperationInfo(updateOperationName);
+        updateOperation.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        updateOperation.setOperationKind(OperationKind.UPDATE);
+        
+        DataTypeInfo updateOperationInterface = DataTypeInfo.UPDATE_VALUE_OPERATION_DATA_TYPE.of(entity.getDataType(), DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        updateOperation.addImplement(updateOperationInterface);
+
+        updateOperation.addField(value);
+        updateOperation.setEntity(entity);
+        return updateOperation;
+    }
 
     @Test
     public void testGetEntityUpdateQuery() {
-        EntityInfo entity = getEntityForUpdateQuery(false);
-        OperationInfo operation = null;
+        EntityInfo entity = getEntityForUpdateQuery();
+        OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = true;
         String[] expResult = new String[]{"update",
@@ -2448,30 +2459,9 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
-    public void testGetEntityUpdateQueryChangingFieldsOrder() {
-        EntityInfo entity = getEntityForUpdateQuery(true);
-        OperationInfo operation = null;
-        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        instance.handleVersionFieldOnUpdate = true;
-        String[] expResult = new String[]{"update",
-            "    MyEntity ",
-            "set",
-            "    mappedName = parameterValue,",
-            "    field = parameterValue,",
-            "    updateDateMarkField = current_timestamp,",
-            "    updateUserMarkField = parameterValue,",
-            "    versionMarkField = nextVersion",
-            "where",
-            "    deletionMarkField = false",
-            "    and idField = parameterValue"};
-        String[] result = instance.getEntityUpdateQuery(entity, operation);
-        assertArrayEquals(expResult, result);
-    }
-
-    @Test
     public void testGetEntityUpdateQueryWithoutHandlingVersionFieldOnUpdate() {
-        EntityInfo entity = getEntityForUpdateQuery(false);
-        OperationInfo operation = null;
+        EntityInfo entity = getEntityForUpdateQuery();
+        OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = false;
         String[] expResult = new String[]{"update",
@@ -2490,9 +2480,9 @@ public class SqlQueryGeneratorTest {
 
     @Test
     public void testGetEntityUpdateQueryWithoutUsingLogicalDeletion() {
-        EntityInfo entity = getEntityForUpdateQuery(false);
+        EntityInfo entity = getEntityForUpdateQuery();
         entity.setIgnoreLogicalDeletionEnabled(true);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"update",
             "    MyEntity ",
@@ -2510,8 +2500,11 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityUpdateQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.BOXED_INT_DATA_TYPE);
+        field.setIdentifier(true);
+        entity.addField(field);
         entity.addAnnotation(getEntityQueriesSample());
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"update", "query"};
         String[] result = instance.getEntityUpdateQuery(entity, operation);
