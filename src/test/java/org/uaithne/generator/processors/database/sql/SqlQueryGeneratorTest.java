@@ -2520,7 +2520,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field2 = new FieldInfo("manuallyField", DataTypeInfo.LIST_DATA_TYPE);
         field2.setManually(true);
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
-        FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
         FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
         field5.setDeletionMark(true);
@@ -2571,11 +2571,27 @@ public class SqlQueryGeneratorTest {
 
         return entity;
     }
+    
+    private OperationInfo getEntityMergeOperation(EntityInfo entity) {
+        FieldInfo value = new FieldInfo("value", entity.getDataType());
+
+        DataTypeInfo updateOperationName = new DataTypeInfo("UpdateEntity");
+        OperationInfo updateOperation = new OperationInfo(updateOperationName);
+        updateOperation.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        updateOperation.setOperationKind(OperationKind.MERGE);
+        
+        DataTypeInfo updateOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entity.getDataType(), DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        updateOperation.addImplement(updateOperationInterface);
+
+        updateOperation.addField(value);
+        updateOperation.setEntity(entity);
+        return updateOperation;
+    }
 
     @Test
     public void testGetEntityMergeQuery() {
         EntityInfo entity = getEntityForMergeQuery(false);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityMergeOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = true;
         String[] expResult = new String[]{"update",
@@ -2599,35 +2615,9 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
-    public void testGetEntityMergeQueryChangingOrder() {
-        EntityInfo entity = getEntityForMergeQuery(true);
-        OperationInfo operation = null;
-        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        instance.handleVersionFieldOnUpdate = true;
-        String[] expResult = new String[]{"update",
-            "    MyEntity ",
-            "<set>",
-            "    <if test='mappedField != null'>mappedName = parameterValue,</if>",
-            "    <if test='field != null'>field = parameterValue,</if>",
-            "    updateDateMarkField = current_timestamp,",
-            "    updateDateMarkFieldBIS = current_timestamp,",
-            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue,</if>",
-            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue,</if>",
-            "    versionMarkField = nextVersion,",
-            "    versionMarkFieldBIS = nextVersion,",
-            "    <if test='normalField != null'>normalField = parameterValue</if>",
-            "</set>",
-            "where",
-            "    deletionMarkField = false",
-            "    and idField = parameterValue"};
-        String[] result = instance.getEntityMergeQuery(entity, operation);
-        assertArrayEquals(expResult, result);
-    }
-
-    @Test
     public void testGetEntityMergeQueryWithoutHandlingVersionFieldOnUpdate() {
         EntityInfo entity = getEntityForMergeQuery(false);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityMergeOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = false;
         String[] expResult = new String[]{"update",
@@ -2652,7 +2642,7 @@ public class SqlQueryGeneratorTest {
     public void testGetEntityMergeQueryWithoutUsingLogicalDeletion() {
         EntityInfo entity = getEntityForMergeQuery(false);
         entity.setIgnoreLogicalDeletionEnabled(true);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityMergeOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"update",
             "    MyEntity ",
@@ -2674,8 +2664,11 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityMergeQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.BOXED_INT_DATA_TYPE);
+        field.setIdentifier(true);
+        entity.addField(field);
         entity.addAnnotation(getEntityQueriesSample());
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityMergeOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"merge", "query"};
         String[] result = instance.getEntityMergeQuery(entity, operation);
