@@ -1527,13 +1527,25 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     @Override
     public String[] getEntityDeleteByIdQuery(EntityInfo entity, OperationInfo operation) {
-        EntityQueries query = entity.getAnnotation(EntityQueries.class);
+        EntityQueries entityQueries = entity.getAnnotation(EntityQueries.class);
+        Query query = operation.getAnnotation(Query.class);
+        CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
         String finalQuery;
-        if (query == null) {
+        if (entityQueries != null && hasQueryValue(entityQueries.deleteById())) {
+            finalQuery = joinln(entityQueries.deleteById());
+        } else if (customQuery != null && hasQueryValue(customQuery.query())) {
+            finalQuery = joinln(customQuery.query());
+        } else if (query != null) {
+            finalQuery = joinln(query.value());
+        } else {
             StringBuilder result = new StringBuilder();
             if (entity.isUseLogicalDeletion()) {
                 result.append("update");
-                appendToQueryln(result, getTableName(entity), "    ");
+                if (customQuery != null && hasQueryValue(customQuery.from())) {
+                    appendToQueryln(result, customQuery.from(), "    ");
+                } else {
+                    appendToQueryln(result, getTableName(entity), "    ");
+                }
                 result.append("\nset\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
@@ -1576,44 +1588,22 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else {
                 result.append("delete from");
-                appendToQueryln(result, getTableName(entity), "    ");
-            }
-            boolean requireAnd = false;
-            boolean requireWhere = true;
-            for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
-                    continue;
-                } else if (field.isIdentifier()) {
-                    if (requireWhere) {
-                        result.append("\nwhere\n");
-                        requireWhere = false;
-                    }
-                    if (requireAnd) {
-                        result.append("\n    and ");
-                    } else {
-                        result.append("    ");
-                    }
-                    result.append(getColumnName(field));
-                    result.append(" = ");
-                    result.append(getParameterValue(field));
-                    requireAnd = true;
-                } else if (field.isDeletionMark()) {
-                    if (requireWhere) {
-                        result.append("\nwhere\n");
-                        requireWhere = false;
-                    }
-                    if (requireAnd) {
-                        result.append("\n    and ");
-                    } else {
-                        result.append("    ");
-                    }
-                    appendNotDeleted(result, field);
-                    requireAnd = true;
+                if (customQuery != null && hasQueryValue(customQuery.from())) {
+                    appendToQueryln(result, customQuery.from(), "    ");
+                } else {
+                    appendToQueryln(result, getTableName(entity), "    ");
                 }
             }
+            
+            ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(1);
+            for (FieldInfo field : entity.getFields()) {
+                if (field.isManually()) {
+                } else if (field.isIdentifier()) {
+                    fields.add(field);
+                }
+            }
+            appendWhere(result, operation, customQuery, false, fields);
             finalQuery = result.toString();
-        } else {
-            finalQuery = joinln(query.deleteById());
         }
         finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
         return finalQuery.split("\n");

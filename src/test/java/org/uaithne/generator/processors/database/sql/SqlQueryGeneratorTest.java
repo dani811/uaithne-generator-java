@@ -2623,17 +2623,17 @@ public class SqlQueryGeneratorTest {
     private OperationInfo getEntityMergeOperation(EntityInfo entity) {
         FieldInfo value = new FieldInfo("value", entity.getDataType());
 
-        DataTypeInfo updateOperationName = new DataTypeInfo("UpdateEntity");
-        OperationInfo updateOperation = new OperationInfo(updateOperationName);
-        updateOperation.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
-        updateOperation.setOperationKind(OperationKind.MERGE);
+        DataTypeInfo mergeOperationName = new DataTypeInfo("MergeEntity");
+        OperationInfo mergeOperation = new OperationInfo(mergeOperationName);
+        mergeOperation.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        mergeOperation.setOperationKind(OperationKind.MERGE);
         
-        DataTypeInfo updateOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entity.getDataType(), DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
-        updateOperation.addImplement(updateOperationInterface);
+        DataTypeInfo mergeOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entity.getDataType(), DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        mergeOperation.addImplement(mergeOperationInterface);
 
-        updateOperation.addField(value);
-        updateOperation.setEntity(entity);
-        return updateOperation;
+        mergeOperation.addField(value);
+        mergeOperation.setEntity(entity);
+        return mergeOperation;
     }
 
     @Test
@@ -2758,7 +2758,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field2 = new FieldInfo("manuallyField", DataTypeInfo.LIST_DATA_TYPE);
         field2.setManually(true);
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
-        FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
         FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
         field5.setDeletionMark(true);
@@ -2788,11 +2788,27 @@ public class SqlQueryGeneratorTest {
 
         return entity;
     }
+    
+    private OperationInfo getEntityDeleteByIdOperation(EntityInfo entity) {
+        FieldInfo id = new FieldInfo("id", entity.getFirstIdField());
+
+        DataTypeInfo deleteOperationName = new DataTypeInfo("DeleteEntityById");
+        OperationInfo deleteOperation = new OperationInfo(deleteOperationName);
+        deleteOperation.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        deleteOperation.setOperationKind(OperationKind.DELETE_BY_ID);
+
+        DataTypeInfo deleteOperationInterface = DataTypeInfo.DELETE_BY_ID_OPERATION_DATA_TYPE.of(id.getDataType(), DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
+        deleteOperation.addImplement(deleteOperationInterface);
+
+        deleteOperation.addField(id);
+        deleteOperation.setEntity(entity);
+        return deleteOperation;
+    }
 
     @Test
     public void testGetEntityDeleteByIdQuery() {
         EntityInfo entity = getEntityForDeleteQuery(false);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnDelete = true;
         String[] expResult = new String[]{"update",
@@ -2802,8 +2818,8 @@ public class SqlQueryGeneratorTest {
             "    deletionMarkField = true,",
             "    versionMarkField = nextVersion",
             "where",
-            "    deletionMarkField = false",
-            "    and idField = parameterValue"};
+            "    idField = parameterValue",
+            "    and deletionMarkField = false"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2811,7 +2827,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityDeleteByIdQueryChangingOrder() {
         EntityInfo entity = getEntityForDeleteQuery(true);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnDelete = true;
         String[] expResult = new String[]{"update",
@@ -2830,7 +2846,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityDeleteByIdQueryWithoutHandlingVersionFieldOnDelete() {
         EntityInfo entity = getEntityForDeleteQuery(false);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnDelete = false;
         String[] expResult = new String[]{"update",
@@ -2839,8 +2855,8 @@ public class SqlQueryGeneratorTest {
             "    deleteDateMarkField = current_timestamp,",
             "    deletionMarkField = true",
             "where",
-            "    deletionMarkField = false",
-            "    and idField = parameterValue"};
+            "    idField = parameterValue",
+            "    and deletionMarkField = false"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2849,13 +2865,12 @@ public class SqlQueryGeneratorTest {
     public void testGetEntityDeleteByIdQueryWithoutUsingLogicalDeletion() {
         EntityInfo entity = getEntityForDeleteQuery(false);
         entity.setIgnoreLogicalDeletionEnabled(true);
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"delete from",
             "    MyEntity ",
             "where",
-            "    deletionMarkField = false",
-            "    and idField = parameterValue"};
+            "    idField = parameterValue"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2863,8 +2878,11 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityDeleteByIdQueryWithEntityWithEntityQueriesAnnotation() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.BOXED_INT_DATA_TYPE);
+        field.setIdentifier(true);
+        entity.addField(field);
         entity.addAnnotation(getEntityQueriesSample());
-        OperationInfo operation = null;
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"deleteById", "query"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
