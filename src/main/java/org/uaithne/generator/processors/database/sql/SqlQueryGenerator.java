@@ -535,6 +535,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         MappedName mappedName = entity.getAnnotation(MappedName.class);
         String[] result;
         if (mappedName == null) {
+            while (entity.getRelated() != null) {
+                entity = entity.getRelated();
+            }
             result = entity.getDataType().getSimpleNameWithoutGenerics().split("\n");
         } else {
             result = joinln(mappedName.value()).split("\n");
