@@ -90,6 +90,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     processSelectMany(re, (TypeElement) enclosedModuleElement, executorModuleInfo, selectMany);
                     continue;
                 }
+                SelectCount selectCount = enclosedModuleElement.getAnnotation(SelectCount.class);
+                if (selectCount != null) {
+                    processSelectCount(re, (TypeElement) enclosedModuleElement, executorModuleInfo, selectCount);
+                    continue;
+                }
                 SelectOne selectOne = enclosedModuleElement.getAnnotation(SelectOne.class);
                 if (selectOne != null) {
                     processSelectOne(re, (TypeElement) enclosedModuleElement, executorModuleInfo, selectOne);
@@ -242,6 +247,50 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         onlyDataCount.setManually(true);
         operationInfo.addField(onlyDataCount);
 
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processSelectCount(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, SelectCount selectCount) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo resultDataType;
+        try {
+            resultDataType = NamesGenerator.createResultDataType(selectCount.result());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            resultDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (resultDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
+            return;
+        }
+
+        DataTypeInfo relatedDataType;
+        try {
+            relatedDataType = NamesGenerator.createResultDataType(selectCount.related());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            relatedDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (relatedDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related element", element);
+            return;
+        }
+
+        EntityInfo entityInfo = generationInfo.getEntityByName(relatedDataType);
+        if (entityInfo == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
+            return;
+        }
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setReturnDataType(resultDataType);
+        operationInfo.setOperationKind(OperationKind.SELECT_COUNT);
+        operationInfo.setEntity(entityInfo);
+
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
+        operationInfo.addImplement(operationInterface);
+
+        loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
 

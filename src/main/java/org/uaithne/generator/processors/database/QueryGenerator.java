@@ -28,6 +28,7 @@ public interface QueryGenerator {
     public void end();
     public String[] getSelectManyQuery(OperationInfo operation);
     public String[] getSelectOneQuery(OperationInfo operation);
+    public String[] getSelectCountQuery(OperationInfo operation);
     public String[] getSelectPageCountQuery(OperationInfo operation);
     public String[] getSelectPageQuery(OperationInfo operation);
     public String[] getEntityDeleteByIdQuery(EntityInfo entity, OperationInfo operation);

@@ -356,6 +356,12 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     }
 
     @Override
+    public String[] getSelectCountQuery(OperationInfo operation) {
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select count", operation.getElement());
+        return null;
+    }
+
+    @Override
     public String[] getSelectPageCountQuery(OperationInfo operation) {
         getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for select page count", operation.getElement());
         return null;

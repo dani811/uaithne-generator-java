@@ -270,6 +270,18 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     }
 
     @Override
+    public String[] getSelectCountQuery(OperationInfo operation) {
+        if (useCallForSelect) {
+            String[] header = headerGenerator.getSelectCountQuery(operation);
+            write(header);
+            writeBody(bodyGenerator.getSelectCountQuery(operation));
+            return callGenerator.getSelectCountQuery(operation);
+        } else {
+            return queryGenerator.getSelectCountQuery(operation);
+        }
+    }
+
+    @Override
     public String[] getSelectPageCountQuery(OperationInfo operation) {
         if (useCallForSelect) {
             String[] header = headerGenerator.getSelectPageCountQuery(operation);

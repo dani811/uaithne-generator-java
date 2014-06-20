@@ -253,6 +253,11 @@ public class SqlGeneratorTest {
         }
 
         @Override
+        public String[] getSelectCountQuery(OperationInfo operation) {
+            throw new UnsupportedOperationException("No needed for test");
+        }
+
+        @Override
         public String[] getSelectPageCountQuery(OperationInfo operation) {
             throw new UnsupportedOperationException("No needed for test");
         }

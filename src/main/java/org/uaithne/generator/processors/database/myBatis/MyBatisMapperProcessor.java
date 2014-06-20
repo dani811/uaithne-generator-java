@@ -176,6 +176,18 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
             case CUSTOM: {
             }
             break;
+            case SELECT_COUNT: {
+                operation.setQueryId(namespace + "." + operation.getMethodName());
+                String[] query = sqlGenerator.getSelectCountQuery(operation);
+                if (query != null) {
+                    writeSelect(writer,
+                            operation.getMethodName(),
+                            operation.getDataType().getQualifiedNameWithoutGenerics(),
+                            operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
+                            query);
+                }
+            }
+            break;
             case SELECT_ONE: {
                 operation.setQueryId(namespace + "." + operation.getMethodName());
                 String[] query = sqlGenerator.getSelectOneQuery(operation);

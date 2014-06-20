@@ -138,6 +138,13 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
 
             String returnTypeName = operation.getReturnDataType().getSimpleName();
             switch (operation.getOperationKind()) {
+                case SELECT_COUNT: {
+                    writeStartOrderByVariable(appender, operation);
+                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    writeEndOrderByVariable(appender, operation);
+                    appender.append("        return result;\n");
+                    break;
+                }
                 case SELECT_ONE: {
                     writeStartOrderByVariable(appender, operation);
                     appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");

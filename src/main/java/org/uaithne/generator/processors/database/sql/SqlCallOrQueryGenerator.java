@@ -213,6 +213,17 @@ public class SqlCallOrQueryGenerator extends SqlGenerator {
     }
 
     @Override
+    public String[] getSelectCountQuery(OperationInfo operation) {
+        if (useCallForSelect) {
+            String[] procedure = procedureGenerator.getSelectCountQuery(operation);
+            write(procedure);
+            return callGenerator.getSelectCountQuery(operation);
+        } else {
+            return queryGenerator.getSelectCountQuery(operation);
+        }
+    }
+
+    @Override
     public String[] getSelectPageCountQuery(OperationInfo operation) {
         if (useCallForSelect) {
             String[] procedure = procedureGenerator.getSelectPageCountQuery(operation);

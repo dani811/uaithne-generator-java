@@ -37,13 +37,17 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     
     //<editor-fold defaultstate="collapsed" desc="Complete query">
     public String[] completeQuery(String[] query, OperationInfo operation, boolean count, boolean selectPage) {
+        return completeQuery(query, operation, count, selectPage, true);
+    }
+    
+    public String[] completeQuery(String[] query, OperationInfo operation, boolean count, boolean selectPage, boolean ignoreCustomQueryWhenCount) {
         CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
         String completed;
         if (query == null) {
-            completed = completeQueryWithoutEnvolve(null, operation, count, selectPage, customQuery);
+            completed = completeQueryWithoutEnvolve(null, operation, count, selectPage, customQuery, ignoreCustomQueryWhenCount);
         } else {
             completed = joinln(query);
-            completed = completeQueryWithoutEnvolve(completed, operation, count, selectPage, customQuery);
+            completed = completeQueryWithoutEnvolve(completed, operation, count, selectPage, customQuery, ignoreCustomQueryWhenCount);
         }
         completed = finalizeQuery(completed, operation, customQuery);
 
@@ -60,8 +64,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
 
     }
-
+    
     public String completeQueryWithoutEnvolve(String query, OperationInfo operation, boolean count, boolean selectPage, CustomSqlQuery customQuery) {
+        return completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery, true);
+    }
+
+    public String completeQueryWithoutEnvolve(String query, OperationInfo operation, boolean count, boolean selectPage, CustomSqlQuery customQuery, boolean ignoreCustomQueryWhenCount) {
         boolean addSelect = false;
         boolean addFrom = false;
         boolean addWhere = false;
@@ -217,7 +225,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
 
         if (addSelect) {
-            appendSelect(appender, operation, entity, count, customQuery);
+            appendSelect(appender, operation, entity, count, customQuery, ignoreCustomQueryWhenCount);
         }
         if (selectPage && !count && (addSelect || addFrom)) {
             appendOrderByAfterSelectForSelectPage(appender, orderBys, customQuery);
@@ -266,13 +274,17 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         return result;
     }
-
+    
     public void appendSelect(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery) {
+        appendSelect(result, operation, entity, count, customQuery, true);
+    }
+
+    public void appendSelect(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery, boolean ignoreCustomQueryWhenCount) {
         result.append("select");
         if (operation.isDistinct()) {
             result.append(" distinct");
         }
-        if (count) {
+        if (count && (ignoreCustomQueryWhenCount || customQuery == null)) {
             result.append("\n    count(*)");
         } else {
             if (operation.isLimitToOneResult()) {
@@ -297,7 +309,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 if (hasQueryValue(customQuery.select())) {
                     appendToQueryln(result, customQuery.select(), "    ");
                 } else {
-                    appendSelectFields(result, operation, entity, count, customQuery);
+                    if (count) {
+                       result.append("\n    count(*)"); 
+                    } else {
+                        appendSelectFields(result, operation, entity, count, customQuery);
+                    }
                 }
 
                 appendToQueryln(result, customQuery.afterSelectExpression(), "    ");
@@ -1007,6 +1023,16 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Queries for diferent select operation">
+    
+    @Override
+    public String[] getSelectCountQuery(OperationInfo operation) {
+        Query query = operation.getAnnotation(Query.class);
+        if (query == null) {
+            return completeQuery(null, operation, true, false, false);
+        }
+        return completeQuery(query.value(), operation, true, false, false);
+    }
+    
     @Override
     public String[] getSelectOneQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
@@ -1014,7 +1040,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             return completeQuery(null, operation, false, false);
         }
         return completeQuery(query.value(), operation, false, false);
-
     }
 
     @Override

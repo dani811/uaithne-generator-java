@@ -34,7 +34,8 @@ public enum OperationKind {
     CUSTOM_UPDATE(12, "CustomUpdate"),
     CUSTOM_DELETE(13, "CustomDelete"),
     CUSTOM_INSERT_WITH_ID(14, "CustomInsertWithId"),
-    MERGE(15, "Merge");
+    MERGE(15, "Merge"),
+    SELECT_COUNT(16, "SelectCount");
     
     private final int id;
     private final String name;
