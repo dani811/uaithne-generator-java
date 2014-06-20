@@ -1144,7 +1144,7 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
-    public void testGetTableNameForSelectFromMappedEntity() {
+    public void testGetTableNameFromMappedEntity() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
         entity.addAnnotation(new MappedName() {
             @Override
@@ -1161,28 +1161,28 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"mappedEntity"};
-        String[] result = instance.getTableNameForSelect(entity, customQuery);
+        String[] result = instance.getTableName(entity, customQuery);
         assertArrayEquals(expResult, result);
     }
 
     @Test
-    public void testGetTableNameForSelect() {
+    public void testGetTableName() {
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"MyEntity"};
-        String[] result = instance.getTableNameForSelect(entity, customQuery);
+        String[] result = instance.getTableName(entity, customQuery);
         assertArrayEquals(expResult, result);
     }
 
     @Test
-    public void testGetTableNameForSelectWithCustomQuery() {
+    public void testGetTableNameWithCustomQuery() {
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
         TestCustomSqlQuery customQuery = getCustomSqlQuery();
         customQuery.tableAlias = "tableAlias";
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"MyEntity tableAlias"};
-        String[] result = instance.getTableNameForSelect(entity, customQuery);
+        String[] result = instance.getTableName(entity, customQuery);
         assertArrayEquals(expResult, result);
     }
 
@@ -2890,7 +2890,7 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
-    public void testGetTableName() {
+    public void testGetTableNameSimple() {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
         entity.addAnnotation(new MappedName() {
             @Override
@@ -2905,7 +2905,7 @@ public class SqlQueryGeneratorTest {
         });
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"MappedEntity"};
-        String[] result = instance.getTableName(entity);
+        String[] result = instance.getTableName(entity, null);
         assertArrayEquals(expResult, result);
     }
 

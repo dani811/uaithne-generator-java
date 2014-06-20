@@ -331,11 +331,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (hasQueryValue(from)) {
                 appendToQueryln(result, from, "    ");
             } else {
-                appendToQueryln(result, getTableNameForSelect(entity, customQuery), "    ");
+                appendToQueryln(result, getTableName(entity, customQuery), "    ");
             }
             appendToQueryln(result, customQuery.afterFromExpression(), "    ");
         } else {
-            appendToQueryln(result, getTableNameForSelect(entity, null), "    ");
+            appendToQueryln(result, getTableName(entity, null), "    ");
         }
     }
 
@@ -515,7 +515,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         return result;
     }
 
-    public String[] getTableNameForSelect(EntityInfo entity, CustomSqlQuery customQuery) {
+    public String[] getTableName(EntityInfo entity, CustomSqlQuery customQuery) {
         MappedName mappedName = entity.getAnnotation(MappedName.class);
         String[] result;
         if (mappedName == null) {
@@ -640,6 +640,21 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Custom operations queries">
+    public void appendTableName(StringBuilder result, EntityInfo entity, CustomSqlQuery customQuery, String prefix) {
+        if (customQuery != null) {
+            appendToQueryln(result, customQuery.beforeFromExpression(), prefix);
+            String[] from = customQuery.from();
+            if (hasQueryValue(from)) {
+                appendToQueryln(result, from, "    ");
+            } else {
+                appendToQueryln(result, getTableName(entity, customQuery), prefix);
+            }
+            appendToQueryln(result, customQuery.afterFromExpression(), prefix);
+        } else {
+            appendToQueryln(result, getTableName(entity, null), prefix);
+        }
+    }
+    
     @Override
     public String[] getCustomInsertQuery(OperationInfo operation) {
         Query query = operation.getAnnotation(Query.class);
@@ -651,11 +666,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             EntityInfo entity = operation.getEntity().getCombined();
             StringBuilder result = new StringBuilder();
             result.append("insert into");
-            if (customQuery != null && hasQueryValue(customQuery.from())) {
-                appendToQueryln(result, customQuery.from(), "    ");
-            } else {
-                appendToQueryln(result, getTableName(entity), "    ");
-            }
+            appendTableName(result, entity, customQuery, "    ");
             result.append("\n(");
 
             if (customQuery != null) {
@@ -840,11 +851,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             EntityInfo entity = operation.getEntity().getCombined();
             StringBuilder result = new StringBuilder();
             result.append("update");
-            if (customQuery != null && hasQueryValue(customQuery.from())) {
-                appendToQueryln(result, customQuery.from(), "    ");
-            } else {
-                appendToQueryln(result, getTableName(entity), "    ");
-            }
+            appendTableName(result, entity, customQuery, "    ");
             result.append("\nset");
 
             if (customQuery != null) {
@@ -931,11 +938,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             StringBuilder result = new StringBuilder();
             if (operation.isUseLogicalDeletion()) {
                 result.append("update");
-                if (customQuery != null && hasQueryValue(customQuery.from())) {
-                    appendToQueryln(result, customQuery.from(), "    ");
-                } else {
-                    appendToQueryln(result, getTableName(entity), "    ");
-                }
+                appendTableName(result, entity, customQuery, "    ");
                 result.append("\nset\n");
                 boolean requireComma = false;
                 for (FieldInfo field : operation.getFields()) {
@@ -991,11 +994,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else {
                 result.append("delete from");
-                if (customQuery != null && hasQueryValue(customQuery.from())) {
-                    appendToQueryln(result, customQuery.from(), "    ");
-                } else {
-                    appendToQueryln(result, getTableName(entity), "    ");
-                }
+                appendTableName(result, entity, customQuery, "    ");
             }
             appendWhere(result, operation, customQuery, false);
             finalQuery = result.toString();
@@ -1108,11 +1107,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         } else {
             StringBuilder result = new StringBuilder();
             result.append("insert into");
-            if (customQuery != null && hasQueryValue(customQuery.from())) {
-                appendToQueryln(result, customQuery.from(), "    ");
-            } else {
-                appendToQueryln(result, getTableName(entity), "    ");
-            }
+            appendTableName(result, entity, customQuery, "    ");
             result.append("\n(");
 
             if (customQuery != null) {
@@ -1308,11 +1303,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         } else {
             StringBuilder result = new StringBuilder();
             result.append("update");
-            if (customQuery != null && hasQueryValue(customQuery.from())) {
-                appendToQueryln(result, customQuery.from(), "    ");
-            } else {
-                appendToQueryln(result, getTableName(entity), "    ");
-            }
+            appendTableName(result, entity, customQuery, "    ");
             result.append("\nset");
 
             if (customQuery != null) {
@@ -1415,11 +1406,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         } else {
             StringBuilder result = new StringBuilder();
             result.append("update");
-            if (customQuery != null && hasQueryValue(customQuery.from())) {
-                appendToQueryln(result, customQuery.from(), "    ");
-            } else {
-                appendToQueryln(result, getTableName(entity), "    ");
-            }
+            appendTableName(result, entity, customQuery, "    ");
             result.append("\n");
             appendStartSet(result);
 
@@ -1541,11 +1528,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             StringBuilder result = new StringBuilder();
             if (entity.isUseLogicalDeletion()) {
                 result.append("update");
-                if (customQuery != null && hasQueryValue(customQuery.from())) {
-                    appendToQueryln(result, customQuery.from(), "    ");
-                } else {
-                    appendToQueryln(result, getTableName(entity), "    ");
-                }
+                appendTableName(result, entity, customQuery, "    ");
                 result.append("\nset\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
@@ -1588,11 +1571,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             } else {
                 result.append("delete from");
-                if (customQuery != null && hasQueryValue(customQuery.from())) {
-                    appendToQueryln(result, customQuery.from(), "    ");
-                } else {
-                    appendToQueryln(result, getTableName(entity), "    ");
-                }
+                appendTableName(result, entity, customQuery, "    ");
             }
             
             ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(1);
@@ -1613,7 +1592,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //<editor-fold defaultstate="collapsed" desc="For generate entity queries">
     private static final Pattern idSecuenceNameTemplatePattern = Pattern.compile("\\[\\[(.*?)\\]\\]");
     public String getIdSequenceName(EntityInfo entity, FieldInfo field) {
-        String table = joinsp(getTableName(entity));
+        String table = joinsp(getTableName(entity, null));
         String column = getColumnName(field);
         String template;
         IdSequenceName idSequenceName = field.getAnnotation(IdSequenceName.class);
@@ -1645,10 +1624,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         matcher.appendTail(sb);
         return sb.toString();
-    }
-
-    public String[] getTableName(EntityInfo entity) {
-        return getMappedName(entity);
     }
     
     public abstract String getParameterValue(FieldInfo field);

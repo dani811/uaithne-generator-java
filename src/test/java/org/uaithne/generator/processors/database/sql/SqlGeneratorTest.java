@@ -103,35 +103,6 @@ public class SqlGeneratorTest {
     }
 
     @Test
-    public void testGetMappedNameFromEntityWithMappedNameAnnotation() {
-        EntityInfo entity = new EntityInfo(new DataTypeInfo("myEntity"), EntityKind.ENTITY);
-        entity.addAnnotation(new MappedName() {
-            @Override
-            public String[] value() {
-                return new String[]{"JOIN", "databaseTable\nON"};
-            }
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return MappedName.class;
-            }
-        });
-        SqlGenerator instance = new SqlGeneratorImpl();
-        String[] expResult = new String[]{"JOIN", "databaseTable", "ON"};
-        String[] result = instance.getMappedName(entity);
-        assertArrayEquals(expResult, result);
-    }
-
-    @Test
-    public void testGetMappedName() {
-        EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
-        SqlGenerator instance = new SqlGeneratorImpl();
-        String[] expResult = new String[]{"List"};
-        String[] result = instance.getMappedName(entity);
-        assertArrayEquals(expResult, result);
-    }
-
-    @Test
     public void testAppendToQueryWithNullArray() {
         StringBuilder query = new StringBuilder("initial_value");
         String[] array = null;

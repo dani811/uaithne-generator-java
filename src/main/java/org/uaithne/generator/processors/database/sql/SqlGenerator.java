@@ -91,15 +91,6 @@ public abstract class SqlGenerator implements QueryGenerator {
         }
         return template;
     }
-    
-    public String[] getMappedName(EntityInfo entity) {
-        MappedName mappedName = entity.getAnnotation(MappedName.class);
-        if (mappedName == null) {
-            return entity.getDataType().getSimpleNameWithoutGenerics().split("\n");
-        } else {
-            return joinln(mappedName.value()).split("\n");
-        }
-    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Utils">
