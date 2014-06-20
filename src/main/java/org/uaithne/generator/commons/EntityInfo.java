@@ -374,9 +374,21 @@ public class EntityInfo {
         this.related = related;
         EntityInfo relatedCombined = related.getCombined();
         HashMap<String, FieldInfo> relatedFieldsByName = relatedCombined.fieldsByName;
+        firstIdField = null;
+        hasMultiplesIds = false;
         for (FieldInfo field : fields) {
             FieldInfo relatedField = relatedFieldsByName.get(field.getName());
             field.setRelated(relatedField);
+            if (relatedField.isIdentifier()) {
+                field.setIdentifier(true);
+            }
+            if (field.isIdentifier()) {
+                if (firstIdField == null) {
+                    firstIdField = field;
+                } else {
+                    hasMultiplesIds = true;
+                }
+            }
         }
     }
     
