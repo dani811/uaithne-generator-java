@@ -45,12 +45,12 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     
     @Override
     public String[] getIdSequenceNextValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"seq_" + getTableName(entity)[0] + ".nextval"};
+        return new String[] {getIdSequenceName(entity, field) + ".nextval"};
     }
     
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
-        return new String[] {"select seq_" + getTableName(entity)[0] + ".currval from dual"};
+        return new String[] {"select " + getIdSequenceName(entity, field) + ".currval from dual"};
     }
 
     @Override
