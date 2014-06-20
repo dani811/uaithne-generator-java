@@ -51,6 +51,7 @@ public class EntityInfo {
     private DataTypeInfo relatedType;
     private EntityInfo related;
     private final HashMap<String, FieldInfo> fieldsByName = new HashMap<String, FieldInfo>(0);
+    private int entityOperationsIndex = Integer.MIN_VALUE;
 
     public String[] getDocumentation() {
         if (documentation == null && related != null) {
@@ -287,6 +288,14 @@ public class EntityInfo {
 
     public HashMap<String, FieldInfo> getFieldsByName() {
         return fieldsByName;
+    }
+
+    public int getEntityOperationsIndex() {
+        return entityOperationsIndex;
+    }
+
+    public void setEntityOperationsIndex(int entityOperationsIndex) {
+        this.entityOperationsIndex = entityOperationsIndex;
     }
     
     public EntityInfo(TypeElement classElement, EntityKind entityKind) {

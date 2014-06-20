@@ -71,6 +71,10 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         for (Element enclosedModuleElement : moduleElement.getEnclosedElements()) {
             if (enclosedModuleElement.getKind() == ElementKind.CLASS) {
+                Entity entity = enclosedModuleElement.getAnnotation(Entity.class);
+                if (entity != null) {
+                    preProcessEntityElement(re, (TypeElement) enclosedModuleElement, executorModuleInfo);
+                }
                 EntityView entityView = enclosedModuleElement.getAnnotation(EntityView.class);
                 if (entityView != null) {
                     processEntityViewElement(re, (TypeElement) enclosedModuleElement, executorModuleInfo);
@@ -527,6 +531,17 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         executorModuleInfo.addEntity(entityInfo);
     }
+    
+    public void preProcessEntityElement(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        EntityInfo entityInfo = generationInfo.getEntitiesByRealName().get(element.getQualifiedName().toString());
+        if (entityInfo == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity element", element);
+            return;
+        }
+        entityInfo.setEntityOperationsIndex(executorModuleInfo.getOperations().size());
+        
+    }
 
     public void processEntityElement(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
@@ -535,6 +550,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity element", element);
             return;
         }
+        int index = entityInfo.getEntityOperationsIndex();
 
         EntityInfo combinedEntity = entityInfo.getCombined();
         FieldInfo idInfo = combinedEntity.getFirstIdField();
@@ -631,7 +647,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 deleteOperationInfo.addField(idInfo);
                 deleteOperationInfo.setEntity(entityInfo);
                 deleteOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(deleteOperationInfo, executorModuleInfo);
+                generationInfo.addOperation(deleteOperationInfo, executorModuleInfo, index);
+                index = index + 1;
             }
         }
 
@@ -652,7 +669,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 insertOperationInfo.addField(valueInfo);
                 insertOperationInfo.setEntity(entityInfo);
                 insertOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(insertOperationInfo, executorModuleInfo);
+                generationInfo.addOperation(insertOperationInfo, executorModuleInfo, index);
+                index = index + 1;
             }
         }
 
@@ -673,7 +691,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 justInsertOperationInfo.addField(valueInfo);
                 justInsertOperationInfo.setEntity(entityInfo);
                 justInsertOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo);
+                generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo, index);
+                index = index + 1;
             }
         }
 
@@ -708,7 +727,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     saveOperationInfo.addField(valueInfo);
                     saveOperationInfo.setEntity(entityInfo);
                     saveOperationInfo.setManually(entityInfo.getCombined().isManually());
-                    generationInfo.addOperation(saveOperationInfo, executorModuleInfo);
+                    generationInfo.addOperation(saveOperationInfo, executorModuleInfo, index);
+                    index = index + 1;
                 }
             }
         }
@@ -733,7 +753,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     justSaveOperationInfo.addField(valueInfo);
                     justSaveOperationInfo.setEntity(entityInfo);
                     justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
-                    generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo);
+                    generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo, index);
+                    index = index + 1;
                 }
             }
         }
@@ -755,7 +776,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 selectOperationInfo.addField(idInfo);
                 selectOperationInfo.setEntity(entityInfo);
                 selectOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(selectOperationInfo, executorModuleInfo);
+                generationInfo.addOperation(selectOperationInfo, executorModuleInfo, index);
+                index = index + 1;
             }
         }
 
@@ -776,7 +798,8 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 updateOperationInfo.addField(valueInfo);
                 updateOperationInfo.setEntity(entityInfo);
                 updateOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(updateOperationInfo, executorModuleInfo);
+                generationInfo.addOperation(updateOperationInfo, executorModuleInfo, index);
+                index = index + 1;
             }
         }
 
@@ -797,7 +820,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 mergeOperationInfo.addField(valueInfo);
                 mergeOperationInfo.setEntity(entityInfo);
                 mergeOperationInfo.setManually(entityInfo.getCombined().isManually());
-                generationInfo.addOperation(mergeOperationInfo, executorModuleInfo);
+                generationInfo.addOperation(mergeOperationInfo, executorModuleInfo, index);
             }
         }
     }

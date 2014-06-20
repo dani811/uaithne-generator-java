@@ -113,8 +113,12 @@ public class GenerationInfo {
         entitiesByName.put(entityInfo.getDataType().getQualifiedNameWithoutGenerics(), entityInfo);
         entities.add(entityInfo);
     }
-
+    
     public void addOperation(OperationInfo operation, ExecutorModuleInfo executorModule) {
+        addOperation(operation, executorModule, -1);
+    }
+
+    public void addOperation(OperationInfo operation, ExecutorModuleInfo executorModule, int index) {
         if (operation.getRealName() != null) {
             operationsByRealName.put(operation.getRealName(), operation);
         }
@@ -124,7 +128,7 @@ public class GenerationInfo {
         }
         operationsByName.put(operation.getDataType().getQualifiedNameWithoutGenerics(), operation);
         operations.add(operation);
-        executorModule.addOperation(operation);
+        executorModule.addOperation(operation, index);
     }
 
     public void combineAllEntities(boolean processRelated, ProcessingEnvironment processingEnv) {

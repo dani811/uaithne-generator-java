@@ -93,7 +93,15 @@ public class ExecutorModuleInfo {
     }
     
     public void addOperation(OperationInfo operation) {
-        operations.add(operation);
+        addOperation(operation, -1);
+    }
+    
+    public void addOperation(OperationInfo operation, int index) {
+        if (index < 0) {
+            operations.add(operation);
+        } else {
+            operations.add(index, operation);
+        }
         operationsByName.put(operation.getDataType().getQualifiedNameWithoutGenerics(), operation);
         if (operation.isOrdered()) {
             containOrderedOperations = true;
