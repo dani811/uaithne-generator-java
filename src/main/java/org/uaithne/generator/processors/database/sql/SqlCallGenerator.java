@@ -71,8 +71,8 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     public abstract void appendEndCustomInsertQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator);
     public abstract void appendEndCustomUpdateQuery(StringBuilder query, OperationInfo operation, boolean requireSeparator);
     
-    public abstract String firstFieldSeparator();
-    public abstract String fieldSeparator();
+    public abstract void appendFirstFieldSeparator(StringBuilder query);
+    public abstract void appendFieldSeparator(StringBuilder query);
     
     public String finalizeEntityQuery(String query, EntityInfo entity, OperationInfo operation) {
         return query;
@@ -105,17 +105,17 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendOutParameter(result, field);
                 requireComma = true;
             } else if (field.isInsertUserMark()) {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -124,9 +124,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendVersionFieldOnInsert(result, entity, operation, field);
                 requireComma = true;
@@ -142,9 +142,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             } else {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -180,17 +180,17 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
             } else if (field.isUpdateUserMark()) {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -199,9 +199,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendVersionFieldOnUpdate(result, entity, operation, field);
                 requireComma = true;
@@ -219,9 +219,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             } else {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -246,17 +246,17 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
             } else if (field.isUpdateUserMark()) {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -265,9 +265,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendVersionFieldOnUpdate(result, entity, operation, field);
                 requireComma = true;
@@ -285,9 +285,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             } else {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -312,9 +312,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendInParameter(result, field);
                 requireComma = true;
@@ -326,9 +326,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendVersionFieldOnDelete(result, entity, operation, field);
                 requireComma = true;
@@ -385,9 +385,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendOutParameter(result, field);
                 requireComma = true;
@@ -398,9 +398,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             }
             if (requireComma) {
-                result.append(fieldSeparator());
+                appendFieldSeparator(result);
             } else {
-                result.append(firstFieldSeparator());
+                appendFirstFieldSeparator(result);
             }
             appendInParameter(result, field);
             requireComma = true;
@@ -415,9 +415,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendVersionFieldOnInsert(result, entity, operation, field);
                 requireComma = true;
@@ -443,9 +443,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             }
             if (requireComma) {
-                result.append(fieldSeparator());
+                appendFieldSeparator(result);
             } else {
-                result.append(firstFieldSeparator());
+                appendFirstFieldSeparator(result);
             }
             appendInParameter(result, field);
             requireComma = true;
@@ -458,9 +458,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 }
                 if (requireComma) {
-                    result.append(fieldSeparator());
+                    appendFieldSeparator(result);
                 } else {
-                    result.append(firstFieldSeparator());
+                    appendFirstFieldSeparator(result);
                 }
                 appendVersionFieldOnUpdate(result, entity, operation, field);
                 requireComma = true;
@@ -487,9 +487,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 continue;
             }
             if (requireComma) {
-                result.append(fieldSeparator());
+                appendFieldSeparator(result);
             } else {
-                result.append(firstFieldSeparator());
+                appendFirstFieldSeparator(result);
             }
             appendInParameter(result, field);
             requireComma = true;
@@ -500,9 +500,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     continue;
                 } else if (field.isVersionMark()) {
                     if (requireComma) {
-                        result.append(fieldSeparator());
+                        appendFieldSeparator(result);
                     } else {
-                        result.append(firstFieldSeparator());
+                        appendFirstFieldSeparator(result);
                     }
                     appendVersionFieldOnDelete(result, entity, operation, field);
                     requireComma = true;

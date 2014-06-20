@@ -21,6 +21,7 @@ package org.uaithne.annotations.myBatis;
 import org.uaithne.generator.processors.database.QueryGenerator;
 import org.uaithne.generator.processors.database.providers.derby.MyBatisDerbySql2008QueryGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10OldSqlQueryGenerator;
+import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10PackageGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10ProcedureGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10SqlQueryGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle12SqlQueryGenerator;
@@ -35,6 +36,7 @@ public enum MyBatisBackend {
     ORACLE_11         (MyBatisOracle10SqlQueryGenerator.class,      false, true  ),
     ORACLE_12         (MyBatisOracle12SqlQueryGenerator.class,      false, true  ),
     ORACLE_10_PROCEDURE(MyBatisOracle10ProcedureGenerator.class,    false, true  ),
+    ORACLE_10_PACKAGE (MyBatisOracle10PackageGenerator.class,       false, true  ),
     SQL_SERVER_2005   (MyBatisSqlServer2005SqlQueryGenerator.class, true,  true  ),
     SQL_SERVER_2008   (MyBatisSqlServer2005SqlQueryGenerator.class, true,  true  ),
     SQL_SERVER_2008_R2(MyBatisSqlServer2005SqlQueryGenerator.class, true,  true  ),

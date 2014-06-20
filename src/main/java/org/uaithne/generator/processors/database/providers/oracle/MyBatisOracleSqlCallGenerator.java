@@ -38,11 +38,6 @@ public class MyBatisOracleSqlCallGenerator extends MyBatisSqlCallGenerator {
     }
 
     @Override
-    public String getNamePrefix() {
-        return "";
-    }
-
-    @Override
     public boolean includeIdOnInsert() {
         return false;
     }

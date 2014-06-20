@@ -30,6 +30,7 @@ public class QueryGeneratorConfiguration {
     private ExecutorModuleInfo module;
     private String packageName;
     private String name;
+    private String callPrefix;
 
     public boolean useAutoIncrementId() {
         return useAutoIncrementId;
@@ -85,6 +86,14 @@ public class QueryGeneratorConfiguration {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCallPrefix() {
+        return callPrefix;
+    }
+
+    public void setCallPrefix(String callPrefix) {
+        this.callPrefix = callPrefix;
     }
     
 }

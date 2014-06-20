@@ -21,11 +21,23 @@ package org.uaithne.generator.processors.database.myBatis;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
+import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
 import org.uaithne.generator.processors.database.sql.SqlCallGenerator;
 
 public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
 
-    public abstract String getNamePrefix();
+    public String getNamePrefix() {
+        QueryGeneratorConfiguration configuration = getConfiguration();
+        if (configuration == null) {
+            return "";
+        }
+
+        String result = configuration.getCallPrefix();
+        if (result == null) {
+            return "";
+        }
+        return result;
+    }
 
     @Override
     public void appendInParameter(StringBuilder query, FieldInfo field) {
@@ -170,12 +182,13 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
     }
 
     @Override
-    public String firstFieldSeparator() {
-        return "\n    ";
+    public void appendFieldSeparator(StringBuilder query) {
+        query.append(",\n    ");
     }
 
     @Override
-    public String fieldSeparator() {
-        return ",\n    ";
+    public void appendFirstFieldSeparator(StringBuilder query) {
+        query.append("\n    ");
     }
+
 }

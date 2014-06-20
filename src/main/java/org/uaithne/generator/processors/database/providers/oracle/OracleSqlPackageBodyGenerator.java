@@ -18,11 +18,27 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
-import org.uaithne.generator.processors.database.sql.SqlCallOrQueryGenerator;
+public class OracleSqlPackageBodyGenerator extends OracleSqlProcedureGenerator {
 
-public class MyBatisOracle10ProcedureGenerator extends SqlCallOrQueryGenerator {
-
-    public MyBatisOracle10ProcedureGenerator() {
-        super(new MyBatisOracleSqlCallGenerator(), new MyBatisOracle10SqlQueryGenerator(), new OracleSqlProcedureGenerator());
+    @Override
+    protected void appendProcedureStart(StringBuilder query) {
+        query.append(getFirstLevelIdentation());
+        query.append("procedure ");
     }
+
+    @Override
+    protected void appendProcedureEnd(StringBuilder query) {
+        query.append(";\n");
+    }
+
+    @Override
+    protected String getFirstLevelIdentation() {
+        return "    ";
+    }
+
+    @Override
+    protected String getSecondLevelIdentation() {
+        return "        ";
+    }
+    
 }

@@ -18,11 +18,9 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
-import org.uaithne.generator.processors.database.sql.SqlCallOrQueryGenerator;
+public class MyBatisOracle10PackageGenerator extends OracleCallPackageOrQueryGenerator {
 
-public class MyBatisOracle10ProcedureGenerator extends SqlCallOrQueryGenerator {
-
-    public MyBatisOracle10ProcedureGenerator() {
-        super(new MyBatisOracleSqlCallGenerator(), new MyBatisOracle10SqlQueryGenerator(), new OracleSqlProcedureGenerator());
+    public MyBatisOracle10PackageGenerator() {
+        super(new MyBatisOracleSqlCallGenerator(), new MyBatisOracle10SqlQueryGenerator(), new OracleSqlPackageHeaderGenerator(), new OracleSqlPackageBodyGenerator());
     }
 }
