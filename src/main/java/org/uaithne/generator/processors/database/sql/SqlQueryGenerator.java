@@ -1308,7 +1308,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 return null;
             }
         }
-        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
+        finalQuery = finalizeQuery(finalQuery, operation, null);
         if (finalQuery != null) {
             return finalQuery.split("\n");
         } else {
@@ -1536,7 +1536,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendWhere(result, operation, customQuery, false, fields);
             finalQuery = result.toString();
         }
-        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
+        finalQuery = finalizeQuery(finalQuery, operation, customQuery);
         return finalQuery.split("\n");
     }
 
@@ -1612,7 +1612,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendWhere(result, operation, customQuery, false, fields);
             finalQuery = result.toString();
         }
-        finalQuery = finalizeEntityQuery(finalQuery, entity, operation);
+        finalQuery = finalizeQuery(finalQuery, operation, customQuery);
         return finalQuery.split("\n");
     }
     //</editor-fold>
@@ -1910,10 +1910,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         matcher.appendTail(result);
         return result.toString();
-    }
-
-    public String finalizeEntityQuery(String query, EntityInfo entity, OperationInfo operation) {
-        return query;
     }
     //</editor-fold>
 }

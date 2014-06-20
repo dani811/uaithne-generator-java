@@ -3585,18 +3585,6 @@ public class SqlQueryGeneratorTest {
         assertEquals(expResult, result);
     }
 
-    @Test
-    public void testFinalizeEntityQuery() {
-        String query = "myQuery";
-        EntityInfo entity = null;
-        OperationInfo operation = null;
-        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "myQuery";
-        String result = instance.finalizeEntityQuery(query, entity, operation);
-        assertEquals(expResult, result);
-
-    }
-
     public static class SqlQueryGeneratorImpl extends SqlQueryGenerator {
 
         public boolean appendSelectPageAfterWhere;
