@@ -913,7 +913,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setEntity(entity);
         operationInfo.addField(valueInfo);
         
-        if (operation.justInsert()) {
+        if (!operation.returnLastInsertedId()) {
             operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
             operationInfo.setOperationKind(OperationKind.JUST_INSERT);
 
@@ -1153,7 +1153,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         operationInfo.setEntity(entity);
         operationInfo.addField(valueInfo);
         
-        if (operation.justSave()) {
+        if (!operation.returnLastInsertedId()) {
             operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
             operationInfo.setOperationKind(OperationKind.JUST_SAVE);
 

@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface SaveEntity {
     Class<?> value();
-    boolean justSave() default false;
+    boolean returnLastInsertedId() default true;
 }

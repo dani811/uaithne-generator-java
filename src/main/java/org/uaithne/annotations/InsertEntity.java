@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface InsertEntity {
     Class<?> value();
-    boolean justInsert() default false;
+    boolean returnLastInsertedId() default true;
 }
