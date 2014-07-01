@@ -194,7 +194,7 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
             body = null;
             configuration.setCallPrefix(null);
         } catch (IOException ex) {
-            Logger.getLogger(SqlCallOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(OracleCallPackageOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         this.writer = null;
@@ -215,7 +215,7 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
             writer.write(" as\n\n");
             config.setCallPrefix(name + ".");
         } catch (IOException ex) {
-            Logger.getLogger(SqlCallOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(OracleCallPackageOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -230,7 +230,7 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
                 writer.write("\n");
             }
         } catch (IOException ex) {
-            Logger.getLogger(SqlCallOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(OracleCallPackageOrQueryGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
