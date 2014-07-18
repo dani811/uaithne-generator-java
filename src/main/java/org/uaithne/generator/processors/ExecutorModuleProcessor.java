@@ -675,10 +675,6 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             generateMergeOperation = entityAnnotation.generateMergeOperation().solve(defaultGenerateMergeOperation);
         }
 
-        // Todo: remove this limitation
-        generateInsertOperation = generateInsertOperation || generateSaveOperation || generateJustSaveOperation;
-        generateUpdateOperation = generateUpdateOperation || generateSaveOperation || generateJustSaveOperation;
-
         /* ****************************************************************************************
          * *** Delete By Id operation
          */
@@ -731,6 +727,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     "JustInsert" + entityDataType.getSimpleNameWithoutGenerics());
             if (executorModuleInfo.getOperationByName(justInsertOperationName) == null) {
                 OperationInfo justInsertOperationInfo = new OperationInfo(justInsertOperationName);
+                justInsertOperationInfo.setReuseEntityOperations(generateInsertOperation);
                 justInsertOperationInfo.setReturnDataType(affectedRowCountDataType);
                 justInsertOperationInfo.setOperationKind(OperationKind.JUST_INSERT);
 
@@ -767,6 +764,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     showSaveError = false;
                 } else if (!hasSaveError) {
                     OperationInfo saveOperationInfo = new OperationInfo(saveOperationName);
+                    saveOperationInfo.setReuseEntityOperations(generateInsertOperation && generateUpdateOperation);
                     saveOperationInfo.setReturnDataType(idDataType);
                     saveOperationInfo.setOperationKind(OperationKind.SAVE);
 
@@ -793,6 +791,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For generate the save entity operation the id field must allow null values, but a primitive data types do not allow it; you must use " + realIdDataType.ensureBoxed().getSimpleName() + " instead of " + realIdDataType.getSimpleName(), element);
                 } else if (!hasSaveError) {
                     OperationInfo justSaveOperationInfo = new OperationInfo(justSaveOperationName);
+                    justSaveOperationInfo.setReuseEntityOperations(generateInsertOperation && generateUpdateOperation);
                     justSaveOperationInfo.setReturnDataType(affectedRowCountDataType);
                     justSaveOperationInfo.setOperationKind(OperationKind.JUST_SAVE);
 

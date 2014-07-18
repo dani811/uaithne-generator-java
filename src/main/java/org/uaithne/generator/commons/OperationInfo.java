@@ -52,6 +52,7 @@ public class OperationInfo {
     private InsertedIdOrigin insertedIdOrigin;
     private boolean deprecated;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
+    private boolean reuseEntityOperations;
 
     public String[] getDocumentation() {
         return documentation;
@@ -328,6 +329,14 @@ public class OperationInfo {
 
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
+    }
+
+    public boolean isReuseEntityOperations() {
+        return reuseEntityOperations;
+    }
+
+    public void setReuseEntityOperations(boolean reuseEntityOperations) {
+        this.reuseEntityOperations = reuseEntityOperations;
     }
 
     public OperationInfo(TypeElement classElement, String packageName) {
