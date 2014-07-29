@@ -16,18 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Uaithne. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.uaithne.annotations;
+package org.uaithne.annotations.sql;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * [[column]] the name of the column in the table
- * [[name]] the name of the field
- * [[value]] the value of the field
- * [[jdbcType]] the jdbc type of the field
- */
 @Retention(RetentionPolicy.SOURCE)
-public @interface UseCustomComparator {
-    public String value();
+public @interface JdbcType {
+    public JdbcTypes value();
 }

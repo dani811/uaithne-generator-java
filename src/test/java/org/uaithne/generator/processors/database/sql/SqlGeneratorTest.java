@@ -23,8 +23,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.MappedName;
-import org.uaithne.annotations.UseComparator;
-import org.uaithne.annotations.UseCustomComparator;
+import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.CustomComparator;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.EntityKind;
@@ -36,7 +36,7 @@ public class SqlGeneratorTest {
     @Test
     public void testGetComparatorFromFieldWithUseComparatorAnnotation() {
         FieldInfo field = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.NOT_END_WITH;
@@ -44,7 +44,7 @@ public class SqlGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         SqlGenerator instance = new SqlGeneratorImpl();
@@ -74,7 +74,7 @@ public class SqlGeneratorTest {
     @Test
     public void testGetConditionTemplateFromFieldWithCustomComparatorAnnotation() {
         FieldInfo field = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
-        field.addAnnotation(new UseCustomComparator() {
+        field.addAnnotation(new CustomComparator() {
             @Override
             public String value() {
                 return "CustomComparator";
@@ -82,7 +82,7 @@ public class SqlGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseCustomComparator.class;
+                return CustomComparator.class;
             }
         });
         String comparatorTemplate = "comparatorTemplate";

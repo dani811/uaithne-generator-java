@@ -59,8 +59,8 @@ import org.uaithne.annotations.IdQueries;
 import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.PageQueries;
 import org.uaithne.annotations.Query;
-import org.uaithne.annotations.UseComparator;
-import org.uaithne.annotations.UseCustomComparator;
+import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.CustomComparator;
 import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.DataTypeInfo;
@@ -1036,7 +1036,7 @@ public class SqlQueryGeneratorTest {
     public void testAppendCondition() {
         StringBuilder result = new StringBuilder();
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.SMALLER;
@@ -1044,7 +1044,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         CustomSqlQuery customQuery = null;
@@ -3237,7 +3237,7 @@ public class SqlQueryGeneratorTest {
         String query = "{{myField}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseCustomComparator() {
+        field.addAnnotation(new CustomComparator() {
 
             @Override
             public String value() {
@@ -3246,7 +3246,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseCustomComparator.class;
+                return CustomComparator.class;
             }
         });
         operation.addField(field);
@@ -3290,7 +3290,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:notIcontains}} {{myField:NOT_ICONTAINS}} {{myField:notContainsInsensitive}} {{myField:NOT_CONTAINS_INSENSITIVE}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.SMALLER;
@@ -3298,7 +3298,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         operation.addField(field);
@@ -3369,7 +3369,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:IF_NULL:separator}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.SMALLER;
@@ -3377,7 +3377,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         operation.addField(field);
@@ -3395,7 +3395,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:IF_NULL}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.SMALLER;
@@ -3403,7 +3403,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         operation.addField(field);
@@ -3421,7 +3421,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:IF_NOT_NULL:separator}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.SMALLER;
@@ -3429,7 +3429,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         operation.addField(field);
@@ -3447,7 +3447,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:IF_NOT_NULL}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.SMALLER;
@@ -3455,7 +3455,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         operation.addField(field);
@@ -3473,7 +3473,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:END_IF}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
-        field.addAnnotation(new UseComparator() {
+        field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
                 return Comparators.SMALLER;
@@ -3481,7 +3481,7 @@ public class SqlQueryGeneratorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return UseComparator.class;
+                return Comparator.class;
             }
         });
         operation.addField(field);

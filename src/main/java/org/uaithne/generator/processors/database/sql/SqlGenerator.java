@@ -22,8 +22,8 @@ import org.uaithne.generator.processors.database.QueryGenerator;
 import javax.annotation.processing.ProcessingEnvironment;
 import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.MappedName;
-import org.uaithne.annotations.UseComparator;
-import org.uaithne.annotations.UseCustomComparator;
+import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.CustomComparator;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
@@ -64,7 +64,7 @@ public abstract class SqlGenerator implements QueryGenerator {
     
     //<editor-fold defaultstate="collapsed" desc="Annotated info">
     public Comparators getComparator(FieldInfo field) {
-        UseComparator uc = field.getAnnotation(UseComparator.class);
+        Comparator uc = field.getAnnotation(Comparator.class);
         Comparators comparator = null;
 
         if (uc != null) {
@@ -82,7 +82,7 @@ public abstract class SqlGenerator implements QueryGenerator {
     }
 
     public String getConditionTemplate(FieldInfo field, String comparatorTemplate) {
-        UseCustomComparator ucc = field.getAnnotation(UseCustomComparator.class);
+        CustomComparator ucc = field.getAnnotation(CustomComparator.class);
         String template;
         if (ucc != null) {
             template = ucc.value();

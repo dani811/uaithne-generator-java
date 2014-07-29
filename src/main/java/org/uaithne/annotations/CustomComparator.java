@@ -21,7 +21,13 @@ package org.uaithne.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * [[column]] the name of the column in the table
+ * [[name]] the name of the field
+ * [[value]] the value of the field
+ * [[jdbcType]] the jdbc type of the field
+ */
 @Retention(RetentionPolicy.SOURCE)
-public @interface UseComparator {
-    public Comparators value();
+public @interface CustomComparator {
+    public String value();
 }

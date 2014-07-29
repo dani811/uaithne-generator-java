@@ -23,7 +23,7 @@ import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.JdbcTypes;
-import org.uaithne.annotations.sql.UseJdbcType;
+import org.uaithne.annotations.sql.JdbcType;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.NamesGenerator;
@@ -31,7 +31,7 @@ import org.uaithne.generator.commons.NamesGenerator;
 public class MyBatisUtils {
 
     public static JdbcTypes getJdbcType(FieldInfo field) {
-        UseJdbcType ujt = field.getAnnotation(UseJdbcType.class);
+        JdbcType ujt = field.getAnnotation(JdbcType.class);
         if (ujt != null) {
             return ujt.value();
         }
