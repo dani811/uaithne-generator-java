@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.Diagnostic;
-import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.EntityQueries;
 import org.uaithne.annotations.IdQueries;
 import org.uaithne.annotations.IdSequenceName;
@@ -484,7 +484,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     }
 
     public void appendCondition(StringBuilder result, FieldInfo field, CustomSqlQuery customQuery) {
-        Comparator comparator = getComparator(field);
+        Comparators comparator = getComparator(field);
 
         String comparatorTemplate = translateComparator(comparator);
         String template = getConditionTemplate(field, comparatorTemplate);
@@ -591,7 +591,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     public abstract void appendConditionEndIf(StringBuilder result);
 
-    public abstract String translateComparator(Comparator comparator);
+    public abstract String translateComparator(Comparators comparator);
 
     public abstract String getConditionElementValue(String rule, FieldInfo field, CustomSqlQuery customQuery);
     //</editor-fold>
@@ -1801,7 +1801,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 continue;
             }
 
-            Comparator comparator;
+            Comparators comparator;
             String comparatorTemplate;
             String template;
             String rule = matcher.group(2);
@@ -1843,61 +1843,61 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 if ("condition".equals(rule) || "CONDITION".equals(rule)) {
                     comparator = getComparator(field);
                 } else if ("=".equals(rule) || "==".equals(rule) || "equal".equals(rule) || "EQUAL".equals(rule)) {
-                    comparator = Comparator.EQUAL;
+                    comparator = Comparators.EQUAL;
                 } else if ("!=".equals(rule) || "<>".equals(rule) || "notEqual".equals(rule) || "NOT_EQUAL".equals(rule)) {
-                    comparator = Comparator.NOT_EQUAL;
+                    comparator = Comparators.NOT_EQUAL;
                 } else if ("=?".equals(rule) || "==?".equals(rule) || "equalNullable".equals(rule) || "EQUAL_NULLABLE".equals(rule)) {
-                    comparator = Comparator.EQUAL_NULLABLE;
+                    comparator = Comparators.EQUAL_NULLABLE;
                 } else if ("=!?".equals(rule) || "==!?".equals(rule) || "equalNotNullable".equals(rule) || "EQUAL_NOT_NULLABLE".equals(rule)) {
-                    comparator = Comparator.EQUAL_NOT_NULLABLE;
+                    comparator = Comparators.EQUAL_NOT_NULLABLE;
                 } else if ("!=?".equals(rule) || "<>?".equals(rule) || "notEqualNullable".equals(rule) || "NOT_EQUAL_NULLABLE".equals(rule)) {
-                    comparator = Comparator.NOT_EQUAL_NULLABLE;
+                    comparator = Comparators.NOT_EQUAL_NULLABLE;
                 } else if ("!=!?".equals(rule) || "<>!?".equals(rule) || "notEqualNotNullable".equals(rule) || "NOT_EQUAL_NOT_NULLABLE".equals(rule)) {
-                    comparator = Comparator.NOT_EQUAL_NOT_NULLABLE;
+                    comparator = Comparators.NOT_EQUAL_NOT_NULLABLE;
                 } else if ("<".equals(rule) || "smaller".equals(rule) || "SMALLER".equals(rule)) {
-                    comparator = Comparator.SMALLER;
+                    comparator = Comparators.SMALLER;
                 } else if (">".equals(rule) || "larger".equals(rule) || "LARGER".equals(rule)) {
-                    comparator = Comparator.LARGER;
+                    comparator = Comparators.LARGER;
                 } else if ("<=".equals(rule) || "smallAs".equals(rule) || "SMALL_AS".equals(rule)) {
-                    comparator = Comparator.SMALL_AS;
+                    comparator = Comparators.SMALL_AS;
                 } else if (">=".equals(rule) || "largerAs".equals(rule) || "LARGER_AS".equals(rule)) {
-                    comparator = Comparator.LARGER_AS;
+                    comparator = Comparators.LARGER_AS;
                 } else if ("in".equals(rule) || "IN".equals(rule)) {
-                    comparator = Comparator.IN;
+                    comparator = Comparators.IN;
                 } else if ("notIn".equals(rule) || "NOT_IN".equals(rule)) {
-                    comparator = Comparator.NOT_IN;
+                    comparator = Comparators.NOT_IN;
                 } else if ("like".equals(rule) || "LIKE".equals(rule)) {
-                    comparator = Comparator.LIKE;
+                    comparator = Comparators.LIKE;
                 } else if ("notLike".equals(rule) || "NOT_LIKE".equals(rule)) {
-                    comparator = Comparator.NOT_LIKE;
+                    comparator = Comparators.NOT_LIKE;
                 } else if ("ilike".equals(rule) || "ILIKE".equals(rule) || "likeInsensitive".equals(rule) || "LIKE_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.LIKE_INSENSITIVE;
+                    comparator = Comparators.LIKE_INSENSITIVE;
                 } else if ("notIlike".equals(rule) || "NOT_ILIKE".equals(rule) || "notLikeInsensitive".equals(rule) || "NOT_LIKE_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.NOT_LIKE_INSENSITIVE;
+                    comparator = Comparators.NOT_LIKE_INSENSITIVE;
                 } else if ("startWith".equals(rule) || "START_WITH".equals(rule)) {
-                    comparator = Comparator.START_WITH;
+                    comparator = Comparators.START_WITH;
                 } else if ("notStartWith".equals(rule) || "NOT_START_WITH".equals(rule)) {
-                    comparator = Comparator.NOT_START_WITH;
+                    comparator = Comparators.NOT_START_WITH;
                 } else if ("endWith".equals(rule) || "END_WITH".equals(rule)) {
-                    comparator = Comparator.END_WITH;
+                    comparator = Comparators.END_WITH;
                 } else if ("notEndWith".equals(rule) || "NOT_END_WITH".equals(rule)) {
-                    comparator = Comparator.NOT_END_WITH;
+                    comparator = Comparators.NOT_END_WITH;
                 } else if ("istartWith".equals(rule) || "ISTART_WITH".equals(rule) || "startWithInsensitive".equals(rule) || "START_WITH_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.START_WITH_INSENSITIVE;
+                    comparator = Comparators.START_WITH_INSENSITIVE;
                 } else if ("notIstartWith".equals(rule) || "NOT_ISTART_WITH".equals(rule) || "notStartWithInsensitive".equals(rule) || "NOT_START_WITH_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.NOT_START_WITH_INSENSITIVE;
+                    comparator = Comparators.NOT_START_WITH_INSENSITIVE;
                 } else if ("iendWith".equals(rule) || "IEND_WITH".equals(rule) || "endWithInsensitive".equals(rule) || "END_WITH_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.END_WITH_INSENSITIVE;
+                    comparator = Comparators.END_WITH_INSENSITIVE;
                 } else if ("notIendWith".equals(rule) || "NOT_IEND_WITH".equals(rule) || "notEndWithInsensitive".equals(rule) || "NOT_END_WITH_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.NOT_END_WITH_INSENSITIVE;
+                    comparator = Comparators.NOT_END_WITH_INSENSITIVE;
                 } else if ("contains".equals(rule) || "CONTAINS".equals(rule)) {
-                    comparator = Comparator.CONTAINS;
+                    comparator = Comparators.CONTAINS;
                 } else if ("notContains".equals(rule) || "NOT_CONTAINS".equals(rule)) {
-                    comparator = Comparator.NOT_CONTAINS;
+                    comparator = Comparators.NOT_CONTAINS;
                 } else if ("icontains".equals(rule) || "ICONTAINS".equals(rule) || "containsInsensitive".equals(rule) || "CONTAINS_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.CONTAINS_INSENSITIVE;
+                    comparator = Comparators.CONTAINS_INSENSITIVE;
                 } else if ("notIcontains".equals(rule) || "NOT_ICONTAINS".equals(rule) || "notContainsInsensitive".equals(rule) || "NOT_CONTAINS_INSENSITIVE".equals(rule)) {
-                    comparator = Comparator.NOT_CONTAINS_INSENSITIVE;
+                    comparator = Comparators.NOT_CONTAINS_INSENSITIVE;
                 } else {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Invalid comparator rule used in: " + matcher.group(), operation.getElement());
                     continue;

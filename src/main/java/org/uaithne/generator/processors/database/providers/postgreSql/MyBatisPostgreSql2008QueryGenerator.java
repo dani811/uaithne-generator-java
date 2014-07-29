@@ -18,7 +18,7 @@
  */
 package org.uaithne.generator.processors.database.providers.postgreSql;
 
-import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.Comparators;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.providers.sql.MyBatisSql2008QueryGenerator;
@@ -36,7 +36,7 @@ public class MyBatisPostgreSql2008QueryGenerator extends MyBatisSql2008QueryGene
     }
 
     @Override
-    public String translateComparator(Comparator comparator) {
+    public String translateComparator(Comparators comparator) {
         if (comparator == null) {
             return super.translateComparator(comparator);
         }

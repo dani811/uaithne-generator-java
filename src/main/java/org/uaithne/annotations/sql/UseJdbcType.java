@@ -23,5 +23,5 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.SOURCE)
 public @interface UseJdbcType {
-    public JdbcType value();
+    public JdbcTypes value();
 }

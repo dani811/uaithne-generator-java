@@ -18,7 +18,7 @@
  */
 package org.uaithne.annotations;
 
-public enum Comparator {
+public enum Comparators {
     EQUAL,
     NOT_EQUAL,
     EQUAL_NULLABLE,

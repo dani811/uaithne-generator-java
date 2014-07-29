@@ -20,7 +20,7 @@ package org.uaithne.generator.processors.database.sql;
 
 import org.uaithne.generator.processors.database.QueryGenerator;
 import javax.annotation.processing.ProcessingEnvironment;
-import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.UseComparator;
 import org.uaithne.annotations.UseCustomComparator;
@@ -63,9 +63,9 @@ public abstract class SqlGenerator implements QueryGenerator {
     }
     
     //<editor-fold defaultstate="collapsed" desc="Annotated info">
-    public Comparator getComparator(FieldInfo field) {
+    public Comparators getComparator(FieldInfo field) {
         UseComparator uc = field.getAnnotation(UseComparator.class);
-        Comparator comparator = null;
+        Comparators comparator = null;
 
         if (uc != null) {
             comparator = uc.value();
@@ -73,9 +73,9 @@ public abstract class SqlGenerator implements QueryGenerator {
 
         if (comparator == null) {
             if (field.getDataType().isList()) {
-                comparator = Comparator.IN;
+                comparator = Comparators.IN;
             } else {
-                comparator = Comparator.EQUAL;
+                comparator = Comparators.EQUAL;
             }
         }
         return comparator;

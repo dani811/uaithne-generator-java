@@ -18,7 +18,7 @@
  */
 package org.uaithne.annotations.sql;
 
-public enum JdbcType {
+public enum JdbcTypes {
     BIT,
     TINYINT,
     SMALLINT,

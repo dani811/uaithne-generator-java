@@ -22,7 +22,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
-import org.uaithne.annotations.sql.JdbcType;
+import org.uaithne.annotations.sql.JdbcTypes;
 import org.uaithne.annotations.sql.UseJdbcType;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.FieldInfo;
@@ -30,7 +30,7 @@ import org.uaithne.generator.commons.NamesGenerator;
 
 public class MyBatisUtils {
 
-    public static JdbcType getJdbcType(FieldInfo field) {
+    public static JdbcTypes getJdbcType(FieldInfo field) {
         UseJdbcType ujt = field.getAnnotation(UseJdbcType.class);
         if (ujt != null) {
             return ujt.value();
@@ -38,45 +38,45 @@ public class MyBatisUtils {
 
         String name = field.getDataType().getSimpleName();
         if ("String".equals(name)) {
-            return JdbcType.VARCHAR;
+            return JdbcTypes.VARCHAR;
         } else if ("Date".equals(name)) {
-            return JdbcType.TIMESTAMP;
+            return JdbcTypes.TIMESTAMP;
         } else if ("Time".equals(name)) {
-            return JdbcType.TIME;
+            return JdbcTypes.TIME;
         } else if ("Timestamp".equals(name)) {
-            return JdbcType.TIMESTAMP;
+            return JdbcTypes.TIMESTAMP;
         } else if ("Boolean".equals(name)) {
-            return JdbcType.BOOLEAN;
+            return JdbcTypes.BOOLEAN;
         } else if ("boolean".equals(name)) {
-            return JdbcType.BOOLEAN;
+            return JdbcTypes.BOOLEAN;
         } else if ("List<String>".equals(name)) {
-            return JdbcType.VARCHAR;
+            return JdbcTypes.VARCHAR;
         } else if ("ArrayList<String>".equals(name)) {
-            return JdbcType.VARCHAR;
+            return JdbcTypes.VARCHAR;
         } else if ("List<Date>".equals(name)) {
-            return JdbcType.TIMESTAMP;
+            return JdbcTypes.TIMESTAMP;
         } else if ("ArrayList<Date>".equals(name)) {
-            return JdbcType.TIMESTAMP;
+            return JdbcTypes.TIMESTAMP;
         } else if ("List<Time>".equals(name)) {
-            return JdbcType.TIME;
+            return JdbcTypes.TIME;
         } else if ("ArrayList<Time>".equals(name)) {
-            return JdbcType.TIME;
+            return JdbcTypes.TIME;
         } else if ("List<Timestamp>".equals(name)) {
-            return JdbcType.TIMESTAMP;
+            return JdbcTypes.TIMESTAMP;
         } else if ("ArrayList<Timestamp>".equals(name)) {
-            return JdbcType.TIMESTAMP;
+            return JdbcTypes.TIMESTAMP;
         } else if ("List<Boolean>".equals(name)) {
-            return JdbcType.BOOLEAN;
+            return JdbcTypes.BOOLEAN;
         } else if ("ArrayList<Boolean>".equals(name)) {
-            return JdbcType.BOOLEAN;
+            return JdbcTypes.BOOLEAN;
         } else {
-            return JdbcType.NUMERIC;
+            return JdbcTypes.NUMERIC;
         }
     }
 
     public static String getJdbcTypeAttribute(FieldInfo field) {
 
-        JdbcType jdbcType = getJdbcType(field);
+        JdbcTypes jdbcType = getJdbcType(field);
         return ",jdbcType=" + jdbcType.name();
     }
 

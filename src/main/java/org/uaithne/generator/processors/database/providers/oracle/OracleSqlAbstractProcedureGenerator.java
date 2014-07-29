@@ -20,36 +20,36 @@ package org.uaithne.generator.processors.database.providers.oracle;
 
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
-import org.uaithne.annotations.sql.JdbcType;
-import static org.uaithne.annotations.sql.JdbcType.ARRAY;
-import static org.uaithne.annotations.sql.JdbcType.BIGINT;
-import static org.uaithne.annotations.sql.JdbcType.BINARY;
-import static org.uaithne.annotations.sql.JdbcType.BIT;
-import static org.uaithne.annotations.sql.JdbcType.BLOB;
-import static org.uaithne.annotations.sql.JdbcType.BOOLEAN;
-import static org.uaithne.annotations.sql.JdbcType.CHAR;
-import static org.uaithne.annotations.sql.JdbcType.CLOB;
-import static org.uaithne.annotations.sql.JdbcType.DATALINK;
-import static org.uaithne.annotations.sql.JdbcType.DATE;
-import static org.uaithne.annotations.sql.JdbcType.DECIMAL;
-import static org.uaithne.annotations.sql.JdbcType.DISTINCT;
-import static org.uaithne.annotations.sql.JdbcType.DOUBLE;
-import static org.uaithne.annotations.sql.JdbcType.FLOAT;
-import static org.uaithne.annotations.sql.JdbcType.INTEGER;
-import static org.uaithne.annotations.sql.JdbcType.JAVA_OBJECT;
-import static org.uaithne.annotations.sql.JdbcType.LONGVARBINARY;
-import static org.uaithne.annotations.sql.JdbcType.NULL;
-import static org.uaithne.annotations.sql.JdbcType.NUMERIC;
-import static org.uaithne.annotations.sql.JdbcType.OTHER;
-import static org.uaithne.annotations.sql.JdbcType.REAL;
-import static org.uaithne.annotations.sql.JdbcType.REF;
-import static org.uaithne.annotations.sql.JdbcType.SMALLINT;
-import static org.uaithne.annotations.sql.JdbcType.STRUCT;
-import static org.uaithne.annotations.sql.JdbcType.TIME;
-import static org.uaithne.annotations.sql.JdbcType.TIMESTAMP;
-import static org.uaithne.annotations.sql.JdbcType.TINYINT;
-import static org.uaithne.annotations.sql.JdbcType.VARBINARY;
-import static org.uaithne.annotations.sql.JdbcType.VARCHAR;
+import org.uaithne.annotations.sql.JdbcTypes;
+import static org.uaithne.annotations.sql.JdbcTypes.ARRAY;
+import static org.uaithne.annotations.sql.JdbcTypes.BIGINT;
+import static org.uaithne.annotations.sql.JdbcTypes.BINARY;
+import static org.uaithne.annotations.sql.JdbcTypes.BIT;
+import static org.uaithne.annotations.sql.JdbcTypes.BLOB;
+import static org.uaithne.annotations.sql.JdbcTypes.BOOLEAN;
+import static org.uaithne.annotations.sql.JdbcTypes.CHAR;
+import static org.uaithne.annotations.sql.JdbcTypes.CLOB;
+import static org.uaithne.annotations.sql.JdbcTypes.DATALINK;
+import static org.uaithne.annotations.sql.JdbcTypes.DATE;
+import static org.uaithne.annotations.sql.JdbcTypes.DECIMAL;
+import static org.uaithne.annotations.sql.JdbcTypes.DISTINCT;
+import static org.uaithne.annotations.sql.JdbcTypes.DOUBLE;
+import static org.uaithne.annotations.sql.JdbcTypes.FLOAT;
+import static org.uaithne.annotations.sql.JdbcTypes.INTEGER;
+import static org.uaithne.annotations.sql.JdbcTypes.JAVA_OBJECT;
+import static org.uaithne.annotations.sql.JdbcTypes.LONGVARBINARY;
+import static org.uaithne.annotations.sql.JdbcTypes.NULL;
+import static org.uaithne.annotations.sql.JdbcTypes.NUMERIC;
+import static org.uaithne.annotations.sql.JdbcTypes.OTHER;
+import static org.uaithne.annotations.sql.JdbcTypes.REAL;
+import static org.uaithne.annotations.sql.JdbcTypes.REF;
+import static org.uaithne.annotations.sql.JdbcTypes.SMALLINT;
+import static org.uaithne.annotations.sql.JdbcTypes.STRUCT;
+import static org.uaithne.annotations.sql.JdbcTypes.TIME;
+import static org.uaithne.annotations.sql.JdbcTypes.TIMESTAMP;
+import static org.uaithne.annotations.sql.JdbcTypes.TINYINT;
+import static org.uaithne.annotations.sql.JdbcTypes.VARBINARY;
+import static org.uaithne.annotations.sql.JdbcTypes.VARCHAR;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
@@ -59,7 +59,7 @@ import org.uaithne.generator.processors.database.sql.SqlCallGenerator;
 
 public abstract class OracleSqlAbstractProcedureGenerator extends SqlCallGenerator {
 
-    public String JdbcTypeToOracleDataType(JdbcType jdbcType, Element element) {
+    public String JdbcTypeToOracleDataType(JdbcTypes jdbcType, Element element) {
         switch (jdbcType) {
             case ARRAY:
                 getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);

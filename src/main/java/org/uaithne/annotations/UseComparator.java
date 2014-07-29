@@ -23,5 +23,5 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.SOURCE)
 public @interface UseComparator {
-    public Comparator value();
+    public Comparators value();
 }

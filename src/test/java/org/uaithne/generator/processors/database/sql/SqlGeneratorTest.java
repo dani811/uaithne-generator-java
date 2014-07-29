@@ -21,7 +21,7 @@ package org.uaithne.generator.processors.database.sql;
 import java.lang.annotation.Annotation;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.UseComparator;
 import org.uaithne.annotations.UseCustomComparator;
@@ -38,8 +38,8 @@ public class SqlGeneratorTest {
         FieldInfo field = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.NOT_END_WITH;
+            public Comparators value() {
+                return Comparators.NOT_END_WITH;
             }
 
             @Override
@@ -48,8 +48,8 @@ public class SqlGeneratorTest {
             }
         });
         SqlGenerator instance = new SqlGeneratorImpl();
-        Comparator expResult = Comparator.NOT_END_WITH;
-        Comparator result = instance.getComparator(field);
+        Comparators expResult = Comparators.NOT_END_WITH;
+        Comparators result = instance.getComparator(field);
         assertEquals(expResult, result);
     }
 
@@ -57,8 +57,8 @@ public class SqlGeneratorTest {
     public void testGetComparatorFromListField() {
         FieldInfo field = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         SqlGenerator instance = new SqlGeneratorImpl();
-        Comparator expResult = Comparator.IN;
-        Comparator result = instance.getComparator(field);
+        Comparators expResult = Comparators.IN;
+        Comparators result = instance.getComparator(field);
         assertEquals(expResult, result);
     }
 
@@ -66,8 +66,8 @@ public class SqlGeneratorTest {
     public void testGetComparatorFromField() {
         FieldInfo field = new FieldInfo("field", new DataTypeInfo("Integer"));
         SqlGenerator instance = new SqlGeneratorImpl();
-        Comparator expResult = Comparator.EQUAL;
-        Comparator result = instance.getComparator(field);
+        Comparators expResult = Comparators.EQUAL;
+        Comparators result = instance.getComparator(field);
         assertEquals(expResult, result);
     }
 

@@ -25,35 +25,35 @@ import java.util.List;
 import javax.tools.Diagnostic;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.uaithne.annotations.Comparator;
-import static org.uaithne.annotations.Comparator.CONTAINS;
-import static org.uaithne.annotations.Comparator.CONTAINS_INSENSITIVE;
-import static org.uaithne.annotations.Comparator.END_WITH;
-import static org.uaithne.annotations.Comparator.END_WITH_INSENSITIVE;
-import static org.uaithne.annotations.Comparator.EQUAL;
-import static org.uaithne.annotations.Comparator.EQUAL_NOT_NULLABLE;
-import static org.uaithne.annotations.Comparator.EQUAL_NULLABLE;
-import static org.uaithne.annotations.Comparator.IN;
-import static org.uaithne.annotations.Comparator.LARGER;
-import static org.uaithne.annotations.Comparator.LARGER_AS;
-import static org.uaithne.annotations.Comparator.LIKE;
-import static org.uaithne.annotations.Comparator.LIKE_INSENSITIVE;
-import static org.uaithne.annotations.Comparator.NOT_CONTAINS;
-import static org.uaithne.annotations.Comparator.NOT_CONTAINS_INSENSITIVE;
-import static org.uaithne.annotations.Comparator.NOT_END_WITH;
-import static org.uaithne.annotations.Comparator.NOT_END_WITH_INSENSITIVE;
-import static org.uaithne.annotations.Comparator.NOT_EQUAL;
-import static org.uaithne.annotations.Comparator.NOT_EQUAL_NOT_NULLABLE;
-import static org.uaithne.annotations.Comparator.NOT_EQUAL_NULLABLE;
-import static org.uaithne.annotations.Comparator.NOT_IN;
-import static org.uaithne.annotations.Comparator.NOT_LIKE;
-import static org.uaithne.annotations.Comparator.NOT_LIKE_INSENSITIVE;
-import static org.uaithne.annotations.Comparator.NOT_START_WITH;
-import static org.uaithne.annotations.Comparator.NOT_START_WITH_INSENSITIVE;
-import static org.uaithne.annotations.Comparator.SMALLER;
-import static org.uaithne.annotations.Comparator.SMALL_AS;
-import static org.uaithne.annotations.Comparator.START_WITH;
-import static org.uaithne.annotations.Comparator.START_WITH_INSENSITIVE;
+import org.uaithne.annotations.Comparators;
+import static org.uaithne.annotations.Comparators.CONTAINS;
+import static org.uaithne.annotations.Comparators.CONTAINS_INSENSITIVE;
+import static org.uaithne.annotations.Comparators.END_WITH;
+import static org.uaithne.annotations.Comparators.END_WITH_INSENSITIVE;
+import static org.uaithne.annotations.Comparators.EQUAL;
+import static org.uaithne.annotations.Comparators.EQUAL_NOT_NULLABLE;
+import static org.uaithne.annotations.Comparators.EQUAL_NULLABLE;
+import static org.uaithne.annotations.Comparators.IN;
+import static org.uaithne.annotations.Comparators.LARGER;
+import static org.uaithne.annotations.Comparators.LARGER_AS;
+import static org.uaithne.annotations.Comparators.LIKE;
+import static org.uaithne.annotations.Comparators.LIKE_INSENSITIVE;
+import static org.uaithne.annotations.Comparators.NOT_CONTAINS;
+import static org.uaithne.annotations.Comparators.NOT_CONTAINS_INSENSITIVE;
+import static org.uaithne.annotations.Comparators.NOT_END_WITH;
+import static org.uaithne.annotations.Comparators.NOT_END_WITH_INSENSITIVE;
+import static org.uaithne.annotations.Comparators.NOT_EQUAL;
+import static org.uaithne.annotations.Comparators.NOT_EQUAL_NOT_NULLABLE;
+import static org.uaithne.annotations.Comparators.NOT_EQUAL_NULLABLE;
+import static org.uaithne.annotations.Comparators.NOT_IN;
+import static org.uaithne.annotations.Comparators.NOT_LIKE;
+import static org.uaithne.annotations.Comparators.NOT_LIKE_INSENSITIVE;
+import static org.uaithne.annotations.Comparators.NOT_START_WITH;
+import static org.uaithne.annotations.Comparators.NOT_START_WITH_INSENSITIVE;
+import static org.uaithne.annotations.Comparators.SMALLER;
+import static org.uaithne.annotations.Comparators.SMALL_AS;
+import static org.uaithne.annotations.Comparators.START_WITH;
+import static org.uaithne.annotations.Comparators.START_WITH_INSENSITIVE;
 import org.uaithne.annotations.EntityQueries;
 import org.uaithne.annotations.IdQueries;
 import org.uaithne.annotations.MappedName;
@@ -1038,8 +1038,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.SMALLER;
+            public Comparators value() {
+                return Comparators.SMALLER;
             }
 
             @Override
@@ -3292,8 +3292,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.SMALLER;
+            public Comparators value() {
+                return Comparators.SMALLER;
             }
 
             @Override
@@ -3371,8 +3371,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.SMALLER;
+            public Comparators value() {
+                return Comparators.SMALLER;
             }
 
             @Override
@@ -3397,8 +3397,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.SMALLER;
+            public Comparators value() {
+                return Comparators.SMALLER;
             }
 
             @Override
@@ -3423,8 +3423,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.SMALLER;
+            public Comparators value() {
+                return Comparators.SMALLER;
             }
 
             @Override
@@ -3449,8 +3449,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.SMALLER;
+            public Comparators value() {
+                return Comparators.SMALLER;
             }
 
             @Override
@@ -3475,8 +3475,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new UseComparator() {
             @Override
-            public Comparator value() {
-                return Comparator.SMALLER;
+            public Comparators value() {
+                return Comparators.SMALLER;
             }
 
             @Override
@@ -3678,7 +3678,7 @@ public class SqlQueryGeneratorTest {
         }
 
         @Override
-        public String translateComparator(Comparator comparator) {
+        public String translateComparator(Comparators comparator) {
             if (comparator == null) {
                 return null;
             }

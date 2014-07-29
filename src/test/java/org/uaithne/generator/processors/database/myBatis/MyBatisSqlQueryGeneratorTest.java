@@ -22,7 +22,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.uaithne.annotations.Comparator;
+import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.DataTypeInfo;
@@ -353,7 +353,7 @@ public class MyBatisSqlQueryGeneratorTest {
 
     @Test
     public void testTranslateNullComparator() {
-        Comparator comparator = null;
+        Comparators comparator = null;
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         String expResult = null;
         String result = instance.translateComparator(comparator);
@@ -364,7 +364,7 @@ public class MyBatisSqlQueryGeneratorTest {
     public void testTranslateComparator() {
         StringBuilder result = new StringBuilder();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        for (Comparator comparator : Comparator.values()) {
+        for (Comparators comparator : Comparators.values()) {
             String comparatorTransalation = instance.translateComparator(comparator);
             result.append(comparatorTransalation);
             result.append("\n");
