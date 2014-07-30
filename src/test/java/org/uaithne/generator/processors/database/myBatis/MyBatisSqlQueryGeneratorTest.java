@@ -257,7 +257,7 @@ public class MyBatisSqlQueryGeneratorTest {
     public void testGetParameterValue() {
         FieldInfo field = getFieldWithTypeHandler();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        String expResult = "#{myField,jdbcType=NUMERIC,typeHandler=java.lang.Integer}";
+        String expResult = "#{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer}";
         String result = instance.getParameterValue(field);
         assertEquals(expResult, result);
     }
@@ -302,7 +302,7 @@ public class MyBatisSqlQueryGeneratorTest {
         FieldInfo field = getFieldWithTypeHandler();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendStartSetValueIfNotNull(result, field);
-        assertEquals(result.toString(), "{[if test='myField != null']}myField = #{myField,jdbcType=NUMERIC,typeHandler=java.lang.Integer}");
+        assertEquals(result.toString(), "{[if test='myField != null']}myField = #{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer}");
     }
 
     @Test
@@ -452,7 +452,7 @@ public class MyBatisSqlQueryGeneratorTest {
         result.append(" ");
         rule = "VALUE";
         result.append(instance.getConditionElementValue(rule, field, customQuery));
-        String expResult = "#{myField,jdbcType=NUMERIC,typeHandler=java.lang.Integer} #{myField,jdbcType=NUMERIC,typeHandler=java.lang.Integer}";
+        String expResult = "#{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer} #{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer}";
         assertEquals(expResult, result.toString());
     }
 
@@ -467,7 +467,7 @@ public class MyBatisSqlQueryGeneratorTest {
         result.append(" ");
         rule = "JDBC_TYPE";
         result.append(instance.getConditionElementValue(rule, field, customQuery));
-        String expResult = ",jdbcType=NUMERIC ,jdbcType=NUMERIC";
+        String expResult = ",jdbcType=INTEGER ,jdbcType=INTEGER";
         assertEquals(expResult, result.toString());
     }
 

@@ -18,7 +18,6 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
-import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.sql.JdbcTypes;
 import static org.uaithne.annotations.sql.JdbcTypes.ARRAY;
@@ -29,20 +28,16 @@ import static org.uaithne.annotations.sql.JdbcTypes.BLOB;
 import static org.uaithne.annotations.sql.JdbcTypes.BOOLEAN;
 import static org.uaithne.annotations.sql.JdbcTypes.CHAR;
 import static org.uaithne.annotations.sql.JdbcTypes.CLOB;
-import static org.uaithne.annotations.sql.JdbcTypes.DATALINK;
 import static org.uaithne.annotations.sql.JdbcTypes.DATE;
 import static org.uaithne.annotations.sql.JdbcTypes.DECIMAL;
-import static org.uaithne.annotations.sql.JdbcTypes.DISTINCT;
 import static org.uaithne.annotations.sql.JdbcTypes.DOUBLE;
 import static org.uaithne.annotations.sql.JdbcTypes.FLOAT;
 import static org.uaithne.annotations.sql.JdbcTypes.INTEGER;
-import static org.uaithne.annotations.sql.JdbcTypes.JAVA_OBJECT;
 import static org.uaithne.annotations.sql.JdbcTypes.LONGVARBINARY;
 import static org.uaithne.annotations.sql.JdbcTypes.NULL;
 import static org.uaithne.annotations.sql.JdbcTypes.NUMERIC;
 import static org.uaithne.annotations.sql.JdbcTypes.OTHER;
 import static org.uaithne.annotations.sql.JdbcTypes.REAL;
-import static org.uaithne.annotations.sql.JdbcTypes.REF;
 import static org.uaithne.annotations.sql.JdbcTypes.SMALLINT;
 import static org.uaithne.annotations.sql.JdbcTypes.STRUCT;
 import static org.uaithne.annotations.sql.JdbcTypes.TIME;
@@ -54,79 +49,79 @@ import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.commons.Utils;
-import org.uaithne.generator.processors.database.myBatis.MyBatisUtils;
 import org.uaithne.generator.processors.database.sql.SqlCallGenerator;
 
 public abstract class OracleSqlAbstractProcedureGenerator extends SqlCallGenerator {
 
-    public String JdbcTypeToOracleDataType(JdbcTypes jdbcType, Element element) {
+    public String getDataType(FieldInfo field) {
+        JdbcTypes jdbcType = getJdbcType(field);
+        if (jdbcType == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Uknown jdbc data type. Use @JdbcType annotation for specify the jdbc data type.", field.getElement());
+            return "UNKNOWN";
+        }
         switch (jdbcType) {
             case ARRAY:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), field.getElement());
                 return "ARRAY";
-            case BIGINT:
-                return "NUMBER";
-            case BINARY:
-                return "RAW";
             case BIT:
+                return "TINYINT";
+            case TINYINT:
+                return "TINYINT";
+            case SMALLINT:
+                return "SMALLINT";
+            case INTEGER:
+                return "INT";
+            case BIGINT:
+                return "BIGINT";
+            case FLOAT:
+                return "FLOAT";
+            case REAL:
+                return "REAL";
+            case DOUBLE:
+                return "DOUBLE";
+            case NUMERIC:
                 return "NUMBER";
-            case BLOB:
-                return "BLOB";
-            case BOOLEAN:
+            case DECIMAL:
                 return "NUMBER";
             case CHAR:
                 return "CHAR";
-            case CLOB:
-                return "CLOB";
-            case DATALINK:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
-                return "DATALINK";
-            case DATE:
-                return "DATE";
-            case DECIMAL:
-                return "NUMBER";
-            case DISTINCT:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
-                return "DISTINCT";
-            case DOUBLE:
-                return "NUMBER";
-            case FLOAT:
-                return "NUMBER";
-            case INTEGER:
-                return "NUMBER";
-            case JAVA_OBJECT:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
-                return "JAVA_OBJECT";
-            case LONGVARBINARY:
-                return "LONG RAW";
-            case NULL:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
-                return "NULL";
-            case NUMERIC:
-                return "NUMBER";
-            case OTHER:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
-                return "OTHER";
-            case REAL:
-                return "NUMBER";
-            case REF:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
-                return "REF";
-            case SMALLINT:
-                return "NUMBER";
-            case STRUCT:
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), element);
-                return "STRUCT";
-            case TIME:
-                return "DATE";
-            case TIMESTAMP:
-                return "TIMESTAMP";
-            case TINYINT:
-                return "NUMBER";
-            case VARBINARY:
-                return "RAW";
             case VARCHAR:
                 return "VARCHAR2";
+            case LONGVARCHAR:
+                return "TEXT";
+            case DATE:
+                return "DATE";
+            case TIME:
+                return "TIME";
+            case TIMESTAMP:
+                return "TIMESTAMP";
+            case BINARY:
+                return "BINARY";
+            case VARBINARY:
+                return "VARBINARY";
+            case LONGVARBINARY:
+                return "BLOB";
+            case NULL:
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), field.getElement());
+                return "NULL";
+            case OTHER:
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), field.getElement());
+                return "OTHER";
+            case BLOB:
+                return "BLOB";
+            case CLOB:
+                return "CLOB";
+            case BOOLEAN:
+                return "TINYINT";
+            case NVARCHAR: 
+                return "NVARCHAR2";
+            case NCHAR:
+                return "NCHAR";
+            case NCLOB:
+                return "NCLOB";
+            case STRUCT:
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsupported jdbc data type: " + jdbcType.name(), field.getElement());
+                return "STRUCT";
             default:
                 throw new IllegalArgumentException("Unimplemented jdbc data type translation for oracle: " + jdbcType.name());
         }
@@ -137,7 +132,7 @@ public abstract class OracleSqlAbstractProcedureGenerator extends SqlCallGenerat
         query.append("p")
                 .append(Utils.firstUpper(field.getName()))
                 .append(" ")
-                .append(JdbcTypeToOracleDataType(MyBatisUtils.getJdbcType(field), field.getElement()));
+                .append(getDataType(field));
     }
 
     @Override
@@ -145,7 +140,7 @@ public abstract class OracleSqlAbstractProcedureGenerator extends SqlCallGenerat
         query.append("p")
                 .append(Utils.firstUpper(field.getName()))
                 .append(" out ")
-                .append(JdbcTypeToOracleDataType(MyBatisUtils.getJdbcType(field), field.getElement()));
+                .append(getDataType(field));
     }
 
     @Override
@@ -153,7 +148,7 @@ public abstract class OracleSqlAbstractProcedureGenerator extends SqlCallGenerat
         query.append("p")
                 .append(Utils.firstUpper(field.getName()))
                 .append(" in out ")
-                .append(JdbcTypeToOracleDataType(MyBatisUtils.getJdbcType(field), field.getElement()));
+                .append(getDataType(field));
     }
 
     @Override

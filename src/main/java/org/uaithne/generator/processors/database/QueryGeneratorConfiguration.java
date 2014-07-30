@@ -18,7 +18,10 @@
  */
 package org.uaithne.generator.processors.database;
 
+import java.util.HashMap;
 import javax.annotation.processing.ProcessingEnvironment;
+import org.uaithne.annotations.sql.DefaultJdbcType;
+import org.uaithne.annotations.sql.JdbcTypes;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 
 public class QueryGeneratorConfiguration {
@@ -31,6 +34,7 @@ public class QueryGeneratorConfiguration {
     private String packageName;
     private String name;
     private String callPrefix;
+    private HashMap<String, JdbcTypes> customJdbcTypeMap = new HashMap<String, JdbcTypes>(0);
 
     public boolean useAutoIncrementId() {
         return useAutoIncrementId;
@@ -94,6 +98,43 @@ public class QueryGeneratorConfiguration {
 
     public void setCallPrefix(String callPrefix) {
         this.callPrefix = callPrefix;
+    }
+
+    public HashMap<String, JdbcTypes> getCustomJdbcTypeMap() {
+        return customJdbcTypeMap;
+    }
+
+    public void setCustomJdbcTypeMap(HashMap<String, JdbcTypes> customJdbcTypeMap) {
+        this.customJdbcTypeMap = customJdbcTypeMap;
+    }
+    
+    public void loadCustomJdbcTypeMap(DefaultJdbcType[] defaultJdbcTypes) {
+        for (DefaultJdbcType defaultJdbcType : defaultJdbcTypes) {
+            JdbcTypes jdbcType = defaultJdbcType.jdbcType();
+            for (String klass : defaultJdbcType.classQualifiedName()) {
+                customJdbcTypeMap.put(klass, jdbcType);
+            }
+        }
+        for (DefaultJdbcType defaultJdbcType : defaultJdbcTypes) {
+            JdbcTypes jdbcType = defaultJdbcType.jdbcType();
+            for (String klass : defaultJdbcType.classQualifiedName()) {
+                klass = "java.util.List<" + klass + ">";
+                JdbcTypes old = customJdbcTypeMap.put(klass, jdbcType);
+                if (old != null) {
+                    customJdbcTypeMap.put(klass, old);
+                }
+            }
+        }
+        for (DefaultJdbcType defaultJdbcType : defaultJdbcTypes) {
+            JdbcTypes jdbcType = defaultJdbcType.jdbcType();
+            for (String klass : defaultJdbcType.classQualifiedName()) {
+                klass = "java.util.ArrayList<" + klass + ">";
+                JdbcTypes old = customJdbcTypeMap.put(klass, jdbcType);
+                if (old != null) {
+                    customJdbcTypeMap.put(klass, old);
+                }
+            }
+        }
     }
     
 }

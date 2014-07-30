@@ -22,6 +22,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -63,14 +64,15 @@ import org.uaithne.annotations.Comparator;
 import org.uaithne.annotations.CustomComparator;
 import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.CustomSqlQuery;
+import org.uaithne.annotations.sql.JdbcTypes;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.EntityKind;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.commons.OperationKind;
 import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
-import org.uaithne.generator.processors.database.myBatis.MyBatisUtils;
 import org.uaithne.generator.utils.MessageContent;
 import org.uaithne.generator.utils.ProcessingEnviromentImpl;
 import org.uaithne.generator.utils.TestCustomSqlQuery;
@@ -860,8 +862,8 @@ public class SqlQueryGeneratorTest {
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    normalField = parameterValue\n"
-                + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=NUMERIC} </foreach></if>\n"
-                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=NUMERIC} </foreach>\n"
+                + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
+                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "</where>");
     }
 
@@ -875,9 +877,9 @@ public class SqlQueryGeneratorTest {
         instance.appendWhere(query, operation, customQuery, count);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
-                + "    <if test='optionalField != null'>optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=NUMERIC} </foreach></if>\n"
+                + "    <if test='optionalField != null'>optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
                 + "    and normalField = parameterValue\n"
-                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=NUMERIC} </foreach>\n"
+                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "</where>");
     }
 
@@ -893,8 +895,8 @@ public class SqlQueryGeneratorTest {
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    normalField = parameterValue\n"
-                + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=NUMERIC} </foreach></if>\n"
-                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=NUMERIC} </foreach>\n"
+                + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
+                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "    and rownum = 1\n"
                 + "</where>");
     }
@@ -999,8 +1001,8 @@ public class SqlQueryGeneratorTest {
                 + "<where>\n"
                 + "    before \n"
                 + "    normalField = parameterValue\n"
-                + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=NUMERIC} </foreach></if>\n"
-                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=NUMERIC} </foreach>\n"
+                + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
+                + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "    after \n"
                 + "</where>");
     }
@@ -1015,9 +1017,9 @@ public class SqlQueryGeneratorTest {
         FieldInfo field3 = new FieldInfo("orderByField", new DataTypeInfo("Integer"));
         field3.setOrderBy(true);
         FieldInfo field4 = new FieldInfo("normalField", new DataTypeInfo("Integer"));
-        FieldInfo field5 = new FieldInfo("optionalField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field5 = new FieldInfo("optionalField", DataTypeInfo.LIST_DATA_TYPE.of(DataTypeInfo.BOXED_INT_DATA_TYPE));
         field5.setOptional(true);
-        FieldInfo field6 = new FieldInfo("listField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field6 = new FieldInfo("listField", DataTypeInfo.LIST_DATA_TYPE.of(DataTypeInfo.BOXED_INT_DATA_TYPE));
         operation.addField(field1);
         operation.addField(field2);
         operation.addField(field3);
@@ -1532,7 +1534,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo manuallyOperationField = new FieldInfo("manuallyOperationField", DataTypeInfo.LIST_DATA_TYPE);
         manuallyOperationField.setManually(true);
         operation.addField(manuallyOperationField);
-        operation.addField(new FieldInfo("operationField", DataTypeInfo.LIST_DATA_TYPE));
+        operation.addField(new FieldInfo("operationField", DataTypeInfo.LIST_DATA_TYPE.of(DataTypeInfo.BOXED_INT_DATA_TYPE)));
         FieldInfo setValueField1 = new FieldInfo("setValueField1", DataTypeInfo.LIST_DATA_TYPE);
         setValueField1.setSetValueMark(true);
         operation.addField(setValueField1);
@@ -1551,7 +1553,7 @@ public class SqlQueryGeneratorTest {
             "    updateDateMarkField2 = current_timestamp,",
             "    versionMarkField = nextVersion",
             "where",
-            "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=NUMERIC} </foreach>"};
+            "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
         String[] result = instance.getCustomUpdateQuery(operation);
         assertArrayEquals(expResult, result);
     }
@@ -1564,7 +1566,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo manuallyOperationField = new FieldInfo("manuallyOperationField", DataTypeInfo.LIST_DATA_TYPE);
         manuallyOperationField.setManually(true);
         operation.addField(manuallyOperationField);
-        operation.addField(new FieldInfo("operationField", DataTypeInfo.LIST_DATA_TYPE));
+        operation.addField(new FieldInfo("operationField", DataTypeInfo.LIST_DATA_TYPE.of(DataTypeInfo.BOXED_INT_DATA_TYPE)));
         FieldInfo setValueField1 = new FieldInfo("setValueField1", DataTypeInfo.LIST_DATA_TYPE);
         setValueField1.setSetValueMark(true);
         operation.addField(setValueField1);
@@ -1581,7 +1583,7 @@ public class SqlQueryGeneratorTest {
             "    updateDateMarkField1 = current_timestamp,",
             "    updateDateMarkField2 = current_timestamp",
             "where",
-            "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=NUMERIC} </foreach>"};
+            "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
         String[] result = instance.getCustomUpdateQuery(operation);
         assertArrayEquals(expResult, result);
     }
@@ -1861,8 +1863,8 @@ public class SqlQueryGeneratorTest {
             "    MyEntity ",
             "<where>",
             "    normalField = parameterValue",
-            "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=NUMERIC} </foreach></if>",
-            "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=NUMERIC} </foreach>",
+            "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>",
+            "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>",
             "</where>",
             "order by orderByField"};
         String[] result = instance.getSelectOneQuery(operation);
@@ -1903,8 +1905,8 @@ public class SqlQueryGeneratorTest {
             "    MyEntity ",
             "<where>",
             "    normalField = parameterValue",
-            "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=NUMERIC} </foreach></if>",
-            "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=NUMERIC} </foreach>",
+            "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>",
+            "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>",
             "</where>",
             "order by orderByField"};
         String[] result = instance.getSelectManyQuery(operation);
@@ -3289,7 +3291,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:icontains}} {{myField:ICONTAINS}} {{myField:containsInsensitive}} {{myField:CONTAINS_INSENSITIVE}}\n"
                 + "{{myField:notIcontains}} {{myField:NOT_ICONTAINS}} {{myField:notContainsInsensitive}} {{myField:NOT_CONTAINS_INSENSITIVE}}";
         OperationInfo operation = getOperationForWhere(false);
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field.addAnnotation(new Comparator() {
             @Override
             public Comparators value() {
@@ -3315,8 +3317,8 @@ public class SqlQueryGeneratorTest {
                 + "myField &gt; parameterValue myField &gt; parameterValue\n"
                 + "myField &lt;= parameterValue myField &lt;= parameterValue\n"
                 + "myField &gt;= parameterValue myField &gt;= parameterValue\n"
-                + "myField in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=NUMERIC} </foreach> myField in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=NUMERIC} </foreach>\n"
-                + "myField not in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=NUMERIC} </foreach> myField not in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=NUMERIC} </foreach>\n"
+                + "myField in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach> myField in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach>\n"
+                + "myField not in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach> myField not in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach>\n"
                 + "myField like parameterValue myField like parameterValue\n"
                 + "myField not like parameterValue myField not like parameterValue\n"
                 + "lower(myField) like lower(parameterValue) lower(myField) like lower(parameterValue) lower(myField) like lower(parameterValue) lower(myField) like lower(parameterValue)\n"
@@ -3501,7 +3503,7 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:jdbcType}} {{myField:JDBC_TYPE}}\n"
                 + "{{myField:typeHandler}} {{myField:TYPE_HANDLER}}";
         OperationInfo operation = getOperationForWhere(false);
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field.addAnnotation(new MyBatisTypeHandler() {
             @Override
             public Class<?> value() {
@@ -3519,7 +3521,7 @@ public class SqlQueryGeneratorTest {
         String expResult = "myField myField\n"
                 + "myField myField\n"
                 + "parameterValue parameterValue\n"
-                + ",jdbcType=NUMERIC ,jdbcType=NUMERIC\n"
+                + ",jdbcType=INTEGER ,jdbcType=INTEGER\n"
                 + ",typeHandler=java.lang.Integer ,typeHandler=java.lang.Integer";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
@@ -3755,12 +3757,43 @@ public class SqlQueryGeneratorTest {
             } else if ("value".equals(rule) || "VALUE".equals(rule)) {
                 return getParameterValue(field);
             } else if ("jdbcType".equals(rule) || "JDBC_TYPE".equals(rule)) {
-                return MyBatisUtils.getJdbcTypeAttribute(field);
+                return getJdbcTypeAttribute(field);
             } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
-                return MyBatisUtils.getTypeHandler(getProcessingEnv(), field);
+                return getTypeHandler(field);
             } else {
                 return null;
             }
+        }
+    
+        public String getJdbcTypeAttribute(FieldInfo field) {
+            JdbcTypes jdbcType = getJdbcType(field);
+            if (jdbcType == null) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Uknown jdbc data type. Use @JdbcType annotation for specify the jdbc data type.", field.getElement());
+                return "";
+            }
+            return ",jdbcType=" + jdbcType.name();
+        }
+
+        public String getTypeHandler(FieldInfo field) {
+            MyBatisTypeHandler th = field.getAnnotation(MyBatisTypeHandler.class);
+
+            if (th == null) {
+                return "";
+            }
+
+            DataTypeInfo typeHandler;
+            try {
+                typeHandler = NamesGenerator.createResultDataType(th.value());
+            } catch (MirroredTypeException ex) {
+                // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                typeHandler = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+            }
+            if (typeHandler == null) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the type handler", field.getElement());
+                return "";
+            }
+
+            return ",typeHandler=" + typeHandler.getQualifiedNameWithoutGenerics();
         }
 
         @Override

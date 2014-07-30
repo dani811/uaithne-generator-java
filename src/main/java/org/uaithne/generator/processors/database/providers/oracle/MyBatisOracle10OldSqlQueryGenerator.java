@@ -20,8 +20,12 @@ package org.uaithne.generator.processors.database.providers.oracle;
 
 import java.util.ArrayList;
 import org.uaithne.annotations.sql.CustomSqlQuery;
+import org.uaithne.annotations.sql.JdbcType;
+import org.uaithne.annotations.sql.JdbcTypes;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
 
 public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerator {
@@ -126,6 +130,60 @@ public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerato
 
     @Override
     public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+    }
+    
+    @Override
+    public JdbcTypes getJdbcType(FieldInfo field) {
+        JdbcType ujt = field.getAnnotation(JdbcType.class);
+        if (ujt != null) {
+            return ujt.value();
+        }
+        
+        DataTypeInfo dataType = field.getDataType();
+        QueryGeneratorConfiguration configuration = getConfiguration();
+        if (configuration != null) {
+            JdbcTypes result = configuration.getCustomJdbcTypeMap().get(dataType.getQualifiedName());
+            if (result != null) {
+                return result;
+            }
+        }
+
+        String name = field.getDataType().getSimpleName();
+        if ("String".equals(name)) {
+            return JdbcTypes.VARCHAR;
+        } else if ("Date".equals(name)) {
+            return JdbcTypes.TIMESTAMP;
+        } else if ("Time".equals(name)) {
+            return JdbcTypes.TIME;
+        } else if ("Timestamp".equals(name)) {
+            return JdbcTypes.TIMESTAMP;
+        } else if ("Boolean".equals(name)) {
+            return JdbcTypes.BOOLEAN;
+        } else if ("boolean".equals(name)) {
+            return JdbcTypes.BOOLEAN;
+        } else if ("List<String>".equals(name)) {
+            return JdbcTypes.VARCHAR;
+        } else if ("ArrayList<String>".equals(name)) {
+            return JdbcTypes.VARCHAR;
+        } else if ("List<Date>".equals(name)) {
+            return JdbcTypes.TIMESTAMP;
+        } else if ("ArrayList<Date>".equals(name)) {
+            return JdbcTypes.TIMESTAMP;
+        } else if ("List<Time>".equals(name)) {
+            return JdbcTypes.TIME;
+        } else if ("ArrayList<Time>".equals(name)) {
+            return JdbcTypes.TIME;
+        } else if ("List<Timestamp>".equals(name)) {
+            return JdbcTypes.TIMESTAMP;
+        } else if ("ArrayList<Timestamp>".equals(name)) {
+            return JdbcTypes.TIMESTAMP;
+        } else if ("List<Boolean>".equals(name)) {
+            return JdbcTypes.BOOLEAN;
+        } else if ("ArrayList<Boolean>".equals(name)) {
+            return JdbcTypes.BOOLEAN;
+        } else {
+            return JdbcTypes.NUMERIC;
+        }
     }
     
 }

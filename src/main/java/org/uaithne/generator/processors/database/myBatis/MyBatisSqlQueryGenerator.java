@@ -19,6 +19,8 @@
 package org.uaithne.generator.processors.database.myBatis;
 
 import java.util.ArrayList;
+import javax.lang.model.type.MirroredTypeException;
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.Comparators;
 import static org.uaithne.annotations.Comparators.CONTAINS;
 import static org.uaithne.annotations.Comparators.CONTAINS_INSENSITIVE;
@@ -46,8 +48,12 @@ import static org.uaithne.annotations.Comparators.SMALLER;
 import static org.uaithne.annotations.Comparators.SMALL_AS;
 import static org.uaithne.annotations.Comparators.START_WITH;
 import static org.uaithne.annotations.Comparators.START_WITH_INSENSITIVE;
+import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.CustomSqlQuery;
+import org.uaithne.annotations.sql.JdbcTypes;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.processors.database.sql.SqlQueryGenerator;
 
@@ -165,7 +171,38 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     //<editor-fold defaultstate="collapsed" desc="Parameter">
     @Override
     public String getParameterValue(FieldInfo field) {
-        return "#{" + field.getName() + MyBatisUtils.getJdbcTypeAttribute(field) + MyBatisUtils.getTypeHandler(getProcessingEnv(), field) + "}";
+        return "#{" + field.getName() + getJdbcTypeAttribute(field) + getTypeHandler(field) + "}";
+    }
+    
+    public String getJdbcTypeAttribute(FieldInfo field) {
+        JdbcTypes jdbcType = getJdbcType(field);
+        if (jdbcType == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Uknown jdbc data type. Use @JdbcType annotation for specify the jdbc data type.", field.getElement());
+            return "";
+        }
+        return ",jdbcType=" + jdbcType.name();
+    }
+
+    public String getTypeHandler(FieldInfo field) {
+        MyBatisTypeHandler th = field.getAnnotation(MyBatisTypeHandler.class);
+
+        if (th == null) {
+            return "";
+        }
+
+        DataTypeInfo typeHandler;
+        try {
+            typeHandler = NamesGenerator.createResultDataType(th.value());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            typeHandler = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (typeHandler == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the type handler", field.getElement());
+            return "";
+        }
+
+        return ",typeHandler=" + typeHandler.getQualifiedNameWithoutGenerics();
     }
     //</editor-fold>
 
@@ -285,16 +322,14 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         } else if ("value".equals(rule) || "VALUE".equals(rule)) {
             return getParameterValue(field);
         } else if ("jdbcType".equals(rule) || "JDBC_TYPE".equals(rule)) {
-            return MyBatisUtils.getJdbcTypeAttribute(field);
+            return getJdbcTypeAttribute(field);
         } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
-            return MyBatisUtils.getTypeHandler(getProcessingEnv(), field);
+            return getTypeHandler(field);
         } else {
             return null;
         }
     }
-    
     //</editor-fold>
-
 
     //<editor-fold defaultstate="collapsed" desc="finalizeQuery">
     @Override

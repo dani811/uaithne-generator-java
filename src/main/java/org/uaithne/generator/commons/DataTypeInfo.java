@@ -29,6 +29,7 @@ public class DataTypeInfo {
     private String qualifiedName;
     private String qualifiedNameWithoutGenerics;
     private DataTypeInfo boxed;
+    private boolean isEnum;
 
     public String getSimpleName() {
         return simpleName;
@@ -86,6 +87,14 @@ public class DataTypeInfo {
         for (String imp : imports) {
             Utils.appendImportIfRequired(importsList, currentPackage, imp);
         }
+    }
+
+    public boolean isEnum() {
+        return isEnum;
+    }
+
+    public void setIsEnum(boolean isEnum) {
+        this.isEnum = isEnum;
     }
 
     @Override
@@ -240,6 +249,7 @@ public class DataTypeInfo {
         simpleNameWithoutGenerics = other.simpleNameWithoutGenerics;
         qualifiedName = other.qualifiedName;
         qualifiedNameWithoutGenerics = other.qualifiedNameWithoutGenerics;
+        isEnum = other.isEnum;
     }
 
     public DataTypeInfo of(DataTypeInfo genericArgument) {
@@ -251,6 +261,9 @@ public class DataTypeInfo {
         result.qualifiedName = qualifiedName + "<" + genericArgument.qualifiedName + ">";
         result.imports.addAll(imports);
         result.imports.addAll(genericArgument.imports);
+        if (isList()) {
+            isEnum = genericArgument.isEnum;
+        }
         return result;
     }
 
@@ -428,6 +441,10 @@ public class DataTypeInfo {
                 || "java.lang.Integer".equals(qualifiedName)
                 || "long".equals(qualifiedName)
                 || "java.lang.Long".equals(qualifiedName)
+                || "float".equals(qualifiedName)
+                || "java.lang.Float".equals(qualifiedName)
+                || "double".equals(qualifiedName)
+                || "java.lang.Double".equals(qualifiedName)
                 || "java.math.BigDecimal".equals(qualifiedName)
                 || "java.math.BigInteger".equals(qualifiedName);
     }
@@ -450,7 +467,8 @@ public class DataTypeInfo {
 
     public boolean isList() {
         return "java.util.List".equals(qualifiedNameWithoutGenerics)
-                || "java.util.ArrayList".equals(qualifiedNameWithoutGenerics);
+                || "java.util.ArrayList".equals(qualifiedNameWithoutGenerics)
+                || qualifiedNameWithoutGenerics.endsWith("[]");
     }
 
     public boolean isVoid() {

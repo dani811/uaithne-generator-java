@@ -18,8 +18,14 @@
  */
 package org.uaithne.generator.processors.database.myBatis;
 
+import javax.lang.model.type.MirroredTypeException;
+import javax.tools.Diagnostic;
+import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
+import org.uaithne.annotations.sql.JdbcTypes;
+import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
 import org.uaithne.generator.processors.database.sql.SqlCallGenerator;
@@ -43,8 +49,8 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
     public void appendInParameter(StringBuilder query, FieldInfo field) {
         query.append("#{")
                 .append(field.getName())
-                .append(MyBatisUtils.getJdbcTypeAttribute(field))
-                .append(MyBatisUtils.getTypeHandler(getProcessingEnv(), field))
+                .append(getJdbcTypeAttribute(field))
+                .append(getTypeHandler(field))
                 .append(",mode=IN}");
     }
 
@@ -53,8 +59,8 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
 
         query.append("#{")
                 .append(field.getName())
-                .append(MyBatisUtils.getJdbcTypeAttribute(field))
-                .append(MyBatisUtils.getTypeHandler(getProcessingEnv(), field))
+                .append(getJdbcTypeAttribute(field))
+                .append(getTypeHandler(field))
                 .append(",mode=OUT}");
     }
 
@@ -63,8 +69,8 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
 
         query.append("#{")
                 .append(field.getName())
-                .append(MyBatisUtils.getJdbcTypeAttribute(field))
-                .append(MyBatisUtils.getTypeHandler(getProcessingEnv(), field))
+                .append(getJdbcTypeAttribute(field))
+                .append(getTypeHandler(field))
                 .append(",mode=INOUT}");
     }
 
@@ -189,6 +195,37 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
     @Override
     public void appendFirstFieldSeparator(StringBuilder query) {
         query.append("\n    ");
+    }
+    
+    public String getJdbcTypeAttribute(FieldInfo field) {
+        JdbcTypes jdbcType = getJdbcType(field);
+        if (jdbcType == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Uknown jdbc data type. Use @JdbcType annotation for specify the jdbc data type.", field.getElement());
+            return "";
+        }
+        return ",jdbcType=" + jdbcType.name();
+    }
+
+    public String getTypeHandler(FieldInfo field) {
+        MyBatisTypeHandler th = field.getAnnotation(MyBatisTypeHandler.class);
+
+        if (th == null) {
+            return "";
+        }
+
+        DataTypeInfo typeHandler;
+        try {
+            typeHandler = NamesGenerator.createResultDataType(th.value());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            typeHandler = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (typeHandler == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the type handler", field.getElement());
+            return "";
+        }
+
+        return ",typeHandler=" + typeHandler.getQualifiedNameWithoutGenerics();
     }
 
 }

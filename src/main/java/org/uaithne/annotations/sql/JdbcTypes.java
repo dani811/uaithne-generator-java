@@ -19,6 +19,7 @@
 package org.uaithne.annotations.sql;
 
 public enum JdbcTypes {
+    ARRAY,
     BIT,
     TINYINT,
     SMALLINT,
@@ -40,13 +41,11 @@ public enum JdbcTypes {
     LONGVARBINARY,
     NULL,
     OTHER,
-    JAVA_OBJECT,
-    DISTINCT,
-    STRUCT,
-    ARRAY,
     BLOB,
     CLOB,
-    REF,
-    DATALINK,
-    BOOLEAN;
+    BOOLEAN,
+    NVARCHAR,
+    NCHAR,
+    NCLOB,
+    STRUCT;
 }

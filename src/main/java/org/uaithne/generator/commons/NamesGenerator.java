@@ -84,7 +84,11 @@ public class NamesGenerator {
         String elementName = element.getSimpleName().toString();
         elementName = Utils.dropFirstUnderscore(elementName);
         String elementNameUpper = Utils.firstUpper(elementName);
-        return new DataTypeInfo(packageName, elementNameUpper);
+        DataTypeInfo result = new DataTypeInfo(packageName, elementNameUpper);
+        if (element.getKind() == ElementKind.ENUM) {
+            result.setIsEnum(true);
+        }
+        return result;
     }
 
     public static DataTypeInfo createEntityDataType(TypeElement element) {
@@ -111,7 +115,11 @@ public class NamesGenerator {
         }
         packageName = createPackageNameFromFullName(packageName);
 
-        return new DataTypeInfo(packageName, simpleName);
+        DataTypeInfo result = new DataTypeInfo(packageName, simpleName);
+        if (element.getKind() == ElementKind.ENUM) {
+            result.setIsEnum(true);
+        }
+        return result;
     }
 
     private static DataTypeInfo createEntityDataType(Class klass) {
@@ -134,7 +142,11 @@ public class NamesGenerator {
         }
         packageName = createPackageNameFromFullName(packageName);
 
-        return new DataTypeInfo(packageName, simpleName);
+        DataTypeInfo result = new DataTypeInfo(packageName, simpleName);
+        if (klass.isEnum()) {
+            result.setIsEnum(true);
+        }
+        return result;
     }
 
     private static DataTypeInfo createOperationDataType(TypeElement element) {
@@ -144,7 +156,8 @@ public class NamesGenerator {
             container = (TypeElement) enclosing;
         }
         if (container == null) {
-            return createDataType(element.getQualifiedName().toString(), null);
+            boolean isEnum = element.getKind() == ElementKind.ENUM;
+            return createDataType(element.getQualifiedName().toString(), null, isEnum);
         }
 
         DataTypeInfo mirror = handleMirrors(element.getQualifiedName().toString());
@@ -168,7 +181,11 @@ public class NamesGenerator {
 
         String simpleName = Utils.dropFirstUnderscore(element.getSimpleName().toString());
 
-        return new DataTypeInfo(packageName, simpleName);
+        DataTypeInfo result = new DataTypeInfo(packageName, simpleName);
+        if (element.getKind() == ElementKind.ENUM) {
+            result.setIsEnum(true);
+        }
+        return result;
     }
 
     private static DataTypeInfo createOperationDataType(Class klass) {
@@ -198,7 +215,11 @@ public class NamesGenerator {
 
         String simpleName = Utils.dropFirstUnderscore(klass.getSimpleName());
 
-        return new DataTypeInfo(packageName, simpleName);
+        DataTypeInfo result = new DataTypeInfo(packageName, simpleName);
+        if (klass.isEnum()) {
+            result.setIsEnum(true);
+        }
+        return result;
     }
 
     public static DataTypeInfo createResultDataType(Class klass) {
@@ -254,6 +275,7 @@ public class NamesGenerator {
                 || te.getAnnotation(Delete.class) != null) {
             return createOperationDataType(te);
         } else {
+            boolean isEnum = te.getKind() == ElementKind.ENUM;
             if (useEnclosing) {
                 Element enclosing = te;
                 while (enclosing.getEnclosingElement() != null && enclosing.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
@@ -269,9 +291,9 @@ public class NamesGenerator {
                     enclosingName = className;
                     suffix = null;
                 }
-                return createDataType(enclosingName, suffix);
+                return createDataType(enclosingName, suffix, isEnum);
             } else {
-                return createDataType(te.getQualifiedName().toString(), null);
+                return createDataType(te.getQualifiedName().toString(), null, isEnum);
             }
         }
     }
@@ -309,10 +331,14 @@ public class NamesGenerator {
             importt = packageName + "." + simpleName;
             simpleName = simpleName + suffix;
         }
-        return new DataTypeInfo(packageName, simpleName, qualifiedName, importt);
+        DataTypeInfo result = new DataTypeInfo(packageName, simpleName, qualifiedName, importt);
+        if (klass.isEnum()) {
+            result.setIsEnum(true);
+        }
+        return result;
     }
 
-    private static DataTypeInfo createDataType(String className, String suffix) {
+    private static DataTypeInfo createDataType(String className, String suffix, boolean isEnum) {
         DataTypeInfo mirror = handleMirrors(className);
         if (mirror != null) {
             return mirror;
@@ -347,7 +373,9 @@ public class NamesGenerator {
             importt = packageName + "." + simpleName;
             simpleName = simpleName + suffix;
         }
-        return new DataTypeInfo(packageName, simpleName, qualifiedName, importt);
+        DataTypeInfo result = new DataTypeInfo(packageName, simpleName, qualifiedName, importt);
+        result.setIsEnum(isEnum);
+        return result;
     }
 
     public static DataTypeInfo createClassBasedDataType(TypeElement element) {
@@ -361,7 +389,11 @@ public class NamesGenerator {
         }
         packageName = createPackageNameFromFullName(packageName);
 
-        return new DataTypeInfo(packageName, simpleName);
+        DataTypeInfo result = new DataTypeInfo(packageName, simpleName);
+        if (element.getKind() == ElementKind.ENUM) {
+            result.setIsEnum(true);
+        }
+        return result;
     }
 
     public static DataTypeInfo createDataTypeFor(TypeMirror t) {
