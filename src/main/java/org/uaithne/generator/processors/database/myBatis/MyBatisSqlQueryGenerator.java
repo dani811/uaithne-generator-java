@@ -48,6 +48,7 @@ import static org.uaithne.annotations.Comparators.START_WITH;
 import static org.uaithne.annotations.Comparators.START_WITH_INSENSITIVE;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.processors.database.sql.SqlQueryGenerator;
 
 public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
@@ -74,8 +75,6 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         }
     }
     
-
-    
     public void appendOrderByContent(StringBuilder result, ArrayList<FieldInfo> orderBys, String start, String separator, String commaSeparator, String startOrderBy, String endOrderBy) {
         if (orderBys.isEmpty()) {
             return;
@@ -100,9 +99,9 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                     result.append(separator);
                 }
                 if (orderBy.isOptional()) {
-                    result.append("<if test='");
+                    result.append("{[if test='");
                     result.append(orderBy.getName());
-                    result.append(" != null'>");
+                    result.append(" != null']}");
                 }
                 if (hasOnlyOne && firstOptional) {
                     result.append(startOrderBy);
@@ -117,7 +116,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                     result.append(endOrderBy);
                 }
                 if (orderBy.isOptional()) {
-                    result.append("</if>");
+                    result.append("{[/if]}");
                 }
                 requireComma = true;
             }
@@ -127,26 +126,26 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             return;
         }
         
-        result.append("<trim prefix='");
+        result.append("{[trim prefix='");
         result.append(startOrderBy);
         result.append("' suffix='");
         result.append(endOrderBy);
         result.append("' prefixOverrides='");
         result.append(commaSeparator);
-        result.append("'>");
+        result.append("']}");
         
         for (FieldInfo orderBy : orderBys) {
             if (orderBy.isOptional()) {
                 result.append(separator);
-                result.append("<if test='");
+                result.append("{[if test='");
                 result.append(orderBy.getName());
-                result.append(" != null'>");
+                result.append(" != null']}");
                 if (requireComma) {
                     result.append(commaSeparator);
                 }
                 result.append("${");
                 result.append(orderBy.getName());
-                result.append("} </if>");
+                result.append("} {[/if]}");
             } else {
                 if (requireComma) {
                     result.append(commaSeparator);
@@ -159,7 +158,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             requireComma=true;
         }
         result.append(start);
-        result.append("</trim>");
+        result.append("{[/trim]}");
     }
     //</editor-fold>
 
@@ -173,26 +172,26 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     //<editor-fold defaultstate="collapsed" desc="Where">
     @Override
     public void appendStartWhere(StringBuilder result) {
-        result.append("<where>");
+        result.append("{[where]}");
     }
 
     @Override
     public void appendEndWhere(StringBuilder result, String separator) {
         result.append(separator);
-        result.append("</where>");
+        result.append("{[/where]}");
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Set">
     @Override
     public void appendStartSet(StringBuilder result) {
-        result.append("<set>");
+        result.append("{[set]}");
     }
 
     @Override
     public void appendEndSet(StringBuilder result, String separator) {
         result.append(separator);
-        result.append("</set>");
+        result.append("{[/set]}");
     }
     
     @Override
@@ -215,23 +214,23 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     //<editor-fold defaultstate="collapsed" desc="If (not) null">
     @Override
     public void appendConditionStartIfNull(StringBuilder result, FieldInfo field, String separator) {
-        result.append("<if test='");
+        result.append("{[if test='");
         result.append(field.getName());
-        result.append(" == null'>");
+        result.append(" == null']}");
         result.append(separator);
     }
 
     @Override
     public void appendConditionStartIfNotNull(StringBuilder result, FieldInfo field, String separator) {
-        result.append("<if test='");
+        result.append("{[if test='");
         result.append(field.getName());
-        result.append(" != null'>");
+        result.append(" != null']}");
         result.append(separator);
     }
 
     @Override
     public void appendConditionEndIf(StringBuilder result) {
-        result.append("</if>");
+        result.append("{[/if]}");
     }
     //</editor-fold>
 
@@ -243,17 +242,17 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         }
         switch (comparator) {
             case EQUAL:      return "[[column]] = [[value]]";
-            case NOT_EQUAL:  return "[[column]] &lt;&gt; [[value]]";
-            case EQUAL_NULLABLE:         return "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>";
-            case EQUAL_NOT_NULLABLE:     return "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
-            case NOT_EQUAL_NULLABLE:     return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>";
-            case NOT_EQUAL_NOT_NULLABLE: return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
-            case SMALLER:    return "[[column]] &lt; [[value]]";
-            case LARGER:     return "[[column]] &gt; [[value]]";
-            case SMALL_AS:   return "[[column]] &lt;= [[value]]";
-            case LARGER_AS:  return "[[column]] &gt;= [[value]]";
-            case IN:         return "[[column]] in <foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]'> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
-            case NOT_IN:     return "[[column]] not in <foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]'> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>";
+            case NOT_EQUAL:  return "[[column]] <> [[value]]";
+            case EQUAL_NULLABLE:         return "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}";
+            case EQUAL_NOT_NULLABLE:     return "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is not null {[/if]}";
+            case NOT_EQUAL_NULLABLE:     return "{[if test='[[name]] != null']} [[column]] <> [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}";
+            case NOT_EQUAL_NOT_NULLABLE: return "{[if test='[[name]] != null']} [[column]] <> [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is not null {[/if]}";
+            case SMALLER:    return "[[column]] < [[value]]";
+            case LARGER:     return "[[column]] > [[value]]";
+            case SMALL_AS:   return "[[column]] <= [[value]]";
+            case LARGER_AS:  return "[[column]] >= [[value]]";
+            case IN:         return "[[column]] in {[foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]']} #{_item_[[name]][[jdbcType]][[typeHandler]]} {[/foreach]}";
+            case NOT_IN:     return "[[column]] not in {[foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]']} #{_item_[[name]][[jdbcType]][[typeHandler]]} {[/foreach]}";
             case LIKE:       return "[[column]] like [[value]]";
             case NOT_LIKE:   return "[[column]] not like [[value]]";
             case LIKE_INSENSITIVE:       return "lower([[column]]) like lower([[value]])";
@@ -293,6 +292,19 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             return null;
         }
     }
+    
     //</editor-fold>
 
+
+    //<editor-fold defaultstate="collapsed" desc="finalizeQuery">
+    @Override
+    public String finalizeQuery(String query, OperationInfo operation, CustomSqlQuery customQuery) {
+        String result = super.finalizeQuery(query, operation, customQuery);
+        result = result.replace("<", "&lt;");
+        result = result.replace(">", "&gt;");
+        result = result.replace("{[", "<");
+        result = result.replace("]}", ">");
+        return result;
+    }
+    //</editor-fold>
 }

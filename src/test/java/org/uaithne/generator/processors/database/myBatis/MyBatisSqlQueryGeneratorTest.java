@@ -40,10 +40,10 @@ public class MyBatisSqlQueryGeneratorTest {
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendOrderBy(result, orderBys, customQuery);
         assertEquals("\n"
-                + "<trim prefix='order by ' suffix=' ' prefixOverrides=', '>\n"
-                + "    <if test='optionalField != null'>${optionalField} </if>, \n"
+                + "{[trim prefix='order by ' suffix=' ' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
                 + "    ${normalField}\n"
-                + "</trim>", result.toString());
+                + "{[/trim]}", result.toString());
     }
 
     @Test
@@ -79,10 +79,10 @@ public class MyBatisSqlQueryGeneratorTest {
                 + "order by\n"
                 + "    before\n"
                 + "    expression \n"
-                + "    <trim prefix='' suffix='' prefixOverrides=', '>\n"
-                + "    <if test='optionalField != null'>${optionalField} </if>, \n"
+                + "    {[trim prefix='' suffix='' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
                 + "    ${normalField}\n"
-                + "    </trim>\n"
+                + "    {[/trim]}\n"
                 + "    after\n"
                 + "    expression ", result.toString());
     }
@@ -95,10 +95,10 @@ public class MyBatisSqlQueryGeneratorTest {
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendOrderBy(result, orderBys, customQuery);
         assertEquals("\n"
-                + "<trim prefix='order by ' suffix=' ' prefixOverrides=', '>\n"
-                + "    <if test='optionalField != null'>${optionalField} </if>, \n"
+                + "{[trim prefix='order by ' suffix=' ' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
                 + "    ${normalField}\n"
-                + "</trim>", result.toString());
+                + "{[/trim]}", result.toString());
     }
 
     private ArrayList<FieldInfo> getOrderBys(boolean reverse) {
@@ -160,7 +160,7 @@ public class MyBatisSqlQueryGeneratorTest {
         String endOrderBy = "endOrderBy";
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
-        assertEquals("start<if test='optionalField != null'>startOrderBy ${optionalField}endOrderBy</if>", result.toString());
+        assertEquals("start{[if test='optionalField != null']}startOrderBy ${optionalField}endOrderBy{[/if]}", result.toString());
     }
 
     @Test
@@ -176,7 +176,7 @@ public class MyBatisSqlQueryGeneratorTest {
         instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
         assertEquals("startstartOrderBy \n"
                 + "    ${normalField}\n"
-                + "    <if test='optionalField != null'>, ${optionalField}</if>endOrderBy", result.toString());
+                + "    {[if test='optionalField != null']}, ${optionalField}{[/if]}endOrderBy", result.toString());
     }
 
     @Test
@@ -190,9 +190,9 @@ public class MyBatisSqlQueryGeneratorTest {
         String endOrderBy = "endOrderBy";
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
-        assertEquals("start<trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', '>\n"
-                + "    <if test='optionalField != null'>${optionalField} </if>, \n"
-                + "    ${normalField}start</trim>", result.toString());
+        assertEquals("start{[trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
+                + "    ${normalField}start{[/trim]}", result.toString());
     }
 
     @Test
@@ -212,9 +212,9 @@ public class MyBatisSqlQueryGeneratorTest {
         String endOrderBy = "endOrderBy";
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
-        assertEquals("start<trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', '>\n"
-                + "    <if test='optionalField1 != null'>${optionalField1} </if>\n"
-                + "    <if test='optionalField2 != null'>, ${optionalField2} </if>start</trim>", result.toString());
+        assertEquals("start{[trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField1 != null']}${optionalField1} {[/if]}\n"
+                + "    {[if test='optionalField2 != null']}, ${optionalField2} {[/if]}start{[/trim]}", result.toString());
     }
 
     @Test
@@ -267,7 +267,7 @@ public class MyBatisSqlQueryGeneratorTest {
         StringBuilder result = new StringBuilder();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendStartWhere(result);
-        assertEquals(result.toString(), "<where>");
+        assertEquals(result.toString(), "{[where]}");
     }
 
     @Test
@@ -276,7 +276,7 @@ public class MyBatisSqlQueryGeneratorTest {
         String separator = "separator";
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendEndWhere(result, separator);
-        assertEquals(result.toString(), "separator</where>");
+        assertEquals(result.toString(), "separator{[/where]}");
     }
 
     @Test
@@ -284,7 +284,7 @@ public class MyBatisSqlQueryGeneratorTest {
         StringBuilder result = new StringBuilder();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendStartSet(result);
-        assertEquals(result.toString(), "<set>");
+        assertEquals(result.toString(), "{[set]}");
     }
 
     @Test
@@ -293,7 +293,7 @@ public class MyBatisSqlQueryGeneratorTest {
         String separator = "separator";
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendEndSet(result, separator);
-        assertEquals(result.toString(), "separator</set>");
+        assertEquals(result.toString(), "separator{[/set]}");
     }
 
     @Test
@@ -302,7 +302,7 @@ public class MyBatisSqlQueryGeneratorTest {
         FieldInfo field = getFieldWithTypeHandler();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendStartSetValueIfNotNull(result, field);
-        assertEquals(result.toString(), "<if test='myField != null'>myField = #{myField,jdbcType=NUMERIC,typeHandler=java.lang.Integer}");
+        assertEquals(result.toString(), "{[if test='myField != null']}myField = #{myField,jdbcType=NUMERIC,typeHandler=java.lang.Integer}");
     }
 
     @Test
@@ -311,7 +311,7 @@ public class MyBatisSqlQueryGeneratorTest {
         boolean requireComma = true;
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendEndSetValueIfNotNull(result, requireComma);
-        assertEquals(result.toString(), ",</if>");
+        assertEquals(result.toString(), ",{[/if]}");
     }
 
     @Test
@@ -320,7 +320,7 @@ public class MyBatisSqlQueryGeneratorTest {
         boolean requireComma = false;
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendEndSetValueIfNotNull(result, requireComma);
-        assertEquals(result.toString(), "</if>");
+        assertEquals(result.toString(), "{[/if]}");
     }
 
     @Test
@@ -330,7 +330,7 @@ public class MyBatisSqlQueryGeneratorTest {
         String separator = "separator";
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendConditionStartIfNull(result, field, separator);
-        assertEquals("<if test='myField == null'>separator", result.toString());
+        assertEquals("{[if test='myField == null']}separator", result.toString());
     }
 
     @Test
@@ -340,7 +340,7 @@ public class MyBatisSqlQueryGeneratorTest {
         String separator = "separator";
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendConditionStartIfNotNull(result, field, separator);
-        assertEquals("<if test='myField != null'>separator", result.toString());
+        assertEquals("{[if test='myField != null']}separator", result.toString());
     }
 
     @Test
@@ -348,7 +348,7 @@ public class MyBatisSqlQueryGeneratorTest {
         StringBuilder result = new StringBuilder();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendConditionEndIf(result);
-        assertEquals("</if>", result.toString());
+        assertEquals("{[/if]}", result.toString());
     }
 
     @Test
@@ -370,17 +370,17 @@ public class MyBatisSqlQueryGeneratorTest {
             result.append("\n");
         }
         String expResult = "[[column]] = [[value]]\n"
-                + "[[column]] &lt;&gt; [[value]]\n"
-                + "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>\n"
-                + "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>\n"
-                + "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>\n"
-                + "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>\n"
-                + "[[column]] &lt; [[value]]\n"
-                + "[[column]] &gt; [[value]]\n"
-                + "[[column]] &lt;= [[value]]\n"
-                + "[[column]] &gt;= [[value]]\n"
-                + "[[column]] in <foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]'> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>\n"
-                + "[[column]] not in <foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]'> #{_item_[[name]][[jdbcType]][[typeHandler]]} </foreach>\n"
+                + "[[column]] <> [[value]]\n"
+                + "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}\n"
+                + "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is not null {[/if]}\n"
+                + "{[if test='[[name]] != null']} [[column]] <> [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}\n"
+                + "{[if test='[[name]] != null']} [[column]] <> [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is not null {[/if]}\n"
+                + "[[column]] < [[value]]\n"
+                + "[[column]] > [[value]]\n"
+                + "[[column]] <= [[value]]\n"
+                + "[[column]] >= [[value]]\n"
+                + "[[column]] in {[foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]']} #{_item_[[name]][[jdbcType]][[typeHandler]]} {[/foreach]}\n"
+                + "[[column]] not in {[foreach collection='[[name]]' open='(' separator=',' close=')' item='_item_[[name]]']} #{_item_[[name]][[jdbcType]][[typeHandler]]} {[/foreach]}\n"
                 + "[[column]] like [[value]]\n"
                 + "[[column]] not like [[value]]\n"
                 + "lower([[column]]) like lower([[value]])\n"

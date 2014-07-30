@@ -75,10 +75,10 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public String selectPageAfterOrderBy() {
-        return "<if test='offset != null or maxRowNumber != null'>\n"
-             + "    <if test='offset != null'>offset #{offset,jdbcType=NUMERIC} rows </if>\n"
-             + "    <if test='maxRowNumber != null'>fetch next #{limit,jdbcType=NUMERIC} rows only</if>\n"
-             + "</if>";
+        return "{[if test='offset != null or maxRowNumber != null']}\n"
+             + "    {[if test='offset != null']}offset #{offset,jdbcType=NUMERIC} rows {[/if]}\n"
+             + "    {[if test='maxRowNumber != null']}fetch next #{limit,jdbcType=NUMERIC} rows only{[/if]}\n"
+             + "{[/if]}";
     }
 
     @Override

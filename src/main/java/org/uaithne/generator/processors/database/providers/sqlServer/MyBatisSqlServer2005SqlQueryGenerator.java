@@ -54,16 +54,16 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     @Override
     public String[] envolveInSelectPage(String[] query) {
         String[] r = new String[query.length + 9];
-        r[0] = "<if test='offset != null or maxRowNumber != null'> select * from (</if>";
+        r[0] = "{[if test='offset != null or maxRowNumber != null']} select * from ({[/if]}";
         r[1] = "";
         System.arraycopy(query, 0, r, 2, query.length);
         r[r.length - 7] = "";
-        r[r.length - 6] = "<if test='offset != null or maxRowNumber != null'> ) t";
-        r[r.length - 5] = "    <where>";
-        r[r.length - 4] = "        <if test='offset != null'>rownumber__ &gt; #{offset,jdbcType=NUMERIC}</if>";
-        r[r.length - 3] = "        <if test='maxRowNumber != null'>and rownumber__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}</if>";
-        r[r.length - 2] = "    </where>";
-        r[r.length - 1] = "</if>";
+        r[r.length - 6] = "{[if test='offset != null or maxRowNumber != null']} ) t";
+        r[r.length - 5] = "    {[where]}";
+        r[r.length - 4] = "        {[if test='offset != null']}rownumber__ &gt; #{offset,jdbcType=NUMERIC}{[/if]}";
+        r[r.length - 3] = "        {[if test='maxRowNumber != null']}and rownumber__ &lt;= #{maxRowNumber,jdbcType=NUMERIC}{[/if]}";
+        r[r.length - 2] = "    {[/where]}";
+        r[r.length - 1] = "{[/if]}";
         return r;
     }
 
