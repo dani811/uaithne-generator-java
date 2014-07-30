@@ -28,5 +28,5 @@ public @interface MyBatisBackendConfiguration {
     String mapperSuffix() default "Mapper";
     String idSecuenceNameTemplate() default "[[table]]_[[column]]_seq";
     Ternary useAutoIncrementId() default Ternary.UNSPECIFIED;
-    DefaultJdbcType[] defaultJdbcType() default {};
+    DefaultJdbcType[] defaultJdbcTypes() default {};
 }

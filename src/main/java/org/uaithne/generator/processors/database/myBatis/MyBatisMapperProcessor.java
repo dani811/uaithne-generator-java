@@ -103,7 +103,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         config.setModule(module);
         config.setPackageName(packageName);
         config.setName(name);
-        config.loadCustomJdbcTypeMap(configuration.defaultJdbcType());
+        config.loadCustomJdbcTypeMap(configuration.defaultJdbcTypes());
         
         QueryGenerator sqlGenerator = backend.getGenerator();
         sqlGenerator.setConfiguration(config);
