@@ -28,7 +28,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
-import org.uaithne.annotations.SharedLibrary;
 import org.uaithne.annotations.UaithneConfiguration;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
@@ -42,7 +41,7 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
         GenerationInfo generationInfo = getGenerationInfo();
-        for (Element element : re.getElementsAnnotatedWith(SharedLibrary.class)) {
+        for (Element element : re.getElementsAnnotatedWith(UaithneConfiguration.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 UaithneConfiguration configuration = element.getAnnotation(UaithneConfiguration.class);
                 if (configuration != null) {
