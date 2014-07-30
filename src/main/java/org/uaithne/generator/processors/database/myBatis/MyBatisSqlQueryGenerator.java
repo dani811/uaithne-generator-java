@@ -280,6 +280,8 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         switch (comparator) {
             case EQUAL:      return "[[column]] = [[value]]";
             case NOT_EQUAL:  return "[[column]] <> [[value]]";
+            case EQUAL_INSENSITIVE:      return "lower([[column]]) = lower([[value]])";
+            case NOT_EQUAL_INSENSITIVE:  return "lower([[column]]) <> lower([[value]])";
             case EQUAL_NULLABLE:         return "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}";
             case EQUAL_NOT_NULLABLE:     return "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is not null {[/if]}";
             case NOT_EQUAL_NULLABLE:     return "{[if test='[[name]] != null']} [[column]] <> [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}";

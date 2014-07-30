@@ -370,7 +370,9 @@ public class MyBatisSqlQueryGeneratorTest {
             result.append("\n");
         }
         String expResult = "[[column]] = [[value]]\n"
-                + "[[column]] <> [[value]]\n"
+                + "[[column]] <> [[value]]\n" 
+                + "lower([[column]]) = lower([[value]])\n"
+                + "lower([[column]]) <> lower([[value]])\n"
                 + "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}\n"
                 + "{[if test='[[name]] != null']} [[column]] = [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is not null {[/if]}\n"
                 + "{[if test='[[name]] != null']} [[column]] <> [[value]] {[/if]} {[if test='[[name]] == null']} [[column]] is null {[/if]}\n"

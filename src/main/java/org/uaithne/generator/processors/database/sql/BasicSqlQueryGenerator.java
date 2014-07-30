@@ -105,6 +105,8 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
         switch (comparator) {
             case EQUAL:      return "[[column]] = [[value]]";
             case NOT_EQUAL:  return "[[column]] <> [[value]]";
+            case EQUAL_INSENSITIVE:      return "lower([[column]]) = lower([[value]])";
+            case NOT_EQUAL_INSENSITIVE:  return "lower([[column]]) <> lower([[value]])";
             case EQUAL_NULLABLE:         return "(([[value]] is null and [[column]] is null) or ([[column]] = [[value]]))";
             case EQUAL_NOT_NULLABLE:     return "(([[value]] is null and [[column]] is not null) or ([[column]] = [[value]]))";
             case NOT_EQUAL_NULLABLE:     return "(([[value]] is not null and [[column]] <> [[value]]) or ([[value]] is null and [[column]] is null))";
@@ -113,8 +115,8 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
             case LARGER:     return "[[column]] > [[value]]";
             case SMALL_AS:   return "[[column]] <= [[value]]";
             case LARGER_AS:  return "[[column]] >= [[value]]";
-            case IN:         return "[[column]] in [[value]]";
-            case NOT_IN:     return "[[column]] not in [[value]]";
+            case IN:         return "[[column]] in [[value]]"; //TODO
+            case NOT_IN:     return "[[column]] not in [[value]]"; //TODO
             case LIKE:       return "[[column]] like [[value]]";
             case NOT_LIKE:   return "[[column]] not like [[value]]";
             case LIKE_INSENSITIVE:       return "lower([[column]]) like lower([[value]])";

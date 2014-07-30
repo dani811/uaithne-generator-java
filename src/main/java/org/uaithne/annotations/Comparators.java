@@ -21,6 +21,8 @@ package org.uaithne.annotations;
 public enum Comparators {
     EQUAL,
     NOT_EQUAL,
+    EQUAL_INSENSITIVE,
+    NOT_EQUAL_INSENSITIVE,
     EQUAL_NULLABLE,
     EQUAL_NOT_NULLABLE,
     NOT_EQUAL_NULLABLE,
