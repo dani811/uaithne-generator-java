@@ -140,6 +140,9 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
 
         boolean requireSeparator = false;
         for (FieldInfo field : fields) {
+            if (field.isExcludedFromToString()) {
+                continue;
+            }
             if (requireSeparator) {
                 appender.append("\"| \" +\n");
             } else {

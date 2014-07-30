@@ -54,6 +54,7 @@ public class FieldInfo {
     private FieldInfo related;
     private boolean deprecated;
     private boolean excludedFromConstructor;
+    private boolean excludedFromToString;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
     private DataTypeInfo validationAnnotation;
 
@@ -408,6 +409,22 @@ public class FieldInfo {
         this.excludedFromConstructor = excludedFromConstructor;
     }
 
+    public boolean isExcludedFromToString() {
+        if (!excludedFromToString) {
+            if (related != null) {
+                return related.isExcludedFromToString();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setExcludedFromToString(boolean excludedFromToString) {
+        this.excludedFromToString = excludedFromToString;
+    }
+
     public DataTypeInfo getValidationAnnotation() {
         return validationAnnotation;
     }
@@ -466,6 +483,7 @@ public class FieldInfo {
 
         deprecated = element.getAnnotation(Deprecated.class) != null;
         excludedFromConstructor = element.getAnnotation(ExcludeFromConstructor.class) != null;
+        excludedFromToString = element.getAnnotation(ExcludeFromToString.class) != null;
 
         boolean isPrimitive = dataType.isPrimitive();
         if (identifier) {
@@ -511,6 +529,7 @@ public class FieldInfo {
         related = fieldInfo;
         deprecated = fieldInfo.deprecated;
         excludedFromConstructor = fieldInfo.excludedFromConstructor;
+        excludedFromToString = fieldInfo.excludedFromConstructor;
         markAsOvwrride = fieldInfo.markAsOvwrride;
         markAsTransient = fieldInfo.markAsTransient;
         validationAnnotation = fieldInfo.validationAnnotation;
