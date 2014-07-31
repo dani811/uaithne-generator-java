@@ -539,4 +539,34 @@ public class FieldInfo {
             }
         }
     }
+
+    public FieldInfo(FieldInfo fieldInfo) {
+        documentation = fieldInfo.documentation;
+        name = fieldInfo.name;
+        dataType = fieldInfo.dataType;
+        defaultValue = fieldInfo.defaultValue;
+        element = fieldInfo.element;
+        mappedName = fieldInfo.mappedName;
+        orderBy = fieldInfo.orderBy;
+        optional = fieldInfo.optional;
+        identifier = fieldInfo.identifier;
+        setValueMark = fieldInfo.setValueMark;
+        insertUserMark = fieldInfo.insertUserMark;
+        insertDateMark = fieldInfo.insertDateMark;
+        updateUserMark = fieldInfo.updateUserMark;
+        updateDateMark = fieldInfo.updateDateMark;
+        deleteUserMark = fieldInfo.deleteUserMark;
+        deleteDateMark = fieldInfo.deleteDateMark;
+        deletionMark = fieldInfo.deletionMark;
+        versionMark = fieldInfo.versionMark;
+        manually = fieldInfo.manually;
+        related = fieldInfo.related;
+        deprecated = fieldInfo.deprecated;
+        excludedFromConstructor = fieldInfo.excludedFromConstructor;
+        excludedFromToString = fieldInfo.excludedFromConstructor;
+        markAsOvwrride = fieldInfo.markAsOvwrride;
+        markAsTransient = fieldInfo.markAsTransient;
+        validationAnnotation = fieldInfo.validationAnnotation;
+        mappedName = fieldInfo.mappedName;
+    }
 }

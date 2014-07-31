@@ -622,6 +622,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         idInfo.setMarkAsOvwrride(true);
         idInfo.setOptional(false);
         idInfo.setIdentifier(true);
+        idInfo.setValidationAnnotation(generationInfo.getIdValidationAnnotation());
         
         DataTypeInfo idDataType = idInfo.getDataType().ensureBoxed();
         idInfo.setDataType(idDataType);
@@ -711,7 +712,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 DataTypeInfo insertOperationInterface = DataTypeInfo.INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
                 insertOperationInfo.addImplement(insertOperationInterface);
 
-                insertOperationInfo.addField(valueInfo);
+                FieldInfo field = new FieldInfo(valueInfo);
+                field.setValidationAnnotation(generationInfo.getInsertValueValidationAnnotation());
+                insertOperationInfo.addField(field);
                 insertOperationInfo.setEntity(entityInfo);
                 insertOperationInfo.setManually(entityInfo.getCombined().isManually());
                 generationInfo.addOperation(insertOperationInfo, executorModuleInfo, index);
@@ -734,7 +737,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 DataTypeInfo justInsertOperationInterface = DataTypeInfo.JUST_INSERT_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
                 justInsertOperationInfo.addImplement(justInsertOperationInterface);
 
-                justInsertOperationInfo.addField(valueInfo);
+                FieldInfo field = new FieldInfo(valueInfo);
+                field.setValidationAnnotation(generationInfo.getInsertValueValidationAnnotation());
+                justInsertOperationInfo.addField(field);
                 justInsertOperationInfo.setEntity(entityInfo);
                 justInsertOperationInfo.setManually(entityInfo.getCombined().isManually());
                 generationInfo.addOperation(justInsertOperationInfo, executorModuleInfo, index);
@@ -771,7 +776,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     DataTypeInfo saveOperationInterface = DataTypeInfo.SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, idDataType);
                     saveOperationInfo.addImplement(saveOperationInterface);
 
-                    saveOperationInfo.addField(valueInfo);
+                    FieldInfo field = new FieldInfo(valueInfo);
+                    field.setValidationAnnotation(generationInfo.getSaveValueValidationAnnotation());
+                    saveOperationInfo.addField(field);
                     saveOperationInfo.setEntity(entityInfo);
                     saveOperationInfo.setManually(entityInfo.getCombined().isManually());
                     generationInfo.addOperation(saveOperationInfo, executorModuleInfo, index);
@@ -798,7 +805,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     DataTypeInfo justSaveOperationInterface = DataTypeInfo.JUST_SAVE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
                     justSaveOperationInfo.addImplement(justSaveOperationInterface);
 
-                    justSaveOperationInfo.addField(valueInfo);
+                    FieldInfo field = new FieldInfo(valueInfo);
+                    field.setValidationAnnotation(generationInfo.getSaveValueValidationAnnotation());
+                    justSaveOperationInfo.addField(field);
                     justSaveOperationInfo.setEntity(entityInfo);
                     justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
                     generationInfo.addOperation(justSaveOperationInfo, executorModuleInfo, index);
@@ -843,7 +852,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 DataTypeInfo updateOperationInterface = DataTypeInfo.UPDATE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
                 updateOperationInfo.addImplement(updateOperationInterface);
 
-                updateOperationInfo.addField(valueInfo);
+                FieldInfo field = new FieldInfo(valueInfo);
+                field.setValidationAnnotation(generationInfo.getUpdateValueValidationAnnotation());
+                updateOperationInfo.addField(field);
                 updateOperationInfo.setEntity(entityInfo);
                 updateOperationInfo.setManually(entityInfo.getCombined().isManually());
                 generationInfo.addOperation(updateOperationInfo, executorModuleInfo, index);
@@ -865,7 +876,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 DataTypeInfo mergeOperationInterface = DataTypeInfo.MERGE_VALUE_OPERATION_DATA_TYPE.of(entityDataType, affectedRowCountDataType);
                 mergeOperationInfo.addImplement(mergeOperationInterface);
 
-                mergeOperationInfo.addField(valueInfo);
+                FieldInfo field = new FieldInfo(valueInfo);
+                field.setValidationAnnotation(generationInfo.getMergeValueValidationAnnotation());
+                mergeOperationInfo.addField(field);
                 mergeOperationInfo.setEntity(entityInfo);
                 mergeOperationInfo.setManually(entityInfo.getCombined().isManually());
                 generationInfo.addOperation(mergeOperationInfo, executorModuleInfo, index);
@@ -907,6 +920,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setMarkAsOvwrride(true);
         valueInfo.setOptional(false);
         valueInfo.setIdentifier(false);
+        valueInfo.setValidationAnnotation(generationInfo.getInsertValueValidationAnnotation());
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setEntity(entity);
@@ -975,6 +989,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setMarkAsOvwrride(true);
         valueInfo.setOptional(false);
         valueInfo.setIdentifier(false);
+        valueInfo.setValidationAnnotation(generationInfo.getUpdateValueValidationAnnotation());
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
@@ -1012,11 +1027,6 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
             return;
         }
-        
-        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
-        valueInfo.setMarkAsOvwrride(true);
-        valueInfo.setOptional(false);
-        valueInfo.setIdentifier(false);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         FieldInfo id = entity.getCombined().getFirstIdField();
@@ -1031,6 +1041,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         id.setMarkAsOvwrride(true);
         id.setOptional(false);
         id.setIdentifier(true);
+        id.setValidationAnnotation(generationInfo.getIdValidationAnnotation());
 
         DataTypeInfo idDataType = id.getDataType().ensureBoxed();
         id.setDataType(idDataType);
@@ -1070,11 +1081,6 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the related entity", element);
             return;
         }
-        
-        FieldInfo valueInfo = new FieldInfo("value", entityDataType);
-        valueInfo.setMarkAsOvwrride(true);
-        valueInfo.setOptional(false);
-        valueInfo.setIdentifier(false);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setLimitToOneResult(operation.limit());
@@ -1090,6 +1096,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         id.setMarkAsOvwrride(true);
         id.setOptional(false);
         id.setIdentifier(true);
+        id.setValidationAnnotation(generationInfo.getIdValidationAnnotation());
 
         DataTypeInfo idDataType = id.getDataType().ensureBoxed();
         id.setDataType(idDataType);
@@ -1147,6 +1154,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setMarkAsOvwrride(true);
         valueInfo.setOptional(false);
         valueInfo.setIdentifier(false);
+        valueInfo.setValidationAnnotation(generationInfo.getSaveValueValidationAnnotation());
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setEntity(entity);
@@ -1207,6 +1215,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setMarkAsOvwrride(true);
         valueInfo.setOptional(false);
         valueInfo.setIdentifier(false);
+        valueInfo.setValidationAnnotation(generationInfo.getMergeValueValidationAnnotation());
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);

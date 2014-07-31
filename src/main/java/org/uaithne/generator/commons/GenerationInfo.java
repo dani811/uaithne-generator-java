@@ -50,6 +50,10 @@ public class GenerationInfo {
     private DataTypeInfo optionalValidationAnnotation;
     private boolean ignoreIdValidationOnPrimitives = true;
     private boolean ignoreMandatoryValidationOnPrimitives = true;
+    private DataTypeInfo insertValueValidationAnnotation;
+    private DataTypeInfo saveValueValidationAnnotation;
+    private DataTypeInfo mergeValueValidationAnnotation;
+    private DataTypeInfo updateValueValidationAnnotation;
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
         return entitiesByRealName;
@@ -301,6 +305,38 @@ public class GenerationInfo {
 
     public void setIgnoreMandatoryValidationOnPrimitives(boolean ignoreMandatoryValidationOnPrimitives) {
         this.ignoreMandatoryValidationOnPrimitives = ignoreMandatoryValidationOnPrimitives;
+    }
+
+    public DataTypeInfo getInsertValueValidationAnnotation() {
+        return insertValueValidationAnnotation;
+    }
+
+    public void setInsertValueValidationAnnotation(DataTypeInfo insertValueValidationAnnotation) {
+        this.insertValueValidationAnnotation = insertValueValidationAnnotation;
+    }
+
+    public DataTypeInfo getMergeValueValidationAnnotation() {
+        return mergeValueValidationAnnotation;
+    }
+
+    public void setMergeValueValidationAnnotation(DataTypeInfo mergeValueValidationAnnotation) {
+        this.mergeValueValidationAnnotation = mergeValueValidationAnnotation;
+    }
+
+    public DataTypeInfo getSaveValueValidationAnnotation() {
+        return saveValueValidationAnnotation;
+    }
+
+    public void setSaveValueValidationAnnotation(DataTypeInfo saveValueValidationAnnotation) {
+        this.saveValueValidationAnnotation = saveValueValidationAnnotation;
+    }
+
+    public DataTypeInfo getUpdateValueValidationAnnotation() {
+        return updateValueValidationAnnotation;
+    }
+
+    public void setUpdateValueValidationAnnotation(DataTypeInfo updateValueValidationAnnotation) {
+        this.updateValueValidationAnnotation = updateValueValidationAnnotation;
     }
 
 }

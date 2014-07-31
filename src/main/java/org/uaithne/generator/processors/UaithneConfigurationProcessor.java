@@ -89,6 +89,50 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                         generationInfo.setOptionalValidationAnnotation(optionalValidationAnnotation);
                     }
                     
+                    DataTypeInfo insertValueValidationAnnotation;
+                    try {
+                        insertValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.insertValueValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        insertValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!insertValueValidationAnnotation.isVoid()) {
+                        generationInfo.setInsertValueValidationAnnotation(insertValueValidationAnnotation);
+                    }
+                    
+                    DataTypeInfo saveValueValidationAnnotation;
+                    try {
+                        saveValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.saveValueValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        saveValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!saveValueValidationAnnotation.isVoid()) {
+                        generationInfo.setSaveValueValidationAnnotation(saveValueValidationAnnotation);
+                    }
+                    
+                    DataTypeInfo mergeValueValidationAnnotation;
+                    try {
+                        mergeValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.mergeValueValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        mergeValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!mergeValueValidationAnnotation.isVoid()) {
+                        generationInfo.setMergeValueValidationAnnotation(mergeValueValidationAnnotation);
+                    }
+                    
+                    DataTypeInfo updateValueValidationAnnotation;
+                    try {
+                        updateValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.updateValueValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        updateValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!updateValueValidationAnnotation.isVoid()) {
+                        generationInfo.setUpdateValueValidationAnnotation(updateValueValidationAnnotation);
+                    }
+                    
                     DataTypeInfo entitiesImplementsDataType;
                     try {
                         entitiesImplementsDataType = NamesGenerator.createResultDataType(configuration.entitiesImplements());
