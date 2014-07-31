@@ -1874,13 +1874,33 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (value != null) {
                 matcher.appendReplacement(result, value);
                 continue;
-            } else if (rule == null || "custom".equals(rule) || "CUSTOM".equals(rule)) {
-                comparatorTemplate = matcher.group(3);
-                if(comparatorTemplate == null) {
-                    comparator = getComparator(field);
-                    comparatorTemplate = translateComparator(comparator);
-                }
+            } else if (rule == null) { // alias for {{field:value}}
+                value = getParameterValue(field);
+                matcher.appendReplacement(result, value);
+                continue;
+            } else if ("condition".equals(rule) || "CONDITION".equals(rule)) {
+                comparator = getComparator(field);
+                comparatorTemplate = translateComparator(comparator);
                 template = getConditionTemplate(field, comparatorTemplate);
+                if (!template.equals(comparatorTemplate)) {
+                    template = getConditionComparator(comparatorTemplate, template, field, customQuery);
+                    template = finalizeQuery(template, operation, customQuery);
+                    matcher.appendReplacement(result, template);
+                    continue;
+                }
+            } else if ("custom".equals(rule) || "CUSTOM".equals(rule)) {
+                template = matcher.group(3);
+                comparator = getComparator(field);
+                comparatorTemplate = translateComparator(comparator);
+                if (template != null) {
+                    template = getConditionComparator(comparatorTemplate, template, field, customQuery);
+                    System.out.println(template);
+                    template = finalizeQuery(template, operation, customQuery);
+                    matcher.appendReplacement(result, template);
+                    continue;
+                } else {
+                    template = comparatorTemplate;
+                }
             } else if ("ifNull".equals(rule) || "IF_NULL".equals(rule)) {
                 StringBuilder sb = new StringBuilder();
                 String separator = matcher.group(3);
@@ -1905,9 +1925,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 matcher.appendReplacement(result, sb.toString());
                 continue;
             } else {
-                if ("condition".equals(rule) || "CONDITION".equals(rule)) {
-                    comparator = getComparator(field);
-                } else if ("=".equals(rule) || "==".equals(rule) || "equal".equals(rule) || "EQUAL".equals(rule)) {
+                if ("=".equals(rule) || "==".equals(rule) || "equal".equals(rule) || "EQUAL".equals(rule)) {
                     comparator = Comparators.EQUAL;
                 } else if ("!=".equals(rule) || "<>".equals(rule) || "notEqual".equals(rule) || "NOT_EQUAL".equals(rule)) {
                     comparator = Comparators.NOT_EQUAL;

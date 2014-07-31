@@ -3235,8 +3235,34 @@ public class SqlQueryGeneratorTest {
     }
     
     @Test
-    public void testFinalizeQueryWithoutRulesAndWithCustomComparator() {
+    public void testFinalizeQueryWithoutRules() {
         String query = "{{myField}}";
+        OperationInfo operation = getOperationForWhere(false);
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        operation.addField(field);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String expResult = "parameterValue";
+        String result = instance.finalizeQuery(query, operation, customQuery);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testFinalizeQueryCondition() {
+        String query = "{{myField:condition}} {{myField:CONDITION}}";
+        OperationInfo operation = getOperationForWhere(false);
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        operation.addField(field);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String expResult = "myField = parameterValue myField = parameterValue";
+        String result = instance.finalizeQuery(query, operation, customQuery);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testFinalizeQueryConditionWithCustomComparator() {
+        String query = "{{myField:condition}} {{myField:CONDITION}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         field.addAnnotation(new CustomComparator() {
@@ -3254,7 +3280,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "custom";
+        String expResult = "custom custom";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
     }
@@ -3306,7 +3332,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "myField &lt; parameterValue myField &lt; parameterValue myField &lt; parameterValue\n"
+        String expResult = "parameterValue myField &lt; parameterValue myField &lt; parameterValue\n"
                 + "myField = parameterValue myField = parameterValue myField = parameterValue myField = parameterValue\n"
                 + "myField &lt;&gt; parameterValue myField &lt;&gt; parameterValue myField &lt;&gt; parameterValue myField &lt;&gt; parameterValue\n"
                 + "<if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if>\n"
@@ -3357,6 +3383,31 @@ public class SqlQueryGeneratorTest {
         String query = "{{myField:custom}} {{myField:CUSTOM}}";
         OperationInfo operation = getOperationForWhere(false);
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        operation.addField(field);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String expResult = "myField = parameterValue myField = parameterValue";
+        String result = instance.finalizeQuery(query, operation, customQuery);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testFinalizeQueryWithDefaultCustomComparatorWithCustomComparator() {
+        String query = "{{myField:custom}} {{myField:CUSTOM}}";
+        OperationInfo operation = getOperationForWhere(false);
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        field.addAnnotation(new CustomComparator() {
+
+            @Override
+            public String value() {
+                return "custom";
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return CustomComparator.class;
+            }
+        });
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
