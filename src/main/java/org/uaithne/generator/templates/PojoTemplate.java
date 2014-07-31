@@ -225,43 +225,55 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
     }
 
     protected void appendAnnotationImports(String currentPackage, HashSet<String> imports, FieldInfo field) {
+        HashSet<String> loaded = new HashSet<String>();
+        while (field != null) {
+            appendAnnotationImports(currentPackage, imports, field, loaded);
+            field = field.getRelated();
+            if (field != null) {
+                DataTypeInfo validationAnnotation = field.getValidationAnnotation();
+                if (validationAnnotation != null) {
+                    loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
+                }
+            }
+        }
+    }
+    
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, FieldInfo field, HashSet<String> loaded) {
         VariableElement element = field.getElement();
-        if (element == null) {
-            return;
+        if (element != null) {
+            for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+                appendAnnotationImports(currentPackage, imports, annotation, loaded, true);
+            }
         }
-
-        boolean hasValidationAnnotation = false;
         DataTypeInfo validationAnnotation = field.getValidationAnnotation();
-        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            boolean hasAnnotation = appendAnnotationImports(currentPackage, imports, annotation, validationAnnotation, true);
-            hasValidationAnnotation = hasValidationAnnotation || hasAnnotation;
-        }
-        if (!hasValidationAnnotation && validationAnnotation != null) {
+        
+        if (validationAnnotation != null && !loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
             validationAnnotation.appendImports(currentPackage, imports);
         }
     }
 
-    private boolean appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, DataTypeInfo validationAnnotation, boolean ignoreUaithne) {
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, HashSet<String> loaded, boolean ignoreUaithne) {
         DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
         String packageName = dataType.getPackageName();
 
-        if (ignoreUaithne && packageName != null && packageName.startsWith("org.uaithne.")) {
-            return false;
+        if (ignoreUaithne && packageName != null && packageName.startsWith("org.uaithne.annotations.")) {
+            return;
         }
-        dataType.appendImports(currentPackage, imports);
-        for (AnnotationValue value : annotation.getElementValues().values()) {
-            appendAnnotationImports(currentPackage, imports, value, validationAnnotation);
+        if (loaded != null && loaded.contains(dataType.getQualifiedNameWithoutGenerics())) {
+            return;
         }
         
-        if (validationAnnotation == null) {
-            return false;
+        dataType.appendImports(currentPackage, imports);
+        if (loaded != null) {
+            loaded.contains(dataType.getQualifiedNameWithoutGenerics());
         }
-
-        boolean hasValidationAnnotation = validationAnnotation.getQualifiedNameWithoutGenerics().equals(dataType.getQualifiedName());
-        return hasValidationAnnotation;
+        
+        for (AnnotationValue value : annotation.getElementValues().values()) {
+            appendAnnotationImports(currentPackage, imports, value, loaded);
+        }        
     }
 
-    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue, DataTypeInfo validationAnnotation) {
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue, HashSet<String> loaded) {
         Object value = annotationValue.getValue();
         if (value instanceof TypeMirror) {
             DataTypeInfo type = NamesGenerator.createDataTypeFor((TypeMirror) value, true);
@@ -271,11 +283,11 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             DataTypeInfo type = NamesGenerator.createDataTypeFor(variableElement.asType(), true);
             type.appendImports(currentPackage, imports);
         } else if (value instanceof AnnotationMirror) {
-            appendAnnotationImports(currentPackage, imports, (AnnotationMirror) value, validationAnnotation, false);
+            appendAnnotationImports(currentPackage, imports, (AnnotationMirror) value, null, false);
         } else if (value instanceof List) {
             List<? extends AnnotationValue> annotations = (List<? extends AnnotationValue>) value;
             for (AnnotationValue annotation : annotations) {
-                appendAnnotationImports(currentPackage, imports, annotation, validationAnnotation);
+                appendAnnotationImports(currentPackage, imports, annotation, null);
             }
         }
     }
@@ -324,31 +336,42 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void appendFieldBeanValidations(Appendable appender, FieldInfo field) {
+        HashSet<String> loaded = new HashSet<String>();
+        while (field != null) {
+            appendFieldBeanValidations(appender, field, loaded);
+            field = field.getRelated();
+            if (field != null) {
+                DataTypeInfo validationAnnotation = field.getValidationAnnotation();
+                if (validationAnnotation != null) {
+                    loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
+                }
+            }
+        }
+    }
+
+    private void appendFieldBeanValidations(Appendable appender, FieldInfo field, HashSet<String> loaded) {
+        
         VariableElement element = field.getElement();
-        if (element == null) {
-            return;
+        if (element != null) {
+            for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+                DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
+                String qualifiedName = dataType.getQualifiedNameWithoutGenerics();
+                if (!loaded.contains(qualifiedName) && !qualifiedName.startsWith("org.uaithne.annotations.")) {
+                    appendAnnotation(appender, dataType, annotation, "    ", true);
+                    loaded.add(qualifiedName);
+                }
+            }
         }
 
         DataTypeInfo validationAnnotation = field.getValidationAnnotation();
-        boolean hasValidationAnnotation = false;
-        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
-            String packageName = dataType.getPackageName();
-            if (packageName != null && !packageName.startsWith("org.uaithne.")) {
-                appendAnnotation(appender, dataType, annotation, "    ", true);
-            }
-            if (validationAnnotation != null && validationAnnotation.getPrintableQualifiedNameWithoutGenerics().equals(dataType.getQualifiedName())) {
-                hasValidationAnnotation = true;
-            }
-        }
-
-        if (!hasValidationAnnotation && validationAnnotation != null) {
+        if (validationAnnotation != null && !loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
             try {
                 appender.append("    @");
                 appender.append(validationAnnotation.getSimpleName());
                 appender.append("\n");
+                loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
             } catch (IOException ex) {
                 Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
             }
