@@ -23,34 +23,35 @@ import org.uaithne.annotations.sql.CustomSqlQuery;
 
 public class TestCustomSqlQuery implements CustomSqlQuery {
 
-    public String[] query = new String[]{""};
-    public String[] select = new String[]{""};
-    public String[] from = new String[]{""};
+    public String[] query = new String[]{};
+    public String[] select = new String[]{};
+    public String[] from = new String[]{};
     public String tableAlias = "";
-    public String[] where = new String[]{""};
-    public String[] groupBy = new String[]{""};
-    public String[] orderBy = new String[]{""};
-    public String[] beforeQuery = new String[]{""};
-    public String[] afterQuery = new String[]{""};
-    public String[] beforeSelectExpression = new String[]{""};
-    public String[] afterSelectExpression = new String[]{""};
-    public String[] beforeFromExpression = new String[]{""};
-    public String[] afterFromExpression = new String[]{""};
-    public String[] beforeWhereExpression = new String[]{""};
-    public String[] afterWhereExpression = new String[]{""};
-    public String[] beforeGroupByExpression = new String[]{""};
-    public String[] afterGroupByExpression = new String[]{""};
-    public String[] beforeOrderByExpression = new String[]{""};
-    public String[] afterOrderByExpression = new String[]{""};
-    public String[] insertInto = new String[]{""};
-    public String[] beforeInsertIntoExpression = new String[]{""};
-    public String[] afterInsertIntoExpression = new String[]{""};
-    public String[] insertValues = new String[]{""};
-    public String[] beforeInsertValuesExpression = new String[]{""};
-    public String[] afterInsertValuesExpression = new String[]{""};
-    public String[] updateSet = new String[]{""};
-    public String[] beforeUpdateSetExpression = new String[]{""};
-    public String[] afterUpdateSetExpression = new String[]{""};
+    public String[] where = new String[]{};
+    public String[] groupBy = new String[]{};
+    public String[] orderBy = new String[]{};
+    public String[] beforeQuery = new String[]{};
+    public String[] afterQuery = new String[]{};
+    public String[] beforeSelectExpression = new String[]{};
+    public String[] afterSelectExpression = new String[]{};
+    public String[] beforeFromExpression = new String[]{};
+    public String[] afterFromExpression = new String[]{};
+    public String[] beforeWhereExpression = new String[]{};
+    public String[] afterWhereExpression = new String[]{};
+    public String[] beforeGroupByExpression = new String[]{};
+    public String[] afterGroupByExpression = new String[]{};
+    public String[] beforeOrderByExpression = new String[]{};
+    public String[] afterOrderByExpression = new String[]{};
+    public String[] insertInto = new String[]{};
+    public String[] beforeInsertIntoExpression = new String[]{};
+    public String[] afterInsertIntoExpression = new String[]{};
+    public String[] insertValues = new String[]{};
+    public String[] beforeInsertValuesExpression = new String[]{};
+    public String[] afterInsertValuesExpression = new String[]{};
+    public String[] updateSet = new String[]{};
+    public String[] beforeUpdateSetExpression = new String[]{};
+    public String[] afterUpdateSetExpression = new String[]{};
+    public String[] excludeEntityFields = new String[]{};
 
     @Override
     public String[] query() {
@@ -195,5 +196,10 @@ public class TestCustomSqlQuery implements CustomSqlQuery {
     @Override
     public Class<? extends Annotation> annotationType() {
         return CustomSqlQuery.class;
+    }
+
+    @Override
+    public String[] excludeEntityFields() {
+        return excludeEntityFields;
     }
 }

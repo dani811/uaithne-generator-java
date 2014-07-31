@@ -19,9 +19,11 @@
 package org.uaithne.generator.processors.database.sql;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.EntityQueries;
@@ -324,8 +326,17 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     }
 
     public void appendSelectFields(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery) {
+        HashSet<FieldInfo> excludeFields;
+        if (customQuery != null) {
+            excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
+        } else {
+            excludeFields = new HashSet<FieldInfo>(0);
+        }
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
+            if (excludeFields.contains(field)) {
+                continue;
+            }
             if (field.isManually()) {
                 continue;
             }
@@ -688,8 +699,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendTableName(result, entity, customQuery, "    ");
             result.append("\n(");
 
+            HashSet<FieldInfo> excludeFields;
             if (customQuery != null) {
+                excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
                 appendToQueryln(result, customQuery.beforeInsertIntoExpression(), "    ");
+            } else {
+                excludeFields = new HashSet<FieldInfo>(0);
             }
 
             if (customQuery != null && hasQueryValue(customQuery.insertInto())) {
@@ -698,7 +713,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 result.append("\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (!field.isIdentifier()) {
                         continue;
@@ -732,7 +749,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     requireComma = true;
                 }
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isIdentifier()) {
                         continue;
@@ -780,7 +799,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 result.append("\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (!field.isIdentifier()) {
                         continue;
@@ -814,7 +835,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     requireComma = true;
                 }
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isIdentifier()) {
                         continue;
@@ -873,8 +896,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendTableName(result, entity, customQuery, "    ");
             result.append("\nset");
 
+            HashSet<FieldInfo> excludeFields;
             if (customQuery != null) {
+                excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
                 appendToQueryln(result, customQuery.beforeUpdateSetExpression(), "    ");
+            } else {
+                excludeFields = new HashSet<FieldInfo>(0);
             }
 
             if (customQuery != null && hasQueryValue(customQuery.updateSet())) {
@@ -900,7 +927,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     requireComma = true;
                 }
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isUpdateDateMark()) {
                         if (requireComma) {
@@ -956,6 +985,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             EntityInfo entity = operation.getEntity().getCombined();
             StringBuilder result = new StringBuilder();
             if (operation.isUseLogicalDeletion()) {
+                HashSet<FieldInfo> excludeFields;
+                if (customQuery != null) {
+                    excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
+                } else {
+                    excludeFields = new HashSet<FieldInfo>(0);
+                }
                 result.append("update");
                 appendTableName(result, entity, customQuery, "    ");
                 result.append("\nset\n");
@@ -977,7 +1012,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     }
                 }
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isDeleteDateMark()) {
                         if (requireComma) {
@@ -1138,8 +1175,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendTableName(result, entity, customQuery, "    ");
             result.append("\n(");
 
+            HashSet<FieldInfo> excludeFields;
             if (customQuery != null) {
+                excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
                 appendToQueryln(result, customQuery.beforeInsertIntoExpression(), "    ");
+            } else {
+                excludeFields = new HashSet<FieldInfo>(0);
             }
 
             if (customQuery != null && hasQueryValue(customQuery.insertInto())) {
@@ -1148,7 +1189,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 result.append("\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
                         if (requireComma) {
@@ -1223,7 +1266,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 result.append("\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
                         if (requireComma) {
@@ -1334,8 +1379,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendTableName(result, entity, customQuery, "    ");
             result.append("\nset");
 
+            HashSet<FieldInfo> excludeFields;
             if (customQuery != null) {
+                excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
                 appendToQueryln(result, customQuery.beforeUpdateSetExpression(), "    ");
+            } else {
+                excludeFields = new HashSet<FieldInfo>(0);
             }
 
             if (customQuery != null && hasQueryValue(customQuery.updateSet())) {
@@ -1344,7 +1393,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 result.append("\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isIdentifier()) {
                         continue;
@@ -1438,8 +1489,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             result.append("\n");
             appendStartSet(result);
 
+            HashSet<FieldInfo> excludeFields;
             if (customQuery != null) {
+                excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
                 appendToQueryln(result, customQuery.beforeUpdateSetExpression(), "    ");
+            } else {
+                excludeFields = new HashSet<FieldInfo>(0);
             }
 
             if (customQuery != null && hasQueryValue(customQuery.updateSet())) {
@@ -1449,7 +1504,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 boolean requireComma = false;
                 boolean requireEndSetValueIfNotNull = false;
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isIdentifier()) {
                         continue;
@@ -1555,12 +1612,20 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         } else {
             StringBuilder result = new StringBuilder();
             if (entity.isUseLogicalDeletion()) {
+                HashSet<FieldInfo> excludeFields;
+                if (customQuery != null) {
+                    excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
+                } else {
+                    excludeFields = new HashSet<FieldInfo>(0);
+                }
                 result.append("update");
                 appendTableName(result, entity, customQuery, "    ");
                 result.append("\nset\n");
                 boolean requireComma = false;
                 for (FieldInfo field : entity.getFields()) {
-                    if (field.isManually()) {
+                    if (excludeFields.contains(field)) {
+                        continue;
+                    } else if (field.isManually()) {
                         continue;
                     } else if (field.isDeleteDateMark()) {
                         if (requireComma) {
@@ -1914,6 +1979,24 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         matcher.appendTail(result);
         return result.toString();
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Inline query elements managment">
+    public HashSet<FieldInfo> retrieveFieldsForExclude(String[] fields, EntityInfo entity, Element element) {
+        if (fields == null) {
+            return new HashSet<FieldInfo>(0);
+        }
+        HashSet<FieldInfo> result = new HashSet<FieldInfo>(fields.length);
+        for (String s : fields) {
+            FieldInfo field = entity.getFieldByName(s);
+            if (field != null) {
+                result.add(field);
+            } else {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field with name '" + s + "' specified as exclude entity field in the CustomSqlQuery annotation", element);
+            }
+        }
+        return result;
     }
     //</editor-fold>
 }
