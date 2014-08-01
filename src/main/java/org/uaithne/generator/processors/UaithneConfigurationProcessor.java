@@ -78,6 +78,17 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                         generationInfo.setMandatoryValidationAnnotation(mandatoryValidationAnnotation);
                     }
                     
+                    DataTypeInfo mandatoryWithDefaultValueWhenInsertValidationAnnotation;
+                    try {
+                        mandatoryWithDefaultValueWhenInsertValidationAnnotation = NamesGenerator.createResultDataType(configuration.mandatoryWithDefaultValueWhenInsertValidationAnnotation());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        mandatoryWithDefaultValueWhenInsertValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!mandatoryWithDefaultValueWhenInsertValidationAnnotation.isVoid()) {
+                        generationInfo.setMandatoryWithDefaultValueWhenInsertValidationAnnotation(mandatoryWithDefaultValueWhenInsertValidationAnnotation);
+                    }
+                    
                     DataTypeInfo optionalValidationAnnotation;
                     try {
                         optionalValidationAnnotation = NamesGenerator.createResultDataType(configuration.optionalValidationAnnotation());

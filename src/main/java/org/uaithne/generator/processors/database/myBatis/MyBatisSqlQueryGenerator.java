@@ -52,6 +52,7 @@ import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.annotations.sql.JdbcTypes;
 import org.uaithne.generator.commons.DataTypeInfo;
+import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.OperationInfo;
@@ -268,6 +269,36 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     @Override
     public void appendConditionEndIf(StringBuilder result) {
         result.append("{[/if]}");
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Insert selective">
+    @Override
+    public void appendStartInsertColumnIfNotNull(StringBuilder result, FieldInfo field) {
+        appendConditionStartIfNotNull(result, field, "");
+        result.append(getColumnName(field));
+    }
+
+    @Override
+    public void appendEndInsertColumnIfNotNull(StringBuilder result, boolean requireComma) {
+        if (requireComma) {
+            result.append(",");
+        }
+        appendConditionEndIf(result);
+    }
+
+    @Override
+    public void appendStartInsertValueIfNotNull(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
+        appendConditionStartIfNotNull(result, field, "");
+        result.append(getParameterValue(field));
+    }
+
+    @Override
+    public void appendEndInsertValueIfNotNull(StringBuilder result, boolean requireComma) {
+        if (requireComma) {
+            result.append(",");
+        }
+        appendConditionEndIf(result);
     }
     //</editor-fold>
 

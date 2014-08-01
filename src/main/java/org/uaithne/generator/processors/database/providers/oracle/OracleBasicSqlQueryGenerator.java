@@ -19,10 +19,12 @@
 package org.uaithne.generator.processors.database.providers.oracle;
 
 import java.util.ArrayList;
+import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.commons.Utils;
 import org.uaithne.generator.processors.database.sql.BasicSqlQueryGenerator;
 
@@ -158,6 +160,33 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
 
     @Override
     public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+    }
+
+    @Override
+    public void appendStartInsertValueIfNotNull(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
+        String defaultValue = getDefaultValue(entity, field);
+        if (defaultValue == null) {
+            Element element = operation.getElement();
+            if (element == null) {
+                element = entity.getElement();
+            }
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "You must set the way for retrieve the default value rule in the backend configuration", element);
+            return;
+        }
+        result.append(getColumnName(field))
+                .append(" = ")
+                .append("NVL(")
+                .append(getParameterValue(field))
+                .append(", ")
+                .append(defaultValue)
+                .append(")");
+    }
+
+    @Override
+    public void appendEndInsertValueIfNotNull(StringBuilder result, boolean requireComma) {
+        if (requireComma) {
+            result.append(",");
+        }
     }
     
 }

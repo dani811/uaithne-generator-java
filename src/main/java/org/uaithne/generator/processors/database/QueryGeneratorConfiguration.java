@@ -35,6 +35,7 @@ public class QueryGeneratorConfiguration {
     private String name;
     private String callPrefix;
     private HashMap<String, JdbcTypes> customJdbcTypeMap = new HashMap<String, JdbcTypes>(0);
+    private String defaultValue;
 
     public boolean useAutoIncrementId() {
         return useAutoIncrementId;
@@ -135,6 +136,14 @@ public class QueryGeneratorConfiguration {
                 }
             }
         }
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
     
 }

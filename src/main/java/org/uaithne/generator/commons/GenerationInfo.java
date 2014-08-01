@@ -47,6 +47,7 @@ public class GenerationInfo {
     private MyBatisBackendConfiguration[] myBatisBackends;
     private DataTypeInfo idValidationAnnotation;
     private DataTypeInfo mandatoryValidationAnnotation;
+    private DataTypeInfo mandatoryWithDefaultValueWhenInsertValidationAnnotation;
     private DataTypeInfo optionalValidationAnnotation;
     private boolean ignoreIdValidationOnPrimitives = true;
     private boolean ignoreMandatoryValidationOnPrimitives = true;
@@ -281,6 +282,14 @@ public class GenerationInfo {
 
     public void setMandatoryValidationAnnotation(DataTypeInfo mandatoryValidationAnnotation) {
         this.mandatoryValidationAnnotation = mandatoryValidationAnnotation;
+    }
+
+    public DataTypeInfo getMandatoryWithDefaultValueWhenInsertValidationAnnotation() {
+        return mandatoryWithDefaultValueWhenInsertValidationAnnotation;
+    }
+
+    public void setMandatoryWithDefaultValueWhenInsertValidationAnnotation(DataTypeInfo mandatoryWithDefaultValueWhenInsertValidationAnnotation) {
+        this.mandatoryWithDefaultValueWhenInsertValidationAnnotation = mandatoryWithDefaultValueWhenInsertValidationAnnotation;
     }
 
     public DataTypeInfo getOptionalValidationAnnotation() {

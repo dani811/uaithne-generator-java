@@ -46,7 +46,9 @@ import static org.uaithne.annotations.Comparators.SMALL_AS;
 import static org.uaithne.annotations.Comparators.START_WITH;
 import static org.uaithne.annotations.Comparators.START_WITH_INSENSITIVE;
 import org.uaithne.annotations.sql.CustomSqlQuery;
+import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.OperationInfo;
 
 
 public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
@@ -93,6 +95,20 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
     @Override
     public void appendConditionEndIf(StringBuilder result) {
         result.append(")");
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Insert selective">
+    @Override
+    public void appendStartInsertColumnIfNotNull(StringBuilder result, FieldInfo field) {
+        result.append(getColumnName(field));
+    }
+
+    @Override
+    public void appendEndInsertColumnIfNotNull(StringBuilder result, boolean requireComma) {
+        if (requireComma) {
+            result.append(",");
+        }
     }
     //</editor-fold>
 

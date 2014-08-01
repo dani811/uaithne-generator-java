@@ -22,12 +22,10 @@ import java.lang.annotation.Annotation;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.uaithne.annotations.Comparators;
-import org.uaithne.annotations.MappedName;
 import org.uaithne.annotations.Comparator;
 import org.uaithne.annotations.CustomComparator;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
-import org.uaithne.generator.commons.EntityKind;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
 

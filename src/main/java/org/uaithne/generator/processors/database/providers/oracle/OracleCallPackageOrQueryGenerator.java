@@ -18,7 +18,6 @@
  */
 package org.uaithne.generator.processors.database.providers.oracle;
 
-import org.uaithne.generator.processors.database.sql.SqlCallOrQueryGenerator;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.logging.Level;

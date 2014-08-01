@@ -39,6 +39,7 @@ public @interface UaithneConfiguration {
     Class<?> idValidationAnnotation() default Void.class;
     boolean ignoreIdValidationOnPrimitives() default true;
     Class<?> mandatoryValidationAnnotation() default Void.class;
+    Class<?> mandatoryWithDefaultValueWhenInsertValidationAnnotation() default Void.class;
     boolean ignoreMandatoryValidationOnPrimitives() default true;
     Class<?> optionalValidationAnnotation() default Void.class;
     Class<?> insertValueValidationAnnotation() default Void.class;
