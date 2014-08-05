@@ -2027,18 +2027,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             FieldInfo field = operation.getFieldByName(name);
             if (field == null) {
                 if (name != null && name.startsWith("_app.")) {
-                    String parameterName = name.substring(5);
-                    EntityInfo _app = getConfiguration().getApplicationParameter();
-                    if (_app == null) {
-                        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "You must configure the application parameter type in using the @UaithneConfiguration annotation fon allow use it in the query element: " + matcher.group(), operation.getElement());
-                        continue;
-                    }
-                    field = _app.getFieldByName(parameterName);
+                    field = getApplicationParameter(name, matcher, operation);
                     if (field == null) {
-                        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
                         continue;
                     }
-                    field = new FieldInfo(name, field);
                 } else {
                     getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
                     continue;
@@ -2175,6 +2167,22 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         matcher.appendTail(result);
         return result.toString();
+    }
+    
+    public FieldInfo getApplicationParameter(String name, Matcher matcher, OperationInfo operation) {
+        String parameterName = name.substring(5);
+        EntityInfo _app = getConfiguration().getApplicationParameter();
+        if (_app == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "You must configure the application parameter type in using the @UaithneConfiguration annotation fon allow use it in the query element: " + matcher.group(), operation.getElement());
+            return null;
+        }
+        FieldInfo field = _app.getFieldByName(parameterName);
+        if (field == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
+            return null;
+        }
+        field = new FieldInfo(name, field);
+        return field;
     }
     //</editor-fold>
     

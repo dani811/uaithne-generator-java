@@ -26,6 +26,7 @@ import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
 public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGenerator {
 
     private QueryGenerator queryGenerator = new OracleBasicSqlQueryGenerator();
+    private String[] body;
 
     @Override
     public void setConfiguration(QueryGeneratorConfiguration configuration) {
@@ -62,6 +63,62 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         query.append(getFirstLevelIdentation());
         query.append("/");
     }
+    
+    @Override
+    public void appendStartEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getEntityDeleteByIdQuery(entity, operation);
+        super.appendStartEntityDeleteByIdQuery(query, entity, operation);
+    }
+
+    @Override
+    public void appendStartEntityInsertQuery(StringBuilder query, EntityInfo entity, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getEntityInsertQuery(entity, operation);
+        super.appendStartEntityInsertQuery(query, entity, operation);
+    }
+
+    @Override
+    public void appendStartEntityLastInsertedIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getEntityLastInsertedIdQuery(entity, operation, false);
+        super.appendStartEntityLastInsertedIdQuery(query, entity, operation);
+    }
+
+    @Override
+    public void appendStartEntityMergeQuery(StringBuilder query, EntityInfo entity, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getEntityMergeQuery(entity, operation);
+        super.appendStartEntityMergeQuery(query, entity, operation);
+    }
+
+    @Override
+    public void appendStartEntityUpdateQuery(StringBuilder query, EntityInfo entity, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getEntityUpdateQuery(entity, operation);
+        super.appendStartEntityUpdateQuery(query, entity, operation);
+    }
+
+    @Override
+    public void appendStartCustomDeleteQuery(StringBuilder query, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getCustomDeleteQuery(operation);
+        super.appendStartCustomDeleteQuery(query, operation);
+    }
+
+    @Override
+    public void appendStartCustomInsertQuery(StringBuilder query, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getCustomInsertQuery(operation);
+        super.appendStartCustomInsertQuery(query, operation);
+    }
+
+    @Override
+    public void appendStartCustomUpdateQuery(StringBuilder query, OperationInfo operation) {
+        // Compute first the query for load the applications parameters used in the other query generators
+        body = queryGenerator.getCustomUpdateQuery(operation);
+        super.appendStartCustomUpdateQuery(query, operation);
+    }
 
     @Override
     public void appendEndEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation, boolean requireSeparator) {
@@ -74,7 +131,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getEntityDeleteByIdQuery(entity, operation), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");
@@ -93,7 +150,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getEntityInsertQuery(entity, operation), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");
@@ -112,7 +169,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getEntityLastInsertedIdQuery(entity, operation, false), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");
@@ -131,7 +188,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getEntityMergeQuery(entity, operation), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");
@@ -150,7 +207,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getEntityUpdateQuery(entity, operation), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");
@@ -169,7 +226,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getCustomDeleteQuery(operation), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");
@@ -188,7 +245,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getCustomInsertQuery(operation), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");
@@ -207,7 +264,7 @@ public class OracleSqlProcedureGenerator extends OracleSqlAbstractProcedureGener
         }
         query.append(getFirstLevelIdentation());
         query.append("begin\n");
-        appendToQuery(query, queryGenerator.getCustomUpdateQuery(operation), getSecondLevelIdentation());
+        appendToQuery(query, body, getSecondLevelIdentation());
         query.append(";\n");
         query.append(getFirstLevelIdentation());
         query.append("end ");

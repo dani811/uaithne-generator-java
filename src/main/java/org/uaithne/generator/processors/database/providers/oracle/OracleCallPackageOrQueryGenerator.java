@@ -247,9 +247,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getSelectManyQuery(OperationInfo operation) {
         if (useCallForSelect) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getSelectManyQuery(operation);
             String[] header = headerGenerator.getSelectManyQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getSelectManyQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getSelectManyQuery(operation);
         } else {
             return queryGenerator.getSelectManyQuery(operation);
@@ -259,9 +261,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getSelectOneQuery(OperationInfo operation) {
         if (useCallForSelect) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getSelectOneQuery(operation);
             String[] header = headerGenerator.getSelectOneQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getSelectOneQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getSelectOneQuery(operation);
         } else {
             return queryGenerator.getSelectOneQuery(operation);
@@ -271,9 +275,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getSelectCountQuery(OperationInfo operation) {
         if (useCallForSelect) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getSelectCountQuery(operation);
             String[] header = headerGenerator.getSelectCountQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getSelectCountQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getSelectCountQuery(operation);
         } else {
             return queryGenerator.getSelectCountQuery(operation);
@@ -283,9 +289,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getSelectPageCountQuery(OperationInfo operation) {
         if (useCallForSelect) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getSelectPageCountQuery(operation);
             String[] header = headerGenerator.getSelectPageCountQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getSelectPageCountQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getSelectPageCountQuery(operation);
         } else {
             return queryGenerator.getSelectPageCountQuery(operation);
@@ -295,9 +303,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getSelectPageQuery(OperationInfo operation) {
         if (useCallForSelect) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getSelectPageQuery(operation);
             String[] header = headerGenerator.getSelectPageQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getSelectPageQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getSelectPageQuery(operation);
         } else {
             return queryGenerator.getSelectPageQuery(operation);
@@ -307,9 +317,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getEntityDeleteByIdQuery(EntityInfo entity, OperationInfo operation) {
         if (useCallForDelete) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getEntityDeleteByIdQuery(entity, operation);
             String[] header = headerGenerator.getEntityDeleteByIdQuery(entity, operation);
             write(header);
-            writeBody(bodyGenerator.getEntityDeleteByIdQuery(entity, operation));
+            writeBody(procedureBody);
             return callGenerator.getEntityDeleteByIdQuery(entity, operation);
         } else {
             return queryGenerator.getEntityDeleteByIdQuery(entity, operation);
@@ -319,9 +331,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getEntityInsertQuery(EntityInfo entity, OperationInfo operation) {
         if (useCallForInsert) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getEntityInsertQuery(entity, operation);
             String[] header = headerGenerator.getEntityInsertQuery(entity, operation);
             write(header);
-            writeBody(bodyGenerator.getEntityInsertQuery(entity, operation));
+            writeBody(procedureBody);
             return callGenerator.getEntityInsertQuery(entity, operation);
         } else {
             return queryGenerator.getEntityInsertQuery(entity, operation);
@@ -331,9 +345,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getEntityLastInsertedIdQuery(EntityInfo entity, OperationInfo operation, boolean excludeSequenceQuery) {
         if (useCallForGetLastInsertedId) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery);
             String[] header = headerGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery);
             write(header);
-            writeBody(bodyGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery));
+            writeBody(procedureBody);
             return callGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery);
         } else {
             return queryGenerator.getEntityLastInsertedIdQuery(entity, operation, excludeSequenceQuery);
@@ -343,9 +359,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getEntityMergeQuery(EntityInfo entity, OperationInfo operation) {
         if (useCallForUpdate) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getEntityMergeQuery(entity, operation);
             String[] header = headerGenerator.getEntityMergeQuery(entity, operation);
             write(header);
-            writeBody(bodyGenerator.getEntityMergeQuery(entity, operation));
+            writeBody(procedureBody);
             return callGenerator.getEntityMergeQuery(entity, operation);
         } else {
             return queryGenerator.getEntityMergeQuery(entity, operation);
@@ -355,9 +373,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getEntitySelectByIdQuery(EntityInfo entity, OperationInfo operation) {
         if (useCallForSelect) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getEntitySelectByIdQuery(entity, operation);
             String[] header = headerGenerator.getEntitySelectByIdQuery(entity, operation);
             write(header);
-            writeBody(bodyGenerator.getEntitySelectByIdQuery(entity, operation));
+            writeBody(procedureBody);
             return callGenerator.getEntitySelectByIdQuery(entity, operation);
         } else {
             return queryGenerator.getEntitySelectByIdQuery(entity, operation);
@@ -367,9 +387,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getEntityUpdateQuery(EntityInfo entity, OperationInfo operation) {
         if (useCallForUpdate) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getEntityUpdateQuery(entity, operation);
             String[] header = headerGenerator.getEntityUpdateQuery(entity, operation);
             write(header);
-            writeBody(bodyGenerator.getEntityUpdateQuery(entity, operation));
+            writeBody(procedureBody);
             return callGenerator.getEntityUpdateQuery(entity, operation);
         } else {
             return queryGenerator.getEntityUpdateQuery(entity, operation);
@@ -379,9 +401,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getCustomDeleteQuery(OperationInfo operation) {
         if (useCallForDelete) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getCustomDeleteQuery(operation);
             String[] header = headerGenerator.getCustomDeleteQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getCustomDeleteQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getCustomDeleteQuery(operation);
         } else {
             return queryGenerator.getCustomDeleteQuery(operation);
@@ -391,9 +415,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getCustomInsertQuery(OperationInfo operation) {
         if (useCallForInsert) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getCustomInsertQuery(operation);
             String[] header = headerGenerator.getCustomInsertQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getCustomInsertQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getCustomInsertQuery(operation);
         } else {
             return queryGenerator.getCustomInsertQuery(operation);
@@ -403,9 +429,11 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
     @Override
     public String[] getCustomUpdateQuery(OperationInfo operation) {
         if (useCallForUpdate) {
+            // Compute first the query for load the applications parameters used in the other query generators
+            String[] procedureBody = bodyGenerator.getCustomUpdateQuery(operation);
             String[] header = headerGenerator.getCustomUpdateQuery(operation);
             write(header);
-            writeBody(bodyGenerator.getCustomUpdateQuery(operation));
+            writeBody(procedureBody);
             return callGenerator.getCustomUpdateQuery(operation);
         } else {
             return queryGenerator.getCustomUpdateQuery(operation);

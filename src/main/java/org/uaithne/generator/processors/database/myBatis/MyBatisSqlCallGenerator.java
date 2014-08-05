@@ -75,6 +75,15 @@ public abstract class MyBatisSqlCallGenerator extends SqlCallGenerator {
     }
 
     @Override
+    public void appendInApplicationParameter(StringBuilder query, FieldInfo field) {
+        query.append("#{")
+                .append(field.getName())
+                .append(getJdbcTypeAttribute(field))
+                .append(getTypeHandler(field))
+                .append(",mode=IN}");
+    }
+
+    @Override
     public void appendStartEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation) {
         query.append("call ")
                 .append(getNamePrefix())

@@ -18,6 +18,7 @@
  */
 package org.uaithne.generator.processors.database.sql;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.tools.Diagnostic;
 import org.uaithne.generator.commons.EntityInfo;
@@ -45,6 +46,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     public abstract void appendInParameter(StringBuilder query, FieldInfo field);
     public abstract void appendOutParameter(StringBuilder query, FieldInfo field);
     public abstract void appendInOutParameter(StringBuilder query, FieldInfo field);
+    public abstract void appendInApplicationParameter(StringBuilder query, FieldInfo field);
 
 //    TODO: add support for select operations as a procedure call?
 //    public abstract void appendStartSelectManyQuery(StringBuilder query, OperationInfo operation);
@@ -150,6 +152,19 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 requireComma = true;
             }
         }
+        
+        ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
+        if (applicationParameters != null) {
+            for (FieldInfo field : applicationParameters) {
+                if (requireComma) {
+                    appendFieldSeparator(result);
+                } else {
+                    appendFirstFieldSeparator(result);
+                }
+                appendInApplicationParameter(result, field);
+                requireComma = true;
+            }
+        }
 
         appendEndEntityInsertQuery(result, entity, operation, requireComma);
         
@@ -227,6 +242,19 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 requireComma = true;
             }
         }
+        
+        ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
+        if (applicationParameters != null) {
+            for (FieldInfo field : applicationParameters) {
+                if (requireComma) {
+                    appendFieldSeparator(result);
+                } else {
+                    appendFirstFieldSeparator(result);
+                }
+                appendInApplicationParameter(result, field);
+                requireComma = true;
+            }
+        }
 
         appendEndEntityUpdateQuery(result, entity, operation, requireComma);
         
@@ -293,6 +321,19 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 requireComma = true;
             }
         }
+        
+        ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
+        if (applicationParameters != null) {
+            for (FieldInfo field : applicationParameters) {
+                if (requireComma) {
+                    appendFieldSeparator(result);
+                } else {
+                    appendFirstFieldSeparator(result);
+                }
+                appendInApplicationParameter(result, field);
+                requireComma = true;
+            }
+        }
 
         appendEndEntityMergeQuery(result, entity, operation, requireComma);
         
@@ -334,6 +375,20 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 requireComma = true;
             }
         }
+        
+        ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
+        if (applicationParameters != null) {
+            for (FieldInfo field : applicationParameters) {
+                if (requireComma) {
+                    appendFieldSeparator(result);
+                } else {
+                    appendFirstFieldSeparator(result);
+                }
+                appendInApplicationParameter(result, field);
+                requireComma = true;
+            }
+        }
+        
         appendEndEntityDeleteByIdQuery(result, entity, operation, requireComma);
         
         String finalQuery = result.toString();
@@ -429,6 +484,19 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 requireComma = true;
             }
         }
+        
+        ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
+        if (applicationParameters != null) {
+            for (FieldInfo field : applicationParameters) {
+                if (requireComma) {
+                    appendFieldSeparator(result);
+                } else {
+                    appendFirstFieldSeparator(result);
+                }
+                appendInApplicationParameter(result, field);
+                requireComma = true;
+            }
+        }
 
         appendEndCustomInsertQuery(result, operation, requireComma);
         
@@ -469,6 +537,19 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     appendFirstFieldSeparator(result);
                 }
                 appendVersionFieldOnUpdate(result, entity, operation, field);
+                requireComma = true;
+            }
+        }
+        
+        ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
+        if (applicationParameters != null) {
+            for (FieldInfo field : applicationParameters) {
+                if (requireComma) {
+                    appendFieldSeparator(result);
+                } else {
+                    appendFirstFieldSeparator(result);
+                }
+                appendInApplicationParameter(result, field);
                 requireComma = true;
             }
         }
@@ -513,6 +594,19 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                     appendVersionFieldOnDelete(result, entity, operation, field);
                     requireComma = true;
                 }
+            }
+        }
+        
+        ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
+        if (applicationParameters != null) {
+            for (FieldInfo field : applicationParameters) {
+                if (requireComma) {
+                    appendFieldSeparator(result);
+                } else {
+                    appendFirstFieldSeparator(result);
+                }
+                appendInApplicationParameter(result, field);
+                requireComma = true;
             }
         }
 

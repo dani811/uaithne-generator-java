@@ -19,6 +19,7 @@
 package org.uaithne.generator.processors.database.providers.oracle;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.sql.CustomSqlQuery;
@@ -150,6 +151,13 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
 
     @Override
     public String getParameterValue(FieldInfo field) {
+        ArrayList<FieldInfo> applicationParametersUsed = getConfiguration().getUsedApplicationParameters();
+        if (applicationParametersUsed != null && applicationParametersUsed.contains(field)) {
+            if (field.getRelated() != null) {
+                field = field.getRelated();
+            }
+            return "a" + Utils.firstUpper(field.getName());
+        }
         return "p" + Utils.firstUpper(field.getName());
     }
 
@@ -187,6 +195,15 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
         if (requireComma) {
             result.append(",");
         }
+    }
+
+    @Override
+    public FieldInfo getApplicationParameter(String name, Matcher matcher, OperationInfo operation) {
+        FieldInfo result = super.getApplicationParameter(name, matcher, operation);
+        if (result != null) {
+            getConfiguration().addUsedApplicationParameter(result);
+        }
+        return result;
     }
     
 }

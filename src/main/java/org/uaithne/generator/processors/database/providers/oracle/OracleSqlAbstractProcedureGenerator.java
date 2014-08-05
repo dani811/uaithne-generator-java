@@ -152,6 +152,17 @@ public abstract class OracleSqlAbstractProcedureGenerator extends SqlCallGenerat
     }
 
     @Override
+    public void appendInApplicationParameter(StringBuilder query, FieldInfo field) {
+        if (field.getRelated() != null) {
+            field = field.getRelated();
+        }
+        query.append("a")
+                .append(Utils.firstUpper(field.getName()))
+                .append(" ")
+                .append(getDataType(field));
+    }
+
+    @Override
     public void appendStartEntityDeleteByIdQuery(StringBuilder query, EntityInfo entity, OperationInfo operation) {
         appendProcedureDeclaration(query, operation);
     }

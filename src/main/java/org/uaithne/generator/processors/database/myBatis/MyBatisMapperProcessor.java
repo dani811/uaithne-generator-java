@@ -173,6 +173,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         if (entity != null) {
             entity = entity.getCombined();
         }
+        
+        sqlGenerator.getConfiguration().setUsedApplicationParameters(null);
 
         switch (operation.getOperationKind()) {
             case CUSTOM: {
