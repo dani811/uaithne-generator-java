@@ -1978,7 +1978,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             String value = getConditionElementValue(rule, field, customQuery);
             if (value != null) {
                 matcher.appendReplacement(sb, value);
-            } else if ("condition".equals(rule)) {
+            } else if ("condition".equals(rule) || "CONDITION".equals(rule)) {
                 if (condition == null) {
                     Matcher matcherc = comparatorPattern.matcher(comparatorRule);
                     StringBuffer sbc = new StringBuffer(comparatorRule.length());
