@@ -1804,7 +1804,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             }
             
             ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(1);
-            for (FieldInfo field : entity.getFields()) {
+            for (FieldInfo field : operation.getFields()) {
                 if (field.isManually()) {
                 } else if (field.isIdentifier()) {
                     fields.add(field);
