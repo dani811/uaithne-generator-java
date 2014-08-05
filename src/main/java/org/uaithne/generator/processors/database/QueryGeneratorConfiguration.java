@@ -22,6 +22,7 @@ import java.util.HashMap;
 import javax.annotation.processing.ProcessingEnvironment;
 import org.uaithne.annotations.sql.DefaultJdbcType;
 import org.uaithne.annotations.sql.JdbcTypes;
+import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 
 public class QueryGeneratorConfiguration {
@@ -36,6 +37,7 @@ public class QueryGeneratorConfiguration {
     private String callPrefix;
     private HashMap<String, JdbcTypes> customJdbcTypeMap = new HashMap<String, JdbcTypes>(0);
     private String defaultValue;
+    private EntityInfo applicationParameter;
 
     public boolean useAutoIncrementId() {
         return useAutoIncrementId;
@@ -144,6 +146,14 @@ public class QueryGeneratorConfiguration {
 
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public EntityInfo getApplicationParameter() {
+        return applicationParameter;
+    }
+
+    public void setApplicationParameter(EntityInfo applicationParameter) {
+        this.applicationParameter = applicationParameter;
     }
     
 }

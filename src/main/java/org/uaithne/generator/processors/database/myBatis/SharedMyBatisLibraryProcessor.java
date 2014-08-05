@@ -30,6 +30,7 @@ import org.uaithne.annotations.myBatis.SharedMyBatisLibrary;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
+import org.uaithne.generator.templates.shared.myBatis.ApplicationParameterDriverTemplate;
 import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionProviderTemplate;
 import org.uaithne.generator.templates.shared.myBatis.RetainIdPluginTemplate;
@@ -47,6 +48,7 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
 
                 boolean includeRetainIdPlugin = true;
+                boolean includeApplicationParameterDriver = true;
                 SharedMyBatisLibrary sl = element.getAnnotation(SharedMyBatisLibrary.class);
                 if (sl != null) {
                     if (packageName == null || packageName.isEmpty()) {
@@ -55,6 +57,7 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                         DataTypeInfo.updateSharedMyBatisPackage(packageName);
                     }
                     includeRetainIdPlugin = sl.includeRetainIdPlugin();
+                    includeApplicationParameterDriver = sl.includeApplicationParameterDriver();
                     if (!sl.generate()) {
                         continue;
                     }
@@ -65,6 +68,9 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName), element);
                 if (includeRetainIdPlugin) {
                     processClassTemplate(new RetainIdPluginTemplate(packageName), element);
+                }
+                if (includeApplicationParameterDriver) {
+                    processClassTemplate(new ApplicationParameterDriverTemplate(packageName), element);
                 }
             }
         }

@@ -78,8 +78,10 @@ public class EntityProcessor extends TemplateProcessor {
             }
         }
         if (generate) {
-            getGenerationInfo().combineAllEntities(true, processingEnv);
-            for (EntityInfo entity : getGenerationInfo().getEntities()) {
+            GenerationInfo generationInfo = getGenerationInfo();
+            generationInfo.combineAllEntities(true, processingEnv);
+            generationInfo.handleApplicationParameter(processingEnv);
+            for (EntityInfo entity : generationInfo.getEntities()) {
                 processClassTemplate(new EntityTemplate(entity), entity.getElement());
             }
         }

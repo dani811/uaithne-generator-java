@@ -3743,6 +3743,59 @@ public class SqlQueryGeneratorTest {
         assertEquals(expResult, result);
     }
 
+    @Test
+    public void testFinalizeQueryWithApplicationParameter() {
+        String query = "{{_app.myField}}";
+        OperationInfo operation = getOperationForWhere(false);
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        EntityInfo entity = new EntityInfo(DataTypeInfo.HASHMAP_DATA_TYPE, EntityKind.ENTITY);
+        entity.addField(field);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.getConfiguration().setApplicationParameter(entity);
+        String expResult = "parameterValue!_app.myField";
+        String result = instance.finalizeQuery(query, operation, customQuery);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testFinalizeQueryWithApplicationParameterAndInvalidField() {
+        String query = "{{_app.myInvalidField:value}} {{_app.myField:VALUE}}";
+        OperationInfo operation = getOperationForWhere(false);
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        EntityInfo entity = new EntityInfo(DataTypeInfo.HASHMAP_DATA_TYPE, EntityKind.ENTITY);
+        entity.addField(field);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.getConfiguration().setApplicationParameter(entity);
+        String expResult = "{{_app.myInvalidField:value}} parameterValue!_app.myField";
+        String result = instance.finalizeQuery(query, operation, customQuery);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Unable to find the field used in the query element: {{_app.myInvalidField:value}}",
+                operation.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testFinalizeQueryWithApplicationParameterWithoutConfig() {
+        String query = "{{_app.myInvalidField}}";
+        OperationInfo operation = getOperationForWhere(false);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String expResult = "{{_app.myInvalidField}}";
+        String result = instance.finalizeQuery(query, operation, customQuery);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "You must configure the application parameter type in using the @UaithneConfiguration annotation fon allow use it in the query element: {{_app.myInvalidField}}",
+                operation.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+
     public static class SqlQueryGeneratorImpl extends SqlQueryGenerator {
 
         public boolean appendSelectPageAfterWhere;

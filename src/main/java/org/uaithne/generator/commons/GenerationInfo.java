@@ -21,6 +21,7 @@ package org.uaithne.generator.commons;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
@@ -55,6 +56,9 @@ public class GenerationInfo {
     private DataTypeInfo saveValueValidationAnnotation;
     private DataTypeInfo mergeValueValidationAnnotation;
     private DataTypeInfo updateValueValidationAnnotation;
+    private DataTypeInfo applicationParameterType;
+    private EntityInfo applicationParameter;
+    private Element configurationElement;
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
         return entitiesByRealName;
@@ -346,6 +350,39 @@ public class GenerationInfo {
 
     public void setUpdateValueValidationAnnotation(DataTypeInfo updateValueValidationAnnotation) {
         this.updateValueValidationAnnotation = updateValueValidationAnnotation;
+    }
+
+    public DataTypeInfo getApplicationParameterType() {
+        return applicationParameterType;
+    }
+
+    public void setApplicationParameterType(DataTypeInfo applicationParameterType) {
+        this.applicationParameterType = applicationParameterType;
+    }
+
+    public EntityInfo getApplicationParameter() {
+        return applicationParameter;
+    }
+
+    public void setApplicationParameter(EntityInfo applicationParameter) {
+        this.applicationParameter = applicationParameter;
+    }
+
+    public Element getConfigurationElement() {
+        return configurationElement;
+    }
+
+    public void setConfigurationElement(Element configurationElement) {
+        this.configurationElement = configurationElement;
+    }
+    
+    public void handleApplicationParameter(ProcessingEnvironment processingEnv) {
+        if (applicationParameterType != null) {
+            applicationParameter = getEntityByName(applicationParameterType);
+            if (applicationParameter == null) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the application parameter entity", configurationElement);
+            }
+        }
     }
 
 }

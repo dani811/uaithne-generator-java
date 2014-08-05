@@ -28,4 +28,5 @@ import java.lang.annotation.Target;
 public @interface SharedMyBatisLibrary {
     boolean generate() default true;
     boolean includeRetainIdPlugin() default true;
+    boolean includeApplicationParameterDriver() default true;
 }

@@ -2026,8 +2026,23 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             String name = matcher.group(1);
             FieldInfo field = operation.getFieldByName(name);
             if (field == null) {
-                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
-                continue;
+                if (name != null && name.startsWith("_app.")) {
+                    String parameterName = name.substring(5);
+                    EntityInfo _app = getConfiguration().getApplicationParameter();
+                    if (_app == null) {
+                        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "You must configure the application parameter type in using the @UaithneConfiguration annotation fon allow use it in the query element: " + matcher.group(), operation.getElement());
+                        continue;
+                    }
+                    field = _app.getFieldByName(parameterName);
+                    if (field == null) {
+                        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
+                        continue;
+                    }
+                    field = new FieldInfo(name, field);
+                } else {
+                    getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the field used in the query element: " + matcher.group(), operation.getElement());
+                    continue;
+                }
             }
 
             Comparators comparator;
@@ -2058,7 +2073,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 comparatorTemplate = translateComparator(comparator);
                 if (template != null) {
                     template = getConditionComparator(comparatorTemplate, template, field, customQuery);
-                    System.out.println(template);
                     template = finalizeQuery(template, operation, customQuery);
                     matcher.appendReplacement(result, template);
                     continue;

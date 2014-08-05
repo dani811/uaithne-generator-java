@@ -45,6 +45,7 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 UaithneConfiguration configuration = element.getAnnotation(UaithneConfiguration.class);
                 if (configuration != null) {
+                    generationInfo.setConfigurationElement(element);
                     generationInfo.setGenerateDefaultEntityOperations(configuration.enableDefaultEntityOperations());
                     generationInfo.setGenerateJustOperationsEnabled(configuration.enableJustOperations());
                     generationInfo.setGenerateSaveOperationsEnabled(configuration.enableSaveOperations());
@@ -159,6 +160,17 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     
                     if (!entitiesImplementsDataType.isVoid()) {
                         generationInfo.setEntitiesImplements(entitiesImplementsDataType);
+                    }
+                    
+                    DataTypeInfo applicationParameterType;
+                    try {
+                        applicationParameterType = NamesGenerator.createResultDataType(configuration.applicationParameterType());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        applicationParameterType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!applicationParameterType.isVoid()) {
+                        generationInfo.setApplicationParameterType(applicationParameterType);
                     }
                 }
             }

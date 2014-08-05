@@ -46,4 +46,5 @@ public @interface UaithneConfiguration {
     Class<?> saveValueValidationAnnotation() default Void.class;
     Class<?> mergeValueValidationAnnotation() default Void.class;
     Class<?> updateValueValidationAnnotation() default Void.class;
+    Class<?> applicationParameterType() default Void.class;
 }
