@@ -479,7 +479,7 @@ public class SqlQueryGeneratorTest {
                 + "from\n"
                 + "    MyEntity \n"
                 + "where\n"
-                + "    field = parameterValue\n"
+                + "    field = parameterValue!field\n"
                 + "order by";
         String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
         assertEquals(expResult, result);
@@ -519,7 +519,7 @@ public class SqlQueryGeneratorTest {
                 + "from\n"
                 + "    MyEntity \n"
                 + "where\n"
-                + "    field = parameterValue\n"
+                + "    field = parameterValue!field\n"
                 + "order by";
         String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
         assertEquals(expResult, result);
@@ -557,7 +557,7 @@ public class SqlQueryGeneratorTest {
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String expResult = "select asd from zxc \n"
                 + "where\n"
-                + "    field = parameterValue\n"
+                + "    field = parameterValue!field\n"
                 + "order by";
         String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
         assertEquals(expResult, result);
@@ -861,7 +861,7 @@ public class SqlQueryGeneratorTest {
         instance.appendWhere(query, operation, customQuery, count);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
-                + "    normalField = parameterValue\n"
+                + "    normalField = parameterValue!normalField\n"
                 + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
                 + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "</where>");
@@ -878,7 +878,7 @@ public class SqlQueryGeneratorTest {
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    <if test='optionalField != null'>optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
-                + "    and normalField = parameterValue\n"
+                + "    and normalField = parameterValue!normalField\n"
                 + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "</where>");
     }
@@ -894,7 +894,7 @@ public class SqlQueryGeneratorTest {
         instance.appendWhere(query, operation, customQuery, count);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
-                + "    normalField = parameterValue\n"
+                + "    normalField = parameterValue!normalField\n"
                 + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
                 + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "    and rownum = 1\n"
@@ -1000,7 +1000,7 @@ public class SqlQueryGeneratorTest {
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    before \n"
-                + "    normalField = parameterValue\n"
+                + "    normalField = parameterValue!normalField\n"
                 + "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
                 + "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>\n"
                 + "    after \n"
@@ -1052,7 +1052,7 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendCondition(result, field, customQuery);
-        assertEquals("myField &lt; parameterValue", result.toString());
+        assertEquals("myField &lt; parameterValue!myField", result.toString());
     }
 
     @Test
@@ -1390,13 +1390,13 @@ public class SqlQueryGeneratorTest {
             "    insertDateMarkField,",
             "    versionMarkField",
             ") values (",
-            "    parameterValue,",
-            "    parameterValue,",
+            "    parameterValue!idField,",
+            "    parameterValue!idFieldBIS,",
             "    current_timestamp,",
-            "    parameterValue,",
+            "    parameterValue!operationField,",
             "    false,",
             "    current_timestamp,",
-            "    initalVersionValue",
+            "    initalVersionValue!versionMarkField",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
         assertArrayEquals(expResult, result);
@@ -1427,14 +1427,14 @@ public class SqlQueryGeneratorTest {
             "    insertDateMarkField,",
             "    versionMarkField",
             ") values (",
-            "    parameterValue,",
-            "    parameterValue,",
+            "    parameterValue!idField,",
+            "    parameterValue!idFieldBIS,",
             "    current_timestamp,",
-            "    parameterValue,",
-            "    <if test='defaultValue != null'>parameterValue,</if>",
+            "    parameterValue!operationField,",
+            "    <if test='defaultValue != null'>parameterValue!defaultValue,</if>",
             "    false,",
             "    current_timestamp,",
-            "    initalVersionValue",
+            "    initalVersionValue!versionMarkField",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
         assertArrayEquals(expResult, result);
@@ -1461,8 +1461,8 @@ public class SqlQueryGeneratorTest {
             "    idField,",
             "    <if test='defaultValue != null'>defaultValue</if>",
             ") values (",
-            "    parameterValue,",
-            "    <if test='defaultValue != null'>parameterValue</if>",
+            "    parameterValue!idField,",
+            "    <if test='defaultValue != null'>parameterValue!defaultValue</if>",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
         assertArrayEquals(expResult, result);
@@ -1489,8 +1489,8 @@ public class SqlQueryGeneratorTest {
             "    deletionMarkField,",
             "    insertDateMarkField",
             ") values (",
-            "    parameterValue,",
-            "    parameterValue,",
+            "    parameterValue!idField,",
+            "    parameterValue!idFieldBIS,",
             "    current_timestamp,",
             "    false,",
             "    current_timestamp",
@@ -1613,11 +1613,11 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    setValueField1 = parameterValue,",
-            "    setValueField2 = parameterValue,",
+            "    setValueField1 = parameterValue!setValueField1,",
+            "    setValueField2 = parameterValue!setValueField2,",
             "    updateDateMarkField1 = current_timestamp,",
             "    updateDateMarkField2 = current_timestamp,",
-            "    versionMarkField = nextVersion",
+            "    versionMarkField = nextVersion!versionMarkField",
             "where",
             "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
         String[] result = instance.getCustomUpdateQuery(operation);
@@ -1644,8 +1644,8 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    setValueField1 = parameterValue,",
-            "    setValueField2 = parameterValue,",
+            "    setValueField1 = parameterValue!setValueField1,",
+            "    setValueField2 = parameterValue!setValueField2,",
             "    updateDateMarkField1 = current_timestamp,",
             "    updateDateMarkField2 = current_timestamp",
             "where",
@@ -1783,14 +1783,14 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    deleteUserMarkOperationField = parameterValue,",
-            "    deleteUserMarkOperationField2 = parameterValue,",
+            "    deleteUserMarkOperationField = parameterValue!deleteUserMarkOperationField,",
+            "    deleteUserMarkOperationField2 = parameterValue!deleteUserMarkOperationField2,",
             "    deletionMarkField = true,",
             "    deletionMarkFieldBIS = true,",
             "    deleteDateMarkField = current_timestamp,",
-            "    versionMarkField = nextVersion",
+            "    versionMarkField = nextVersion!versionMarkField",
             "where",
-            "    operationField = parameterValue",
+            "    operationField = parameterValue!operationField",
             "    and deletionMarkField = false",
             "    and deletionMarkFieldBIS = false"};
         String[] result = instance.getCustomDeleteQuery(operation);
@@ -1820,13 +1820,13 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    deleteUserMarkOperationField = parameterValue,",
-            "    deleteUserMarkOperationField2 = parameterValue,",
+            "    deleteUserMarkOperationField = parameterValue!deleteUserMarkOperationField,",
+            "    deleteUserMarkOperationField2 = parameterValue!deleteUserMarkOperationField2,",
             "    deletionMarkField = true,",
             "    deletionMarkFieldBIS = true,",
             "    deleteDateMarkField = current_timestamp",
             "where",
-            "    operationField = parameterValue",
+            "    operationField = parameterValue!operationField",
             "    and deletionMarkField = false",
             "    and deletionMarkFieldBIS = false"};
         String[] result = instance.getCustomDeleteQuery(operation);
@@ -1862,13 +1862,13 @@ public class SqlQueryGeneratorTest {
             "    sql",
             "    from ",
             "set",
-            "    deleteUserMarkOperationField = parameterValue,",
-            "    deleteUserMarkOperationField2 = parameterValue,",
+            "    deleteUserMarkOperationField = parameterValue!deleteUserMarkOperationField,",
+            "    deleteUserMarkOperationField2 = parameterValue!deleteUserMarkOperationField2,",
             "    deletionMarkField = true,",
             "    deletionMarkFieldBIS = true,",
             "    deleteDateMarkField = current_timestamp",
             "where",
-            "    operationField = parameterValue",
+            "    operationField = parameterValue!operationField",
             "    and deletionMarkField = false",
             "    and deletionMarkFieldBIS = false"};
         String[] result = instance.getCustomDeleteQuery(operation);
@@ -1888,7 +1888,7 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"delete from",
             "    MyEntity ",
             "where",
-            "    operationField = parameterValue",};
+            "    operationField = parameterValue!operationField",};
         String[] result = instance.getCustomDeleteQuery(operation);
         assertArrayEquals(expResult, result);
     }
@@ -1912,7 +1912,7 @@ public class SqlQueryGeneratorTest {
             "    sql",
             "    from ",
             "where",
-            "    operationField = parameterValue",};
+            "    operationField = parameterValue!operationField",};
         String[] result = instance.getCustomDeleteQuery(operation);
         assertArrayEquals(expResult, result);
     }
@@ -1928,7 +1928,7 @@ public class SqlQueryGeneratorTest {
             "from",
             "    MyEntity ",
             "<where>",
-            "    normalField = parameterValue",
+            "    normalField = parameterValue!normalField",
             "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>",
             "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>",
             "</where>",
@@ -1970,7 +1970,7 @@ public class SqlQueryGeneratorTest {
             "from",
             "    MyEntity ",
             "<where>",
-            "    normalField = parameterValue",
+            "    normalField = parameterValue!normalField",
             "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>",
             "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>",
             "</where>",
@@ -2182,7 +2182,7 @@ public class SqlQueryGeneratorTest {
             "from",
             "    MyEntity ",
             "where",
-            "    identifierField = parameterValue",
+            "    identifierField = parameterValue!id",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntitySelectByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2201,7 +2201,7 @@ public class SqlQueryGeneratorTest {
             "from",
             "    MyEntity ",
             "where",
-            "    identifierField = parameterValue",
+            "    identifierField = parameterValue!id",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntitySelectByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2221,7 +2221,7 @@ public class SqlQueryGeneratorTest {
             "from",
             "    MyEntity ",
             "where",
-            "    identifierField = parameterValue"};
+            "    identifierField = parameterValue!id"};
         String[] result = instance.getEntitySelectByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2302,14 +2302,14 @@ public class SqlQueryGeneratorTest {
             "    insertUserMarkField,",
             "    versionMarkField",
             ") values (",
-            "    parameterValue,",
-            "    parameterValue,",
-            "    parameterValue,",
-            "    <if test='defaultValue != null'>parameterValue,</if>",
+            "    parameterValue!mappedField,",
+            "    parameterValue!idField,",
+            "    parameterValue!field,",
+            "    <if test='defaultValue != null'>parameterValue!defaultValue,</if>",
             "    false,",
             "    current_timestamp,",
-            "    parameterValue,",
-            "    initalVersionValue",
+            "    parameterValue!insertUserMarkField,",
+            "    initalVersionValue!versionMarkField",
             ")"};
         String[] result = instance.getEntityInsertQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2333,13 +2333,13 @@ public class SqlQueryGeneratorTest {
             "    insertDateMarkField,",
             "    insertUserMarkField",
             ") values (",
-            "    parameterValue,",
-            "    parameterValue,",
-            "    parameterValue,",
-            "    <if test='defaultValue != null'>parameterValue,</if>",
+            "    parameterValue!mappedField,",
+            "    parameterValue!idField,",
+            "    parameterValue!field,",
+            "    <if test='defaultValue != null'>parameterValue!defaultValue,</if>",
             "    false,",
             "    current_timestamp,",
-            "    parameterValue",
+            "    parameterValue!insertUserMarkField",
             ")"};
         String[] result = instance.getEntityInsertQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2370,8 +2370,8 @@ public class SqlQueryGeneratorTest {
             "    field,",
             "    <if test='defaultValue != null'>defaultValue</if>",
             ") values (",
-            "    parameterValue,",
-            "    <if test='defaultValue != null'>parameterValue</if>",
+            "    parameterValue!field,",
+            "    <if test='defaultValue != null'>parameterValue!defaultValue</if>",
             ")"};
         String[] result = instance.getEntityInsertQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2489,7 +2489,7 @@ public class SqlQueryGeneratorTest {
         entity.addField(field);
         OperationInfo operation = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String[] expResult = new String[]{"currentValue"};
+        String[] expResult = new String[]{"currentValue!myField"};
         String[] result = instance.getEntityLastInsertedIdQuery(entity, operation, false);
         assertArrayEquals(expResult, result);
     }
@@ -2580,13 +2580,13 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    mappedName = parameterValue,",
-            "    field = parameterValue,",
+            "    mappedName = parameterValue!mappedField,",
+            "    field = parameterValue!field,",
             "    updateDateMarkField = current_timestamp,",
-            "    updateUserMarkField = parameterValue,",
-            "    versionMarkField = nextVersion",
+            "    updateUserMarkField = parameterValue!updateUserMarkField,",
+            "    versionMarkField = nextVersion!versionMarkField",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!idField",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityUpdateQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2601,13 +2601,13 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    mappedName = parameterValue,",
-            "    field = parameterValue,",
+            "    mappedName = parameterValue!mappedField,",
+            "    field = parameterValue!field,",
             "    updateDateMarkField = current_timestamp,",
-            "    updateUserMarkField = parameterValue,",
-            "    versionMarkField = nextVersion",
+            "    updateUserMarkField = parameterValue!updateUserMarkField,",
+            "    versionMarkField = nextVersion!versionMarkField",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!idField",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityUpdateQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2622,12 +2622,12 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    mappedName = parameterValue,",
-            "    field = parameterValue,",
+            "    mappedName = parameterValue!mappedField,",
+            "    field = parameterValue!field,",
             "    updateDateMarkField = current_timestamp,",
-            "    updateUserMarkField = parameterValue",
+            "    updateUserMarkField = parameterValue!updateUserMarkField",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!idField",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityUpdateQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2642,12 +2642,12 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
-            "    mappedName = parameterValue,",
-            "    field = parameterValue,",
+            "    mappedName = parameterValue!mappedField,",
+            "    field = parameterValue!field,",
             "    updateDateMarkField = current_timestamp,",
-            "    updateUserMarkField = parameterValue",
+            "    updateUserMarkField = parameterValue!updateUserMarkField",
             "where",
-            "    idField = parameterValue"};
+            "    idField = parameterValue!idField"};
         String[] result = instance.getEntityUpdateQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2752,18 +2752,18 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "<set>",
-            "    <if test='mappedField != null'>mappedName = parameterValue,</if>",
-            "    <if test='field != null'>field = parameterValue,</if>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    <if test='field != null'>field = parameterValue!field,</if>",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
-            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue,</if>",
-            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue,</if>",
-            "    versionMarkField = nextVersion,",
-            "    versionMarkFieldBIS = nextVersion,",
-            "    <if test='normalField != null'>normalField = parameterValue</if>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    versionMarkField = nextVersion!versionMarkField,",
+            "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField</if>",
             "</set>",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!idField",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityMergeQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2778,18 +2778,18 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "<set>",
-            "    <if test='mappedField != null'>mappedName = parameterValue,</if>",
-            "    <if test='field != null'>field = parameterValue,</if>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    <if test='field != null'>field = parameterValue!field,</if>",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
-            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue,</if>",
-            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue,</if>",
-            "    versionMarkField = nextVersion,",
-            "    versionMarkFieldBIS = nextVersion,",
-            "    <if test='normalField != null'>normalField = parameterValue</if>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    versionMarkField = nextVersion!versionMarkField,",
+            "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField</if>",
             "</set>",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!idField",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityMergeQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2804,16 +2804,16 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "<set>",
-            "    <if test='mappedField != null'>mappedName = parameterValue,</if>",
-            "    <if test='field != null'>field = parameterValue,</if>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    <if test='field != null'>field = parameterValue!field,</if>",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
-            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue,</if>",
-            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue,</if>",
-            "    <if test='normalField != null'>normalField = parameterValue</if>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField</if>",
             "</set>",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!idField",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityMergeQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2828,16 +2828,16 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "<set>",
-            "    <if test='mappedField != null'>mappedName = parameterValue,</if>",
-            "    <if test='field != null'>field = parameterValue,</if>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    <if test='field != null'>field = parameterValue!field,</if>",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
-            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue,</if>",
-            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue,</if>",
-            "    <if test='normalField != null'>normalField = parameterValue</if>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField</if>",
             "</set>",
             "where",
-            "    idField = parameterValue"};
+            "    idField = parameterValue!idField"};
         String[] result = instance.getEntityMergeQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2923,9 +2923,9 @@ public class SqlQueryGeneratorTest {
             "set",
             "    deleteDateMarkField = current_timestamp,",
             "    deletionMarkField = true,",
-            "    versionMarkField = nextVersion",
+            "    versionMarkField = nextVersion!versionMarkField",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!id",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2942,9 +2942,9 @@ public class SqlQueryGeneratorTest {
             "set",
             "    deletionMarkField = true,",
             "    deleteDateMarkField = current_timestamp,",
-            "    versionMarkField = nextVersion",
+            "    versionMarkField = nextVersion!versionMarkField",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!id",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2962,7 +2962,7 @@ public class SqlQueryGeneratorTest {
             "    deleteDateMarkField = current_timestamp,",
             "    deletionMarkField = true",
             "where",
-            "    idField = parameterValue",
+            "    idField = parameterValue!id",
             "    and deletionMarkField = false"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -2977,7 +2977,7 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"delete from",
             "    MyEntity ",
             "where",
-            "    idField = parameterValue"};
+            "    idField = parameterValue!id"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -3251,7 +3251,7 @@ public class SqlQueryGeneratorTest {
         EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
         FieldInfo field = new FieldInfo("myField", DataTypeInfo.LIST_DATA_TYPE);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String[] expResult = new String[]{"currentValue"};
+        String[] expResult = new String[]{"currentValue!myField"};
         String[] result = instance.getIdCurrentValue(entity, field, false);
         assertArrayEquals(expResult, result);
     }
@@ -3275,7 +3275,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         CustomSqlQuery customQuery = null;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        String expResult = "[[unreal]] = parameterValue";
+        String expResult = "[[unreal]] = parameterValue!myField";
         String result = instance.getConditionComparator(comparatorRule, template, field, customQuery);
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
@@ -3293,7 +3293,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         CustomSqlQuery customQuery = null;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        String expResult = "myField = parameterValue customComparator content";
+        String expResult = "myField = parameterValue!myField customComparator content";
         String result = instance.getConditionComparator(comparatorRule, template, field, customQuery);
         assertEquals(expResult, result);
     }
@@ -3301,11 +3301,11 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetConditionComparatorWithConditionComparatorAndUnrealComparatorRule() {
         String comparatorRule = "[[unreal]] = [[value]]";
-        String template = "[[condition]] customComparator content";
+        String template = "[[condition]] customComparator content [[CONDITION]]";
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         CustomSqlQuery customQuery = null;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        String expResult = "[[unreal]] = parameterValue customComparator content";
+        String expResult = "[[unreal]] = parameterValue!myField customComparator content [[unreal]] = parameterValue!myField";
         String result = instance.getConditionComparator(comparatorRule, template, field, customQuery);
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
@@ -3323,7 +3323,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
         CustomSqlQuery customQuery = null;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        String expResult = "myField = parameterValue";
+        String expResult = "myField = parameterValue!myField";
         String result = instance.getConditionComparator(comparatorRule, template, field, customQuery);
         assertEquals(expResult, result);
     }
@@ -3347,7 +3347,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "parameterValue";
+        String expResult = "parameterValue!myField";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
     }
@@ -3360,7 +3360,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "myField = parameterValue myField = parameterValue";
+        String expResult = "myField = parameterValue!myField myField = parameterValue!myField";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
     }
@@ -3437,35 +3437,35 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "parameterValue myField &lt; parameterValue myField &lt; parameterValue\n"
-                + "myField = parameterValue myField = parameterValue myField = parameterValue myField = parameterValue\n"
-                + "myField &lt;&gt; parameterValue myField &lt;&gt; parameterValue myField &lt;&gt; parameterValue myField &lt;&gt; parameterValue\n"
-                + "<if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is null </if>\n"
-                + "<if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue </if> <if test='myField == null'> myField is not null </if>\n"
-                + "<if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is null </if>\n"
-                + "<if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue </if> <if test='myField == null'> myField is not null </if>\n"
-                + "myField &lt; parameterValue myField &lt; parameterValue\n"
-                + "myField &gt; parameterValue myField &gt; parameterValue\n"
-                + "myField &lt;= parameterValue myField &lt;= parameterValue\n"
-                + "myField &gt;= parameterValue myField &gt;= parameterValue\n"
+        String expResult = "parameterValue!myField myField &lt; parameterValue!myField myField &lt; parameterValue!myField\n"
+                + "myField = parameterValue!myField myField = parameterValue!myField myField = parameterValue!myField myField = parameterValue!myField\n"
+                + "myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField\n"
+                + "<if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if>\n"
+                + "<if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if>\n"
+                + "<if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if>\n"
+                + "<if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if>\n"
+                + "myField &lt; parameterValue!myField myField &lt; parameterValue!myField\n"
+                + "myField &gt; parameterValue!myField myField &gt; parameterValue!myField\n"
+                + "myField &lt;= parameterValue!myField myField &lt;= parameterValue!myField\n"
+                + "myField &gt;= parameterValue!myField myField &gt;= parameterValue!myField\n"
                 + "myField in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach> myField in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach>\n"
                 + "myField not in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach> myField not in <foreach collection='myField' open='(' separator=',' close=')' item='_item_myField'> #{_item_myField,jdbcType=INTEGER} </foreach>\n"
-                + "myField like parameterValue myField like parameterValue\n"
-                + "myField not like parameterValue myField not like parameterValue\n"
-                + "lower(myField) like lower(parameterValue) lower(myField) like lower(parameterValue) lower(myField) like lower(parameterValue) lower(myField) like lower(parameterValue)\n"
-                + "lower(myField) not like lower(parameterValue) lower(myField) not like lower(parameterValue) lower(myField) not like lower(parameterValue) lower(myField) not like lower(parameterValue)\n"
-                + "myField like (parameterValue || '%') myField like (parameterValue || '%')\n"
-                + "myField not like (parameterValue || '%') myField not like (parameterValue || '%')\n"
-                + "myField like ('%' || parameterValue) myField like ('%' || parameterValue)\n"
-                + "myField not like ('%' || parameterValue) myField not like ('%' || parameterValue)\n"
-                + "lower(myField) like (lower(parameterValue) || '%') lower(myField) like (lower(parameterValue) || '%') lower(myField) like (lower(parameterValue) || '%') lower(myField) like (lower(parameterValue) || '%')\n"
-                + "lower(myField) not like (lower(parameterValue) || '%') lower(myField) not like (lower(parameterValue) || '%') lower(myField) not like (lower(parameterValue) || '%') lower(myField) not like (lower(parameterValue) || '%')\n"
-                + "lower(myField) like ('%' || lower(parameterValue)) lower(myField) like ('%' || lower(parameterValue)) lower(myField) like ('%' || lower(parameterValue)) lower(myField) like ('%' || lower(parameterValue))\n"
-                + "lower(myField) not like ('%' || lower(parameterValue)) lower(myField) not like ('%' || lower(parameterValue)) lower(myField) not like ('%' || lower(parameterValue)) lower(myField) not like ('%' || lower(parameterValue))\n"
-                + "myField like ('%' || parameterValue || '%') myField like ('%' || parameterValue || '%')\n"
-                + "myField not like ('%' || parameterValue || '%') myField not like ('%' || parameterValue || '%')\n"
-                + "lower(myField) like ('%' || lower(parameterValue) || '%') lower(myField) like ('%' || lower(parameterValue) || '%') lower(myField) like ('%' || lower(parameterValue) || '%') lower(myField) like ('%' || lower(parameterValue) || '%')\n"
-                + "lower(myField) not like ('%' || lower(parameterValue) || '%') lower(myField) not like ('%' || lower(parameterValue) || '%') lower(myField) not like ('%' || lower(parameterValue) || '%') lower(myField) not like ('%' || lower(parameterValue) || '%')";
+                + "myField like parameterValue!myField myField like parameterValue!myField\n"
+                + "myField not like parameterValue!myField myField not like parameterValue!myField\n"
+                + "lower(myField) like lower(parameterValue!myField) lower(myField) like lower(parameterValue!myField) lower(myField) like lower(parameterValue!myField) lower(myField) like lower(parameterValue!myField)\n"
+                + "lower(myField) not like lower(parameterValue!myField) lower(myField) not like lower(parameterValue!myField) lower(myField) not like lower(parameterValue!myField) lower(myField) not like lower(parameterValue!myField)\n"
+                + "myField like (parameterValue!myField || '%') myField like (parameterValue!myField || '%')\n"
+                + "myField not like (parameterValue!myField || '%') myField not like (parameterValue!myField || '%')\n"
+                + "myField like ('%' || parameterValue!myField) myField like ('%' || parameterValue!myField)\n"
+                + "myField not like ('%' || parameterValue!myField) myField not like ('%' || parameterValue!myField)\n"
+                + "lower(myField) like (lower(parameterValue!myField) || '%') lower(myField) like (lower(parameterValue!myField) || '%') lower(myField) like (lower(parameterValue!myField) || '%') lower(myField) like (lower(parameterValue!myField) || '%')\n"
+                + "lower(myField) not like (lower(parameterValue!myField) || '%') lower(myField) not like (lower(parameterValue!myField) || '%') lower(myField) not like (lower(parameterValue!myField) || '%') lower(myField) not like (lower(parameterValue!myField) || '%')\n"
+                + "lower(myField) like ('%' || lower(parameterValue!myField)) lower(myField) like ('%' || lower(parameterValue!myField)) lower(myField) like ('%' || lower(parameterValue!myField)) lower(myField) like ('%' || lower(parameterValue!myField))\n"
+                + "lower(myField) not like ('%' || lower(parameterValue!myField)) lower(myField) not like ('%' || lower(parameterValue!myField)) lower(myField) not like ('%' || lower(parameterValue!myField)) lower(myField) not like ('%' || lower(parameterValue!myField))\n"
+                + "myField like ('%' || parameterValue!myField || '%') myField like ('%' || parameterValue!myField || '%')\n"
+                + "myField not like ('%' || parameterValue!myField || '%') myField not like ('%' || parameterValue!myField || '%')\n"
+                + "lower(myField) like ('%' || lower(parameterValue!myField) || '%') lower(myField) like ('%' || lower(parameterValue!myField) || '%') lower(myField) like ('%' || lower(parameterValue!myField) || '%') lower(myField) like ('%' || lower(parameterValue!myField) || '%')\n"
+                + "lower(myField) not like ('%' || lower(parameterValue!myField) || '%') lower(myField) not like ('%' || lower(parameterValue!myField) || '%') lower(myField) not like ('%' || lower(parameterValue!myField) || '%') lower(myField) not like ('%' || lower(parameterValue!myField) || '%')";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
     }
@@ -3478,7 +3478,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "my custom comparator parameterValue my custom comparator parameterValue";
+        String expResult = "my custom comparator parameterValue!myField my custom comparator parameterValue!myField";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
     }
@@ -3491,7 +3491,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "myField = parameterValue myField = parameterValue";
+        String expResult = "myField = parameterValue!myField myField = parameterValue!myField";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
     }
@@ -3516,7 +3516,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(field);
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String expResult = "myField = parameterValue myField = parameterValue";
+        String expResult = "myField = parameterValue!myField myField = parameterValue!myField";
         String result = instance.finalizeQuery(query, operation, customQuery);
         assertEquals(expResult, result);
     }
@@ -3676,7 +3676,7 @@ public class SqlQueryGeneratorTest {
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         String expResult = "myField myField\n"
                 + "myField myField\n"
-                + "parameterValue parameterValue\n"
+                + "parameterValue!myField parameterValue!myField\n"
                 + ",jdbcType=INTEGER ,jdbcType=INTEGER\n"
                 + ",typeHandler=java.lang.Integer ,typeHandler=java.lang.Integer";
         String result = instance.finalizeQuery(query, operation, customQuery);
@@ -4032,17 +4032,17 @@ public class SqlQueryGeneratorTest {
 
         @Override
         public void appendInitialVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
-            result.append("initalVersionValue");
+            result.append("initalVersionValue!" ).append(field.getName());
         }
 
         @Override
         public void appendNextVersionValue(StringBuilder result, EntityInfo entity, FieldInfo field) {
-            result.append("nextVersion");
+            result.append("nextVersion!").append(field.getName());
         }
 
         @Override
         public String getParameterValue(FieldInfo field) {
-            return "parameterValue";
+            return "parameterValue!" + field.getName();
         }
 
         @Override
@@ -4052,7 +4052,7 @@ public class SqlQueryGeneratorTest {
 
         @Override
         public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
-            return new String[]{"currentValue"};
+            return new String[]{"currentValue!" + field.getName()};
         }
 
         public SqlQueryGeneratorImpl() {
