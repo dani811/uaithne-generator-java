@@ -978,6 +978,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 result.append("\n");
                 boolean requireComma = false;
                 boolean hasSetValueFields = false;
+                boolean requireEndSetValueIfNotNull = false;
                 for (FieldInfo field : operation.getFields()) {
                     if (field.isManually()) {
                         continue;
@@ -985,13 +986,22 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         continue;
                     }
                     hasSetValueFields = true;
-                    if (requireComma) {
+                    if (requireEndSetValueIfNotNull) {
+                        appendEndSetValueIfNotNull(result, requireComma);
+                        result.append("\n");
+                        requireEndSetValueIfNotNull = false;
+                    } else if (requireComma) {
                         result.append(",\n");
                     }
                     result.append("    ");
-                    result.append(getColumnName(field));
-                    result.append(" = ");
-                    result.append(getParameterValue(field));
+                    if (field.isIgnoreWhenNull()) {
+                        appendStartSetValueIfNotNull(result, field);
+                        requireEndSetValueIfNotNull = true;
+                    } else {
+                        result.append(getColumnName(field));
+                        result.append(" = ");
+                        result.append(getParameterValue(field));
+                    }
                     requireComma = true;
                 }
                 for (FieldInfo field : entity.getFields()) {
@@ -1000,7 +1010,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else if (field.isManually()) {
                         continue;
                     } else if (field.isUpdateDateMark()) {
-                        if (requireComma) {
+                        if (requireEndSetValueIfNotNull) {
+                            appendEndSetValueIfNotNull(result, requireComma);
+                            result.append("\n");
+                            requireEndSetValueIfNotNull = false;
+                        } else if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -1021,6 +1035,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         appendNextVersionValue(result, entity, field);
                         requireComma = true;
                     }
+                }
+                
+                if (requireEndSetValueIfNotNull) {
+                    appendEndSetValueIfNotNull(result, false);
                 }
                 
                 if (!hasSetValueFields) {

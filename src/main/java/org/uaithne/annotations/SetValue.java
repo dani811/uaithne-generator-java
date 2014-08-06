@@ -26,4 +26,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
 public @interface SetValue {
+    boolean ignoreWhenNull() default false;
 }

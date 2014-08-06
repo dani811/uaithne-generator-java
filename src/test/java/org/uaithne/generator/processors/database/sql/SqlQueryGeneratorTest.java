@@ -1607,6 +1607,10 @@ public class SqlQueryGeneratorTest {
         FieldInfo setValueField2 = new FieldInfo("setValueField2", DataTypeInfo.LIST_DATA_TYPE);
         setValueField2.setSetValueMark(true);
         operation.addField(setValueField2);
+        FieldInfo setValueField3 = new FieldInfo("setValueField3", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField3.setSetValueMark(true);
+        setValueField3.setIgnoreWhenNull(true);
+        operation.addField(setValueField3);
 
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = true;
@@ -1615,9 +1619,45 @@ public class SqlQueryGeneratorTest {
             "set",
             "    setValueField1 = parameterValue!setValueField1,",
             "    setValueField2 = parameterValue!setValueField2,",
+            "    <if test='setValueField3 != null'>setValueField3 = parameterValue!setValueField3,</if>",
             "    updateDateMarkField1 = current_timestamp,",
             "    updateDateMarkField2 = current_timestamp,",
             "    versionMarkField = nextVersion!versionMarkField",
+            "where",
+            "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
+        String[] result = instance.getCustomUpdateQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetCustomUpdateQuery2() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        operation.setEntity(entity);
+
+        FieldInfo manuallyOperationField = new FieldInfo("manuallyOperationField", DataTypeInfo.LIST_DATA_TYPE);
+        manuallyOperationField.setManually(true);
+        operation.addField(manuallyOperationField);
+        operation.addField(new FieldInfo("operationField", DataTypeInfo.LIST_DATA_TYPE.of(DataTypeInfo.BOXED_INT_DATA_TYPE)));
+        FieldInfo setValueField1 = new FieldInfo("setValueField1", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField1.setSetValueMark(true);
+        operation.addField(setValueField1);
+        FieldInfo setValueField2 = new FieldInfo("setValueField2", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField2.setSetValueMark(true);
+        operation.addField(setValueField2);
+        FieldInfo setValueField3 = new FieldInfo("setValueField3", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField3.setSetValueMark(true);
+        setValueField3.setIgnoreWhenNull(true);
+        operation.addField(setValueField3);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "set",
+            "    setValueField1 = parameterValue!setValueField1,",
+            "    setValueField2 = parameterValue!setValueField2,",
+            "    <if test='setValueField3 != null'>setValueField3 = parameterValue!setValueField3</if>",
             "where",
             "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
         String[] result = instance.getCustomUpdateQuery(operation);
