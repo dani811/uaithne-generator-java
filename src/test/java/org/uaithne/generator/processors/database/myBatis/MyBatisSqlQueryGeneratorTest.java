@@ -20,6 +20,7 @@ package org.uaithne.generator.processors.database.myBatis;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import javax.tools.Diagnostic;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.uaithne.annotations.Comparators;
@@ -28,6 +29,9 @@ import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
+import org.uaithne.generator.utils.MessageContent;
+import org.uaithne.generator.utils.ProcessingEnviromentImpl;
 import org.uaithne.generator.utils.TestCustomSqlQuery;
 
 public class MyBatisSqlQueryGeneratorTest {
@@ -253,12 +257,74 @@ public class MyBatisSqlQueryGeneratorTest {
         return field;
     }
 
+    private FieldInfo getFieldWithValueWhenNull() {
+        FieldInfo field = new FieldInfo("myFieldWithNull", new DataTypeInfo("int"));
+        field.setValueWhenNull("valueWhenNullForMyFieldWithNull");
+        field.addAnnotation(new MyBatisTypeHandler() {
+            @Override
+            public Class<?> value() {
+                return Integer.class;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MyBatisTypeHandler.class;
+            }
+        });
+        return field;
+    }
+
+    private FieldInfo getFieldWithIngoneFromObjectAndValueWhenNull() {
+        FieldInfo field = new FieldInfo("myFieldOnlySql", new DataTypeInfo("int"));
+        field.setValueWhenNull("valueWhenNullForMyFieldOnlySql");
+        field.setExcludedFromObject(true);
+        field.addAnnotation(new MyBatisTypeHandler() {
+            @Override
+            public Class<?> value() {
+                return Integer.class;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MyBatisTypeHandler.class;
+            }
+        });
+        return field;
+    }
+
     @Test
     public void testGetParameterValue() {
         FieldInfo field = getFieldWithTypeHandler();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         String expResult = "#{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer}";
         String result = instance.getParameterValue(field);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetParameterValue2() {
+        FieldInfo field = getFieldWithValueWhenNull();
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "{[if test='myFieldWithNull != null']} #{myFieldWithNull,jdbcType=INTEGER,typeHandler=java.lang.Integer} {[/if]} {[if test='myFieldWithNull == null']} valueWhenNullForMyFieldWithNull {[/if]}";
+        String result = instance.getParameterValue(field);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetParameterValue3() {
+        FieldInfo field = getFieldWithIngoneFromObjectAndValueWhenNull();
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "valueWhenNullForMyFieldOnlySql";
+        String result = instance.getParameterValue(field);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetParameterValueWithIgnoreValueWhenNull() {
+        FieldInfo field = getFieldWithValueWhenNull();
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{myFieldWithNull,jdbcType=INTEGER,typeHandler=java.lang.Integer}";
+        String result = instance.getParameterValue(field, true);
         assertEquals(expResult, result);
     }
 
@@ -513,6 +579,144 @@ public class MyBatisSqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetConditionElementValueWithValueRule2() {
+        FieldInfo field = getFieldWithValueWhenNull();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "value";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "{[if test='myFieldWithNull != null']} #{myFieldWithNull,jdbcType=INTEGER,typeHandler=java.lang.Integer} {[/if]} {[if test='myFieldWithNull == null']} valueWhenNullForMyFieldWithNull {[/if]} {[if test='myFieldWithNull != null']} #{myFieldWithNull,jdbcType=INTEGER,typeHandler=java.lang.Integer} {[/if]} {[if test='myFieldWithNull == null']} valueWhenNullForMyFieldWithNull {[/if]}";
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
+    public void testGetConditionElementValueWithValueRule3() {
+        FieldInfo field = getFieldWithIngoneFromObjectAndValueWhenNull();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "value";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "valueWhenNullForMyFieldOnlySql valueWhenNullForMyFieldOnlySql";
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
+    public void testGetConditionElementValueNullableWithValueRule() {
+        FieldInfo field = getFieldWithTypeHandler();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "valueNullable";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE_NULLABLE";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "#{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer} #{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer}";
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
+    public void testGetConditionElementValueNullableWithValueRule2() {
+        FieldInfo field = getFieldWithValueWhenNull();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "valueNullable";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE_NULLABLE";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "#{myFieldWithNull,jdbcType=INTEGER,typeHandler=java.lang.Integer} #{myFieldWithNull,jdbcType=INTEGER,typeHandler=java.lang.Integer}";
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
+    public void testGetConditionElementValueNullableWithValueRule3() {
+        FieldInfo field = getFieldWithIngoneFromObjectAndValueWhenNull();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGeneratorImpl instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "valueNullable";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE_NULLABLE";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "FIELD_NOT_PRESENT_IN_OBJECT FIELD_NOT_PRESENT_IN_OBJECT";
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "The field 'myFieldOnlySql' is not present in the object, you cannot access to the inexistent property value using valueNullable",
+                field.getElement()));
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "The field 'myFieldOnlySql' is not present in the object, you cannot access to the inexistent property value using valueNullable",
+                field.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
+    public void testGetConditionElementValueWhenNullWithValueRule() {
+        FieldInfo field = getFieldWithTypeHandler();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGeneratorImpl instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "valueWhenNull";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE_WHEN_NULL";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "UNKOWN_DEFAULT_VALUE UNKOWN_DEFAULT_VALUE";
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "The field 'myField' has no defined value when null, use @ValueWhenNull annotation for define one",
+                field.getElement()));
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "The field 'myField' has no defined value when null, use @ValueWhenNull annotation for define one",
+                field.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
+    public void testGetConditionElementValueWhenNullWithValueRul2() {
+        FieldInfo field = getFieldWithValueWhenNull();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGeneratorImpl instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "valueWhenNull";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE_WHEN_NULL";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "valueWhenNullForMyFieldWithNull valueWhenNullForMyFieldWithNull";
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
+    public void testGetConditionElementValueWhenNullWithValueRul3() {
+        FieldInfo field = getFieldWithIngoneFromObjectAndValueWhenNull();
+        CustomSqlQuery customQuery = null;
+        MyBatisSqlQueryGeneratorImpl instance = new MyBatisSqlQueryGeneratorImpl();
+        String rule = "valueWhenNull";
+        StringBuilder result = new StringBuilder();
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        result.append(" ");
+        rule = "VALUE_WHEN_NULL";
+        result.append(instance.getConditionElementValue(rule, field, customQuery));
+        String expResult = "valueWhenNullForMyFieldOnlySql valueWhenNullForMyFieldOnlySql";
+        assertEquals(expResult, result.toString());
+    }
+
+    @Test
     public void testGetConditionElementValueWithJdbcTypeRule() {
         FieldInfo field = getFieldWithTypeHandler();
         CustomSqlQuery customQuery = null;
@@ -654,5 +858,17 @@ public class MyBatisSqlQueryGeneratorTest {
         public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
             throw new UnsupportedOperationException("No needed for test.");
         }
+
+        @Override
+        public ProcessingEnviromentImpl getProcessingEnv() {
+            return (ProcessingEnviromentImpl) super.getProcessingEnv();
+        }
+
+        public MyBatisSqlQueryGeneratorImpl() {
+            QueryGeneratorConfiguration config = new QueryGeneratorConfiguration();
+            config.setProcessingEnv(new ProcessingEnviromentImpl());
+            setConfiguration(config);
+        }
+        
     }
 }

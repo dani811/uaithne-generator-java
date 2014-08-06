@@ -171,8 +171,19 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
 
     //<editor-fold defaultstate="collapsed" desc="Parameter">
     @Override
-    public String getParameterValue(FieldInfo field) {
-        return "#{" + field.getName() + getJdbcTypeAttribute(field) + getTypeHandler(field) + "}";
+    public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull) {
+        if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
+            return "#{" + field.getName() + getJdbcTypeAttribute(field) + getTypeHandler(field) + "}";
+        } else if (field.isExcludedFromObject()) {
+            return field.getValueWhenNull();
+        } else {
+            return "{[if test='" + field.getName() + " != null']} " + 
+                "#{" + field.getName() + getJdbcTypeAttribute(field) + getTypeHandler(field) + "} " +
+                "{[/if]} " + 
+                "{[if test='" + field.getName() + " == null']} " + 
+                field.getValueWhenNull()+ " " +
+                "{[/if]}";
+        }
     }
     
     public String getJdbcTypeAttribute(FieldInfo field) {
@@ -358,6 +369,19 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             return getJdbcTypeAttribute(field);
         } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
             return getTypeHandler(field);
+        } else if ("valueNullable".equals(rule) || "VALUE_NULLABLE".equals(rule)) {
+            if (field.isExcludedFromObject()) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' is not present in the object, you cannot access to the inexistent property value using valueNullable", field.getElement());
+                return "FIELD_NOT_PRESENT_IN_OBJECT";
+            }
+            return getParameterValue(field, true);
+        } else if ("valueWhenNull".equals(rule) || "VALUE_WHEN_NULL".equals(rule)) {
+            String result = field.getValueWhenNull();
+            if (result == null) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' has no defined value when null, use @ValueWhenNull annotation for define one", field.getElement());
+                return "UNKOWN_DEFAULT_VALUE";
+            }
+            return result;
         } else {
             return null;
         }

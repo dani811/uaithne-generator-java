@@ -150,15 +150,24 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
-    public String getParameterValue(FieldInfo field) {
+    public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull) {
+        String name;
         ArrayList<FieldInfo> applicationParametersUsed = getConfiguration().getUsedApplicationParameters();
         if (applicationParametersUsed != null && applicationParametersUsed.contains(field)) {
             if (field.getRelated() != null) {
                 field = field.getRelated();
             }
-            return "a" + Utils.firstUpper(field.getName());
+            name = "a" + Utils.firstUpper(field.getName());
+        } else {
+            name = "p" + Utils.firstUpper(field.getName());
         }
-        return "p" + Utils.firstUpper(field.getName());
+        if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
+            return name;
+        } else if (field.isExcludedFromObject()) {
+            return field.getValueWhenNull();
+        } else {
+            return "NVL(" + name + ", " + field.getValueWhenNull() + ")";
+        }
     }
 
     @Override

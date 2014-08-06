@@ -18,6 +18,7 @@
  */
 package org.uaithne.generator.processors.database.sql;
 
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.Comparators;
 import static org.uaithne.annotations.Comparators.CONTAINS;
 import static org.uaithne.annotations.Comparators.CONTAINS_INSENSITIVE;
@@ -46,9 +47,7 @@ import static org.uaithne.annotations.Comparators.SMALL_AS;
 import static org.uaithne.annotations.Comparators.START_WITH;
 import static org.uaithne.annotations.Comparators.START_WITH_INSENSITIVE;
 import org.uaithne.annotations.sql.CustomSqlQuery;
-import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
-import org.uaithne.generator.commons.OperationInfo;
 
 
 public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
@@ -164,6 +163,19 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
             return field.getName();
         } else if ("value".equals(rule) || "VALUE".equals(rule)) {
             return getParameterValue(field);
+        } else if ("valueNullable".equals(rule) || "VALUE_NULLABLE".equals(rule)) {
+            if (field.isExcludedFromObject()) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' is not present in the object, you cannot access to the inexistent property value using valueNullable", field.getElement());
+                return "FIELD_NOT_PRESENT_IN_OBJECT";
+            }
+            return getParameterValue(field, true);
+        } else if ("valueWhenNull".equals(rule) || "VALUE_WHEN_NULL".equals(rule)) {
+            String result = field.getValueWhenNull();
+            if (result == null) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' has no defined value when null, use @ValueWhenNull annotation for define one", field.getElement());
+                return "UNKOWN_DEFAULT_VALUE";
+            }
+            return result;
         } else {
             return null;
         }

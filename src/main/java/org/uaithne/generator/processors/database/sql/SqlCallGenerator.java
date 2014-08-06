@@ -100,6 +100,8 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
+            } else if (field.isExcludedFromObject()) {
+                continue;
             } else if (field.isInsertDateMark()) {
                 continue;
             } else if (field.isIdentifier()) {
@@ -156,6 +158,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
         if (applicationParameters != null) {
             for (FieldInfo field : applicationParameters) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (requireComma) {
                     appendFieldSeparator(result);
                 } else {
@@ -193,6 +198,8 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
+            } else if (field.isExcludedFromObject()) {
+                continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
                     appendFieldSeparator(result);
@@ -246,6 +253,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
         if (applicationParameters != null) {
             for (FieldInfo field : applicationParameters) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (requireComma) {
                     appendFieldSeparator(result);
                 } else {
@@ -272,6 +282,8 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
                 continue;
+            } else if (field.isExcludedFromObject()) {
+                continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
                     appendFieldSeparator(result);
@@ -325,6 +337,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
         if (applicationParameters != null) {
             for (FieldInfo field : applicationParameters) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (requireComma) {
                     appendFieldSeparator(result);
                 } else {
@@ -350,6 +365,8 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
             if (field.isManually()) {
+                continue;
+            } else if (field.isExcludedFromObject()) {
                 continue;
             } else if (field.isIdentifier()) {
                 if (requireComma) {
@@ -379,6 +396,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
         if (applicationParameters != null) {
             for (FieldInfo field : applicationParameters) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (requireComma) {
                     appendFieldSeparator(result);
                 } else {
@@ -442,6 +462,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
                 if (field.isManually()) {
                     continue;
                 }
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (!field.isIdentifier()) {
                     continue;
                 }
@@ -458,6 +481,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             if (field.isManually()) {
                 continue;
             }
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             if (requireComma) {
                 appendFieldSeparator(result);
             } else {
@@ -466,28 +492,32 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             appendInParameter(result, field);
             requireComma = true;
         }
-        for (FieldInfo field : entity.getFields()) {
-            if (field.isManually()) {
-                continue;
-            } else if (field.isIdentifier()) {
-                continue;
-            } else if (field.isVersionMark()) {
-                if (!handleVersionFieldOnInsert()) {
+        if (handleVersionFieldOnInsert()) {
+            for (FieldInfo field : entity.getFields()) {
+                if (field.isManually()) {
                     continue;
+                } else if (field.isExcludedFromObject()) {
+                    continue;
+                } else if (field.isIdentifier()) {
+                    continue;
+                } else if (field.isVersionMark()) {
+                    if (requireComma) {
+                        appendFieldSeparator(result);
+                    } else {
+                        appendFirstFieldSeparator(result);
+                    }
+                    appendVersionFieldOnInsert(result, entity, operation, field);
+                    requireComma = true;
                 }
-                if (requireComma) {
-                    appendFieldSeparator(result);
-                } else {
-                    appendFirstFieldSeparator(result);
-                }
-                appendVersionFieldOnInsert(result, entity, operation, field);
-                requireComma = true;
             }
         }
         
         ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
         if (applicationParameters != null) {
             for (FieldInfo field : applicationParameters) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (requireComma) {
                     appendFieldSeparator(result);
                 } else {
@@ -516,6 +546,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             if (field.isManually()) {
                 continue;
             }
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             if (requireComma) {
                 appendFieldSeparator(result);
             } else {
@@ -524,26 +557,30 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             appendInParameter(result, field);
             requireComma = true;
         }
-        for (FieldInfo field : entity.getFields()) {
-            if (field.isManually()) {
-                continue;
-            } else if (field.isVersionMark()) {
-                if (!handleVersionFieldOnUpdate()) {
+        if (handleVersionFieldOnUpdate()) {
+            for (FieldInfo field : entity.getFields()) {
+                if (field.isManually()) {
                     continue;
+                } else if (field.isExcludedFromObject()) {
+                    continue;
+                } else if (field.isVersionMark()) {
+                    if (requireComma) {
+                        appendFieldSeparator(result);
+                    } else {
+                        appendFirstFieldSeparator(result);
+                    }
+                    appendVersionFieldOnUpdate(result, entity, operation, field);
+                    requireComma = true;
                 }
-                if (requireComma) {
-                    appendFieldSeparator(result);
-                } else {
-                    appendFirstFieldSeparator(result);
-                }
-                appendVersionFieldOnUpdate(result, entity, operation, field);
-                requireComma = true;
             }
         }
         
         ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
         if (applicationParameters != null) {
             for (FieldInfo field : applicationParameters) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (requireComma) {
                     appendFieldSeparator(result);
                 } else {
@@ -573,6 +610,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             if (field.isManually()) {
                 continue;
             }
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             if (requireComma) {
                 appendFieldSeparator(result);
             } else {
@@ -584,6 +624,8 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         if (handleVersionFieldOnDelete()) {
             for (FieldInfo field : entity.getFields()) {
                 if (field.isManually()) {
+                    continue;
+                } else if (field.isExcludedFromObject()) {
                     continue;
                 } else if (field.isVersionMark()) {
                     if (requireComma) {
@@ -600,6 +642,9 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         ArrayList<FieldInfo> applicationParameters = getConfiguration().getUsedApplicationParameters();
         if (applicationParameters != null) {
             for (FieldInfo field : applicationParameters) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
                 if (requireComma) {
                     appendFieldSeparator(result);
                 } else {

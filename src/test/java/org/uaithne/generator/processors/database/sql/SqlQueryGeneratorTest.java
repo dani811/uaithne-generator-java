@@ -2677,6 +2677,8 @@ public class SqlQueryGeneratorTest {
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
+        FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull", DataTypeInfo.INT_DATA_TYPE);
+        fieldWithValueWhenNull.setValueWhenNull("WithValueWhenNullValue");
         FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
         field5.setDeletionMark(true);
         FieldInfo field6 = new FieldInfo("insertDateMarkField", new DataTypeInfo("java.util", "Date"));
@@ -2708,8 +2710,10 @@ public class SqlQueryGeneratorTest {
         if (changeOrder) {
             entity.addField(field5);
             entity.addField(field4);
+            entity.addField(fieldWithValueWhenNull);
         } else {
             entity.addField(field4);
+            entity.addField(fieldWithValueWhenNull);
             entity.addField(field5);
         }
         entity.addField(field6);
@@ -2754,6 +2758,7 @@ public class SqlQueryGeneratorTest {
             "<set>",
             "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
             "    <if test='field != null'>field = parameterValue!field,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
             "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
@@ -2761,6 +2766,37 @@ public class SqlQueryGeneratorTest {
             "    versionMarkField = nextVersion!versionMarkField,",
             "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
             "    <if test='normalField != null'>normalField = parameterValue!normalField</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityMergeQueryWithValueWhenNull() {
+        EntityInfo entity = getEntityForMergeQuery(false);
+        FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull2", DataTypeInfo.INT_DATA_TYPE);
+        fieldWithValueWhenNull.setValueWhenNull("WithValueWhenNullValue2");
+        entity.addField(fieldWithValueWhenNull);
+        OperationInfo operation = getEntityMergeOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    <if test='field != null'>field = parameterValue!field,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateDateMarkFieldBIS = current_timestamp,",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    versionMarkField = nextVersion!versionMarkField,",
+            "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField,</if>",
+            "    fieldWithValueWhenNull2 = parameterValueAndWhenNull!fieldWithValueWhenNull2!WithValueWhenNullValue2",
             "</set>",
             "where",
             "    idField = parameterValue!idField",
@@ -2780,6 +2816,7 @@ public class SqlQueryGeneratorTest {
             "<set>",
             "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
             "    <if test='field != null'>field = parameterValue!field,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
             "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
@@ -2806,6 +2843,7 @@ public class SqlQueryGeneratorTest {
             "<set>",
             "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
             "    <if test='field != null'>field = parameterValue!field,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
             "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
@@ -2830,6 +2868,7 @@ public class SqlQueryGeneratorTest {
             "<set>",
             "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
             "    <if test='field != null'>field = parameterValue!field,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
             "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
@@ -3973,6 +4012,19 @@ public class SqlQueryGeneratorTest {
                 return getJdbcTypeAttribute(field);
             } else if ("typeHandler".equals(rule) || "TYPE_HANDLER".equals(rule)) {
                 return getTypeHandler(field);
+            } else if ("valueNullable".equals(rule) || "VALUE_NULLABLE".equals(rule)) {
+                return getParameterValue(field, true);
+            } else if ("valueWhenNull".equals(rule) || "VALUE_WHEN_NULL".equals(rule)) {
+                if (field.isExcludedFromObject()) {
+                    return "FIELD_NOT_PRESENT_IN_OBJECT";
+                }
+                return getParameterValue(field, true);
+            } else if ("valueWhenNull".equals(rule) || "VALUE_WHEN_NULL".equals(rule)) {
+                String result = field.getValueWhenNull();
+                if (result == null) {
+                    return "UNKOWN_DEFAULT_VALUE";
+                }
+                return result;
             } else {
                 return null;
             }
@@ -4094,8 +4146,14 @@ public class SqlQueryGeneratorTest {
         }
 
         @Override
-        public String getParameterValue(FieldInfo field) {
-            return "parameterValue!" + field.getName();
+        public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull) {
+            if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
+                return "parameterValue!" + field.getName();
+            } else if (field.isExcludedFromObject()) {
+                return "parameterValueWhenNull!" + field.getName() + "!" + field.getValueWhenNull();
+            } else {
+                return "parameterValueAndWhenNull!" + field.getName() + "!" + field.getValueWhenNull();
+            }
         }
 
         @Override
