@@ -2065,6 +2065,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     continue;
                 }
             }
+            
+            if (field.isManuallyProgrammatically()) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' is marked as not available in the sql, you cannot use in the query element: " + matcher.group(), operation.getElement());
+                continue;
+            }
 
             Comparators comparator;
             String comparatorTemplate;

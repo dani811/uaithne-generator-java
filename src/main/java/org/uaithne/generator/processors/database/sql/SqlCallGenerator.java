@@ -98,7 +98,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
-            if (field.isManually()) {
+            if (field.isManuallyProgrammatically()) {
                 continue;
             } else if (field.isExcludedFromObject()) {
                 continue;
@@ -196,7 +196,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
-            if (field.isManually()) {
+            if (field.isManuallyProgrammatically()) {
                 continue;
             } else if (field.isExcludedFromObject()) {
                 continue;
@@ -280,7 +280,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
-            if (field.isManually()) {
+            if (field.isManuallyProgrammatically()) {
                 continue;
             } else if (field.isExcludedFromObject()) {
                 continue;
@@ -364,7 +364,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
 
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
-            if (field.isManually()) {
+            if (field.isManuallyProgrammatically()) {
                 continue;
             } else if (field.isExcludedFromObject()) {
                 continue;
@@ -459,7 +459,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         boolean requireComma = false;
         if (includeIdOnInsert()) {
             for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
+                if (field.isManuallyProgrammatically()) {
                     continue;
                 }
                 if (field.isExcludedFromObject()) {
@@ -478,7 +478,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
             }
         }
         for (FieldInfo field : operation.getFields()) {
-            if (field.isManually()) {
+            if (field.isManuallyProgrammatically()) {
                 continue;
             }
             if (field.isExcludedFromObject()) {
@@ -494,7 +494,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         }
         if (handleVersionFieldOnInsert()) {
             for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
+                if (field.isManuallyProgrammatically()) {
                     continue;
                 } else if (field.isExcludedFromObject()) {
                     continue;
@@ -543,7 +543,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
 
         boolean requireComma = false;
         for (FieldInfo field : operation.getFields()) {
-            if (field.isManually()) {
+            if (field.isManuallyProgrammatically()) {
                 continue;
             }
             if (field.isExcludedFromObject()) {
@@ -559,7 +559,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         }
         if (handleVersionFieldOnUpdate()) {
             for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
+                if (field.isManuallyProgrammatically()) {
                     continue;
                 } else if (field.isExcludedFromObject()) {
                     continue;
@@ -607,7 +607,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         boolean requireComma = false;
         List<FieldInfo> fields = operation.getFields();
         for (FieldInfo field : fields) {
-            if (field.isManually()) {
+            if (field.isManuallyProgrammatically()) {
                 continue;
             }
             if (field.isExcludedFromObject()) {
@@ -623,7 +623,7 @@ public abstract class SqlCallGenerator extends SqlGenerator {
         }
         if (handleVersionFieldOnDelete()) {
             for (FieldInfo field : entity.getFields()) {
-                if (field.isManually()) {
+                if (field.isManuallyProgrammatically()) {
                     continue;
                 } else if (field.isExcludedFromObject()) {
                     continue;

@@ -52,6 +52,7 @@ public class FieldInfo {
     private boolean deletionMark;
     private boolean versionMark;
     private boolean manually;
+    private boolean manuallyProgrammatically;
     private FieldInfo related;
     private boolean deprecated;
     private boolean excludedFromConstructor;
@@ -405,6 +406,22 @@ public class FieldInfo {
         this.manually = manually;
     }
 
+    public boolean isManuallyProgrammatically() {
+        if (!manuallyProgrammatically) {
+            if (related != null) {
+                return related.isManuallyProgrammatically();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void setManuallyProgrammatically(boolean manuallyProgrammatically) {
+        this.manuallyProgrammatically = manuallyProgrammatically;
+    }
+
     public FieldInfo getRelated() {
         return related;
     }
@@ -558,7 +575,12 @@ public class FieldInfo {
             sb.append(value[value.length - 1]);
             mappedName = sb.toString();
         }
-        manually = element.getAnnotation(Manually.class) != null;
+        
+        Manually m = element.getAnnotation(Manually.class);
+        if (m != null) {
+            manually = true;
+            manuallyProgrammatically = m.onlyProgrammatically();
+        };
         
         ValueWhenNull whenNull = element.getAnnotation(ValueWhenNull.class);
         if (whenNull != null) {
@@ -663,6 +685,7 @@ public class FieldInfo {
         deletionMark = fieldInfo.deletionMark;
         versionMark = fieldInfo.versionMark;
         manually = fieldInfo.manually;
+        manuallyProgrammatically = fieldInfo.manuallyProgrammatically;
         related = fieldInfo;
         deprecated = fieldInfo.deprecated;
         excludedFromConstructor = fieldInfo.excludedFromConstructor;
@@ -701,6 +724,7 @@ public class FieldInfo {
         deletionMark = fieldInfo.deletionMark;
         versionMark = fieldInfo.versionMark;
         manually = fieldInfo.manually;
+        manuallyProgrammatically = fieldInfo.manuallyProgrammatically;
         related = fieldInfo.related;
         deprecated = fieldInfo.deprecated;
         excludedFromConstructor = fieldInfo.excludedFromConstructor;

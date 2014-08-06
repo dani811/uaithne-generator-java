@@ -1014,6 +1014,9 @@ public class SqlQueryGeneratorTest {
         field1.setSetValueMark(true);
         FieldInfo field2 = new FieldInfo("manuallyField", new DataTypeInfo("Integer"));
         field2.setManually(true);
+        FieldInfo fieldManuallyProgrammatically = new FieldInfo("manuallyProgrammaticallyField", new DataTypeInfo("Integer"));
+        fieldManuallyProgrammatically.setManually(true);
+        fieldManuallyProgrammatically.setManuallyProgrammatically(true);
         FieldInfo field3 = new FieldInfo("orderByField", new DataTypeInfo("Integer"));
         field3.setOrderBy(true);
         FieldInfo field4 = new FieldInfo("normalField", new DataTypeInfo("Integer"));
@@ -1022,6 +1025,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field6 = new FieldInfo("listField", DataTypeInfo.LIST_DATA_TYPE.of(DataTypeInfo.BOXED_INT_DATA_TYPE));
         operation.addField(field1);
         operation.addField(field2);
+        operation.addField(fieldManuallyProgrammatically);
         operation.addField(field3);
         if (reverseOptional) {
             operation.addField(field5);
@@ -3787,6 +3791,36 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
                 "Unable to find the field used in the query element: {{myInvalidField:column}}",
+                operation.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testFinalizeQueryWithManuallyProgrammaticallyField() {
+        String query = "{{manuallyProgrammaticallyField:column}} {{myField:COLUMN}}";
+        OperationInfo operation = getOperationForWhere(false);
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        field.addAnnotation(new MyBatisTypeHandler() {
+            @Override
+            public Class<?> value() {
+                return Integer.class;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MyBatisTypeHandler.class;
+            }
+        });
+        operation.addField(field);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String expResult = "{{manuallyProgrammaticallyField:column}} myField";
+        String result = instance.finalizeQuery(query, operation, customQuery);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "The field 'manuallyProgrammaticallyField' is marked as not available in the sql, you cannot use in the query element: {{manuallyProgrammaticallyField:column}}",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
