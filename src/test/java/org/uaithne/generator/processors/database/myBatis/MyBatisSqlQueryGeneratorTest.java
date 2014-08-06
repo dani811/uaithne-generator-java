@@ -92,6 +92,24 @@ public class MyBatisSqlQueryGeneratorTest {
     }
 
     @Test
+    public void testAppendOrderByWithCustomQueryWithCustomAfterOrderBy() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = getOrderBys(true);
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.afterOrderByExpression = new String[]{"after", "expression"};
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderBy(result, orderBys, customQuery);
+        assertEquals("\n"
+                + "order by\n"
+                + "    {[trim prefix='' suffix='' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
+                + "    ${normalField}\n"
+                + "    {[/trim]}\n"
+                + "    after\n"
+                + "    expression ", result.toString());
+    }
+
+    @Test
     public void testAppendOrderByWithCustomQueryWithoutCustomOrderBy() {
         StringBuilder result = new StringBuilder();
         ArrayList<FieldInfo> orderBys = getOrderBys(true);
@@ -754,6 +772,14 @@ public class MyBatisSqlQueryGeneratorTest {
         String rule = "undefinedRule";
         String result = instance.getConditionElementValue(rule, field, customQuery);
         String expResult = null;
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testFinalizeQuery() {
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String result = instance.finalizeQuery("a<b>c{[d]}e", null, null);
+        String expResult = "a&lt;b&gt;c<d>e";
         assertEquals(expResult, result);
     }
 

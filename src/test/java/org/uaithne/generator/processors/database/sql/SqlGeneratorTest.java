@@ -24,10 +24,14 @@ import static org.junit.Assert.*;
 import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.Comparator;
 import org.uaithne.annotations.CustomComparator;
+import org.uaithne.annotations.sql.JdbcType;
+import org.uaithne.annotations.sql.JdbcTypes;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
+import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
+import org.uaithne.generator.utils.ProcessingEnviromentImpl;
 
 public class SqlGeneratorTest {
 
@@ -237,8 +241,63 @@ public class SqlGeneratorTest {
         boolean result = instance.hasQueryValue(array);
         assertEquals(expResult, result);
     }
+    
+    @Test
+    public void testGetJdbcType() {
+        FieldInfo field = new FieldInfo("field", DataTypeInfo.BOOLEAN_DATA_TYPE);
+        SqlGenerator instance = new SqlGeneratorImpl();
+        JdbcTypes type = instance.getJdbcType(field);
+        assertEquals(JdbcTypes.BOOLEAN, type);
+    }
+    
+    @Test
+    public void testGetJdbcType2() {
+        DataTypeInfo dataType = new DataTypeInfo(DataTypeInfo.DOUBLE_DATA_TYPE);
+        dataType.setIsEnum(true);
+        FieldInfo field = new FieldInfo("field", dataType);
+        SqlGenerator instance = new SqlGeneratorImpl();
+        JdbcTypes type = instance.getJdbcType(field);
+        assertEquals(JdbcTypes.INTEGER, type);
+    }
+    
+    @Test
+    public void testGetJdbcType3() {
+        DataTypeInfo dataType = new DataTypeInfo("MyType");
+        FieldInfo field = new FieldInfo("field", dataType);
+        SqlGenerator instance = new SqlGeneratorImpl();
+        JdbcTypes type = instance.getJdbcType(field);
+        assertEquals(JdbcTypes.ARRAY, type);
+    }
+    
+    @Test
+    public void testGetJdbcType4() {
+        DataTypeInfo dataType = new DataTypeInfo(DataTypeInfo.DOUBLE_DATA_TYPE);
+        FieldInfo field = new FieldInfo("field", dataType);
+        field.addAnnotation(new JdbcType() {
+
+            @Override
+            public JdbcTypes value() {
+                return JdbcTypes.CLOB;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return JdbcType.class;
+            }
+        });
+        SqlGenerator instance = new SqlGeneratorImpl();
+        JdbcTypes type = instance.getJdbcType(field);
+        assertEquals(JdbcTypes.CLOB, type);
+    }
 
     public class SqlGeneratorImpl extends SqlGenerator {
+
+        public SqlGeneratorImpl() {
+            QueryGeneratorConfiguration config = new QueryGeneratorConfiguration();
+            config.setProcessingEnv(new ProcessingEnviromentImpl());
+            config.getCustomJdbcTypeMap().put("MyType", JdbcTypes.ARRAY);
+            setConfiguration(config);
+        }
 
         @Override
         public String[] getSelectManyQuery(OperationInfo operation) {

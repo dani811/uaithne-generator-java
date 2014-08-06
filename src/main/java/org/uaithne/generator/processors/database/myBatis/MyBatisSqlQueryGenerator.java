@@ -94,7 +94,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         for (FieldInfo orderBy : orderBys) {
             optional = optional || orderBy.isOptional();
         }
-        boolean firstOptional = orderBys.size() >=1 && orderBys.get(0).isOptional();
+        boolean firstOptional = orderBys.get(0).isOptional();
         
         if (!optional || !firstOptional || orderBys.size() <= 1) {
             boolean hasOnlyOne = orderBys.size() == 1;
