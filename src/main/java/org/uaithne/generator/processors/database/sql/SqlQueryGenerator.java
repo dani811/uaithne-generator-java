@@ -683,7 +683,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendToQueryln(result, customQuery.beforeFromExpression(), prefix);
             String[] from = customQuery.from();
             if (hasQueryValue(from)) {
-                appendToQueryln(result, from, "    ");
+                appendToQueryln(result, from, prefix);
             } else {
                 appendToQueryln(result, getTableName(entity, customQuery), prefix);
             }
@@ -1374,6 +1374,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             }
 
+            if (customQuery != null) {
+                appendToQueryln(result, customQuery.afterInsertIntoExpression(), "    ");
+            }
+
             result.append("\n) values (");
 
             if (customQuery != null) {
@@ -1777,7 +1781,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             finalQuery = joinln(query.value());
         } else {
             StringBuilder result = new StringBuilder();
-            if (entity.isUseLogicalDeletion()) {
+            if (operation.isUseLogicalDeletion()) {
                 HashSet<FieldInfo> excludeFields;
                 if (customQuery != null) {
                     excludeFields = retrieveFieldsForExclude(customQuery.excludeEntityFields(), entity, operation.getElement());
@@ -1864,6 +1868,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else {
                 template = getConfiguration().getIdSecuenceNameTemplate();
             }
+        }
+        if (template == null || template.isEmpty()) {
+            return null;
         }
         Matcher matcher = idSecuenceNameTemplatePattern.matcher(template);
         StringBuffer sb = new StringBuffer(template.length());
@@ -2138,9 +2145,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 } else if ("!=".equals(rule) || "<>".equals(rule) || "notEqual".equals(rule) || "NOT_EQUAL".equals(rule)) {
                     comparator = Comparators.NOT_EQUAL;
                 } else if ("i=".equals(rule) || "i==".equals(rule) || "I=".equals(rule) || "I==".equals(rule) || "iequal".equals(rule) || "IEQUAL".equals(rule) || "equalInsensitive".equals(rule) || "EQUAL_INSENSITIVE".equals(rule)) {
-                    comparator = Comparators.EQUAL;
+                    comparator = Comparators.EQUAL_INSENSITIVE;
                 } else if ("i!=".equals(rule) || "i<>".equals(rule) || "I!=".equals(rule) || "I<>".equals(rule) || "inotEqual".equals(rule) || "INOT_EQUAL".equals(rule) || "notEqualInsensitive".equals(rule) || "NOT_EQUAL_INSENSITIVE".equals(rule)) {
-                    comparator = Comparators.NOT_EQUAL;
+                    comparator = Comparators.NOT_EQUAL_INSENSITIVE;
                 } else if ("=?".equals(rule) || "==?".equals(rule) || "equalNullable".equals(rule) || "EQUAL_NULLABLE".equals(rule)) {
                     comparator = Comparators.EQUAL_NULLABLE;
                 } else if ("=!?".equals(rule) || "==!?".equals(rule) || "equalNotNullable".equals(rule) || "EQUAL_NOT_NULLABLE".equals(rule)) {

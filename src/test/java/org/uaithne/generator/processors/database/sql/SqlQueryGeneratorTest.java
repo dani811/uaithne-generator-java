@@ -21,6 +21,7 @@ package org.uaithne.generator.processors.database.sql;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
@@ -62,6 +63,7 @@ import org.uaithne.annotations.PageQueries;
 import org.uaithne.annotations.Query;
 import org.uaithne.annotations.Comparator;
 import org.uaithne.annotations.CustomComparator;
+import org.uaithne.annotations.IdSequenceName;
 import org.uaithne.annotations.myBatis.MyBatisTypeHandler;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.annotations.sql.JdbcTypes;
@@ -662,6 +664,92 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testCompleteQueryNoSelect() {
+        String query = null;
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        boolean count = false;
+        boolean selectPage = false;
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String expResult = ""; // the current implementation retunr "", but can be change for null
+        String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
+                operation.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testCompleteQueryNoFrom() {
+        String query = null;
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        boolean count = false;
+        boolean selectPage = false;
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.select = new String[]{"select"};
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String expResult = ""; // the current implementation retunr "", but can be change for null
+        String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
+                operation.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testCompleteQueryNoEntityOrderByMissing() {
+        String query = null;
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        field.setOrderBy(true);
+        operation.addField(field);
+        boolean count = false;
+        boolean selectPage = false;
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.select = new String[]{"select"};
+        customQuery.from = new String[]{"from"};
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String expResult = ""; // the current implementation retunr "", but can be change for null
+        String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Unable to automatically complete the query for this operation, enter the full query manually using Query annotation or specify the related entity",
+                operation.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testCompleteQueryNoEntityOrdered() {
+        String query = null;
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        operation.addField(field);
+        boolean count = false;
+        boolean selectPage = false;
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.select = new String[]{"select"};
+        customQuery.from = new String[]{"from"};
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String expResult = "select\n" +
+            "    select \n" +
+            "from\n" +
+            "    from \n" +
+            "where\n" +
+            "    myField = parameterValue!myField\n" +
+            "order by";
+        String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
+        assertEquals(expResult, result);
+    }
+
+    @Test
     public void testAppendSelectCount() {
         StringBuilder result = new StringBuilder();
         OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
@@ -670,6 +758,20 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendSelect(result, operation, entity, count, customQuery);
+        assertEquals("select\n"
+                + "    count(*)", result.toString());
+    }
+
+    @Test
+    public void testAppendSelectCountWithCustomSqlQuery() {
+        StringBuilder result = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        TestCustomSqlQuery customQuery = getCustomSqlQuery();
+        operation.addAnnotation(customQuery);
+        EntityInfo entity = null;
+        boolean count = true;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendSelect(result, operation, entity, count, customQuery, false);
         assertEquals("select\n"
                 + "    count(*)", result.toString());
     }
@@ -771,6 +873,19 @@ public class SqlQueryGeneratorTest {
         instance.appendSelectFields(result, operation, entity, count, customQuery);
         assertEquals("\n    mappedName as \"mappedField\",\n"
                 + "    field", result.toString());
+    }
+
+    @Test
+    public void testAppendSelectFieldsWithExcludes() {
+        StringBuilder result = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.INT_DATA_TYPE);
+        EntityInfo entity = getEntityForSelect();
+        boolean count = false;
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"mappedField"};
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendSelectFields(result, operation, entity, count, customQuery);
+        assertEquals("\n    field", result.toString());
     }
 
     private EntityInfo getEntityForSelect() {
@@ -1182,6 +1297,20 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetTableNameWithRelated() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        EntityInfo entity2 = new EntityInfo(new DataTypeInfo("MyEntity2"), EntityKind.ENTITY);
+        EntityInfo entity3 = new EntityInfo(new DataTypeInfo("MyEntity3"), EntityKind.ENTITY);
+        entity2.setRelated(entity);
+        entity3.setRelated(entity2);
+        CustomSqlQuery customQuery = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"MyEntity"};
+        String[] result = instance.getTableName(entity3, customQuery);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
     public void testGetTableNameWithCustomQuery() {
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
         TestCustomSqlQuery customQuery = getCustomSqlQuery();
@@ -1399,6 +1528,38 @@ public class SqlQueryGeneratorTest {
             "    current_timestamp,",
             "    parameterValue!operationField,",
             "    false,",
+            "    current_timestamp,",
+            "    initalVersionValue!versionMarkField",
+            ")"};
+        String[] result = instance.getCustomInsertQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetCustomInsertQueryWithExcludes() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setEntity(getEntityForCustomInsertQuery());
+        FieldInfo manuallyOperationField = new FieldInfo("manuallyOperationField", DataTypeInfo.LIST_DATA_TYPE);
+        manuallyOperationField.setManually(true);
+        operation.addField(manuallyOperationField);
+        operation.addField(new FieldInfo("operationField", DataTypeInfo.LIST_DATA_TYPE));
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"idFieldBIS", "deletionMarkField"};
+        operation.addAnnotation(customQuery);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnInsert = true;
+        String[] expResult = new String[]{"insert into",
+            "    MyEntity ",
+            "(",
+            "    idField,",
+            "    idFieldInsertDateMark,",
+            "    operationField,",
+            "    insertDateMarkField,",
+            "    versionMarkField",
+            ") values (",
+            "    parameterValue!idField,",
+            "    current_timestamp,",
+            "    parameterValue!operationField,",
             "    current_timestamp,",
             "    initalVersionValue!versionMarkField",
             ")"};
@@ -1669,6 +1830,45 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetCustomUpdateQueryWithExcludes() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setEntity(getEntityForCustomUpdateQuery());
+
+        FieldInfo manuallyOperationField = new FieldInfo("manuallyOperationField", DataTypeInfo.LIST_DATA_TYPE);
+        manuallyOperationField.setManually(true);
+        operation.addField(manuallyOperationField);
+        operation.addField(new FieldInfo("operationField", DataTypeInfo.LIST_DATA_TYPE.of(DataTypeInfo.BOXED_INT_DATA_TYPE)));
+        FieldInfo setValueField1 = new FieldInfo("setValueField1", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField1.setSetValueMark(true);
+        operation.addField(setValueField1);
+        FieldInfo setValueField2 = new FieldInfo("setValueField2", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField2.setSetValueMark(true);
+        operation.addField(setValueField2);
+        FieldInfo setValueField3 = new FieldInfo("setValueField3", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField3.setSetValueMark(true);
+        setValueField3.setIgnoreWhenNull(true);
+        operation.addField(setValueField3);
+        
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"updateDateMarkField1", "versionMarkField"};
+        operation.addAnnotation(customQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "set",
+            "    setValueField1 = parameterValue!setValueField1,",
+            "    setValueField2 = parameterValue!setValueField2,",
+            "    <if test='setValueField3 != null'>setValueField3 = parameterValue!setValueField3,</if>",
+            "    updateDateMarkField2 = current_timestamp",
+            "where",
+            "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
+        String[] result = instance.getCustomUpdateQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
     public void testGetCustomUpdateQueryWithoutHandleVersionFieldOnUpdate() {
         OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
         operation.setEntity(getEntityForCustomUpdateQuery());
@@ -1842,6 +2042,46 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetCustomDeleteQueryUsingLogicalDeletionWithExcludes() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setEntity(getEntityForCustomDeleteQuery());
+
+        FieldInfo operationField1 = new FieldInfo("manuallyOperationField", new DataTypeInfo("Integer"));
+        operationField1.setManually(true);
+        FieldInfo operationField2 = new FieldInfo("operationField", new DataTypeInfo("Integer"));
+        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("Boolean"));
+        operationField3.setSetValueMark(true);
+        operationField3.setDeleteUserMark(true);
+        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("Boolean"));
+        operationField4.setSetValueMark(true);
+        operationField4.setDeleteUserMark(true);
+        operation.addField(operationField1);
+        operation.addField(operationField2);
+        operation.addField(operationField3);
+        operation.addField(operationField4);
+        
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"versionMarkField", "deletionMarkField"};
+        operation.addAnnotation(customQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnDelete = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "set",
+            "    deleteUserMarkOperationField = parameterValue!deleteUserMarkOperationField,",
+            "    deleteUserMarkOperationField2 = parameterValue!deleteUserMarkOperationField2,",
+            "    deletionMarkFieldBIS = true,",
+            "    deleteDateMarkField = current_timestamp",
+            "where",
+            "    operationField = parameterValue!operationField",
+            "    and deletionMarkField = false",
+            "    and deletionMarkFieldBIS = false"};
+        String[] result = instance.getCustomDeleteQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
     public void testGetCustomDeleteQueryUsingLogicalDeletionWithoutHandlingVersionFieldOnDelete() {
         OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
         operation.setEntity(getEntityForCustomDeleteQuery());
@@ -1958,6 +2198,47 @@ public class SqlQueryGeneratorTest {
             "where",
             "    operationField = parameterValue!operationField",};
         String[] result = instance.getCustomDeleteQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetSelectCountQuery() {
+        OperationInfo operation = getOperationForWhere(false);
+        operation.setEntity(getEntityForSelect());
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"select",
+            "    count(*)",
+            "from",
+            "    MyEntity ",
+            "<where>",
+            "    normalField = parameterValue!normalField",
+            "    <if test='optionalField != null'>and optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>",
+            "    and listField in <foreach collection='listField' open='(' separator=',' close=')' item='_item_listField'> #{_item_listField,jdbcType=INTEGER} </foreach>",
+            "</where>"
+        };
+        String[] result = instance.getSelectCountQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetSelectCountQueryWithQueryAnnotation() {
+        OperationInfo operation = getOperationForWhere(false);
+        operation.setEntity(getEntityForSelect());
+        operation.addAnnotation(new Query() {
+            @Override
+            public String[] value() {
+                return new String[]{"query", "value"};
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Query.class;
+            }
+        });
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"query",
+            "value"};
+        String[] result = instance.getSelectCountQuery(operation);
         assertArrayEquals(expResult, result);
     }
 
@@ -2309,6 +2590,28 @@ public class SqlQueryGeneratorTest {
         String[] result = instance.getEntitySelectByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
+
+    @Test
+    public void testGetEntitySelectByIdQueryWithQueryAnnotation() {
+        EntityInfo entity = getEntityForSelectByIdQuery(false);
+        OperationInfo operation = getEntitySelectByIdOperation(entity);
+        operation.addAnnotation(new Query() {
+            @Override
+            public String[] value() {
+                return new String[]{"query", "value"};
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Query.class;
+            }
+        });
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"query",
+            "value"};
+        String[] result = instance.getEntitySelectByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
     
     private OperationInfo getEntityInsertOperation(EntityInfo entity) {
         DataTypeInfo idDataType = entity.getFirstIdField().getDataType();
@@ -2351,6 +2654,37 @@ public class SqlQueryGeneratorTest {
             "    parameterValue!field,",
             "    <if test='defaultValue != null'>parameterValue!defaultValue,</if>",
             "    false,",
+            "    current_timestamp,",
+            "    parameterValue!insertUserMarkField,",
+            "    initalVersionValue!versionMarkField",
+            ")"};
+        String[] result = instance.getEntityInsertQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityInsertQueryHandleVersionFieldOnInsertWithExcludes() {
+        EntityInfo entity = getEntityForInsertQuery();
+        OperationInfo operation = getEntityInsertOperation(entity);
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"defaultValue", "deletionMarkField"};
+        operation.addAnnotation(customQuery);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnInsert = true;
+        instance.getConfiguration().setUseAutoIncrementId(true);
+        String[] expResult = new String[]{"insert into",
+            "    MyEntity ",
+            "(",
+            "    mappedName,",
+            "    idField,",
+            "    field,",
+            "    insertDateMarkField,",
+            "    insertUserMarkField,",
+            "    versionMarkField",
+            ") values (",
+            "    parameterValue!mappedField,",
+            "    parameterValue!idField,",
+            "    parameterValue!field,",
             "    current_timestamp,",
             "    parameterValue!insertUserMarkField,",
             "    initalVersionValue!versionMarkField",
@@ -2417,6 +2751,81 @@ public class SqlQueryGeneratorTest {
             "    parameterValue!field,",
             "    <if test='defaultValue != null'>parameterValue!defaultValue</if>",
             ")"};
+        String[] result = instance.getEntityInsertQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityInsertQueryWithCustomSqlQueryWithQueryValue() {
+        EntityInfo entity = getEntityForInsertQuery();
+        OperationInfo operation = getEntityInsertOperation(entity);
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.query = new String[]{"custom", "sql", "query"};
+        operation.addAnnotation(customSqlQuery);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"custom", "sql", "query"};
+        String[] result = instance.getEntityInsertQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityInsertQueryWithCustomSqlQueryWithoutQueryValue() {
+        EntityInfo entity = getEntityForInsertQuery();
+        OperationInfo operation = getEntityInsertOperation(entity);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        customSqlQuery.beforeInsertIntoExpression = new String[]{"before", "insertIntoExpression"};
+        customSqlQuery.insertInto = new String[]{"insertInto", "code"};
+        customSqlQuery.afterInsertIntoExpression = new String[]{"after", "insertIntoExpression"};
+        customSqlQuery.beforeInsertValuesExpression = new String[]{"before", "insertValuesExpression"};
+        customSqlQuery.insertValues = new String[]{"insertValues", "code"};
+        customSqlQuery.afterInsertValuesExpression = new String[]{"after", "insertValuesExpression"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.getConfiguration().setUseAutoIncrementId(true);
+        String[] expResult = new String[]{"insert into",
+            "    custom",
+            "    sql",
+            "    from ",
+            "(",
+            "    before",
+            "    insertIntoExpression ",
+            "    insertInto",
+            "    code ",
+            "    after",
+            "    insertIntoExpression ",
+            ") values (",
+            "    before",
+            "    insertValuesExpression ",
+            "    insertValues",
+            "    code ",
+            "    after",
+            "    insertValuesExpression ",
+            ")"};
+        String[] result = instance.getEntityInsertQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityInsertQueryWithQueryAnnotation() {
+        EntityInfo entity = getEntityForInsertQuery();
+        OperationInfo operation = getEntityInsertOperation(entity);
+        operation.addAnnotation(new Query() {
+            @Override
+            public String[] value() {
+                return new String[]{"query", "value"};
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Query.class;
+            }
+        });
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"query",
+            "value"};
         String[] result = instance.getEntityInsertQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2637,6 +3046,28 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetEntityUpdateQueryWithExcludes() {
+        EntityInfo entity = getEntityForUpdateQuery(false);
+        OperationInfo operation = getEntityUpdateOperation(entity);
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"versionMarkField", "mappedField"};
+        operation.addAnnotation(customQuery);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "set",
+            "    field = parameterValue!field,",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateUserMarkField = parameterValue!updateUserMarkField",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityUpdateQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
     public void testGetEntityUpdateQueryChangingFieldsOrder() {
         EntityInfo entity = getEntityForUpdateQuery(true);
         OperationInfo operation = getEntityUpdateOperation(entity);
@@ -2706,6 +3137,73 @@ public class SqlQueryGeneratorTest {
         OperationInfo operation = getEntityUpdateOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"update", "query"};
+        String[] result = instance.getEntityUpdateQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityUpdateQueryWithCustomSqlQueryWithQueryValue() {
+        EntityInfo entity = getEntityForUpdateQuery(false);
+        OperationInfo operation = getEntityUpdateOperation(entity);
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.query = new String[]{"custom", "sql", "query"};
+        operation.addAnnotation(customSqlQuery);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"custom", "sql", "query"};
+        String[] result = instance.getEntityUpdateQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityUpdateQueryWithCustomSqlQueryWithoutQueryValue() {
+        EntityInfo entity = getEntityForUpdateQuery(false);
+        OperationInfo operation = getEntityUpdateOperation(entity);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        customSqlQuery.beforeUpdateSetExpression = new String[]{"before", "insertIntoExpression"};
+        customSqlQuery.updateSet = new String[]{"insertInto", "code"};
+        customSqlQuery.afterUpdateSetExpression = new String[]{"after", "insertIntoExpression"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"update",
+            "    custom",
+            "    sql",
+            "    from ",
+            "set",
+            "    before",
+            "    insertIntoExpression ",
+            "    insertInto",
+            "    code ",
+            "    after",
+            "    insertIntoExpression ",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"
+        };
+        String[] result = instance.getEntityUpdateQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityUpdateQueryWithQueryAnnotation() {
+        EntityInfo entity = getEntityForUpdateQuery(false);
+        OperationInfo operation = getEntityUpdateOperation(entity);
+        operation.addAnnotation(new Query() {
+            @Override
+            public String[] value() {
+                return new String[]{"query", "value"};
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Query.class;
+            }
+        });
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"query",
+            "value"};
         String[] result = instance.getEntityUpdateQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -2806,6 +3304,34 @@ public class SqlQueryGeneratorTest {
             "    updateDateMarkField = current_timestamp,",
             "    updateDateMarkFieldBIS = current_timestamp,",
             "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    versionMarkField = nextVersion!versionMarkField,",
+            "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityMergeQueryWithExcludes() {
+        EntityInfo entity = getEntityForMergeQuery(false);
+        OperationInfo operation = getEntityMergeOperation(entity);
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"updateUserMarkField", "field"};
+        operation.addAnnotation(customQuery);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateDateMarkFieldBIS = current_timestamp,",
             "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
             "    versionMarkField = nextVersion!versionMarkField,",
             "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
@@ -2976,6 +3502,74 @@ public class SqlQueryGeneratorTest {
         assertArrayEquals(expResult, result);
     }
 
+    @Test
+    public void testGetEntityMergeQueryWithCustomSqlQueryWithQueryValue() {
+        EntityInfo entity = getEntityForMergeQuery(false);
+        OperationInfo operation = getEntityMergeOperation(entity);
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.query = new String[]{"custom", "sql", "query"};
+        operation.addAnnotation(customSqlQuery);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"custom", "sql", "query"};
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityMergeQueryWithCustomSqlQueryWithoutQueryValue() {
+        EntityInfo entity = getEntityForMergeQuery(false);
+        OperationInfo operation = getEntityMergeOperation(entity);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        customSqlQuery.beforeUpdateSetExpression = new String[]{"before", "insertIntoExpression"};
+        customSqlQuery.updateSet = new String[]{"insertInto", "code"};
+        customSqlQuery.afterUpdateSetExpression = new String[]{"after", "insertIntoExpression"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"update",
+            "    custom",
+            "    sql",
+            "    from ",
+            "<set>",
+            "    before",
+            "    insertIntoExpression ",
+            "    insertInto",
+            "    code ",
+            "    after",
+            "    insertIntoExpression ",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityMergeQueryWithQueryAnnotation() {
+        EntityInfo entity = getEntityForMergeQuery(false);
+        OperationInfo operation = getEntityMergeOperation(entity);
+        operation.addAnnotation(new Query() {
+            @Override
+            public String[] value() {
+                return new String[]{"query", "value"};
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Query.class;
+            }
+        });
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"query",
+            "value"};
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
     private EntityInfo getEntityForDeleteQuery(boolean changeOrder) {
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
 
@@ -3052,6 +3646,26 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetEntityDeleteByIdQueryWithEcludes() {
+        EntityInfo entity = getEntityForDeleteQuery(false);
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.excludeEntityFields = new String[]{"deletionMarkField", "deleteDateMarkField"};
+        operation.addAnnotation(customQuery);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnDelete = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "set",
+            "    versionMarkField = nextVersion!versionMarkField",
+            "where",
+            "    idField = parameterValue!id",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
     public void testGetEntityDeleteByIdQueryChangingOrder() {
         EntityInfo entity = getEntityForDeleteQuery(true);
         OperationInfo operation = getEntityDeleteByIdOperation(entity);
@@ -3112,6 +3726,87 @@ public class SqlQueryGeneratorTest {
         OperationInfo operation = getEntityDeleteByIdOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"deleteById", "query"};
+        String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityDeleteByIdQueryWithCustomSqlQueryWithQueryValue() {
+        EntityInfo entity = getEntityForDeleteQuery(false);
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.query = new String[]{"custom", "sql", "query"};
+        operation.addAnnotation(customSqlQuery);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"custom", "sql", "query"};
+        String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityDeleteByIdQueryUsingLogicalDeletionWithCustomSqlQueryWithoutQueryValue() {
+        EntityInfo entity = getEntityForDeleteQuery(false);
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"update",
+            "    custom",
+            "    sql",
+            "    from ",
+            "set",
+            "    deleteDateMarkField = current_timestamp,",
+            "    deletionMarkField = true",
+            "where",
+            "    idField = parameterValue!id",
+            "    and deletionMarkField = false"
+        };
+        String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityDeleteByIdQueryNotUsingLogicalDeletionWithCustomSqlQueryWithFromValue() {
+        EntityInfo entity = getEntityForDeleteQuery(false);
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        operation.setIgnoreLogicalDeletionEnabled(true);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"delete from",
+            "    custom",
+            "    sql",
+            "    from ",
+            "where",
+            "    idField = parameterValue!id",};
+        String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityDeleteByIdQueryWithQueryAnnotation() {
+        EntityInfo entity = getEntityForDeleteQuery(false);
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        operation.addAnnotation(new Query() {
+            @Override
+            public String[] value() {
+                return new String[]{"query", "value"};
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Query.class;
+            }
+        });
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"query",
+            "value"};
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
@@ -3209,6 +3904,52 @@ public class SqlQueryGeneratorTest {
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.getConfiguration().setUseAutoIncrementId(true);
         boolean expResult = false;
+        boolean result = instance.includeIdOnInsert(entity, field);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testIncludeIdOnInsertWithEntityIdSequenceName() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        entity.addAnnotation(new IdSequenceName() {
+
+            @Override
+            public String value() {
+                return "idSequenceName";
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return IdSequenceName.class;
+            }
+        });
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.LIST_DATA_TYPE);
+        field.setIdentifierAutogenerated(true);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        boolean expResult = true;
+        boolean result = instance.includeIdOnInsert(entity, field);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testIncludeIdOnInsertWithFieldIdSequenceName() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.LIST_DATA_TYPE);
+        field.setIdentifierAutogenerated(true);
+        field.addAnnotation(new IdSequenceName() {
+
+            @Override
+            public String value() {
+                return "idSequenceName";
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return IdSequenceName.class;
+            }
+        });
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        boolean expResult = true;
         boolean result = instance.includeIdOnInsert(entity, field);
         assertEquals(expResult, result);
     }
@@ -3377,6 +4118,16 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetIdCurrentValueNoValue() {
+        EntityInfo entity = new EntityInfo(DataTypeInfo.LIST_DATA_TYPE, EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.LIST_DATA_TYPE);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = null;
+        String[] result = instance.getIdCurrentValue(entity, field, true);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
     public void testGetConditionComparatorWithNullTemplate() {
         String comparatorRule = "";
         String template = null;
@@ -3515,6 +4266,8 @@ public class SqlQueryGeneratorTest {
         String query = "{{myField}} {{myField:condition}} {{myField:CONDITION}}\n"
                 + "{{myField:=}} {{myField:==}} {{myField:equal}} {{myField:EQUAL}}\n"
                 + "{{myField:!=}} {{myField:<>}} {{myField:notEqual}} {{myField:NOT_EQUAL}}\n"
+                + "{{myField:i=}} {{myField:i==}} {{myField:I=}} {{myField:I==}} {{myField:iequal}} {{myField:IEQUAL}} {{myField:equalInsensitive}} {{myField:EQUAL_INSENSITIVE}}\n"
+                + "{{myField:i!=}} {{myField:i<>}} {{myField:I!=}} {{myField:I<>}} {{myField:inotEqual}} {{myField:INOT_EQUAL}} {{myField:notEqualInsensitive}} {{myField:NOT_EQUAL_INSENSITIVE}}\n"
                 + "{{myField:=?}} {{myField:==?}} {{myField:equalNullable}} {{myField:EQUAL_NULLABLE}}\n"
                 + "{{myField:=!?}} {{myField:==!?}} {{myField:equalNotNullable}} {{myField:EQUAL_NOT_NULLABLE}}\n"
                 + "{{myField:!=?}} {{myField:<>?}} {{myField:notEqualNullable}} {{myField:NOT_EQUAL_NULLABLE}}\n"
@@ -3560,6 +4313,8 @@ public class SqlQueryGeneratorTest {
         String expResult = "parameterValue!myField myField &lt; parameterValue!myField myField &lt; parameterValue!myField\n"
                 + "myField = parameterValue!myField myField = parameterValue!myField myField = parameterValue!myField myField = parameterValue!myField\n"
                 + "myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField\n"
+                + "lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField)\n"
+                + "lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField)\n"
                 + "<if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if>\n"
                 + "<if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if>\n"
                 + "<if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if>\n"
@@ -3944,6 +4699,231 @@ public class SqlQueryGeneratorTest {
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testAppendTableName() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        StringBuilder result = new StringBuilder();
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendTableName(result, entity, null, "prefix");
+        String expResult = "prefixMyEntity ";
+        assertEquals(expResult, result.toString());
+    }
+    
+    @Test
+    public void testAppendTableNameWithCustomSqlQuery() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.beforeFromExpression = new String[]{"before", "from"};
+        customQuery.afterFromExpression = new String[]{"after", "from"};
+        StringBuilder result = new StringBuilder();
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendTableName(result, entity, customQuery, "prefix");
+        String expResult = "prefixbefore\n" +
+            "prefixfrom \n" +
+            "prefixMyEntity \n" +
+            "prefixafter\n" +
+            "prefixfrom ";
+        assertEquals(expResult, result.toString());
+    }
+    
+    @Test
+    public void testAppendTableNameWithCustomSqlQueryAndFrom() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        TestCustomSqlQuery customQuery = new TestCustomSqlQuery();
+        customQuery.beforeFromExpression = new String[]{"before", "from"};
+        customQuery.afterFromExpression = new String[]{"after", "from"};
+        customQuery.from = new String[]{"inline", "from"};
+        StringBuilder result = new StringBuilder();
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendTableName(result, entity, customQuery, "prefix");
+        String expResult = "prefixbefore\n" +
+            "prefixfrom \n" +
+            "prefixinline\n" +
+            "prefixfrom \n" +
+            "prefixafter\n" +
+            "prefixfrom ";
+        assertEquals(expResult, result.toString());
+    }
+    
+    @Test
+    public void testGetDefaultValue() {
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.getConfiguration().setDefaultValue("a[[table]]b[[TABLE]]c[[column]]d[[COLUMN]]e");
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        String expResult = "aMyEntitybMyEntitycmyFielddmyFielde";
+        String result = instance.getDefaultValue(entity, field);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetDefaultValueInvalid() {
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.getConfiguration().setDefaultValue("a[[table]]b[[TABLE]]c[[invalid]]f[[column]]d[[COLUMN]]e");
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        String expResult = "aMyEntitybMyEntityc[[invalid]]fmyFielddmyFielde";
+        String result = instance.getDefaultValue(entity, field);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Invalid template rule for generate the default value: [[invalid]]",
+                field.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetDefaultValueNull() {
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        String expResult = null;
+        String result = instance.getDefaultValue(entity, field);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetIdSequenceName() {
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.getConfiguration().setIdSecuenceNameTemplate("a[[table]]b[[TABLE]]c[[column]]d[[COLUMN]]e");
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        String expResult = "aMyEntitybMyEntitycmyFielddmyFielde";
+        String result = instance.getIdSequenceName(entity, field);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetIdSequenceNameInvalid() {
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.getConfiguration().setIdSecuenceNameTemplate("a[[table]]b[[TABLE]]c[[invalid]]f[[column]]d[[COLUMN]]e");
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        String expResult = "aMyEntitybMyEntityc[[invalid]]fmyFielddmyFielde";
+        String result = instance.getIdSequenceName(entity, field);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Invalid template rule for generate the id sequence name: [[invalid]]",
+                field.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetIdSequenceNameNull() {
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        String expResult = null;
+        String result = instance.getIdSequenceName(entity, field);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetIdSequenceNameWithEntityIdSequenceName() {
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        entity.addAnnotation(new IdSequenceName() {
+
+            @Override
+            public String value() {
+                return "a[[table]]b[[TABLE]]c[[column]]d[[COLUMN]]e";
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return IdSequenceName.class;
+            }
+        });
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        String expResult = "aMyEntitybMyEntitycmyFielddmyFielde";
+        String result = instance.getIdSequenceName(entity, field);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetIdSequenceNameWithFieldIdSequenceName() {
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.INT_DATA_TYPE);
+        field.addAnnotation(new IdSequenceName() {
+
+            @Override
+            public String value() {
+                return "a[[table]]b[[TABLE]]c[[column]]d[[COLUMN]]e";
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return IdSequenceName.class;
+            }
+        });
+        String expResult = "aMyEntitybMyEntitycmyFielddmyFielde";
+        String result = instance.getIdSequenceName(entity, field);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testRetrieveFieldsForExclude() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field1 = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo field2 = new FieldInfo("field2", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo field3 = new FieldInfo("field3", DataTypeInfo.INT_DATA_TYPE);
+        entity.addField(field1);
+        entity.addField(field2);
+        entity.addField(field3);
+        String[] fields = new String[]{"field1", "field2"};
+        HashSet<FieldInfo> expResult = new HashSet<FieldInfo>(2);
+        expResult.add(field1);
+        expResult.add(field2);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        HashSet<FieldInfo> result = instance.retrieveFieldsForExclude(fields, entity, null);
+        assertEquals(true, result.containsAll(expResult));
+        assertEquals(expResult.size(), result.size());
+    }
+    
+    @Test
+    public void testRetrieveFieldsForExcludeNoValue() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field1 = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo field2 = new FieldInfo("field2", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo field3 = new FieldInfo("field3", DataTypeInfo.INT_DATA_TYPE);
+        entity.addField(field1);
+        entity.addField(field2);
+        entity.addField(field3);
+        String[] fields = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        HashSet<FieldInfo> result = instance.retrieveFieldsForExclude(fields, entity, null);
+        assertEquals(0, result.size());
+    }
+    
+    @Test
+    public void testRetrieveFieldsForExcludeInvalid() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        FieldInfo field1 = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo field2 = new FieldInfo("field2", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo field3 = new FieldInfo("field3", DataTypeInfo.INT_DATA_TYPE);
+        entity.addField(field1);
+        entity.addField(field2);
+        entity.addField(field3);
+        String[] fields = new String[]{"field1", "invalid", "field2"};
+        HashSet<FieldInfo> expResult = new HashSet<FieldInfo>(2);
+        expResult.add(field1);
+        expResult.add(field2);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        HashSet<FieldInfo> result = instance.retrieveFieldsForExclude(fields, entity, null);
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Unable to find the field with name 'invalid' specified as exclude entity field in the CustomSqlQuery annotation",
+                null));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
+        assertEquals(true, result.containsAll(expResult));
+        assertEquals(expResult.size(), result.size());
     }
 
     public static class SqlQueryGeneratorImpl extends SqlQueryGenerator {
