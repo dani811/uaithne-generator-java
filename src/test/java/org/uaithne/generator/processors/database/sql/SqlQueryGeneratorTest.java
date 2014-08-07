@@ -1795,7 +1795,7 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
-    public void testGetCustomUpdateQuery2() {
+    public void testGetCustomUpdateQueryWithIgnoreWhenNull() {
         OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
         operation.setEntity(entity);
@@ -1809,6 +1809,7 @@ public class SqlQueryGeneratorTest {
         operation.addField(setValueField1);
         FieldInfo setValueField2 = new FieldInfo("setValueField2", DataTypeInfo.LIST_DATA_TYPE);
         setValueField2.setSetValueMark(true);
+        setValueField2.setIgnoreWhenNull(true);
         operation.addField(setValueField2);
         FieldInfo setValueField3 = new FieldInfo("setValueField3", DataTypeInfo.LIST_DATA_TYPE);
         setValueField3.setSetValueMark(true);
@@ -1821,7 +1822,7 @@ public class SqlQueryGeneratorTest {
             "    MyEntity ",
             "set",
             "    setValueField1 = parameterValue!setValueField1,",
-            "    setValueField2 = parameterValue!setValueField2,",
+            "    <if test='setValueField2 != null'>setValueField2 = parameterValue!setValueField2,</if>",
             "    <if test='setValueField3 != null'>setValueField3 = parameterValue!setValueField3</if>",
             "where",
             "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
@@ -3367,6 +3368,37 @@ public class SqlQueryGeneratorTest {
             "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
             "    <if test='normalField != null'>normalField = parameterValue!normalField,</if>",
             "    fieldWithValueWhenNull2 = parameterValueAndWhenNull!fieldWithValueWhenNull2!WithValueWhenNullValue2",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityMergeQueryWithUpdateDateAtEnd() {
+        EntityInfo entity = getEntityForMergeQuery(false);
+        FieldInfo fieldUpdate = new FieldInfo("fieldUpdate", new DataTypeInfo("java.util", "Date"));
+        fieldUpdate.setUpdateDateMark(true);
+        entity.addField(fieldUpdate);
+        OperationInfo operation = getEntityMergeOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    <if test='field != null'>field = parameterValue!field,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateDateMarkFieldBIS = current_timestamp,",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    versionMarkField = nextVersion!versionMarkField,",
+            "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField,</if>",
+            "    fieldUpdate = current_timestamp",
             "</set>",
             "where",
             "    idField = parameterValue!idField",
