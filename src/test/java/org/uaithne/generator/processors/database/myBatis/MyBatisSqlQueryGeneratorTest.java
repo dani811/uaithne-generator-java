@@ -407,58 +407,16 @@ public class MyBatisSqlQueryGeneratorTest {
         assertEquals(result.toString(), "{[/if]}");
     }  
         
+
+
     @Test
-    public void testAppendStartInsertColumnIfNotNull() {
+    public void testAppendParameterValueOrDefaultInDatabaseWhenNullForInsert() {
         StringBuilder result = new StringBuilder();
         FieldInfo field = getFieldWithTypeHandler();
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        instance.appendStartInsertColumnIfNotNull(result, field);
-        assertEquals(result.toString(), "{[if test='myField != null']}myField");
-    }
-
-    @Test
-    public void testAppendEndInsertColumnIfNotNullWithComma() {
-        StringBuilder result = new StringBuilder();
-        boolean requireComma = true;
-        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        instance.appendEndInsertColumnIfNotNull(result, requireComma);
-        assertEquals(result.toString(), ",{[/if]}");
-    }
-
-    @Test
-    public void testAppendEndInsertColumnIfNotNullWithoutComma() {
-        StringBuilder result = new StringBuilder();
-        boolean requireComma = false;
-        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        instance.appendEndInsertColumnIfNotNull(result, requireComma);
-        assertEquals(result.toString(), "{[/if]}");
-    }
-
-    @Test
-    public void testAppendStartInsertValueIfNotNull() {
-        StringBuilder result = new StringBuilder();
-        FieldInfo field = getFieldWithTypeHandler();
-        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        instance.appendStartInsertValueIfNotNull(result, null, null, field);
-        assertEquals(result.toString(), "{[if test='myField != null']}#{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer}");
-    }
-
-    @Test
-    public void testAppendEndInsertValueIfNotNullWithComma() {
-        StringBuilder result = new StringBuilder();
-        boolean requireComma = true;
-        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        instance.appendEndInsertValueIfNotNull(result, requireComma);
-        assertEquals(result.toString(), ",{[/if]}");
-    }
-
-    @Test
-    public void testAppendEndInsertValueIfNotNullWithoutComma() {
-        StringBuilder result = new StringBuilder();
-        boolean requireComma = false;
-        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
-        instance.appendEndInsertValueIfNotNull(result, requireComma);
-        assertEquals(result.toString(), "{[/if]}");
+        String expResult = "{[if test='myField != null']} #{myField,jdbcType=INTEGER,typeHandler=java.lang.Integer} {[/if]} {[if test='myField == null']} default {[/if]}";
+        instance.appendParameterValueOrDefaultInDatabaseWhenNullForInsert(result, null, null, field);
+        assertEquals(expResult, result.toString());
     }
 
     @Test

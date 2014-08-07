@@ -180,7 +180,7 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
-    public void appendStartInsertValueIfNotNull(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
+    public void appendParameterValueOrDefaultInDatabaseWhenNullForInsert(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
         String defaultValue = getDefaultValue(entity, field);
         if (defaultValue == null) {
             Element element = operation.getElement();
@@ -190,20 +190,11 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
             getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "You must set the way for retrieve the default value rule in the backend configuration", element);
             return;
         }
-        result.append(getColumnName(field))
-                .append(" = ")
-                .append("NVL(")
+        result.append("NVL(")
                 .append(getParameterValue(field))
                 .append(", ")
                 .append(defaultValue)
                 .append(")");
-    }
-
-    @Override
-    public void appendEndInsertValueIfNotNull(StringBuilder result, boolean requireComma) {
-        if (requireComma) {
-            result.append(",");
-        }
     }
 
     @Override

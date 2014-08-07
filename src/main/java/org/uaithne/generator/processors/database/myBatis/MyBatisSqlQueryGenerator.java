@@ -216,6 +216,16 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
 
         return ",typeHandler=" + typeHandler.getQualifiedNameWithoutGenerics();
     }
+    
+    @Override
+    public void appendParameterValueOrDefaultInDatabaseWhenNullForInsert(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
+        result.append("{[if test='").append(field.getName()).append(" != null']} ")
+                .append("#{").append(field.getName()).append(getJdbcTypeAttribute(field)).append(getTypeHandler(field)).append("} ")
+                .append("{[/if]} ")
+                .append("{[if test='").append(field.getName()).append(" == null']} ")
+                .append("default ")
+                .append("{[/if]}");
+    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Where">
@@ -280,36 +290,6 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     @Override
     public void appendConditionEndIf(StringBuilder result) {
         result.append("{[/if]}");
-    }
-    //</editor-fold>
-    
-    //<editor-fold defaultstate="collapsed" desc="Insert selective">
-    @Override
-    public void appendStartInsertColumnIfNotNull(StringBuilder result, FieldInfo field) {
-        appendConditionStartIfNotNull(result, field, "");
-        result.append(getColumnName(field));
-    }
-
-    @Override
-    public void appendEndInsertColumnIfNotNull(StringBuilder result, boolean requireComma) {
-        if (requireComma) {
-            result.append(",");
-        }
-        appendConditionEndIf(result);
-    }
-
-    @Override
-    public void appendStartInsertValueIfNotNull(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
-        appendConditionStartIfNotNull(result, field, "");
-        result.append(getParameterValue(field));
-    }
-
-    @Override
-    public void appendEndInsertValueIfNotNull(StringBuilder result, boolean requireComma) {
-        if (requireComma) {
-            result.append(",");
-        }
-        appendConditionEndIf(result);
     }
     //</editor-fold>
 

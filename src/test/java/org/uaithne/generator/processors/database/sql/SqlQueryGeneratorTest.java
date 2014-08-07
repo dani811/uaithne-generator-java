@@ -1587,7 +1587,7 @@ public class SqlQueryGeneratorTest {
             "    idFieldBIS,",
             "    idFieldInsertDateMark,",
             "    operationField,",
-            "    <if test='defaultValue != null'>defaultValue,</if>",
+            "    defaultValue,",
             "    deletionMarkField,",
             "    insertDateMarkField,",
             "    versionMarkField",
@@ -1596,7 +1596,7 @@ public class SqlQueryGeneratorTest {
             "    parameterValue!idFieldBIS,",
             "    current_timestamp,",
             "    parameterValue!operationField,",
-            "    <if test='defaultValue != null'>parameterValue!defaultValue,</if>",
+            "    parameterValueOrDBDefault!defaultValue,",
             "    false,",
             "    current_timestamp,",
             "    initalVersionValue!versionMarkField",
@@ -1624,10 +1624,10 @@ public class SqlQueryGeneratorTest {
             "    MyEntity ",
             "(",
             "    idField,",
-            "    <if test='defaultValue != null'>defaultValue</if>",
+            "    defaultValue",
             ") values (",
             "    parameterValue!idField,",
-            "    <if test='defaultValue != null'>parameterValue!defaultValue</if>",
+            "    parameterValueOrDBDefault!defaultValue",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
         assertArrayEquals(expResult, result);
@@ -2643,7 +2643,7 @@ public class SqlQueryGeneratorTest {
             "    mappedName,",
             "    idField,",
             "    field,",
-            "    <if test='defaultValue != null'>defaultValue,</if>",
+            "    defaultValue,",
             "    deletionMarkField,",
             "    insertDateMarkField,",
             "    insertUserMarkField,",
@@ -2652,7 +2652,7 @@ public class SqlQueryGeneratorTest {
             "    parameterValue!mappedField,",
             "    parameterValue!idField,",
             "    parameterValue!field,",
-            "    <if test='defaultValue != null'>parameterValue!defaultValue,</if>",
+            "    parameterValueOrDBDefault!defaultValue,",
             "    false,",
             "    current_timestamp,",
             "    parameterValue!insertUserMarkField,",
@@ -2706,7 +2706,7 @@ public class SqlQueryGeneratorTest {
             "    mappedName,",
             "    idField,",
             "    field,",
-            "    <if test='defaultValue != null'>defaultValue,</if>",
+            "    defaultValue,",
             "    deletionMarkField,",
             "    insertDateMarkField,",
             "    insertUserMarkField",
@@ -2714,7 +2714,7 @@ public class SqlQueryGeneratorTest {
             "    parameterValue!mappedField,",
             "    parameterValue!idField,",
             "    parameterValue!field,",
-            "    <if test='defaultValue != null'>parameterValue!defaultValue,</if>",
+            "    parameterValueOrDBDefault!defaultValue,",
             "    false,",
             "    current_timestamp,",
             "    parameterValue!insertUserMarkField",
@@ -2746,10 +2746,10 @@ public class SqlQueryGeneratorTest {
             "    MyEntity ",
             "(",
             "    field,",
-            "    <if test='defaultValue != null'>defaultValue</if>",
+            "    defaultValue",
             ") values (",
             "    parameterValue!field,",
-            "    <if test='defaultValue != null'>parameterValue!defaultValue</if>",
+            "    parameterValueOrDBDefault!defaultValue",
             ")"};
         String[] result = instance.getEntityInsertQuery(entity, operation);
         assertArrayEquals(expResult, result);
@@ -5271,34 +5271,11 @@ public class SqlQueryGeneratorTest {
         @Override
         public ProcessingEnviromentImpl getProcessingEnv() {
             return (ProcessingEnviromentImpl) super.getProcessingEnv();
-        }    
-        
-        @Override
-        public void appendStartInsertColumnIfNotNull(StringBuilder result, FieldInfo field) {
-            appendConditionStartIfNotNull(result, field, "");
-            result.append(getColumnName(field));
         }
 
         @Override
-        public void appendEndInsertColumnIfNotNull(StringBuilder result, boolean requireComma) {
-            if (requireComma) {
-                result.append(",");
-            }
-            appendConditionEndIf(result);
-        }
-
-        @Override
-        public void appendStartInsertValueIfNotNull(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
-            appendConditionStartIfNotNull(result, field, "");
-            result.append(getParameterValue(field));
-        }
-
-        @Override
-        public void appendEndInsertValueIfNotNull(StringBuilder result, boolean requireComma) {
-            if (requireComma) {
-                result.append(",");
-            }
-            appendConditionEndIf(result);
+        public void appendParameterValueOrDefaultInDatabaseWhenNullForInsert(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
+            result.append("parameterValueOrDBDefault!").append(field.getName());
         }
     }
 }

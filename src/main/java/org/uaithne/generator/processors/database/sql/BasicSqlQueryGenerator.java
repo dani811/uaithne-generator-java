@@ -97,20 +97,6 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="Insert selective">
-    @Override
-    public void appendStartInsertColumnIfNotNull(StringBuilder result, FieldInfo field) {
-        result.append(getColumnName(field));
-    }
-
-    @Override
-    public void appendEndInsertColumnIfNotNull(StringBuilder result, boolean requireComma) {
-        if (requireComma) {
-            result.append(",");
-        }
-    }
-    //</editor-fold>
-
     //<editor-fold defaultstate="collapsed" desc="Comparators">
     @Override
     public String translateComparator(Comparators comparator) {

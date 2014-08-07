@@ -595,14 +595,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     public abstract void appendStartSetValueIfNotNull(StringBuilder result, FieldInfo field);
     
     public abstract void appendEndSetValueIfNotNull(StringBuilder result, boolean requireComma);
-
-    public abstract void appendStartInsertColumnIfNotNull(StringBuilder result, FieldInfo field);
     
-    public abstract void appendEndInsertColumnIfNotNull(StringBuilder result, boolean requireComma);
-    
-    public abstract void appendStartInsertValueIfNotNull(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field);
-    
-    public abstract void appendEndInsertValueIfNotNull(StringBuilder result, boolean requireComma);
+    public abstract void appendParameterValueOrDefaultInDatabaseWhenNullForInsert(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field);
     
     public abstract void appendConditionStartIfNull(StringBuilder result, FieldInfo field, String separator);
 
@@ -720,7 +714,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                boolean requireEndInsertColumnIfNotNull = false;
                 for (FieldInfo field : entity.getFields()) {
                     if (excludeFields.contains(field)) {
                         continue;
@@ -750,20 +743,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     if (field.isManually()) {
                         continue;
                     }
-                    if (requireEndInsertColumnIfNotNull) {
-                        appendEndInsertColumnIfNotNull(result, requireComma);
-                        result.append("\n");
-                        requireEndInsertColumnIfNotNull = false;
-                    } else if (requireComma) {
+                    if (requireComma) {
                         result.append(",\n");
                     }
                     result.append("    ");
-                    if (field.hasDefaultValueWhenInsert()) {
-                        appendStartInsertColumnIfNotNull(result, field);
-                        requireEndInsertColumnIfNotNull = true;
-                    } else {
-                        result.append(getColumnName(field));
-                    }
+                    result.append(getColumnName(field));
                     requireComma = true;
                 }
                 for (FieldInfo field : entity.getFields()) {
@@ -774,22 +758,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else if (field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         result.append(getColumnName(field));
                         requireComma = true;
                     } else if (field.isDeletionMark()) {
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -799,21 +775,13 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         if (!handleVersionFieldOnInsert()) {
                             continue;
                         }
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         result.append(getColumnName(field));
                         requireComma = true;
                     }
-                }
-
-                if (requireEndInsertColumnIfNotNull) {
-                    appendEndInsertColumnIfNotNull(result, false);
                 }
             }
 
@@ -832,7 +800,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                boolean requireEndInsertValueIfNotNull = false;
                 for (FieldInfo field : entity.getFields()) {
                     if (excludeFields.contains(field)) {
                         continue;
@@ -841,11 +808,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else if (!field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -854,11 +817,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else if (!includeIdOnInsert(entity, field)) {
                         continue;
                     } else {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -870,17 +829,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     if (field.isManually()) {
                         continue;
                     }
-                    if (requireEndInsertValueIfNotNull) {
-                        appendEndInsertValueIfNotNull(result, requireComma);
-                        result.append("\n");
-                        requireEndInsertValueIfNotNull = false;
-                    } else if (requireComma) {
+                    if (requireComma) {
                         result.append(",\n");
                     }
                     result.append("    ");
                     if (field.hasDefaultValueWhenInsert()) {
-                        appendStartInsertValueIfNotNull(result, operation, entity, field);
-                        requireEndInsertValueIfNotNull = true;
+                        appendParameterValueOrDefaultInDatabaseWhenNullForInsert(result, operation, entity, field);
                     } else {
                         result.append(getParameterValue(field));
                     }
@@ -894,22 +848,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else if (field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         result.append(currentSqlDate());
                         requireComma = true;
                     } else if (field.isDeletionMark()) {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -919,21 +865,13 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         if (!handleVersionFieldOnInsert()) {
                             continue;
                         }
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         appendInitialVersionValue(result, entity, field);
                         requireComma = true;
                     }
-                }
-                
-                if (requireEndInsertValueIfNotNull) {
-                    appendEndInsertValueIfNotNull(result, false);
                 }
             }
 
@@ -1274,18 +1212,13 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                boolean requireEndInsertColumnIfNotNull = false;
                 for (FieldInfo field : entity.getFields()) {
                     if (excludeFields.contains(field)) {
                         continue;
                     } else if (field.isManually()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -1296,22 +1229,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         if (!includeIdOnInsert(entity, field)) {
                             continue;
                         }
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         result.append(getColumnName(field));
                         requireComma = true;
                     } else if (field.isInsertUserMark()) {
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -1326,11 +1251,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else if (field.isDeleteUserMark()) {
                         continue;
                     } else if (field.isDeletionMark()) {
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -1340,37 +1261,20 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         if (!handleVersionFieldOnInsert()) {
                             continue;
                         }
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         result.append(getColumnName(field));
                         requireComma = true;
                     } else {
-                        if (requireEndInsertColumnIfNotNull) {
-                            appendEndInsertColumnIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertColumnIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
-                        if (field.hasDefaultValueWhenInsert()) {
-                            appendStartInsertColumnIfNotNull(result, field);
-                            requireEndInsertColumnIfNotNull = true;
-                        } else {
-                            result.append(getColumnName(field));
-                        }
+                        result.append(getColumnName(field));
                         requireComma = true;
                     }
-                }
-
-                if (requireEndInsertColumnIfNotNull) {
-                    appendEndInsertColumnIfNotNull(result, false);
                 }
             }
 
@@ -1389,18 +1293,13 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             } else {
                 result.append("\n");
                 boolean requireComma = false;
-                boolean requireEndInsertValueIfNotNull = false;
                 for (FieldInfo field : entity.getFields()) {
                     if (excludeFields.contains(field)) {
                         continue;
                     } else if (field.isManually()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -1410,22 +1309,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         if (!includeIdOnInsert(entity, field)) {
                             continue;
                         }
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         appendIdNextValue(result, entity, field);
                         requireComma = true;
                     } else if (field.isInsertUserMark()) {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -1440,11 +1331,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else if (field.isDeleteUserMark()) {
                         continue;
                     } else if (field.isDeletionMark()) {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
@@ -1454,37 +1341,24 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         if (!handleVersionFieldOnInsert()) {
                             continue;
                         }
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         appendInitialVersionValue(result, entity, field);
                         requireComma = true;
                     } else {
-                        if (requireEndInsertValueIfNotNull) {
-                            appendEndInsertValueIfNotNull(result, requireComma);
-                            result.append("\n");
-                            requireEndInsertValueIfNotNull = false;
-                        } else if (requireComma) {
+                        if (requireComma) {
                             result.append(",\n");
                         }
                         result.append("    ");
                         if (field.hasDefaultValueWhenInsert()) {
-                            appendStartInsertValueIfNotNull(result, operation, entity, field);
-                            requireEndInsertValueIfNotNull = true;
+                            appendParameterValueOrDefaultInDatabaseWhenNullForInsert(result, operation, entity, field);
                         } else {
                             result.append(getParameterValue(field));
                         }
                         requireComma = true;
                     }
-                }
-                
-                if (requireEndInsertValueIfNotNull) {
-                    appendEndInsertValueIfNotNull(result, false);
                 }
             }
 
