@@ -3351,6 +3351,10 @@ public class SqlQueryGeneratorTest {
         FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull2", DataTypeInfo.BOXED_INT_DATA_TYPE);
         fieldWithValueWhenNull.setValueWhenNull("WithValueWhenNullValue2");
         entity.addField(fieldWithValueWhenNull);
+        FieldInfo fieldUserWithValueWhenNull = new FieldInfo("updateUserMarkFieldWithValueWhenNull3", DataTypeInfo.BOXED_INT_DATA_TYPE);
+        fieldUserWithValueWhenNull.setValueWhenNull("WithValueWhenNullValue3");
+        fieldUserWithValueWhenNull.setUpdateUserMark(true);
+        entity.addField(fieldUserWithValueWhenNull);
         OperationInfo operation = getEntityMergeOperation(entity);
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.handleVersionFieldOnUpdate = true;
@@ -3367,7 +3371,8 @@ public class SqlQueryGeneratorTest {
             "    versionMarkField = nextVersion!versionMarkField,",
             "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
             "    <if test='normalField != null'>normalField = parameterValue!normalField,</if>",
-            "    fieldWithValueWhenNull2 = parameterValueAndWhenNull!fieldWithValueWhenNull2!WithValueWhenNullValue2",
+            "    fieldWithValueWhenNull2 = parameterValueAndWhenNull!fieldWithValueWhenNull2!WithValueWhenNullValue2,",
+            "    updateUserMarkFieldWithValueWhenNull3 = parameterValueAndWhenNull!updateUserMarkFieldWithValueWhenNull3!WithValueWhenNullValue3",
             "</set>",
             "where",
             "    idField = parameterValue!idField",
@@ -3670,6 +3675,30 @@ public class SqlQueryGeneratorTest {
             "    deleteDateMarkField = current_timestamp,",
             "    deletionMarkField = true,",
             "    versionMarkField = nextVersion!versionMarkField",
+            "where",
+            "    idField = parameterValue!id",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityDeleteByIdQueryWithDeleteUserWithValueWhenNull() {
+        EntityInfo entity = getEntityForDeleteQuery(false);
+        FieldInfo deleteUser = new FieldInfo("deleteUser", DataTypeInfo.INT_DATA_TYPE);
+        deleteUser.setValueWhenNull("deleteUserValue");
+        deleteUser.setDeleteUserMark(true);
+        entity.addField(deleteUser);
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnDelete = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "set",
+            "    deleteDateMarkField = current_timestamp,",
+            "    deletionMarkField = true,",
+            "    versionMarkField = nextVersion!versionMarkField,",
+            "    deleteUser = parameterValueAndWhenNull!deleteUser!deleteUserValue",
             "where",
             "    idField = parameterValue!id",
             "    and deletionMarkField = false"};

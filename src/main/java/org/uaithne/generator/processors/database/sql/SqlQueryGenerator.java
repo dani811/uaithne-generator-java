@@ -1564,9 +1564,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                             result.append(",\n");
                         }
                         result.append("    ");
-                        appendStartSetValueIfNotNull(result, field);
-                        requireComma = true;
-                        requireEndSetValueIfNotNull = true;
+                        if (field.getValueWhenNull() == null) {
+                            appendStartSetValueIfNotNull(result, field);
+                            requireEndSetValueIfNotNull = true;
+                        } else {
+                            result.append(getColumnName(field));
+                            result.append(" = ");
+                            result.append(getParameterValue(field));
+                        }
                     } else if (field.isInsertDateMark()) {
                         continue;
                     } else if (field.isInsertUserMark()) {
@@ -1690,8 +1695,18 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         appendDeletedValue(result, field);
                         requireComma = true;
                     } else if (field.isDeleteUserMark()) {
-                        // TODO: deleteUser
-                        continue;
+                        if (field.getValueWhenNull() == null) {
+                            // TODO: deleteUser
+                        } else {
+                            if (requireComma) {
+                                result.append(",\n");
+                            }
+                            result.append("    ");
+                            result.append(getColumnName(field));
+                            result.append(" = ");
+                            result.append(getParameterValue(field));
+                            requireComma = true;
+                        }
                     } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnDelete()) {
                             continue;
