@@ -1724,6 +1724,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                             result.append(",\n");
                         }
                         result.append("    ");
+                        DataTypeInfo dataType = field.getDataType();
+                        if (dataType.isPrimitive()) {
+                            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields of a entity used in a merge operation must allow use must allow null values, but a primitive data types do not allow it; you must use " + dataType.ensureBoxed().getSimpleName() + " instead of " + dataType.getSimpleName() + " in the field " + field.getName(), field.getElement());
+                        }
                         if (field.getValueWhenNull() == null) {
                             appendStartSetValueIfNotNull(result, field);
                             requireEndSetValueIfNotNull = true;

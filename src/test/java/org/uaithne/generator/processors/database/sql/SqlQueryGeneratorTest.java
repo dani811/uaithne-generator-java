@@ -2721,7 +2721,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
-        FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull", DataTypeInfo.BOXED_INT_DATA_TYPE);
         fieldWithValueWhenNull.setValueWhenNull("WithValueWhenNullValue");
         FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
         field5.setDeletionMark(true);
@@ -2821,7 +2821,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testGetEntityMergeQueryWithValueWhenNull() {
         EntityInfo entity = getEntityForMergeQuery(false);
-        FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull2", DataTypeInfo.INT_DATA_TYPE);
+        FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull2", DataTypeInfo.BOXED_INT_DATA_TYPE);
         fieldWithValueWhenNull.setValueWhenNull("WithValueWhenNullValue2");
         entity.addField(fieldWithValueWhenNull);
         OperationInfo operation = getEntityMergeOperation(entity);
@@ -2936,6 +2936,43 @@ public class SqlQueryGeneratorTest {
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String[] expResult = new String[]{"merge", "query"};
         String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityMergeQueryWithNotNullableFlied() {
+        EntityInfo entity = getEntityForMergeQuery(false);
+        FieldInfo notNullableField = new FieldInfo("notNullable", DataTypeInfo.INT_DATA_TYPE);
+        entity.addField(notNullableField);
+        OperationInfo operation = getEntityMergeOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='mappedField != null'>mappedName = parameterValue!mappedField,</if>",
+            "    <if test='field != null'>field = parameterValue!field,</if>",
+            "    fieldWithValueWhenNull = parameterValueAndWhenNull!fieldWithValueWhenNull!WithValueWhenNullValue,",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateDateMarkFieldBIS = current_timestamp,",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='updateUserMarkFieldBIS != null'>updateUserMarkFieldBIS = parameterValue!updateUserMarkFieldBIS,</if>",
+            "    versionMarkField = nextVersion!versionMarkField,",
+            "    versionMarkFieldBIS = nextVersion!versionMarkFieldBIS,",
+            "    <if test='normalField != null'>normalField = parameterValue!normalField,</if>",
+            "    <if test='notNullable != null'>notNullable = parameterValue!notNullable</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"};
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+
+        ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
+        ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
+        expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
+                "Fields of a entity used in a merge operation must allow use must allow null values, but a primitive data types do not allow it; you must use Integer instead of int in the field notNullable",
+                notNullableField.getElement()));
+        assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertArrayEquals(expResult, result);
     }
 
