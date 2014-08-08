@@ -46,7 +46,7 @@ public class ApplicationParameterDriverTemplate extends ClassTemplate {
             "     * @param applicationParameter\n" +
             "     */\n" +
             "    public void setApplicationParameter(Object applicationParameter) {\n" +
-            "        applicationParameters.set(applicationParameters);\n" +
+            "        applicationParameters.set(applicationParameter);\n" +
             "    }\n" +
             "\n" +
             "    @Override\n" +
