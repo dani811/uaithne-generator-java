@@ -254,12 +254,12 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
 
     private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, HashSet<String> loaded, boolean ignoreUaithne) {
         DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
-        String packageName = dataType.getPackageName();
+        String qualifiedName = dataType.getQualifiedNameWithoutGenerics();
 
-        if (ignoreUaithne && packageName != null && packageName.startsWith("org.uaithne.annotations.")) {
+        if (ignoreUaithne && qualifiedName.startsWith("org.uaithne.annotations.")) {
             return;
         }
-        if (loaded != null && loaded.contains(dataType.getQualifiedNameWithoutGenerics())) {
+        if (loaded != null && loaded.contains(qualifiedName)) {
             return;
         }
         
