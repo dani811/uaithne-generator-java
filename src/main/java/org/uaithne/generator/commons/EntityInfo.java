@@ -378,6 +378,9 @@ public class EntityInfo {
         hasMultiplesIds = false;
         for (FieldInfo field : fields) {
             FieldInfo relatedField = relatedFieldsByName.get(field.getName());
+            if (relatedField == null) {
+                continue;
+            }
             field.setRelated(relatedField);
             if (relatedField.isIdentifier()) {
                 field.setIdentifier(true);
