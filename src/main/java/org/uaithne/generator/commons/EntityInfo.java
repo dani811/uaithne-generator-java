@@ -118,6 +118,14 @@ public class EntityInfo {
     public FieldInfo getFieldByName(String name) {
         return fieldsByName.get(name);
     }
+    
+    public FieldInfo getFieldByNameWithRelated(String name) {
+        FieldInfo field = fieldsByName.get(name);
+        if (field == null && related != null) {
+            return related.getFieldByNameWithRelated(name);
+        }
+        return field;
+    }
 
     public ArrayList<OperationInfo> getOperations() {
         return operations;

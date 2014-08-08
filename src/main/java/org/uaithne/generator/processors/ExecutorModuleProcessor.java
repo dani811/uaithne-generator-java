@@ -564,7 +564,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
                 FieldInfo fi = new FieldInfo(ve, generationInfo, processingEnv);
                 if (entityInfo != null) {
-                    FieldInfo fieldInEntity = entityInfo.getFieldByName(fi.getName());
+                    FieldInfo fieldInEntity = entityInfo.getFieldByNameWithRelated(fi.getName());
                     fi.setRelated(fieldInEntity);
                 }
                 operationInfo.addField(fi);
