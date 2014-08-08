@@ -49,7 +49,7 @@ import org.uaithne.generator.templates.operations.myBatis.MyBatisTemplate;
 public class MyBatisMapperProcessor extends TemplateProcessor {
     
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+    public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
         for (Element element : re.getElementsAnnotatedWith(MyBatisMapper.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 MyBatisMapper myBatisMapper = element.getAnnotation(MyBatisMapper.class);

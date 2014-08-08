@@ -64,7 +64,7 @@ import org.uaithne.generator.templates.shared.gwt.shared.rpc.RpcResponse_CustomF
 public class SharedGwtLibraryProcessor extends TemplateProcessor {
 
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+    public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
         GenerationInfo generationInfo = getGenerationInfo();
         for (Element element : re.getElementsAnnotatedWith(SharedGwtLibrary.class)) {
             if (element.getKind() == ElementKind.CLASS) {

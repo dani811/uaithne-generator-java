@@ -38,7 +38,7 @@ import org.uaithne.generator.templates.gwt.GwtRemoteServiceTemplate;
 public class GwtRemoteServiceProcessor extends TemplateProcessor {
 
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+    public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
         GenerationInfo generationInfo = getGenerationInfo();
 
         for (Element element : re.getElementsAnnotatedWith(GwtRemoteService.class)) {

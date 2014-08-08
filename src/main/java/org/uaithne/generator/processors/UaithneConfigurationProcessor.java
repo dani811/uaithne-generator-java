@@ -39,7 +39,7 @@ import org.uaithne.generator.commons.TemplateProcessor;
 public class UaithneConfigurationProcessor extends TemplateProcessor {
 
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+    public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
         GenerationInfo generationInfo = getGenerationInfo();
         for (Element element : re.getElementsAnnotatedWith(UaithneConfiguration.class)) {
             if (element.getKind() == ElementKind.CLASS) {

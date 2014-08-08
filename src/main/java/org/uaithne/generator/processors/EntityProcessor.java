@@ -38,7 +38,7 @@ import org.uaithne.generator.templates.EntityTemplate;
 public class EntityProcessor extends TemplateProcessor {
 
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+    public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
 
         boolean generate = false;
         for (Element element : re.getElementsAnnotatedWith(Entity.class)) {

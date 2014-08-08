@@ -41,7 +41,7 @@ import org.uaithne.generator.templates.shared.myBatis.SqlSessionProviderTemplate
 public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
 
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+    public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
         for (Element element : re.getElementsAnnotatedWith(SharedMyBatisLibrary.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;

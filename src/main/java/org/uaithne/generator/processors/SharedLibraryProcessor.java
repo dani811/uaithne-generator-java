@@ -58,7 +58,7 @@ import org.uaithne.generator.templates.shared.UpdateValueOperationTemplate;
 public class SharedLibraryProcessor extends TemplateProcessor {
 
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+    public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
         GenerationInfo generationInfo = getGenerationInfo();
         for (Element element : re.getElementsAnnotatedWith(SharedLibrary.class)) {
             if (element.getKind() == ElementKind.CLASS) {
