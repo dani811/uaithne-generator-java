@@ -580,7 +580,7 @@ public class FieldInfo {
         if (m != null) {
             manually = true;
             manuallyProgrammatically = m.onlyProgrammatically();
-        };
+        }
         
         ValueWhenNull whenNull = element.getAnnotation(ValueWhenNull.class);
         if (whenNull != null) {

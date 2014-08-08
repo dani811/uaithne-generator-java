@@ -900,7 +900,21 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             StringBuilder result = new StringBuilder();
             result.append("update");
             appendTableName(result, entity, customQuery, "    ");
-            result.append("\nset");
+            
+            boolean useSetTag = operation.hasIgnoreWhenNull();
+            if (customQuery != null) {
+                useSetTag = useSetTag ||
+                    hasQueryValue(customQuery.beforeUpdateSetExpression()) || 
+                    hasQueryValue(customQuery.updateSet()) || 
+                    hasQueryValue(customQuery.afterUpdateSetExpression());
+            }
+            
+            if (useSetTag) {
+                result.append("\n");
+                appendStartSet(result);
+            } else {
+                result.append("\nset");
+            }
 
             HashSet<FieldInfo> excludeFields;
             if (customQuery != null) {
@@ -989,6 +1003,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (customQuery != null) {
                 appendToQueryln(result, customQuery.afterUpdateSetExpression(), "    ");
             }
+            
+            if (useSetTag) {
+                appendEndSet(result, "\n");
+            }
+            
             appendWhere(result, operation, customQuery, false);
             finalQuery = result.toString();
         } else {
@@ -1409,7 +1428,21 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             StringBuilder result = new StringBuilder();
             result.append("update");
             appendTableName(result, entity, customQuery, "    ");
-            result.append("\nset");
+            
+            boolean useSetTag = false;
+            if (customQuery != null) {
+                useSetTag = useSetTag ||
+                    hasQueryValue(customQuery.beforeUpdateSetExpression()) || 
+                    hasQueryValue(customQuery.updateSet()) || 
+                    hasQueryValue(customQuery.afterUpdateSetExpression());
+            }
+            
+            if (useSetTag) {
+                result.append("\n");
+                appendStartSet(result);
+            } else {
+                result.append("\nset");
+            }
 
             HashSet<FieldInfo> excludeFields;
             if (customQuery != null) {
@@ -1486,6 +1519,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
             if (customQuery != null) {
                 appendToQueryln(result, customQuery.afterUpdateSetExpression(), "    ");
+            }
+            
+            if (useSetTag) {
+                appendEndSet(result, "\n");
             }
             
             ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(1);

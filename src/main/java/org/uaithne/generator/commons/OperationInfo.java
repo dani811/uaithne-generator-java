@@ -53,6 +53,7 @@ public class OperationInfo {
     private boolean deprecated;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
     private boolean reuseEntityOperations;
+    private boolean hasIgnoreWhenNull;
 
     public String[] getDocumentation() {
         return documentation;
@@ -134,6 +135,9 @@ public class OperationInfo {
         fields.add(fieldInfo);
         if (fieldInfo.isOrderBy()) {
             ordered = true;
+        }
+        if (fieldInfo.isIgnoreWhenNull()) {
+            hasIgnoreWhenNull = true;
         }
     }
 
@@ -337,6 +341,10 @@ public class OperationInfo {
 
     public void setReuseEntityOperations(boolean reuseEntityOperations) {
         this.reuseEntityOperations = reuseEntityOperations;
+    }
+
+    public boolean hasIgnoreWhenNull() {
+        return hasIgnoreWhenNull;
     }
 
     public OperationInfo(TypeElement classElement, String packageName) {

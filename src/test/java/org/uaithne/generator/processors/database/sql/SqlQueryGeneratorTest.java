@@ -1781,13 +1781,14 @@ public class SqlQueryGeneratorTest {
         instance.handleVersionFieldOnUpdate = true;
         String[] expResult = new String[]{"update",
             "    MyEntity ",
-            "set",
+            "<set>",
             "    setValueField1 = parameterValue!setValueField1,",
             "    setValueField2 = parameterValue!setValueField2,",
             "    <if test='setValueField3 != null'>setValueField3 = parameterValue!setValueField3,</if>",
             "    updateDateMarkField1 = current_timestamp,",
             "    updateDateMarkField2 = current_timestamp,",
             "    versionMarkField = nextVersion!versionMarkField",
+            "</set>",
             "where",
             "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
         String[] result = instance.getCustomUpdateQuery(operation);
@@ -1820,10 +1821,11 @@ public class SqlQueryGeneratorTest {
         instance.handleVersionFieldOnUpdate = true;
         String[] expResult = new String[]{"update",
             "    MyEntity ",
-            "set",
+            "<set>",
             "    setValueField1 = parameterValue!setValueField1,",
             "    <if test='setValueField2 != null'>setValueField2 = parameterValue!setValueField2,</if>",
             "    <if test='setValueField3 != null'>setValueField3 = parameterValue!setValueField3</if>",
+            "</set>",
             "where",
             "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
         String[] result = instance.getCustomUpdateQuery(operation);
@@ -1858,11 +1860,12 @@ public class SqlQueryGeneratorTest {
         instance.handleVersionFieldOnUpdate = true;
         String[] expResult = new String[]{"update",
             "    MyEntity ",
-            "set",
+            "<set>",
             "    setValueField1 = parameterValue!setValueField1,",
             "    setValueField2 = parameterValue!setValueField2,",
             "    <if test='setValueField3 != null'>setValueField3 = parameterValue!setValueField3,</if>",
             "    updateDateMarkField2 = current_timestamp",
+            "</set>",
             "where",
             "    operationField in <foreach collection='operationField' open='(' separator=',' close=')' item='_item_operationField'> #{_item_operationField,jdbcType=INTEGER} </foreach>"};
         String[] result = instance.getCustomUpdateQuery(operation);
@@ -1933,13 +1936,72 @@ public class SqlQueryGeneratorTest {
             "    custom",
             "    sql",
             "    from ",
-            "set",
+            "<set>",
             "    before",
             "    insertIntoExpression ",
             "    insertInto",
             "    code ",
             "    after",
-            "    insertIntoExpression "};
+            "    insertIntoExpression ",
+            "</set>"
+        };
+        String[] result = instance.getCustomUpdateQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetCustomUpdateQueryWithCustomSqlQueryWithoutQueryValue2() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setEntity(getEntityForCustomUpdateQuery());
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        customSqlQuery.updateSet = new String[]{"insertInto", "code"};
+        customSqlQuery.afterUpdateSetExpression = new String[]{"after", "insertIntoExpression"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"update",
+            "    custom",
+            "    sql",
+            "    from ",
+            "<set>",
+            "    insertInto",
+            "    code ",
+            "    after",
+            "    insertIntoExpression ",
+            "</set>"
+        };
+        String[] result = instance.getCustomUpdateQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetCustomUpdateQueryWithCustomSqlQueryWithoutQueryValue3() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setEntity(getEntityForCustomUpdateQuery());
+        FieldInfo setValueField1 = new FieldInfo("setValueField1", DataTypeInfo.LIST_DATA_TYPE);
+        setValueField1.setSetValueMark(true);
+        operation.addField(setValueField1);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        customSqlQuery.afterUpdateSetExpression = new String[]{"after", "insertIntoExpression"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"update",
+            "    custom",
+            "    sql",
+            "    from ",
+            "<set>",
+            "    setValueField1 = parameterValue!setValueField1,",
+            "    updateDateMarkField1 = current_timestamp,",
+            "    updateDateMarkField2 = current_timestamp",
+            "    after",
+            "    insertIntoExpression ",
+            "</set>"
+        };
         String[] result = instance.getCustomUpdateQuery(operation);
         assertArrayEquals(expResult, result);
     }
@@ -3172,13 +3234,75 @@ public class SqlQueryGeneratorTest {
             "    custom",
             "    sql",
             "    from ",
-            "set",
+            "<set>",
             "    before",
             "    insertIntoExpression ",
             "    insertInto",
             "    code ",
             "    after",
             "    insertIntoExpression ",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"
+        };
+        String[] result = instance.getEntityUpdateQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityUpdateQueryWithCustomSqlQueryWithoutQueryValue2() {
+        EntityInfo entity = getEntityForUpdateQuery(false);
+        OperationInfo operation = getEntityUpdateOperation(entity);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        customSqlQuery.updateSet = new String[]{"insertInto", "code"};
+        customSqlQuery.afterUpdateSetExpression = new String[]{"after", "insertIntoExpression"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"update",
+            "    custom",
+            "    sql",
+            "    from ",
+            "<set>",
+            "    insertInto",
+            "    code ",
+            "    after",
+            "    insertIntoExpression ",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField",
+            "    and deletionMarkField = false"
+        };
+        String[] result = instance.getEntityUpdateQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetEntityUpdateQueryWithCustomSqlQueryWithoutQueryValue3() {
+        EntityInfo entity = getEntityForUpdateQuery(false);
+        OperationInfo operation = getEntityUpdateOperation(entity);
+
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.from = new String[]{"custom", "sql", "from"};
+        customSqlQuery.afterUpdateSetExpression = new String[]{"after", "insertIntoExpression"};
+        operation.addAnnotation(customSqlQuery);
+
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"update",
+            "    custom",
+            "    sql",
+            "    from ",
+            "<set>",
+            "    mappedName = parameterValue!mappedField,",
+            "    field = parameterValue!field,",
+            "    updateDateMarkField = current_timestamp,",
+            "    updateUserMarkField = parameterValue!updateUserMarkField",
+            "    after",
+            "    insertIntoExpression ",
+            "</set>",
             "where",
             "    idField = parameterValue!idField",
             "    and deletionMarkField = false"
