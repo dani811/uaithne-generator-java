@@ -152,11 +152,12 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
         }
         
+        int indexOffset = 0;
         for (Element enclosedModuleElement : moduleElement.getEnclosedElements()) {
             if (enclosedModuleElement.getKind() == ElementKind.CLASS) {
                 Entity entity = enclosedModuleElement.getAnnotation(Entity.class);
                 if (entity != null) {
-                    processEntityElement(re, (TypeElement) enclosedModuleElement, executorModuleInfo);
+                    indexOffset = processEntityElement(re, (TypeElement) enclosedModuleElement, executorModuleInfo, indexOffset);
                 }
             }
         }
@@ -592,28 +593,28 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         
     }
 
-    public void processEntityElement(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo) {
+    public int processEntityElement(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, int indexOffset) {
         GenerationInfo generationInfo = getGenerationInfo();
         EntityInfo entityInfo = generationInfo.getEntitiesByRealName().get(element.getQualifiedName().toString());
         if (entityInfo == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the entity element", element);
-            return;
+            return 0;
         }
-        int index = entityInfo.getEntityOperationsIndex();
+        int index = entityInfo.getEntityOperationsIndex() + indexOffset;
 
         EntityInfo combinedEntity = entityInfo.getCombined();
         FieldInfo idInfo = combinedEntity.getFirstIdField();
         if (idInfo == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define an id for use in an executor group", element);
-            return;
+            return 0;
         } else if (combinedEntity.hasMultiplesIds()) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "An entity must define only one id for use in an executor group", element);
-            return;
+            return 0;
         } else {
             idInfo = combinedEntity.getFirstIdField();
             if (idInfo == null) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the id field element", element);
-                return;
+                return 0;
             }
         }
         DataTypeInfo realIdDataType = idInfo.getDataType();
@@ -884,6 +885,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 generationInfo.addOperation(mergeOperationInfo, executorModuleInfo, index);
             }
         }
+        return index - indexOffset;
     }
     
     private boolean hasMembers(TypeElement element) {
