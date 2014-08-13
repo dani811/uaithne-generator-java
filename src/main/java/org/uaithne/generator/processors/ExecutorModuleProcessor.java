@@ -719,7 +719,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 field.setValidationGroups(null);
                 field.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.INSERT_ENTITY_VALUE));
                 field.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.INSERT_ENTITY_VALUE));
-                field.setValidationRule(ValidationRule.VALIDATE);
+                field.setValidationRule(ValidationRule.VALIDATE_FOR_INSERT);
                 insertOperationInfo.addField(field);
                 insertOperationInfo.setEntity(entityInfo);
                 insertOperationInfo.setManually(entityInfo.getCombined().isManually());
@@ -748,7 +748,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 field.setValidationGroups(null);
                 field.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.INSERT_ENTITY_VALUE));
                 field.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.INSERT_ENTITY_VALUE));
-                field.setValidationRule(ValidationRule.VALIDATE);
+                field.setValidationRule(ValidationRule.VALIDATE_FOR_INSERT);
                 justInsertOperationInfo.addField(field);
                 justInsertOperationInfo.setEntity(entityInfo);
                 justInsertOperationInfo.setManually(entityInfo.getCombined().isManually());
@@ -791,7 +791,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     field.setValidationGroups(null);
                     field.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.SAVE_ENTITY_VALUE));
                     field.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.SAVE_ENTITY_VALUE));
-                    field.setValidationRule(ValidationRule.VALIDATE_FOR_NOT_INSERT);
+                    field.setValidationRule(ValidationRule.VALIDATE_FOR_SAVE);
                     saveOperationInfo.addField(field);
                     saveOperationInfo.setEntity(entityInfo);
                     saveOperationInfo.setManually(entityInfo.getCombined().isManually());
@@ -824,7 +824,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                     field.setValidationGroups(null);
                     field.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.SAVE_ENTITY_VALUE));
                     field.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.SAVE_ENTITY_VALUE));
-                    field.setValidationRule(ValidationRule.VALIDATE_FOR_NOT_INSERT);
+                    field.setValidationRule(ValidationRule.VALIDATE_FOR_SAVE);
                     justSaveOperationInfo.addField(field);
                     justSaveOperationInfo.setEntity(entityInfo);
                     justSaveOperationInfo.setManually(entityInfo.getCombined().isManually());
@@ -877,7 +877,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 field.setValidationGroups(null);
                 field.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.UPDATE_ENTITY_VALUE));
                 field.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.UPDATE_ENTITY_VALUE));
-                field.setValidationRule(ValidationRule.VALIDATE_FOR_NOT_INSERT);
+                field.setValidationRule(ValidationRule.VALIDATE_FOR_UPDATE);
                 updateOperationInfo.addField(field);
                 updateOperationInfo.setEntity(entityInfo);
                 updateOperationInfo.setManually(entityInfo.getCombined().isManually());
@@ -905,7 +905,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 field.setValidationGroups(null);
                 field.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.MERGE_ENTITY_VALUE));
                 field.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.MERGE_ENTITY_VALUE));
-                field.setValidationRule(ValidationRule.VALIDATE_FOR_NOT_INSERT);
+                field.setValidationRule(ValidationRule.VALIDATE_FOR_MERGE);
                 mergeOperationInfo.addField(field);
                 mergeOperationInfo.setEntity(entityInfo);
                 mergeOperationInfo.setManually(entityInfo.getCombined().isManually());
@@ -953,7 +953,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setValidationGroups(null);
         valueInfo.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.INSERT_ENTITY_VALUE));
         valueInfo.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.INSERT_ENTITY_VALUE));
-        valueInfo.setValidationRule(ValidationRule.VALIDATE);
+        valueInfo.setValidationRule(ValidationRule.VALIDATE_FOR_INSERT);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setEntity(entity);
@@ -1026,7 +1026,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setValidationGroups(null);
         valueInfo.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.UPDATE_ENTITY_VALUE));
         valueInfo.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.UPDATE_ENTITY_VALUE));
-        valueInfo.setValidationRule(ValidationRule.VALIDATE_FOR_NOT_INSERT);
+        valueInfo.setValidationRule(ValidationRule.VALIDATE_FOR_UPDATE);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);
@@ -1195,7 +1195,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setValidationGroups(null);
         valueInfo.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.SAVE_ENTITY_VALUE));
         valueInfo.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.SAVE_ENTITY_VALUE));
-        valueInfo.setValidationRule(ValidationRule.VALIDATE_FOR_NOT_INSERT);
+        valueInfo.setValidationRule(ValidationRule.VALIDATE_FOR_SAVE);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setEntity(entity);
@@ -1260,7 +1260,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         valueInfo.setValidationGroups(null);
         valueInfo.setValidationAnnotations(generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.MERGE_ENTITY_VALUE));
         valueInfo.setValidationSubstitutions(generationInfo.getValidationSubstitutions().get(AnnotationConfigurationKeys.MERGE_ENTITY_VALUE));
-        valueInfo.setValidationRule(ValidationRule.VALIDATE_FOR_NOT_INSERT);
+        valueInfo.setValidationRule(ValidationRule.VALIDATE_FOR_MERGE);
 
         OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
         operationInfo.setReturnDataType(DataTypeInfo.AFFECTED_ROW_COUNT_DATA_TYPE);

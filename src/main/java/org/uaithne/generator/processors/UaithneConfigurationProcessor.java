@@ -115,9 +115,24 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                         validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY));
                     }
                     
-                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.NOT_INSERT_GROUP);
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.INSERT_GROUP);
                     if (validationDataTypes.size() > 1) {
-                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only one NOT_INSERT_GROUP can exist", element);
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only one INSERT_GROUP can exist", element);
+                    }
+                    
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.UPDATE_GROUP);
+                    if (validationDataTypes.size() > 1) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only one UPDATE_GROUP can exist", element);
+                    }
+                    
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.MERGE_GROUP);
+                    if (validationDataTypes.size() > 1) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only one MERGE_GROUP can exist", element);
+                    }
+                    
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.SAVE_GROUP);
+                    if (validationDataTypes.size() > 1) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only one SAVE_GROUP can exist", element);
                     }
                     
                     for (ArrayList<DataTypeInfo> types : validationConfigurations.values()) {

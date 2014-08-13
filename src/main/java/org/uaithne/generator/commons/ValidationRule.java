@@ -20,5 +20,8 @@ package org.uaithne.generator.commons;
 
 public enum ValidationRule {
     VALIDATE,
-    VALIDATE_FOR_NOT_INSERT
+    VALIDATE_FOR_INSERT,
+    VALIDATE_FOR_UPDATE,
+    VALIDATE_FOR_MERGE,
+    VALIDATE_FOR_SAVE
 }

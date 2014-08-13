@@ -256,9 +256,33 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
         if (generationInfo.isEnableBeanValidations()) {
             if (field.getValidationRule() == ValidationRule.VALIDATE) {
                 imports.add("javax.validation.Valid");
-            } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_NOT_INSERT) {
+            } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_INSERT) {
                 imports.add("javax.validation.Valid");
-                ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.NOT_INSERT_GROUP);
+                ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.INSERT_GROUP);
+                if (!notInsertGroups.isEmpty()) {
+                    imports.add("javax.validation.groups.Default");
+                    imports.add("javax.validation.groups.ConvertGroup");
+                    notInsertGroups.get(0).appendImports(currentPackage, imports);
+                }
+            } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_UPDATE) {
+                imports.add("javax.validation.Valid");
+                ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.UPDATE_GROUP);
+                if (!notInsertGroups.isEmpty()) {
+                    imports.add("javax.validation.groups.Default");
+                    imports.add("javax.validation.groups.ConvertGroup");
+                    notInsertGroups.get(0).appendImports(currentPackage, imports);
+                }
+            } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_SAVE) {
+                imports.add("javax.validation.Valid");
+                ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.SAVE_GROUP);
+                if (!notInsertGroups.isEmpty()) {
+                    imports.add("javax.validation.groups.Default");
+                    imports.add("javax.validation.groups.ConvertGroup");
+                    notInsertGroups.get(0).appendImports(currentPackage, imports);
+                }
+            } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_MERGE) {
+                imports.add("javax.validation.Valid");
+                ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.MERGE_GROUP);
                 if (!notInsertGroups.isEmpty()) {
                     imports.add("javax.validation.groups.Default");
                     imports.add("javax.validation.groups.ConvertGroup");
@@ -482,12 +506,45 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
                     if (!loaded.contains("javax.validation.Valid")) {
                         appender.append("    @Valid\n");
                     }
-                } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_NOT_INSERT) {
+                } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_INSERT) {
                     if (!loaded.contains("javax.validation.Valid")) {
                         appender.append("    @Valid\n");
                     }
                     // TODO: handle multiple instances of ConvertGroup annotation
-                    ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.NOT_INSERT_GROUP);
+                    ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.INSERT_GROUP);
+                    if (!notInsertGroups.isEmpty()) {
+                        appender.append("    @ConvertGroup(from = Default.class, to = ");
+                        appender.append(notInsertGroups.get(0).getSimpleName());
+                        appender.append(".class)\n");
+                    }
+                } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_UPDATE) {
+                    if (!loaded.contains("javax.validation.Valid")) {
+                        appender.append("    @Valid\n");
+                    }
+                    // TODO: handle multiple instances of ConvertGroup annotation
+                    ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.UPDATE_GROUP);
+                    if (!notInsertGroups.isEmpty()) {
+                        appender.append("    @ConvertGroup(from = Default.class, to = ");
+                        appender.append(notInsertGroups.get(0).getSimpleName());
+                        appender.append(".class)\n");
+                    }
+                } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_SAVE) {
+                    if (!loaded.contains("javax.validation.Valid")) {
+                        appender.append("    @Valid\n");
+                    }
+                    // TODO: handle multiple instances of ConvertGroup annotation
+                    ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.SAVE_GROUP);
+                    if (!notInsertGroups.isEmpty()) {
+                        appender.append("    @ConvertGroup(from = Default.class, to = ");
+                        appender.append(notInsertGroups.get(0).getSimpleName());
+                        appender.append(".class)\n");
+                    }
+                } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_MERGE) {
+                    if (!loaded.contains("javax.validation.Valid")) {
+                        appender.append("    @Valid\n");
+                    }
+                    // TODO: handle multiple instances of ConvertGroup annotation
+                    ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.MERGE_GROUP);
                     if (!notInsertGroups.isEmpty()) {
                         appender.append("    @ConvertGroup(from = Default.class, to = ");
                         appender.append(notInsertGroups.get(0).getSimpleName());
