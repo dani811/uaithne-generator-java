@@ -481,6 +481,8 @@ public class DataTypeInfo {
     
     private static final int[] PRIMES = new int[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
 
+    public static final DataTypeInfo VOID_DATA_TYPE = new DataTypeInfo("java.lang", "Void", "java.lang.Void");
+    
     public static final DataTypeInfo BOXED_INT_DATA_TYPE = new DataTypeInfo("java.lang", "Integer", "java.lang.Integer");
     public static final DataTypeInfo BOXED_DOUBLE_DATA_TYPE = new DataTypeInfo("java.lang", "Double", "java.lang.Double");
     public static final DataTypeInfo BOXED_LONG_DATA_TYPE = new DataTypeInfo("java.lang", "Long", "java.lang.Long");

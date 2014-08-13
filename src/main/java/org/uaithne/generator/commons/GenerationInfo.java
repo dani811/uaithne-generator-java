@@ -24,6 +24,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import org.uaithne.annotations.AnnotationConfigurationKeys;
 import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 
 public class GenerationInfo {
@@ -46,19 +47,19 @@ public class GenerationInfo {
     private boolean includeGwtClientExecutors;
     private DataTypeInfo entitiesImplements;
     private MyBatisBackendConfiguration[] myBatisBackends;
-    private DataTypeInfo idValidationAnnotation;
-    private DataTypeInfo mandatoryValidationAnnotation;
-    private DataTypeInfo mandatoryWithDefaultValueWhenInsertValidationAnnotation;
-    private DataTypeInfo optionalValidationAnnotation;
-    private boolean ignoreIdValidationOnPrimitives = true;
-    private boolean ignoreMandatoryValidationOnPrimitives = true;
-    private DataTypeInfo insertValueValidationAnnotation;
-    private DataTypeInfo saveValueValidationAnnotation;
-    private DataTypeInfo mergeValueValidationAnnotation;
-    private DataTypeInfo updateValueValidationAnnotation;
     private DataTypeInfo applicationParameterType;
     private EntityInfo applicationParameter;
     private Element configurationElement;
+    private boolean enableBeanValidations;
+    private HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>> validationConfigurations = new HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>>();
+    private HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions = new HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>>();
+
+    public GenerationInfo() {
+        for (AnnotationConfigurationKeys key : AnnotationConfigurationKeys.values()) {
+            validationConfigurations.put(key, new ArrayList<DataTypeInfo>());
+            validationSubstitutions.put(key, new HashMap<DataTypeInfo, DataTypeInfo>());
+        }
+    }
 
     public HashMap<String, EntityInfo> getEntitiesByRealName() {
         return entitiesByRealName;
@@ -272,86 +273,6 @@ public class GenerationInfo {
         this.myBatisBackends = myBatisBackends;
     }
 
-    public DataTypeInfo getIdValidationAnnotation() {
-        return idValidationAnnotation;
-    }
-
-    public void setIdValidationAnnotation(DataTypeInfo idValidationAnnotation) {
-        this.idValidationAnnotation = idValidationAnnotation;
-    }
-
-    public DataTypeInfo getMandatoryValidationAnnotation() {
-        return mandatoryValidationAnnotation;
-    }
-
-    public void setMandatoryValidationAnnotation(DataTypeInfo mandatoryValidationAnnotation) {
-        this.mandatoryValidationAnnotation = mandatoryValidationAnnotation;
-    }
-
-    public DataTypeInfo getMandatoryWithDefaultValueWhenInsertValidationAnnotation() {
-        return mandatoryWithDefaultValueWhenInsertValidationAnnotation;
-    }
-
-    public void setMandatoryWithDefaultValueWhenInsertValidationAnnotation(DataTypeInfo mandatoryWithDefaultValueWhenInsertValidationAnnotation) {
-        this.mandatoryWithDefaultValueWhenInsertValidationAnnotation = mandatoryWithDefaultValueWhenInsertValidationAnnotation;
-    }
-
-    public DataTypeInfo getOptionalValidationAnnotation() {
-        return optionalValidationAnnotation;
-    }
-
-    public void setOptionalValidationAnnotation(DataTypeInfo optionalValidationAnnotation) {
-        this.optionalValidationAnnotation = optionalValidationAnnotation;
-    }
-
-    public boolean isIgnoreIdValidationOnPrimitives() {
-        return ignoreIdValidationOnPrimitives;
-    }
-
-    public void setIgnoreIdValidationOnPrimitives(boolean ignoreIdValidationOnPrimitives) {
-        this.ignoreIdValidationOnPrimitives = ignoreIdValidationOnPrimitives;
-    }
-
-    public boolean isIgnoreMandatoryValidationOnPrimitives() {
-        return ignoreMandatoryValidationOnPrimitives;
-    }
-
-    public void setIgnoreMandatoryValidationOnPrimitives(boolean ignoreMandatoryValidationOnPrimitives) {
-        this.ignoreMandatoryValidationOnPrimitives = ignoreMandatoryValidationOnPrimitives;
-    }
-
-    public DataTypeInfo getInsertValueValidationAnnotation() {
-        return insertValueValidationAnnotation;
-    }
-
-    public void setInsertValueValidationAnnotation(DataTypeInfo insertValueValidationAnnotation) {
-        this.insertValueValidationAnnotation = insertValueValidationAnnotation;
-    }
-
-    public DataTypeInfo getMergeValueValidationAnnotation() {
-        return mergeValueValidationAnnotation;
-    }
-
-    public void setMergeValueValidationAnnotation(DataTypeInfo mergeValueValidationAnnotation) {
-        this.mergeValueValidationAnnotation = mergeValueValidationAnnotation;
-    }
-
-    public DataTypeInfo getSaveValueValidationAnnotation() {
-        return saveValueValidationAnnotation;
-    }
-
-    public void setSaveValueValidationAnnotation(DataTypeInfo saveValueValidationAnnotation) {
-        this.saveValueValidationAnnotation = saveValueValidationAnnotation;
-    }
-
-    public DataTypeInfo getUpdateValueValidationAnnotation() {
-        return updateValueValidationAnnotation;
-    }
-
-    public void setUpdateValueValidationAnnotation(DataTypeInfo updateValueValidationAnnotation) {
-        this.updateValueValidationAnnotation = updateValueValidationAnnotation;
-    }
-
     public DataTypeInfo getApplicationParameterType() {
         return applicationParameterType;
     }
@@ -383,6 +304,30 @@ public class GenerationInfo {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the application parameter entity", configurationElement);
             }
         }
+    }
+
+    public boolean isEnableBeanValidations() {
+        return enableBeanValidations;
+    }
+    
+    public void setEnableBeanValidations(boolean enableBeanValidations) {
+        this.enableBeanValidations = enableBeanValidations;
+    }
+
+    public HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>> getValidationConfigurations() {
+        return validationConfigurations;
+    }
+
+    public void setValidationConfigurations(HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>> validationConfigurations) {
+        this.validationConfigurations = validationConfigurations;
+    }
+
+    public HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> getValidationSubstitutions() {
+        return validationSubstitutions;
+    }
+
+    public void setValidationSubstitutions(HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions) {
+        this.validationSubstitutions = validationSubstitutions;
     }
 
 }

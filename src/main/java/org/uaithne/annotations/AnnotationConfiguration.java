@@ -22,22 +22,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 
 @Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-public @interface UaithneConfiguration {
-    boolean enableDefaultEntityOperations() default true;
-    boolean enableJustOperations() default false;
-    boolean enableSaveOperations() default true;
-    boolean enableMergeOperations() default true;
-    boolean enableModuleAbstractExecutors() default true;
-    boolean enableModuleChainedExecutors() default true;
-    boolean enableModuleChainedGroupingExecutors() default true;
-    Class<?> entitiesImplements() default Void.class;
-    MyBatisBackendConfiguration[] myBatisBackendConfigurations() default {};
-    Class<?> applicationParameterType() default Void.class;
-    boolean enableBeanValidations() default false;
-    AnnotationConfiguration[] annotationConfigurations() default {};
-    AnnotationSubstitution[] annotationSubstitutions() default {};
+@Target(ElementType.FIELD)
+public @interface AnnotationConfiguration {
+    AnnotationConfigurationKeys key();
+    Class<?> value();
 }

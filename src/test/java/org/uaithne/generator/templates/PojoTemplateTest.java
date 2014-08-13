@@ -24,6 +24,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.TemplateProcessor;
 
 public class PojoTemplateTest {
 
@@ -75,6 +76,7 @@ public class PojoTemplateTest {
         Appendable appender = new StringBuilder();
         FieldInfo field = new FieldInfo("field1", DataTypeInfo.LIST_DATA_TYPE);
         field.setMarkAsTransient(true);
+        field.ensureValidationsInfo(TemplateProcessor.getGenerationInfo());
         PojoTemplate instance = new PojoTemplateImpl();
         instance.writeField(appender, field);
         Assert.assertEquals("    private transient List field1;\n", appender.toString());
@@ -85,6 +87,7 @@ public class PojoTemplateTest {
         Appendable appender = new StringBuilder();
         FieldInfo field = new FieldInfo("field1", DataTypeInfo.LIST_DATA_TYPE);
         field.setDocumentation(new String[]{"Documentation", "for", "field"});
+        field.ensureValidationsInfo(TemplateProcessor.getGenerationInfo());
         PojoTemplate instance = new PojoTemplateImpl();
         instance.writeField(appender, field);
         Assert.assertEquals("    /**\n"
@@ -100,6 +103,7 @@ public class PojoTemplateTest {
         Appendable appender = new StringBuilder();
         FieldInfo field = new FieldInfo("field1", new DataTypeInfo("int"));
         field.setDefaultValue("5");
+        field.ensureValidationsInfo(TemplateProcessor.getGenerationInfo());
         PojoTemplate instance = new PojoTemplateImpl();
         instance.writeField(appender, field);
         Assert.assertEquals("    private int field1 = 5;\n", appender.toString());

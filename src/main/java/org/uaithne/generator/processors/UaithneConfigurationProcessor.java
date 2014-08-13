@@ -18,6 +18,8 @@
  */
 package org.uaithne.generator.processors;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -29,6 +31,9 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
 import org.uaithne.annotations.UaithneConfiguration;
+import org.uaithne.annotations.AnnotationConfiguration;
+import org.uaithne.annotations.AnnotationConfigurationKeys;
+import org.uaithne.annotations.AnnotationSubstitution;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
@@ -54,95 +59,95 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setGenerateModuleChainedExecutorsEnabled(configuration.enableModuleChainedExecutors());
                     generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(configuration.enableModuleChainedGroupingExecutors());
                     generationInfo.setMyBatisBackends(configuration.myBatisBackendConfigurations());
-                    generationInfo.setIgnoreIdValidationOnPrimitives(configuration.ignoreIdValidationOnPrimitives());
-                    generationInfo.setIgnoreMandatoryValidationOnPrimitives(configuration.ignoreMandatoryValidationOnPrimitives());
                     
-                    DataTypeInfo idValidationAnnotation;
-                    try {
-                        idValidationAnnotation = NamesGenerator.createResultDataType(configuration.idValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        idValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
-                    }
-                    if (!idValidationAnnotation.isVoid()) {
-                        generationInfo.setIdValidationAnnotation(idValidationAnnotation);
-                    }
+                    generationInfo.setEnableBeanValidations(configuration.enableBeanValidations());
                     
-                    DataTypeInfo mandatoryValidationAnnotation;
-                    try {
-                        mandatoryValidationAnnotation = NamesGenerator.createResultDataType(configuration.mandatoryValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        mandatoryValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>> validationConfigurations = generationInfo.getValidationConfigurations();
+                    for (AnnotationConfiguration annotationConfiguration : configuration.annotationConfigurations()) {
+                        AnnotationConfigurationKeys key = annotationConfiguration.key();
+                        DataTypeInfo dataType;
+                        try {
+                            dataType = NamesGenerator.createResultDataType(annotationConfiguration.value());
+                        } catch (MirroredTypeException ex) {
+                            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                            dataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                        }
+                        validationConfigurations.get(key).add(dataType);
                     }
-                    if (!mandatoryValidationAnnotation.isVoid()) {
-                        generationInfo.setMandatoryValidationAnnotation(mandatoryValidationAnnotation);
+
+                    ArrayList<DataTypeInfo> validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.ID_STRING);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.ID));
                     }
-                    
-                    DataTypeInfo mandatoryWithDefaultValueWhenInsertValidationAnnotation;
-                    try {
-                        mandatoryWithDefaultValueWhenInsertValidationAnnotation = NamesGenerator.createResultDataType(configuration.mandatoryWithDefaultValueWhenInsertValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        mandatoryWithDefaultValueWhenInsertValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY_STRING);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY));
                     }
-                    if (!mandatoryWithDefaultValueWhenInsertValidationAnnotation.isVoid()) {
-                        generationInfo.setMandatoryWithDefaultValueWhenInsertValidationAnnotation(mandatoryWithDefaultValueWhenInsertValidationAnnotation);
+
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY_WITH_DEFAULT_VALUE_WHEN_INSERT_STRING);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY_WITH_DEFAULT_VALUE_WHEN_INSERT));
                     }
-                    
-                    DataTypeInfo optionalValidationAnnotation;
-                    try {
-                        optionalValidationAnnotation = NamesGenerator.createResultDataType(configuration.optionalValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        optionalValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.OPTIONAL_STRING);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.OPTIONAL));
                     }
-                    if (!optionalValidationAnnotation.isVoid()) {
-                        generationInfo.setOptionalValidationAnnotation(optionalValidationAnnotation);
+
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.INSERT_ENTITY_VALUE);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY));
                     }
-                    
-                    DataTypeInfo insertValueValidationAnnotation;
-                    try {
-                        insertValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.insertValueValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        insertValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.UPDATE_ENTITY_VALUE);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY));
                     }
-                    if (!insertValueValidationAnnotation.isVoid()) {
-                        generationInfo.setInsertValueValidationAnnotation(insertValueValidationAnnotation);
+
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.MERGE_ENTITY_VALUE);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY));
+                    }
+
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.SAVE_ENTITY_VALUE);
+                    if (validationDataTypes.isEmpty()) {
+                        validationDataTypes.addAll(validationConfigurations.get(AnnotationConfigurationKeys.MANDATORY));
                     }
                     
-                    DataTypeInfo saveValueValidationAnnotation;
-                    try {
-                        saveValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.saveValueValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        saveValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
-                    }
-                    if (!saveValueValidationAnnotation.isVoid()) {
-                        generationInfo.setSaveValueValidationAnnotation(saveValueValidationAnnotation);
+                    validationDataTypes = validationConfigurations.get(AnnotationConfigurationKeys.NOT_INSERT_GROUP);
+                    if (validationDataTypes.size() > 1) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only one NOT_INSERT_GROUP can exist", element);
                     }
                     
-                    DataTypeInfo mergeValueValidationAnnotation;
-                    try {
-                        mergeValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.mergeValueValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        mergeValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
-                    }
-                    if (!mergeValueValidationAnnotation.isVoid()) {
-                        generationInfo.setMergeValueValidationAnnotation(mergeValueValidationAnnotation);
+                    for (ArrayList<DataTypeInfo> types : validationConfigurations.values()) {
+                        while(types.remove(DataTypeInfo.VOID_DATA_TYPE)) {
+                            
+                        }
                     }
                     
-                    DataTypeInfo updateValueValidationAnnotation;
-                    try {
-                        updateValueValidationAnnotation = NamesGenerator.createResultDataType(configuration.updateValueValidationAnnotation());
-                    } catch (MirroredTypeException ex) {
-                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                        updateValueValidationAnnotation = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
-                    }
-                    if (!updateValueValidationAnnotation.isVoid()) {
-                        generationInfo.setUpdateValueValidationAnnotation(updateValueValidationAnnotation);
+                    HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions = generationInfo.getValidationSubstitutions();
+                    for (AnnotationSubstitution annotationSubstitution : configuration.annotationSubstitutions()) {
+                        AnnotationConfigurationKeys key = annotationSubstitution.when();
+                        
+                        DataTypeInfo from;
+                        try {
+                            from = NamesGenerator.createResultDataType(annotationSubstitution.from());
+                        } catch (MirroredTypeException ex) {
+                            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                            from = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                        }
+                        
+                        DataTypeInfo to;
+                        try {
+                            to = NamesGenerator.createResultDataType(annotationSubstitution.to());
+                        } catch (MirroredTypeException ex) {
+                            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                            to = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                        }
+                        
+                        validationSubstitutions.get(key).put(from, to);
+                        
                     }
                     
                     DataTypeInfo entitiesImplementsDataType;

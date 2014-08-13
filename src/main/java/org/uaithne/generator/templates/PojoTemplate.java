@@ -30,9 +30,13 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import org.uaithne.annotations.AnnotationConfigurationKeys;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
+import org.uaithne.generator.commons.TemplateProcessor;
+import org.uaithne.generator.commons.ValidationRule;
 
 public abstract class PojoTemplate extends WithFieldsTemplate {
 
@@ -225,14 +229,40 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
     }
 
     protected void appendAnnotationImports(String currentPackage, HashSet<String> imports, FieldInfo field) {
+        GenerationInfo generationInfo = TemplateProcessor.getGenerationInfo();
+        field.ensureValidationsInfo(generationInfo);
+        ArrayList<DataTypeInfo> validationAnnotations = field.getValidationAnnotations();
         HashSet<String> loaded = new HashSet<String>();
-        while (field != null) {
-            appendAnnotationImports(currentPackage, imports, field, loaded);
-            field = field.getRelated();
-            if (field != null) {
-                DataTypeInfo validationAnnotation = field.getValidationAnnotation();
-                if (validationAnnotation != null) {
-                    loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
+        FieldInfo relatedField = field;
+        while (relatedField != null) {
+            appendAnnotationImports(currentPackage, imports, relatedField, loaded);
+            relatedField = relatedField.getRelated();
+            if (relatedField != null) {
+                for (DataTypeInfo validationAnnotation : relatedField.getValidationAnnotations()) {
+                    if (!validationAnnotations.contains(validationAnnotation)) {
+                        loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
+                    }
+                }
+            }
+        }
+        for (DataTypeInfo validationAnnotation : field.getValidationAnnotations()) {
+            if (!loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
+                validationAnnotation.appendImports(currentPackage, imports);
+            }
+        }
+        for (DataTypeInfo validationGroups : field.getValidationGroups()) {
+            validationGroups.appendImports(currentPackage, imports);
+        }
+        if (generationInfo.isEnableBeanValidations()) {
+            if (field.getValidationRule() == ValidationRule.VALIDATE) {
+                imports.add("javax.validation.Valid");
+            } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_NOT_INSERT) {
+                imports.add("javax.validation.Valid");
+                ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.NOT_INSERT_GROUP);
+                if (!notInsertGroups.isEmpty()) {
+                    imports.add("javax.validation.groups.Default");
+                    imports.add("javax.validation.groups.ConvertGroup");
+                    notInsertGroups.get(0).appendImports(currentPackage, imports);
                 }
             }
         }
@@ -242,18 +272,19 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
         VariableElement element = field.getElement();
         if (element != null) {
             for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-                appendAnnotationImports(currentPackage, imports, annotation, loaded, true);
+                appendAnnotationImports(currentPackage, imports, annotation, loaded, field, true);
             }
-        }
-        DataTypeInfo validationAnnotation = field.getValidationAnnotation();
-        
-        if (validationAnnotation != null && !loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
-            validationAnnotation.appendImports(currentPackage, imports);
         }
     }
 
-    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, HashSet<String> loaded, boolean ignoreUaithne) {
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationMirror annotation, HashSet<String> loaded, FieldInfo field, boolean ignoreUaithne) {
         DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
+        if (field.getValidationSubstitutions() != null) {
+            DataTypeInfo s = field.getValidationSubstitutions().get(dataType);
+            if (s != null) {
+                dataType = s;
+            }
+        }
         String qualifiedName = dataType.getQualifiedNameWithoutGenerics();
 
         if (ignoreUaithne && qualifiedName.startsWith("org.uaithne.annotations.")) {
@@ -269,33 +300,54 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
         }
         
         for (AnnotationValue value : annotation.getElementValues().values()) {
-            appendAnnotationImports(currentPackage, imports, value, loaded);
+            appendAnnotationImports(currentPackage, imports, value, loaded, field);
         }        
     }
 
-    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue, HashSet<String> loaded) {
+    private void appendAnnotationImports(String currentPackage, HashSet<String> imports, AnnotationValue annotationValue, HashSet<String> loaded, FieldInfo field) {
         Object value = annotationValue.getValue();
         if (value instanceof TypeMirror) {
             DataTypeInfo type = NamesGenerator.createDataTypeFor((TypeMirror) value, true);
-            type.appendImports(currentPackage, imports);
+            if (field.getValidationSubstitutions() != null) {
+                DataTypeInfo s = field.getValidationSubstitutions().get(type);
+                if (s != null) {
+                    s.appendImports(currentPackage, imports);
+                } else {
+                    type.appendImports(currentPackage, imports);
+                }
+            } else {
+                type.appendImports(currentPackage, imports);
+            }
         } else if (value instanceof VariableElement) {
             VariableElement variableElement = (VariableElement) value;
             DataTypeInfo type = NamesGenerator.createDataTypeFor(variableElement.asType(), true);
-            type.appendImports(currentPackage, imports);
+            if (field.getValidationSubstitutions() != null) {
+                DataTypeInfo s = field.getValidationSubstitutions().get(type);
+                if (s != null) {
+                    s.appendImports(currentPackage, imports);
+                } else {
+                    type.appendImports(currentPackage, imports);
+                }
+            } else {
+                type.appendImports(currentPackage, imports);
+            }
         } else if (value instanceof AnnotationMirror) {
-            appendAnnotationImports(currentPackage, imports, (AnnotationMirror) value, null, false);
+            appendAnnotationImports(currentPackage, imports, (AnnotationMirror) value, null, field, false);
         } else if (value instanceof List) {
             List<? extends AnnotationValue> annotations = (List<? extends AnnotationValue>) value;
             for (AnnotationValue annotation : annotations) {
-                appendAnnotationImports(currentPackage, imports, annotation, null);
+                appendAnnotationImports(currentPackage, imports, annotation, null, field);
             }
         }
     }
 
-    private void appendAnnotationParamsContent(Appendable appender, AnnotationValue annotationValue, String ident) {
+    private void appendAnnotationParamsContent(Appendable appender, AnnotationValue annotationValue, String ident, ArrayList<DataTypeInfo> groups, FieldInfo field) {
         Object value = annotationValue.getValue();
+        if (value == null) {
+            value = groups;
+            groups = null;
+        }
         try {
-
             if (value instanceof String) {
                 appender.append("\"").append(value.toString().replace("\"", "\\\"")).append("\"");
             } else if (value instanceof VariableElement) {
@@ -311,11 +363,14 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             } else if (value instanceof AnnotationMirror) {
                 AnnotationMirror annotation = ((AnnotationMirror) value);
                 DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
-                appendAnnotation(appender, dataType, annotation, ident + "    ", false);
+                appendAnnotation(appender, dataType, annotation, ident + "    ", false, field);
             } else if (value instanceof List) {
                 List<? extends AnnotationValue> annotations = (List<? extends AnnotationValue>) value;
-                int listSize = annotations.size();
-                if (listSize > 1) {
+                boolean manyElements = annotations.size() > 1;
+                if (groups != null) {
+                    manyElements = true;
+                }
+                if (manyElements) {
                     appender.append("{");
                 }
                 boolean requireComma = false;
@@ -323,10 +378,20 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
                     if (requireComma) {
                         appender.append(", ");
                     }
-                    appendAnnotationParamsContent(appender, annotation, ident);
+                    appendAnnotationParamsContent(appender, annotation, ident, null, field);
                     requireComma = true;
                 }
-                if (listSize > 1) {
+                if (groups != null) {
+                    for (DataTypeInfo group : groups) {
+                        if (requireComma) {
+                            appender.append(", ");
+                        }
+                        appender.append(group.getSimpleName());
+                        appender.append(".class");
+                        requireComma = true;
+                    }
+                }
+                if (manyElements) {
                     appender.append("}");
                 }
             } else { // a wrapper class for a primitive type
@@ -338,15 +403,99 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
     }
     
     private void appendFieldBeanValidations(Appendable appender, FieldInfo field) {
+        ArrayList<DataTypeInfo> validationAnnotations = field.getValidationAnnotations();
         HashSet<String> loaded = new HashSet<String>();
-        while (field != null) {
-            appendFieldBeanValidations(appender, field, loaded);
-            field = field.getRelated();
-            if (field != null) {
-                DataTypeInfo validationAnnotation = field.getValidationAnnotation();
-                if (validationAnnotation != null) {
-                    loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
+        FieldInfo relatedField = field;
+        while (relatedField != null) {
+            appendFieldBeanValidations(appender, relatedField, loaded);
+            relatedField = relatedField.getRelated();
+            if (relatedField != null) {
+                for (DataTypeInfo validationAnnotation : relatedField.getValidationAnnotations()) {
+                    if (!validationAnnotations.contains(validationAnnotation)) {
+                        loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
+                    }
                 }
+            }
+        }
+
+        ArrayList<DataTypeInfo> validationGroups = field.getValidationGroups();
+        if (validationGroups.isEmpty()) {
+            validationGroups = null;
+        }
+        if (validationGroups == null) {
+            for (DataTypeInfo validationAnnotation : field.getValidationAnnotations()) {
+                if (!loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
+                    try {
+                        appender.append("    @");
+                        appender.append(validationAnnotation.getSimpleName());
+                        appender.append("\n");
+                    } catch (IOException ex) {
+                        Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        } else if (validationGroups.size() == 1) {
+            DataTypeInfo group = validationGroups.get(0);
+            for (DataTypeInfo validationAnnotation : field.getValidationAnnotations()) {
+                if (!loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
+                    try {
+                        appender.append("    @");
+                        appender.append(validationAnnotation.getSimpleName());
+                        appender.append("(groups = ");
+                        appender.append(group.getSimpleName());
+                        appender.append(".class)");
+                        appender.append("\n");
+                        
+                    } catch (IOException ex) {
+                        Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        } else {
+            for (DataTypeInfo validationAnnotation : field.getValidationAnnotations()) {
+                if (!loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
+                    try {
+                        appender.append("    @");
+                        appender.append(validationAnnotation.getSimpleName());
+                        appender.append("(groups = {");
+                        boolean requireComma = false;
+                        for (DataTypeInfo group : validationGroups) {
+                            if (requireComma) {
+                                appender.append(", ");
+                            }
+                            appender.append(group.getSimpleName());
+                            appender.append(".class");
+                        }
+                        appender.append("})");
+                        appender.append("\n");
+                    } catch (IOException ex) {
+                        Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+        
+        GenerationInfo generationInfo = TemplateProcessor.getGenerationInfo();
+        if (generationInfo.isEnableBeanValidations()) {
+            try {
+                if (field.getValidationRule() == ValidationRule.VALIDATE) {
+                    if (!loaded.contains("javax.validation.Valid")) {
+                        appender.append("    @Valid\n");
+                    }
+                } else if (field.getValidationRule() == ValidationRule.VALIDATE_FOR_NOT_INSERT) {
+                    if (!loaded.contains("javax.validation.Valid")) {
+                        appender.append("    @Valid\n");
+                    }
+                    // TODO: handle multiple instances of ConvertGroup annotation
+                    ArrayList<DataTypeInfo> notInsertGroups = generationInfo.getValidationConfigurations().get(AnnotationConfigurationKeys.NOT_INSERT_GROUP);
+                    if (!notInsertGroups.isEmpty()) {
+                        appender.append("    @ConvertGroup(from = Default.class, to = ");
+                        appender.append(notInsertGroups.get(0).getSimpleName());
+                        appender.append(".class)\n");
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -359,27 +508,32 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
                 DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
                 String qualifiedName = dataType.getQualifiedNameWithoutGenerics();
                 if (!loaded.contains(qualifiedName) && !qualifiedName.startsWith("org.uaithne.annotations.")) {
-                    appendAnnotation(appender, dataType, annotation, "    ", true);
+                    appendAnnotation(appender, dataType, annotation, "    ", true, field);
                     loaded.add(qualifiedName);
                 }
             }
         }
-
-        DataTypeInfo validationAnnotation = field.getValidationAnnotation();
-        if (validationAnnotation != null && !loaded.contains(validationAnnotation.getQualifiedNameWithoutGenerics())) {
-            try {
-                appender.append("    @");
-                appender.append(validationAnnotation.getSimpleName());
-                appender.append("\n");
-                loaded.add(validationAnnotation.getQualifiedNameWithoutGenerics());
-            } catch (IOException ex) {
-                Logger.getLogger(PojoTemplate.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 
-    private void appendAnnotation(Appendable appender, DataTypeInfo dataType, AnnotationMirror annotation, String ident, boolean identFirstLevel) {
+    private void appendAnnotation(Appendable appender, DataTypeInfo dataType, AnnotationMirror annotation, String ident, boolean identFirstLevel, FieldInfo field) {
         try {
+            if (field.getValidationSubstitutions() != null) {
+                DataTypeInfo s = field.getValidationSubstitutions().get(dataType);
+                if (s != null) {
+                    dataType = s;
+                }
+            }
+            ArrayList<DataTypeInfo> validationGroups = field.getValidationGroups();
+            if (validationGroups.isEmpty()) {
+                validationGroups = null;
+            }
+            ArrayList<DataTypeInfo> groups = null;
+            if (field.getValidationAnnotations() != null) {
+                if (field.getValidationAnnotations().contains(dataType)) {
+                    groups = validationGroups;
+                }
+            }
+            
             if (!identFirstLevel) {
                 appender.append("\n");
             }
@@ -388,22 +542,41 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             appender.append(dataType.getSimpleName());
 
             int numberOfElements = annotation.getElementValues().size();
+            if (groups != null) {
+                numberOfElements++;
+            }
             if (numberOfElements != 0) {
                 appender.append("(");
             }
             boolean requireComma = false;
-            boolean hasOnlyOne = numberOfElements == 1;
+            boolean hasOnlyOne = numberOfElements == 1 ;
+            boolean groupsFound = false;
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotation.getElementValues().entrySet()) {
                 if (requireComma) {
                     appender.append(", ");
                 }
                 String name = entry.getKey().getSimpleName().toString();
+                if (!"groups".equals(name) && groups != null) {
+                    hasOnlyOne = false;
+                }
                 if (!"value".equals(name) || !hasOnlyOne) {
                     appender.append(name);
                     appender.append(" = ");
                 }
-                appendAnnotationParamsContent(appender, entry.getValue(), ident);
+                if ("groups".equals(name)) {
+                    groupsFound = true;
+                    appendAnnotationParamsContent(appender, entry.getValue(), ident, groups, field);
+                } else {
+                    appendAnnotationParamsContent(appender, entry.getValue(), ident, null, field);
+                }
                 requireComma = true;
+            }
+            if (!groupsFound && groups != null) {
+                if (requireComma) {
+                    appender.append(", ");
+                }
+                appender.append("groups = ");
+                appendAnnotationParamsContent(appender, null, ident, null, field);
             }
             if (numberOfElements != 0) {
                 appender.append(")");
