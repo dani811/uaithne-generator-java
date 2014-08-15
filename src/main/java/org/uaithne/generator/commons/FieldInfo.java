@@ -817,4 +817,8 @@ public class FieldInfo {
         mappedName = fieldInfo.mappedName;
         hasDefaultValueWhenInsert = fieldInfo.hasDefaultValueWhenInsert;
     }
+
+    public FieldInfo() {
+    }
+    
 }

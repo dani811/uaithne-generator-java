@@ -48,11 +48,18 @@ public class EntityTemplate extends PojoTemplate {
         for (DataTypeInfo type : entity.getImplement()) {
             addImplement(type.getSimpleName());
         }
+        appendClassAnnotationImports(packageName, getImport(), entity.getElement());
         for (FieldInfo field : entity.getFields()) {
             appendAnnotationImports(packageName, getImport(), field);
         }
         setDeprecated(entity.isDeprecated());
         this.entity = entity;
+    }
+
+    @Override
+    protected void writeClassAnnotations(Appendable appender) throws IOException {
+        super.writeClassAnnotations(appender);
+        writeClassAnnotations(appender, entity.getElement());
     }
 
     void writeConstructors(Appendable appender) throws IOException {

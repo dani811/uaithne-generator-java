@@ -60,12 +60,19 @@ public class OperationTemplate extends PojoTemplate {
         for (DataTypeInfo type : operation.getImplement()) {
             addImplement(type.getSimpleName());
         }
+        appendClassAnnotationImports(packageName, getImport(), operation.getElement());
         for (FieldInfo field : operation.getFields()) {
             appendAnnotationImports(packageName, getImport(), field);
         }
         setDeprecated(operation.isDeprecated());
         this.executorName = executorName;
         this.operation = operation;
+    }
+
+    @Override
+    protected void writeClassAnnotations(Appendable appender) throws IOException {
+        super.writeClassAnnotations(appender);
+        writeClassAnnotations(appender, operation.getElement());
     }
 
     void writeGetMaxRowNumber(Appendable appender) throws IOException {
