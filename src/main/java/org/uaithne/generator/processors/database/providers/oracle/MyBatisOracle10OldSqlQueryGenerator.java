@@ -157,10 +157,6 @@ public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerato
             return JdbcTypes.TIME;
         } else if ("Timestamp".equals(name)) {
             return JdbcTypes.TIMESTAMP;
-        } else if ("Boolean".equals(name)) {
-            return JdbcTypes.BOOLEAN;
-        } else if ("boolean".equals(name)) {
-            return JdbcTypes.BOOLEAN;
         } else if ("List<String>".equals(name)) {
             return JdbcTypes.VARCHAR;
         } else if ("ArrayList<String>".equals(name)) {
@@ -177,10 +173,6 @@ public class MyBatisOracle10OldSqlQueryGenerator extends MyBatisSqlQueryGenerato
             return JdbcTypes.TIMESTAMP;
         } else if ("ArrayList<Timestamp>".equals(name)) {
             return JdbcTypes.TIMESTAMP;
-        } else if ("List<Boolean>".equals(name)) {
-            return JdbcTypes.BOOLEAN;
-        } else if ("ArrayList<Boolean>".equals(name)) {
-            return JdbcTypes.BOOLEAN;
         } else {
             return JdbcTypes.NUMERIC;
         }
