@@ -19,6 +19,7 @@
 package org.uaithne.generator.processors.database.providers.sqlServer;
 
 import java.util.ArrayList;
+import org.uaithne.annotations.Comparators;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
@@ -132,6 +133,29 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     @Override
     public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         appendOrderByContent(result, orderBys, ",\n    ", "", ", ", "row_number() over (order by ", ") as rownumber__");
+    }
+
+    @Override
+    public String translateComparator(Comparators comparator) {
+        if (comparator == null) {
+            return super.translateComparator(comparator);
+        }
+        switch (comparator) {
+            case START_WITH:     return "[[column]] like ([[value]] + '%')";
+            case NOT_START_WITH: return "[[column]] not like ([[value]] + '%')";
+            case END_WITH:       return "[[column]] like ('%' + [[value]])";
+            case NOT_END_WITH:   return "[[column]] not like ('%' + [[value]])";
+            case START_WITH_INSENSITIVE:     return "lower([[column]]) like (lower([[value]]) + '%')";
+            case NOT_START_WITH_INSENSITIVE: return "lower([[column]]) not like (lower([[value]]) + '%')";
+            case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' + lower([[value]]))";
+            case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' + lower([[value]]))";
+            case CONTAINS:       return "[[column]] like ('%' + [[value]] + '%')";
+            case NOT_CONTAINS:   return "[[column]] not like ('%' + [[value]] + '%')";
+            case CONTAINS_INSENSITIVE:       return "lower([[column]]) like ('%' + lower([[value]]) + '%')";
+            case NOT_CONTAINS_INSENSITIVE:   return "lower([[column]]) not like ('%' + lower([[value]]) + '%')";
+            default:
+                return super.translateComparator(comparator);
+        }
     }
     
 }
