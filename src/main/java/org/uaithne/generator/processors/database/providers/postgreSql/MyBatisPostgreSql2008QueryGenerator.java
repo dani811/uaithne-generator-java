@@ -36,6 +36,14 @@ public class MyBatisPostgreSql2008QueryGenerator extends MyBatisSql2008QueryGene
     }
 
     @Override
+    public String selectPageAfterOrderBy() {
+        return "{[if test='offset != null or limit != null']}\n"
+             + "    {[if test='offset != null']}offset #{offset,jdbcType=NUMERIC}{[/if]}\n"
+             + "    {[if test='limit != null']}limit #{limit,jdbcType=NUMERIC}{[/if]}\n"
+             + "{[/if]}";
+    }
+
+    @Override
     public String translateComparator(Comparators comparator) {
         if (comparator == null) {
             return super.translateComparator(comparator);
