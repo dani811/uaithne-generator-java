@@ -240,6 +240,7 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         dataCountInfo.setMarkAsOvwrride(true);
         dataCountInfo.setExcludedFromConstructor(true);
         dataCountInfo.setManually(true);
+        dataCountInfo.setOptional(true);
         operationInfo.addField(dataCountInfo);
 
         FieldInfo onlyDataCount = new FieldInfo("onlyDataCount", onlyDataCountDataType);
