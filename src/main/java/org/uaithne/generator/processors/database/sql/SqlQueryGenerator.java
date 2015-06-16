@@ -1609,6 +1609,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                             result.append(" = ");
                             result.append(getParameterValue(field));
                         }
+                        requireComma = true;
                     } else if (field.isInsertDateMark()) {
                         continue;
                     } else if (field.isInsertUserMark()) {

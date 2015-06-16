@@ -3995,6 +3995,292 @@ public class SqlQueryGeneratorTest {
         String[] result = instance.getEntityDeleteByIdQuery(entity, operation);
         assertArrayEquals(expResult, result);
     }
+    
+    private EntityInfo getEntityFirstUserMark() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        
+        FieldInfo field1 = new FieldInfo("insertUserMarkField", new DataTypeInfo("java.util", "Date"));
+        field1.setInsertUserMark(true);
+        FieldInfo field2 = new FieldInfo("updateUserMarkField", new DataTypeInfo("java.util", "Date"));
+        field2.setUpdateUserMark(true);
+        FieldInfo field3 = new FieldInfo("deleteUserMarkField", new DataTypeInfo("java.util", "Date"));
+        field3.setDeleteUserMark(true);
+        FieldInfo field4 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field5 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
+        field5.setIdentifier(true);
+
+        entity.addField(field1);
+        entity.addField(field2);
+        entity.addField(field3);
+        entity.addField(field4);
+        entity.addField(field5);
+        return entity;
+    }
+    
+    @Test
+    public void testGetEntityInsertQueryFirstUserMark() {
+        EntityInfo entity = getEntityFirstUserMark();
+        OperationInfo operation = getEntityInsertOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityUpdateQueryFirstUserMark() {
+        EntityInfo entity = getEntityFirstUserMark();
+        OperationInfo operation = getEntityUpdateOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityMergeQueryFirstUserMark() {
+        EntityInfo entity = getEntityFirstUserMark();
+        OperationInfo operation = getEntityMergeOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityDeleteByIdQueryFirstUserMark() {
+        EntityInfo entity = getEntityFirstUserMark();
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    <if test='updateUserMarkField != null'>updateUserMarkField = parameterValue!updateUserMarkField,</if>",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    private EntityInfo getEntityFirstDateMark() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        
+        FieldInfo field1 = new FieldInfo("insertDateMarkField", new DataTypeInfo("java.util", "Date"));
+        field1.setInsertDateMark(true);
+        FieldInfo field2 = new FieldInfo("updateDateMarkField", new DataTypeInfo("java.util", "Date"));
+        field2.setUpdateDateMark(true);
+        FieldInfo field3 = new FieldInfo("deleteDateMarkField", new DataTypeInfo("java.util", "Date"));
+        field3.setDeleteDateMark(true);
+        FieldInfo field4 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field5 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
+        field5.setIdentifier(true);
+
+        entity.addField(field1);
+        entity.addField(field2);
+        entity.addField(field3);
+        entity.addField(field4);
+        entity.addField(field5);
+        return entity;
+    }
+    
+    @Test
+    public void testGetEntityInsertQueryFirstDateMark() {
+        EntityInfo entity = getEntityFirstDateMark();
+        OperationInfo operation = getEntityInsertOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    updateDateMarkField = current_timestamp,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityUpdateQueryFirstDateMark() {
+        EntityInfo entity = getEntityFirstDateMark();
+        OperationInfo operation = getEntityUpdateOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    updateDateMarkField = current_timestamp,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityMergeQueryFirstDateMark() {
+        EntityInfo entity = getEntityFirstDateMark();
+        OperationInfo operation = getEntityMergeOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    updateDateMarkField = current_timestamp,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityDeleteByIdQueryFirstDateMark() {
+        EntityInfo entity = getEntityFirstDateMark();
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    updateDateMarkField = current_timestamp,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    private EntityInfo getEntityFirstVersionMark() {
+        EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
+        
+        FieldInfo field1 = new FieldInfo("VersionMarkField", new DataTypeInfo("java.util", "Date"));
+        field1.setVersionMark(true);
+        FieldInfo field2 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field3 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
+        field3.setIdentifier(true);
+
+        entity.addField(field1);
+        entity.addField(field2);
+        entity.addField(field3);
+
+        return entity;
+    }
+    
+    @Test
+    public void testGetEntityInsertQueryFirstVersionMark() {
+        EntityInfo entity = getEntityFirstVersionMark();
+        OperationInfo operation = getEntityInsertOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    VersionMarkField = nextVersion!VersionMarkField,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityUpdateQueryFirstVersionMark() {
+        EntityInfo entity = getEntityFirstVersionMark();
+        OperationInfo operation = getEntityUpdateOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    VersionMarkField = nextVersion!VersionMarkField,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityMergeQueryFirstVersionMark() {
+        EntityInfo entity = getEntityFirstVersionMark();
+        OperationInfo operation = getEntityMergeOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    VersionMarkField = nextVersion!VersionMarkField,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetEntityDeleteByIdQueryFirstVersionMark() {
+        EntityInfo entity = getEntityFirstVersionMark();
+        OperationInfo operation = getEntityDeleteByIdOperation(entity);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.handleVersionFieldOnUpdate = true;
+        String[] expResult = new String[]{"update",
+            "    MyEntity ",
+            "<set>",
+            "    VersionMarkField = nextVersion!VersionMarkField,",
+            "    <if test='field != null'>field = parameterValue!field</if>",
+            "</set>",
+            "where",
+            "    idField = parameterValue!idField"
+        };
+        String[] result = instance.getEntityMergeQuery(entity, operation);
+        assertArrayEquals(expResult, result);
+    }
 
     @Test
     public void testGetTableNameSimple() {
