@@ -767,13 +767,14 @@ public class SqlQueryGeneratorTest {
         StringBuilder result = new StringBuilder();
         OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
         operation.setDistinct(true);
-        EntityInfo entity = null;
+        EntityInfo entity = getEntityForSelect();
         boolean count = true;
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendSelect(result, operation, entity, count, customQuery);
-        assertEquals("select\n"
-                + "    count(*)", result.toString());
+        assertEquals("select distinct\n" +
+            "    mappedName as \"mappedField\",\n" +
+            "    field", result.toString());
     }
 
     @Test
@@ -2429,6 +2430,35 @@ public class SqlQueryGeneratorTest {
         String[] result = instance.getSelectPageQuery(operation);
         assertArrayEquals(expResult, result);
     }
+    
+    @Test
+    public void testGetSelectDistinctPageQuery() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setEntity(getEntityForSelect());
+        operation.setDistinct(true);
+        FieldInfo field1 = new FieldInfo("myField1", new DataTypeInfo("Integer"));
+        FieldInfo field2 = new FieldInfo("myField2", new DataTypeInfo("Integer"));
+        field2.setSetValueMark(true);
+        FieldInfo field3 = new FieldInfo("myField3", new DataTypeInfo("Integer"));
+        field3.setOrderBy(true);
+        operation.addField(field1);
+        operation.addField(field2);
+        operation.addField(field3);
+
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{"select distinct",
+            "    mappedName as \"mappedField\",",
+            "    fieldappendOrderByAfterSelectForSelectPage",
+            "from",
+            "    MyEntity ",
+            "where",
+            "    myField1 = parameterValue!myField1",
+            "order by myField3",
+            "selectPageAfterOrderBy",
+            "envolveInSelectPage"};
+        String[] result = instance.getSelectPageQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
 
     @Test
     public void testGetSelectPageQueryWithNullResult() {
@@ -2498,6 +2528,35 @@ public class SqlQueryGeneratorTest {
             "    count(*)",
             "from",
             "    MyEntity "};
+        String[] result = instance.getSelectPageCountQuery(operation);
+        assertArrayEquals(expResult, result);
+    }
+     
+    @Test
+    public void testGetSelectDistinctPageCountQuery() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setEntity(getEntityForSelect());
+        operation.setDistinct(true);
+        FieldInfo field1 = new FieldInfo("myField1", new DataTypeInfo("Integer"));
+        FieldInfo field2 = new FieldInfo("myField2", new DataTypeInfo("Integer"));
+        field2.setSetValueMark(true);
+        FieldInfo field3 = new FieldInfo("myField3", new DataTypeInfo("Integer"));
+        field3.setOrderBy(true);
+        operation.addField(field1);
+        operation.addField(field2);
+        operation.addField(field3);
+
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String[] expResult = new String[]{
+            "select count(*) from (",
+            "select distinct",
+            "    mappedName as \"mappedField\",",
+            "    field",
+            "from",
+            "    MyEntity ",
+            "where",
+            "    myField1 = parameterValue!myField1",
+            ")"};
         String[] result = instance.getSelectPageCountQuery(operation);
         assertArrayEquals(expResult, result);
     }
