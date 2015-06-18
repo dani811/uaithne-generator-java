@@ -283,7 +283,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     public void appendSelect(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery, boolean ignoreCustomQueryWhenCount) {
         result.append("select");
-        if (operation.isDistinct()) {
+        if (operation.isDistinct() && !count) {
             result.append(" distinct");
         }
         if (count && (ignoreCustomQueryWhenCount || customQuery == null)) {

@@ -761,6 +761,20 @@ public class SqlQueryGeneratorTest {
         assertEquals("select\n"
                 + "    count(*)", result.toString());
     }
+    
+    @Test
+    public void testAppendSelectDistinctCount() {
+        StringBuilder result = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setDistinct(true);
+        EntityInfo entity = null;
+        boolean count = true;
+        CustomSqlQuery customQuery = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendSelect(result, operation, entity, count, customQuery);
+        assertEquals("select\n"
+                + "    count(*)", result.toString());
+    }
 
     @Test
     public void testAppendSelectCountWithCustomSqlQuery() {
