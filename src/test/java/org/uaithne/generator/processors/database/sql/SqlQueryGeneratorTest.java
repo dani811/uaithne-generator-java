@@ -1379,6 +1379,29 @@ public class SqlQueryGeneratorTest {
     }
 
     @Test
+    public void testGetColumnNameForWhereFromEntity() {
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        field.setMappedName("mappedField");
+        TestCustomSqlQuery customQuery = getCustomSqlQuery();
+        customQuery.tableAlias = "tableAlias";
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String expResult = "tableAlias.mappedField";
+        String result = instance.getColumnNameForWhereFromEntity(field, customQuery);
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetColumnNameForWhereFromEntityWithFieldWithoutOwnMappedName() {
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        TestCustomSqlQuery customQuery = getCustomSqlQuery();
+        customQuery.tableAlias = "tableAlias";
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String expResult = "tableAlias.myField";
+        String result = instance.getColumnNameForWhereFromEntity(field, customQuery);
+        assertEquals(expResult, result);
+    }
+
+    @Test
     public void testAppendNotDeleted() {
         StringBuilder result = new StringBuilder();
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
@@ -1418,6 +1441,52 @@ public class SqlQueryGeneratorTest {
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, customSqlQuery);
         assertEquals("alias.myField is not null", result.toString());
+    }
+
+    @Test
+    public void testAppendNotDeletedWithMappedName() {
+        StringBuilder result = new StringBuilder();
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        field.setMappedName("myFieldMappedName");
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendNotDeleted(result, field, null);
+        assertEquals("myFieldMappedName = false", result.toString());
+    }
+
+    @Test
+    public void testAppendNotDeletedWithOptionalFieldWithMappedName() {
+        StringBuilder result = new StringBuilder();
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        field.setMappedName("myFieldMappedName");
+        field.setOptional(true);
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendNotDeleted(result, field, null);
+        assertEquals("myFieldMappedName is not null", result.toString());
+    }
+    
+    @Test
+    public void testAppendNotDeletedWithTableAliasWithMappedName() {
+        StringBuilder result = new StringBuilder();
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        field.setMappedName("myFieldMappedName");
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.tableAlias = "alias";
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendNotDeleted(result, field, customSqlQuery);
+        assertEquals("alias.myFieldMappedName = false", result.toString());
+    }
+
+    @Test
+    public void testAppendNotDeletedWithOptionalFieldWithTableAliasWithMappedName() {
+        StringBuilder result = new StringBuilder();
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        field.setMappedName("myFieldMappedName");
+        field.setOptional(true);
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.tableAlias = "alias";
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendNotDeleted(result, field, customSqlQuery);
+        assertEquals("alias.myFieldMappedName is not null", result.toString());
     }
 
     @Test

@@ -585,6 +585,16 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         return field.getMappedNameOrName();
     }
+    
+    public String getColumnNameForWhereFromEntity(FieldInfo field, CustomSqlQuery customQuery) {
+        if (customQuery != null) {
+            String tableAlias = customQuery.tableAlias();
+            if (tableAlias != null && !tableAlias.isEmpty()) {
+                return tableAlias + "." + field.getMappedNameOrName();
+            }
+        }
+        return field.getMappedNameOrName();
+    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="For generate queries">
@@ -640,10 +650,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //<editor-fold defaultstate="collapsed" desc="Deletion mark managment">
     public void appendNotDeleted(StringBuilder result, FieldInfo field, CustomSqlQuery customQuery) {
         if (field.isOptional()) {
-            result.append(getColumnNameForWhere(field, customQuery));
+            result.append(getColumnNameForWhereFromEntity(field, customQuery));
             result.append(" is not null");
         } else {
-            result.append(getColumnNameForWhere(field, customQuery));
+            result.append(getColumnNameForWhereFromEntity(field, customQuery));
             result.append(" = ");
             result.append(falseValue());
         }
