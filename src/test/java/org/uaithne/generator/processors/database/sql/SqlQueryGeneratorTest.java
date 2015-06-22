@@ -1383,7 +1383,7 @@ public class SqlQueryGeneratorTest {
         StringBuilder result = new StringBuilder();
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendNotDeleted(result, field);
+        instance.appendNotDeleted(result, field, null);
         assertEquals("myField = false", result.toString());
     }
 
@@ -1393,8 +1393,31 @@ public class SqlQueryGeneratorTest {
         FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
         field.setOptional(true);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendNotDeleted(result, field);
+        instance.appendNotDeleted(result, field, null);
         assertEquals("myField is not null", result.toString());
+    }
+    
+    @Test
+    public void testAppendNotDeletedWithTableAlias() {
+        StringBuilder result = new StringBuilder();
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.tableAlias = "alias";
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendNotDeleted(result, field, customSqlQuery);
+        assertEquals("alias.myField = false", result.toString());
+    }
+
+    @Test
+    public void testAppendNotDeletedWithOptionalFieldWithTableAlias() {
+        StringBuilder result = new StringBuilder();
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        field.setOptional(true);
+        TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
+        customSqlQuery.tableAlias = "alias";
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendNotDeleted(result, field, customSqlQuery);
+        assertEquals("alias.myField is not null", result.toString());
     }
 
     @Test

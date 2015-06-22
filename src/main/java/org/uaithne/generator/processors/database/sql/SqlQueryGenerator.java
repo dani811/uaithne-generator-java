@@ -457,7 +457,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else {
                         result.append("    ");
                     }
-                    appendNotDeleted(result, field);
+                    appendNotDeleted(result, field, customQuery);
                     requireAnd = true;
                     hasConditions = true;
                 }
@@ -638,12 +638,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Deletion mark managment">
-    public void appendNotDeleted(StringBuilder result, FieldInfo field) {
+    public void appendNotDeleted(StringBuilder result, FieldInfo field, CustomSqlQuery customQuery) {
         if (field.isOptional()) {
-            result.append(getColumnName(field));
+            result.append(getColumnNameForWhere(field, customQuery));
             result.append(" is not null");
         } else {
-            result.append(getColumnName(field));
+            result.append(getColumnNameForWhere(field, customQuery));
             result.append(" = ");
             result.append(falseValue());
         }
