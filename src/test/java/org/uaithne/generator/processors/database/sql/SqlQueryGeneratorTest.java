@@ -1417,7 +1417,7 @@ public class SqlQueryGeneratorTest {
         field.setOptional(true);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, null);
-        assertEquals("myField is not null", result.toString());
+        assertEquals("myField is null", result.toString());
     }
     
     @Test
@@ -1440,7 +1440,7 @@ public class SqlQueryGeneratorTest {
         customSqlQuery.tableAlias = "alias";
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, customSqlQuery);
-        assertEquals("alias.myField is not null", result.toString());
+        assertEquals("alias.myField is null", result.toString());
     }
 
     @Test
@@ -1461,7 +1461,7 @@ public class SqlQueryGeneratorTest {
         field.setOptional(true);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, null);
-        assertEquals("myFieldMappedName is not null", result.toString());
+        assertEquals("myFieldMappedName is null", result.toString());
     }
     
     @Test
@@ -1486,7 +1486,7 @@ public class SqlQueryGeneratorTest {
         customSqlQuery.tableAlias = "alias";
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, customSqlQuery);
-        assertEquals("alias.myFieldMappedName is not null", result.toString());
+        assertEquals("alias.myFieldMappedName is null", result.toString());
     }
 
     @Test

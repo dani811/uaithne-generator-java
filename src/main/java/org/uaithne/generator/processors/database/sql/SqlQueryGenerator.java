@@ -651,7 +651,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
     public void appendNotDeleted(StringBuilder result, FieldInfo field, CustomSqlQuery customQuery) {
         if (field.isOptional()) {
             result.append(getColumnNameForWhereFromEntity(field, customQuery));
-            result.append(" is not null");
+            result.append(" is null");
         } else {
             result.append(getColumnNameForWhereFromEntity(field, customQuery));
             result.append(" = ");
