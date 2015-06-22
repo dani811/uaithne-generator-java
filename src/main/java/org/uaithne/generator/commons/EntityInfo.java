@@ -400,6 +400,9 @@ public class EntityInfo {
                     hasMultiplesIds = true;
                 }
             }
+            if (field.isDeletionMark()) {
+                hasDeletionMark = true;
+            }
         }
     }
     
