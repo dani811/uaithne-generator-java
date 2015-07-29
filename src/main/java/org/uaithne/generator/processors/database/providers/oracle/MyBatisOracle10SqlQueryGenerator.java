@@ -131,7 +131,37 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        appendOrderByContent(result, orderBys, ",\n    ", "", ", ", "row_number() over (order by ", ") as rownumber__");
+        if (customQuery != null) {
+            if (hasQueryValue(customQuery.orderBy())) {
+                result.append(",\n    row_number() over (order by ");
+                appendToQuerySp(result, customQuery.beforeOrderByExpression());
+                appendToQuerySp(result, customQuery.orderBy());
+                appendToQuerySp(result, customQuery.afterOrderByExpression());
+                result.append(") as rownumber__");
+                return;
+            } else if (hasQueryValue(customQuery.beforeOrderByExpression()) || hasQueryValue(customQuery.afterOrderByExpression())) {
+                result.append(",\n    row_number() over (order by ");
+                appendToQuerySp(result, customQuery.beforeOrderByExpression());
+                appendOrderByContent(result, orderBys, "", "", ", ", "", "");
+                appendToQuerySp(result, customQuery.afterOrderByExpression());
+                result.append(") as rownumber__");
+                return;
+            }
+        }
+        
+        result.append(",\n    row_number()");
+        appendOrderByContent(result, orderBys, "", "", ", ", " over (order by ", ")");
+        result.append(" as rownumber__");
+    }
+    
+    public void appendToQuerySp(StringBuilder query, String[] array) {
+        if (!hasQueryValue(array)) {
+            return;
+        }
+        for (int i = 0; i < array.length; i++) {
+            String s = array[i];
+            query.append(s).append(" ");
+        }
     }
     
 }
