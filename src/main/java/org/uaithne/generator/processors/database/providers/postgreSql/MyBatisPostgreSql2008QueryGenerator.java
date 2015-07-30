@@ -18,7 +18,9 @@
  */
 package org.uaithne.generator.processors.database.providers.postgreSql;
 
+import java.util.ArrayList;
 import org.uaithne.annotations.Comparators;
+import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.providers.sql.MyBatisSql2008QueryGenerator;
@@ -36,7 +38,7 @@ public class MyBatisPostgreSql2008QueryGenerator extends MyBatisSql2008QueryGene
     }
 
     @Override
-    public String selectPageAfterOrderBy() {
+    public String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return "{[if test='offset != null or limit != null']}\n"
              + "    {[if test='offset != null']}offset #{offset,jdbcType=NUMERIC}{[/if]}\n"
              + "    {[if test='limit != null']}limit #{limit,jdbcType=NUMERIC}{[/if]}\n"

@@ -69,17 +69,17 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     }
 
     @Override
-    public String selectPageBeforeSelect() {
+    public String selectPageBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return null;
     }
 
     @Override
-    public boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd) {
+    public boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return false;
     }
     
     @Override
-    public String selectPageAfterOrderBy() {
+    public String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return null;
     }
 

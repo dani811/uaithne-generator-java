@@ -257,7 +257,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             }
             if (selectPage) {
-                String page = selectPageAfterOrderBy();
+                String page = selectPageAfterOrderBy(orderBys, customQuery);
                 if (page != null && !page.isEmpty()) {
                     appender.append("\n");
                     appender.append(page);
@@ -303,7 +303,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             }
 
             if (operation.getOperationKind() == OperationKind.SELECT_PAGE) {
-                String page = selectPageBeforeSelect();
+                String page = selectPageBeforeSelect(orderBys, customQuery);
                 if (page != null && !page.isEmpty()) {
                     result.append(page);
                     result.append(" ");
@@ -383,7 +383,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 appendToQueryln(query, customQuery.beforeWhereExpression(), "    ");
                 appendToQueryln(query, customQuery.where(), "    ");
                 appendToQueryln(query, customQuery.afterWhereExpression(), "    ");
-                appendSelectPageAfterWhere(query, true);
+                appendSelectPageAfterWhere(query, true, orderBys, customQuery);
                 appendEndWhere(query, "\n");
                 return;
             }
@@ -464,7 +464,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             }
         }
         if (!count && operation.getOperationKind() == OperationKind.SELECT_PAGE) {
-            hasConditions = hasConditions || appendSelectPageAfterWhere(result, requireAnd);
+            hasConditions = hasConditions || appendSelectPageAfterWhere(result, requireAnd, orderBys, customQuery);
         }
 
         if (hasConditions) {
@@ -632,11 +632,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     public abstract String[] envolveInSelectPage(String[] query);
 
-    public abstract String selectPageBeforeSelect();
+    public abstract String selectPageBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
 
-    public abstract boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd);
+    public abstract boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     
-    public abstract String selectPageAfterOrderBy();
+    public abstract String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
 
     public abstract String[] envolveInSelectOneRow(String[] query);
 
