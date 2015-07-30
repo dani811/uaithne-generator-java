@@ -89,17 +89,17 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     }
 
     @Override
-    public String selectOneRowBeforeSelect() {
+    public String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return "top 1";
     }
 
     @Override
-    public String selectOneRowAfterWhere() {
+    public String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return null;
     }
 
     @Override
-    public String selectOneRowAfterOrderBy() {
+    public String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return null;
     }
 

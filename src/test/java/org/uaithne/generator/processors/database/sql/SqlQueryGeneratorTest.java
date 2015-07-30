@@ -757,7 +757,7 @@ public class SqlQueryGeneratorTest {
         boolean count = true;
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery);
+        instance.appendSelect(result, operation, entity, count, customQuery, null);
         assertEquals("select\n"
                 + "    count(*)", result.toString());
     }
@@ -771,7 +771,7 @@ public class SqlQueryGeneratorTest {
         boolean count = true;
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery);
+        instance.appendSelect(result, operation, entity, count, customQuery, null);
         assertEquals("select distinct\n" +
             "    mappedName as \"mappedField\",\n" +
             "    field", result.toString());
@@ -786,7 +786,7 @@ public class SqlQueryGeneratorTest {
         EntityInfo entity = null;
         boolean count = true;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery, false);
+        instance.appendSelect(result, operation, entity, count, customQuery, false, null);
         assertEquals("select\n"
                 + "    count(*)", result.toString());
     }
@@ -800,7 +800,7 @@ public class SqlQueryGeneratorTest {
         boolean count = false;
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery);
+        instance.appendSelect(result, operation, entity, count, customQuery, null);
         assertEquals("select distinct\n"
                 + "    mappedName as \"mappedField\",\n"
                 + "    field", result.toString());
@@ -815,7 +815,7 @@ public class SqlQueryGeneratorTest {
         boolean count = false;
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery);
+        instance.appendSelect(result, operation, entity, count, customQuery, null);
         assertEquals(result.toString(), "select top 1 \n"
                 + "    mappedName as \"mappedField\",\n"
                 + "    field");
@@ -830,7 +830,7 @@ public class SqlQueryGeneratorTest {
         boolean count = false;
         CustomSqlQuery customQuery = null;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery);
+        instance.appendSelect(result, operation, entity, count, customQuery, null);
         assertEquals("selectselectPageBeforeSelect \n"
                 + "    mappedName as \"mappedField\",\n"
                 + "    field", result.toString());
@@ -847,7 +847,7 @@ public class SqlQueryGeneratorTest {
         customQuery.beforeSelectExpression = new String[]{"before", "before2"};
         customQuery.afterSelectExpression = new String[]{"after", "after2"};
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery);
+        instance.appendSelect(result, operation, entity, count, customQuery, null);
         assertEquals("select\n"
                 + "    before\n"
                 + "    before2 \n"
@@ -867,7 +867,7 @@ public class SqlQueryGeneratorTest {
         customQuery.beforeSelectExpression = new String[]{"before", "before2"};
         customQuery.afterSelectExpression = new String[]{"after", "after2"};
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendSelect(result, operation, entity, count, customQuery);
+        instance.appendSelect(result, operation, entity, count, customQuery, null);
         assertEquals("select\n"
                 + "    before\n"
                 + "    before2 \n"
@@ -972,7 +972,7 @@ public class SqlQueryGeneratorTest {
         customQuery.afterWhereExpression = new String[]{"after"};
         boolean count = false;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    before \n"
@@ -988,7 +988,7 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         boolean count = false;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    normalField = parameterValue!normalField\n"
@@ -1004,7 +1004,7 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         boolean count = false;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    <if test='optionalField != null'>optionalField in <foreach collection='optionalField' open='(' separator=',' close=')' item='_item_optionalField'> #{_item_optionalField,jdbcType=INTEGER} </foreach></if>\n"
@@ -1021,7 +1021,7 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         boolean count = false;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    normalField = parameterValue!normalField\n"
@@ -1039,7 +1039,7 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         boolean count = false;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "where\n"
                 + "    rownum = 1");
@@ -1065,7 +1065,7 @@ public class SqlQueryGeneratorTest {
         CustomSqlQuery customQuery = null;
         boolean count = false;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "where\n"
                 + "    myField = false\n"
@@ -1081,7 +1081,7 @@ public class SqlQueryGeneratorTest {
         boolean count = false;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.appendSelectPageAfterWhere = false;
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "");
     }
 
@@ -1094,7 +1094,7 @@ public class SqlQueryGeneratorTest {
         boolean count = false;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         instance.appendSelectPageAfterWhere = true;
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\nwhere\n");
     }
 
@@ -1108,7 +1108,7 @@ public class SqlQueryGeneratorTest {
         customQuery.afterWhereExpression = new String[]{"after"};
         boolean count = false;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    before \n"
@@ -1126,7 +1126,7 @@ public class SqlQueryGeneratorTest {
         customQuery.afterWhereExpression = new String[]{"after"};
         boolean count = false;
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
-        instance.appendWhere(query, operation, customQuery, count);
+        instance.appendWhere(query, operation, customQuery, count, null);
         assertEquals(query.toString(), "\n"
                 + "<where>\n"
                 + "    before \n"
@@ -5833,17 +5833,17 @@ public class SqlQueryGeneratorTest {
         }
 
         @Override
-        public String selectOneRowBeforeSelect() {
+        public String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             return "top 1";
         }
 
         @Override
-        public String selectOneRowAfterWhere() {
+        public String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             return "rownum = 1";
         }
 
         @Override
-        public String selectOneRowAfterOrderBy() {
+        public String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             return "selectOneRowAfterOrderBy";
         }
 

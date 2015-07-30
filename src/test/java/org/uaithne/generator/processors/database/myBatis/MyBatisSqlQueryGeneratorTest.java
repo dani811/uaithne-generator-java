@@ -794,17 +794,17 @@ public class MyBatisSqlQueryGeneratorTest {
         }
 
         @Override
-        public String selectOneRowBeforeSelect() {
+        public String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 
         @Override
-        public String selectOneRowAfterWhere() {
+        public String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 
         @Override
-        public String selectOneRowAfterOrderBy() {
+        public String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 

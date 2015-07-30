@@ -227,7 +227,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
 
         if (addSelect) {
-            appendSelect(appender, operation, entity, count, customQuery, ignoreCustomQueryWhenCount);
+            appendSelect(appender, operation, entity, count, customQuery, ignoreCustomQueryWhenCount, orderBys);
         }
         if (selectPage && !count && (addSelect || addFrom)) {
             appendOrderByAfterSelectForSelectPage(appender, orderBys, customQuery);
@@ -236,7 +236,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             appendFrom(appender, entity, customQuery);
         }
         if (addWhere) {
-            appendWhere(appender, operation, customQuery, count);
+            appendWhere(appender, operation, customQuery, count, orderBys);
         }
         if (addGroupBy) {
             appendGroupBy(appender, operation, entity, customQuery);
@@ -250,7 +250,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             }
             if (operation.isLimitToOneResult()) {
-                String limitOne = selectOneRowAfterOrderBy();
+                String limitOne = selectOneRowAfterOrderBy(orderBys, customQuery);
                 if (limitOne != null && !limitOne.isEmpty()) {
                     appender.append("\n");
                     appender.append(limitOne);
@@ -276,12 +276,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         return result;
     }
-    
-    public void appendSelect(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery) {
-        appendSelect(result, operation, entity, count, customQuery, true);
+        
+    public void appendSelect(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery, ArrayList<FieldInfo> orderBys) {
+        appendSelect(result, operation, entity, count, customQuery, true, orderBys);
     }
-
-    public void appendSelect(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery, boolean ignoreCustomQueryWhenCount) {
+    
+    public void appendSelect(StringBuilder result, OperationInfo operation, EntityInfo entity, boolean count, CustomSqlQuery customQuery, boolean ignoreCustomQueryWhenCount, ArrayList<FieldInfo> orderBys) {
         result.append("select");
         // When the result query is count and distinct at the same time is not 
         // possible do it in the same query, in consequence count is ignored, 
@@ -294,7 +294,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             result.append("\n    count(*)");
         } else {
             if (operation.isLimitToOneResult()) {
-                String limitOne = selectOneRowBeforeSelect();
+                String limitOne = selectOneRowBeforeSelect(orderBys, customQuery);
                 if (limitOne != null && !limitOne.isEmpty()) {
                     result.append(" ");
                     result.append(limitOne);
@@ -370,12 +370,12 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
     }
 
-    public void appendWhere(StringBuilder query, OperationInfo operation, CustomSqlQuery customQuery, boolean count) {
+    public void appendWhere(StringBuilder query, OperationInfo operation, CustomSqlQuery customQuery, boolean count, ArrayList<FieldInfo> orderBys) {
         ArrayList<FieldInfo> fields = operation.getFields();
-        appendWhere(query, operation, customQuery, count, fields);
+        appendWhereWithFields(query, operation, customQuery, count, fields, orderBys);
     }
     
-    public void appendWhere(StringBuilder query, OperationInfo operation, CustomSqlQuery customQuery, boolean count, ArrayList<FieldInfo> fields) {
+    public void appendWhereWithFields(StringBuilder query, OperationInfo operation, CustomSqlQuery customQuery, boolean count, ArrayList<FieldInfo> fields, ArrayList<FieldInfo> orderBys) {
         if (customQuery != null) {
             if (hasQueryValue(customQuery.where())) {
                 query.append("\n");
@@ -433,7 +433,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             requireAnd = true;
         }
         if (operation.isLimitToOneResult()) {
-            String limitOne = selectOneRowAfterWhere();
+            String limitOne = selectOneRowAfterWhere(orderBys, customQuery);
             if (limitOne != null && !limitOne.isEmpty()) {
                 if (requireAnd) {
                     result.append("\n    and ");
@@ -640,11 +640,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     public abstract String[] envolveInSelectOneRow(String[] query);
 
-    public abstract String selectOneRowBeforeSelect();
+    public abstract String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     
-    public abstract String selectOneRowAfterWhere();
+    public abstract String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     
-    public abstract String selectOneRowAfterOrderBy();
+    public abstract String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Deletion mark managment">
@@ -1022,7 +1022,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 appendEndSet(result, "\n");
             }
             
-            appendWhere(result, operation, customQuery, false);
+            ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>(0); // No order by for this kind of operation
+            appendWhere(result, operation, customQuery, false, orderBys);
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.value());
@@ -1109,7 +1110,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 result.append("delete from");
                 appendTableName(result, entity, customQuery, "    ");
             }
-            appendWhere(result, operation, customQuery, false);
+            ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>(0); // No order by for this kind of operation
+            appendWhere(result, operation, customQuery, false, orderBys);
             finalQuery = result.toString();
         } else {
             finalQuery = joinln(query.value());
@@ -1546,7 +1548,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     fields.add(field);
                 }
             }
-            appendWhere(result, operation, customQuery, false, fields);
+            ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>(0); // No order by for this kind of operation
+            appendWhereWithFields(result, operation, customQuery, false, fields, orderBys);
             finalQuery = result.toString();
         }
         finalQuery = finalizeQuery(finalQuery, operation, customQuery);
@@ -1691,7 +1694,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     fields.add(field);
                 }
             }
-            appendWhere(result, operation, customQuery, false, fields);
+            ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>(0); // No order by for this kind of operation
+            appendWhereWithFields(result, operation, customQuery, false, fields, orderBys);
             finalQuery = result.toString();
         }
         finalQuery = finalizeQuery(finalQuery, operation, customQuery);
@@ -1785,7 +1789,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     fields.add(field);
                 }
             }
-            appendWhere(result, operation, customQuery, false, fields);
+            ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>(0); // No order by for this kind of operation
+            appendWhereWithFields(result, operation, customQuery, false, fields, orderBys);
             finalQuery = result.toString();
         }
         finalQuery = finalizeQuery(finalQuery, operation, customQuery);
