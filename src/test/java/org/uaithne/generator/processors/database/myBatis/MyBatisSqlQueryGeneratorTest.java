@@ -754,6 +754,16 @@ public class MyBatisSqlQueryGeneratorTest {
         }
 
         @Override
+        public void appendOrderByForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+            throw new UnsupportedOperationException("No needed for test.");
+        }
+
+        @Override
+        public void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+            throw new UnsupportedOperationException("No needed for test.");
+        }
+
+        @Override
         public String currentSqlDate() {
             throw new UnsupportedOperationException("No needed for test.");
         }

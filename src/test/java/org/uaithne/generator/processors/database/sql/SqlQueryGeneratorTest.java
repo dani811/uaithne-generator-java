@@ -117,7 +117,7 @@ public class SqlQueryGeneratorTest {
         boolean count = false;
         boolean selectPage = false;
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
-        String[] expResult = new String[]{"select top 1 ", "from", "    MyEntity ", "selectOneRowAfterOrderBy", "where", "field = 1", "envolveInSelectOneRow"};
+        String[] expResult = new String[]{"select top 1 appendOrderByAfterSelectForSelectOneRow", "from", "    MyEntity ", "selectOneRowAfterOrderBy", "where", "field = 1", "envolveInSelectOneRow"};
         String[] result = instance.completeQuery(query, operation, count, selectPage);
         assertArrayEquals(expResult, result);
     }
@@ -326,7 +326,7 @@ public class SqlQueryGeneratorTest {
         SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
         String expResult = "select top 1 \n"
                 + "    mappedName as \"mappedField\",\n"
-                + "    field\n"
+                + "    fieldappendOrderByAfterSelectForSelectOneRow\n"
                 + "from\n"
                 + "    MyEntity \n"
                 + "selectOneRowAfterOrderBy\n"
@@ -5593,6 +5593,19 @@ public class SqlQueryGeneratorTest {
                 return;
             }
             result.append("appendOrderByAfterSelectForSelectPage");
+        }
+
+        @Override
+        public void appendOrderByForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+            appendOrderBy(result, orderBys, customQuery);
+        }
+
+        @Override
+        public void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+            if (!useOrderBy) {
+                return;
+            }
+            result.append("appendOrderByAfterSelectForSelectOneRow");
         }
 
         @Override

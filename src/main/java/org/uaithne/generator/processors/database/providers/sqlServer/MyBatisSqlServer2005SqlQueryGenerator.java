@@ -92,6 +92,15 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     }
 
     @Override
+    public void appendOrderByForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOrderBy(result, orderBys, customQuery);
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+    }
+
+    @Override
     public boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requiereAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
         return false;
     }

@@ -229,6 +229,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         if (addSelect) {
             appendSelect(appender, operation, entity, count, customQuery, ignoreCustomQueryWhenCount, orderBys);
         }
+        if (operation.isLimitToOneResult() && (addSelect || addFrom)) {
+            appendOrderByAfterSelectForSelectOneRow(appender, orderBys, customQuery);
+        }
         if (selectPage && !count && (addSelect || addFrom)) {
             appendOrderByAfterSelectForSelectPage(appender, orderBys, customQuery);
         }
@@ -245,6 +248,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (addOrderBy) {
                 if (selectPage) {
                     appendOrderByForSelectPage(appender, orderBys, customQuery);
+                } else if (operation.isLimitToOneResult()) {
+                    appendOrderByForSelectOneRow(appender, orderBys, customQuery);
                 } else {
                     appendOrderBy(appender, orderBys, customQuery);
                 }
@@ -499,7 +504,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     public abstract void appendOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     public abstract void appendOrderByForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    public abstract void appendOrderByForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     public abstract void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    public abstract void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Utils for generate the select query">

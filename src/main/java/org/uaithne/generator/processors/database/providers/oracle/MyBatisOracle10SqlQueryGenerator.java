@@ -105,6 +105,15 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
+    public void appendOrderByForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOrderBy(result, orderBys, customQuery);
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+    }
+
+    @Override
     public boolean handleVersionFieldOnInsert() {
         return false;
     }

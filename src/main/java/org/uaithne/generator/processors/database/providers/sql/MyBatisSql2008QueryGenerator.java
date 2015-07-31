@@ -102,6 +102,15 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
+    public void appendOrderByForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        appendOrderBy(result, orderBys, customQuery);
+    }
+
+    @Override
+    public void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+    }
+
+    @Override
     public boolean handleVersionFieldOnInsert() {
         return false;
     }
