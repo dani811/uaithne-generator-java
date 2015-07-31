@@ -22,9 +22,12 @@ import java.util.ArrayList;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.processors.database.myBatis.MyBatisSqlQueryGenerator;
 
 public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
+    
+    private boolean selectOneRowRequireEnvolve;
     
     @Override
     public String currentSqlDate() {
@@ -81,8 +84,28 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
+    public String[] completeQuery(String[] query, OperationInfo operation, boolean count, boolean selectPage, boolean ignoreCustomQueryWhenCount) {
+        selectOneRowRequireEnvolve = false;
+        return super.completeQuery(query, operation, count, selectPage, ignoreCustomQueryWhenCount);
+    }
+    
+    @Override
     public String[] envolveInSelectOneRow(String[] query) {
-        return query;
+        if (!selectOneRowRequireEnvolve) {
+            return query;
+        }
+        
+        selectOneRowRequireEnvolve = false;
+        
+        String[] r = new String[query.length + 6];
+        r[0] = "select * from (";
+        r[1] = "";
+        System.arraycopy(query, 0, r, 2, query.length);
+        r[r.length - 4] = "";
+        r[r.length - 3] = ") t";
+        r[r.length - 2] = "where";
+        r[r.length - 1] = "    rownumber__ = 1";
+        return r;
     }
 
     @Override
@@ -91,6 +114,10 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        if (selectOneRowRequireEnvolve) {
+            return false;
+        }
+        
         if (requireAnd) {
             result.append("\n    and ");
         } else {
@@ -106,11 +133,36 @@ public class MyBatisOracle10SqlQueryGenerator extends MyBatisSqlQueryGenerator {
 
     @Override
     public void appendOrderByForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        appendOrderBy(result, orderBys, customQuery);
     }
 
     @Override
     public void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        if (customQuery != null) {
+            if (hasQueryValue(customQuery.orderBy())) {
+                result.append(",\n    row_number() over (order by ");
+                appendToQuerySp(result, customQuery.beforeOrderByExpression());
+                appendToQuerySp(result, customQuery.orderBy());
+                appendToQuerySp(result, customQuery.afterOrderByExpression());
+                result.append(") as rownumber__");
+                selectOneRowRequireEnvolve = true;
+                return;
+            } else if (hasQueryValue(customQuery.beforeOrderByExpression()) || hasQueryValue(customQuery.afterOrderByExpression())) {
+                result.append(",\n    row_number() over (order by ");
+                appendToQuerySp(result, customQuery.beforeOrderByExpression());
+                appendOrderByContent(result, orderBys, "", "", ", ", "", "");
+                appendToQuerySp(result, customQuery.afterOrderByExpression());
+                result.append(") as rownumber__");
+                selectOneRowRequireEnvolve = true;
+                return;
+            }
+        }
+        
+        if (!orderBys.isEmpty()) {
+            result.append(",\n    row_number()");
+            appendOrderByContent(result, orderBys, "", "", ", ", " over (order by ", ")");
+            result.append(" as rownumber__");
+            selectOneRowRequireEnvolve = true;
+        }
     }
 
     @Override

@@ -31,6 +31,8 @@ import org.uaithne.generator.processors.database.sql.BasicSqlQueryGenerator;
 
 public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     
+    private boolean selectOneRowRequireEnvolve;
+    
     @Override
     public String currentSqlDate() {
         return "sysdate";
@@ -79,8 +81,24 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
+    public String[] completeQuery(String[] query, OperationInfo operation, boolean count, boolean selectPage, boolean ignoreCustomQueryWhenCount) {
+        selectOneRowRequireEnvolve = false;
+        return super.completeQuery(query, operation, count, selectPage, ignoreCustomQueryWhenCount);
+    }
+
+    @Override
     public String[] envolveInSelectOneRow(String[] query) {
-        return query;
+        if (!selectOneRowRequireEnvolve) {
+            return query;
+        }
+        
+        selectOneRowRequireEnvolve = false;
+        
+        String[] r = new String[query.length + 2];
+        r[0] = "select * from (select t.*, rownum as oracle__rownum__ from (";
+        System.arraycopy(query, 0, r, 1, query.length);
+        r[r.length - 1] = ") t) where oracle__rownum__ = 1";
+        return r;
     }
 
     @Override
@@ -89,6 +107,10 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
 
     @Override
     public boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        if (selectOneRowRequireEnvolve) {
+            return false;
+        }
+        
         if (requireAnd) {
             result.append("\n    and ");
         } else {
@@ -109,6 +131,19 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
 
     @Override
     public void appendOrderByAfterSelectForSelectOneRow(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        if (customQuery != null) {
+            if (hasQueryValue(customQuery.orderBy())) {
+                selectOneRowRequireEnvolve = true;
+                return;
+            } else if (hasQueryValue(customQuery.beforeOrderByExpression()) || hasQueryValue(customQuery.afterOrderByExpression())) {
+                selectOneRowRequireEnvolve = true;
+                return;
+            }
+        }
+        
+        if (!orderBys.isEmpty()) {
+            selectOneRowRequireEnvolve = true;
+        }
     }
 
     @Override
