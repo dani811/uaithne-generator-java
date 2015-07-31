@@ -18,6 +18,7 @@
  */
 package org.uaithne.generator.processors.database.providers.sqlServer;
 
+import org.uaithne.annotations.Comparators;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.processors.database.providers.sql.MyBatisSql2008QueryGenerator;
@@ -42,6 +43,29 @@ public class MyBatisSqlServer2012SqlQueryGenerator extends MyBatisSql2008QueryGe
     @Override
     public String[] getIdSequenceCurrentValue(EntityInfo entity, FieldInfo field) {
         return new String[] {"select current_value from sys.sequences where name = '" + getIdSequenceName(entity, field) + "'"};
+    }
+
+    @Override
+    public String translateComparator(Comparators comparator) {
+        if (comparator == null) {
+            return super.translateComparator(comparator);
+        }
+        switch (comparator) {
+            case START_WITH:     return "[[column]] like ([[value]] + '%')";
+            case NOT_START_WITH: return "[[column]] not like ([[value]] + '%')";
+            case END_WITH:       return "[[column]] like ('%' + [[value]])";
+            case NOT_END_WITH:   return "[[column]] not like ('%' + [[value]])";
+            case START_WITH_INSENSITIVE:     return "lower([[column]]) like (lower([[value]]) + '%')";
+            case NOT_START_WITH_INSENSITIVE: return "lower([[column]]) not like (lower([[value]]) + '%')";
+            case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' + lower([[value]]))";
+            case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' + lower([[value]]))";
+            case CONTAINS:       return "[[column]] like ('%' + [[value]] + '%')";
+            case NOT_CONTAINS:   return "[[column]] not like ('%' + [[value]] + '%')";
+            case CONTAINS_INSENSITIVE:       return "lower([[column]]) like ('%' + lower([[value]]) + '%')";
+            case NOT_CONTAINS_INSENSITIVE:   return "lower([[column]]) not like ('%' + lower([[value]]) + '%')";
+            default:
+                return super.translateComparator(comparator);
+        }
     }
     
 }

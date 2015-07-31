@@ -142,27 +142,4 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
     public void appendOrderByAfterSelectForSelectPage(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
-    @Override
-    public String translateComparator(Comparators comparator) {
-        if (comparator == null) {
-            return super.translateComparator(comparator);
-        }
-        switch (comparator) {
-            case START_WITH:     return "[[column]] like ([[value]] + '%')";
-            case NOT_START_WITH: return "[[column]] not like ([[value]] + '%')";
-            case END_WITH:       return "[[column]] like ('%' + [[value]])";
-            case NOT_END_WITH:   return "[[column]] not like ('%' + [[value]])";
-            case START_WITH_INSENSITIVE:     return "lower([[column]]) like (lower([[value]]) + '%')";
-            case NOT_START_WITH_INSENSITIVE: return "lower([[column]]) not like (lower([[value]]) + '%')";
-            case END_WITH_INSENSITIVE:       return "lower([[column]]) like ('%' + lower([[value]]))";
-            case NOT_END_WITH_INSENSITIVE:   return "lower([[column]]) not like ('%' + lower([[value]]))";
-            case CONTAINS:       return "[[column]] like ('%' + [[value]] + '%')";
-            case NOT_CONTAINS:   return "[[column]] not like ('%' + [[value]] + '%')";
-            case CONTAINS_INSENSITIVE:       return "lower([[column]]) like ('%' + lower([[value]]) + '%')";
-            case NOT_CONTAINS_INSENSITIVE:   return "lower([[column]]) not like ('%' + lower([[value]]) + '%')";
-            default:
-                return super.translateComparator(comparator);
-        }
-    }
-
 }
