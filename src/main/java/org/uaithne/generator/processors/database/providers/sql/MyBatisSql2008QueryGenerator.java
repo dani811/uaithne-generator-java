@@ -65,8 +65,7 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
-    public String selectPageBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectPageBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override
@@ -75,11 +74,12 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
-    public String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return "{[if test='offset != null or limit != null']}\n"
+    public void appendSelectPageAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        result.append("\n"
+             + "{[if test='offset != null or limit != null']}\n"
              + "    {[if test='offset != null']}offset #{offset,jdbcType=NUMERIC} rows {[/if]}\n"
              + "    {[if test='limit != null']}fetch next #{limit,jdbcType=NUMERIC} rows only{[/if]}\n"
-             + "{[/if]}";
+             + "{[/if]}");
     }
 
     @Override
@@ -88,18 +88,17 @@ public class MyBatisSql2008QueryGenerator extends MyBatisSqlQueryGenerator {
     }
 
     @Override
-    public String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectOneRowBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override
-    public String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        return false;
     }
 
     @Override
-    public String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return "fetch next 1 rows only";
+    public void appendSelectOneRowAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        result.append("\nfetch next 1 rows only");
     }
 
     @Override

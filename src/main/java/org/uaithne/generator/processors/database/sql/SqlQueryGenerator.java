@@ -250,18 +250,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                 }
             }
             if (operation.isLimitToOneResult()) {
-                String limitOne = selectOneRowAfterOrderBy(orderBys, customQuery);
-                if (limitOne != null && !limitOne.isEmpty()) {
-                    appender.append("\n");
-                    appender.append(limitOne);
-                }
+                appendSelectOneRowAfterOrderBy(appender, orderBys, customQuery);
             }
             if (selectPage) {
-                String page = selectPageAfterOrderBy(orderBys, customQuery);
-                if (page != null && !page.isEmpty()) {
-                    appender.append("\n");
-                    appender.append(page);
-                }
+                appendSelectPageAfterOrderBy(appender, orderBys, customQuery);
             }
         }
 
@@ -294,20 +286,11 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             result.append("\n    count(*)");
         } else {
             if (operation.isLimitToOneResult()) {
-                String limitOne = selectOneRowBeforeSelect(orderBys, customQuery);
-                if (limitOne != null && !limitOne.isEmpty()) {
-                    result.append(" ");
-                    result.append(limitOne);
-                    result.append(" ");
-                }
+                appendSelectOneRowBeforeSelect(result, orderBys, customQuery);
             }
 
             if (operation.getOperationKind() == OperationKind.SELECT_PAGE) {
-                String page = selectPageBeforeSelect(orderBys, customQuery);
-                if (page != null && !page.isEmpty()) {
-                    result.append(page);
-                    result.append(" ");
-                }
+                appendSelectPageBeforeSelect(result, orderBys, customQuery);
             }
             if (customQuery!= null) {
                 appendToQueryln(result, customQuery.beforeSelectExpression(), "    ");
@@ -433,17 +416,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             requireAnd = true;
         }
         if (operation.isLimitToOneResult()) {
-            String limitOne = selectOneRowAfterWhere(orderBys, customQuery);
-            if (limitOne != null && !limitOne.isEmpty()) {
-                if (requireAnd) {
-                    result.append("\n    and ");
-                } else {
-                    result.append("    ");
-                }
-                result.append(limitOne);
-                requireAnd = true;
-                hasConditions = true;
-            }
+            boolean hasAfterWhere = appendSelectOneRowAfterWhere(result, requireAnd, orderBys, customQuery);
+            hasConditions = hasConditions || hasAfterWhere;
+            requireAnd = requireAnd || hasAfterWhere;
         }
         if (operation.isUseLogicalDeletion() && operation.getEntity() != null) {
             List<FieldInfo> entityFields = operation.getEntity().getCombined().getFields();
@@ -632,19 +607,56 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
 
     public abstract String[] envolveInSelectPage(String[] query);
 
-    public abstract String selectPageBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    /*
+     * Expected:
+     * result.append(page);
+     * result.append(" ");
+     */
+    public abstract void appendSelectPageBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
 
+    /*
+     * if (requireAnd) {
+     *     result.append("\n    and ");
+     * } else {
+     *     result.append("    ");
+     * }
+     * result.append(page);
+     */
     public abstract boolean appendSelectPageAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     
-    public abstract String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    /*
+     * Expected:
+     * appender.append("\n");
+     * appender.append(page);
+     */
+    public abstract void appendSelectPageAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
 
     public abstract String[] envolveInSelectOneRow(String[] query);
 
-    public abstract String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    /*
+     * Expected:
+     * result.append(" ");
+     * result.append(limitOne);
+     * result.append(" ");
+     */
+    public abstract void appendSelectOneRowBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     
-    public abstract String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    /*
+     * if (requireAnd) {
+     *     result.append("\n    and ");
+     * } else {
+     *     result.append("    ");
+     * }
+     * result.append(limitOne);
+     */
+    public abstract boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     
-    public abstract String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
+    /*
+     * Expected:
+     * appender.append("\n");
+     * appender.append(limitOne);
+     */
+    public abstract void appendSelectOneRowAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery);
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Deletion mark managment">

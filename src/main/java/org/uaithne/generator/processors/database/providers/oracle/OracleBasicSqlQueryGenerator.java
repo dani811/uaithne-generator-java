@@ -66,8 +66,7 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
-    public String selectPageBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectPageBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override
@@ -76,8 +75,7 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
     
     @Override
-    public String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectPageAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override
@@ -86,18 +84,22 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
-    public String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectOneRowBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override
-    public String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return "rownum = 1";
+    public boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        if (requireAnd) {
+            result.append("\n    and ");
+        } else {
+            result.append("    ");
+        }
+        result.append("rownum = 1");
+        return true;
     }
 
     @Override
-    public String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectOneRowAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override

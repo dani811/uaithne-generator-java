@@ -69,8 +69,7 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     }
 
     @Override
-    public String selectPageBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectPageBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override
@@ -79,8 +78,7 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     }
     
     @Override
-    public String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectPageAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override
@@ -89,18 +87,17 @@ public class MyBatisSqlServer2005SqlQueryGenerator extends MyBatisSqlQueryGenera
     }
 
     @Override
-    public String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return "top 1";
+    public void appendSelectOneRowBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        result.append(" top 1 ");
     }
 
     @Override
-    public String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requiereAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        return false;
     }
 
     @Override
-    public String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return null;
+    public void appendSelectOneRowAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
     }
 
     @Override

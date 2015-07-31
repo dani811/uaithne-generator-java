@@ -774,7 +774,7 @@ public class MyBatisSqlQueryGeneratorTest {
         }
 
         @Override
-        public String selectPageBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        public void appendSelectPageBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 
@@ -784,7 +784,7 @@ public class MyBatisSqlQueryGeneratorTest {
         }
 
         @Override
-        public String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        public void appendSelectPageAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 
@@ -794,17 +794,17 @@ public class MyBatisSqlQueryGeneratorTest {
         }
 
         @Override
-        public String selectOneRowBeforeSelect(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        public void appendSelectOneRowBeforeSelect(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 
         @Override
-        public String selectOneRowAfterWhere(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        public boolean appendSelectOneRowAfterWhere(StringBuilder result, boolean requireAnd, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 
         @Override
-        public String selectOneRowAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        public void appendSelectOneRowAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
             throw new UnsupportedOperationException("No needed for test.");
         }
 

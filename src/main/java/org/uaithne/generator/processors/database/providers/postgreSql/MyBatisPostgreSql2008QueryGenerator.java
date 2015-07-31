@@ -38,11 +38,12 @@ public class MyBatisPostgreSql2008QueryGenerator extends MyBatisSql2008QueryGene
     }
 
     @Override
-    public String selectPageAfterOrderBy(ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
-        return "{[if test='offset != null or limit != null']}\n"
+    public void appendSelectPageAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        result.append("\n"
+             + "{[if test='offset != null or limit != null']}\n"
              + "    {[if test='offset != null']}offset #{offset,jdbcType=NUMERIC}{[/if]}\n"
              + "    {[if test='limit != null']}limit #{limit,jdbcType=NUMERIC}{[/if]}\n"
-             + "{[/if]}";
+             + "{[/if]}");
     }
 
     @Override
