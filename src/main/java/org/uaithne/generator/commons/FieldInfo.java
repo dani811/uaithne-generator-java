@@ -720,17 +720,12 @@ public class FieldInfo {
         excludedFromToString = element.getAnnotation(ExcludeFromToString.class) != null;
         excludedFromObject = element.getAnnotation(ExcludeFromObject.class) != null;
         if (excludedFromObject) {
-            excludedFromObject = true;
             if (defaultValue != null) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields excludes from the object cannot have default value", element);
                 excludedFromObject = false;
             }
             if (orderBy) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields excludes from the object cannot use for determine the order by", element);
-                excludedFromObject = false;
-            }
-            if (optional) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields excludes from the object cannot marked as optionals", element);
                 excludedFromObject = false;
             }
             if (identifier) {
