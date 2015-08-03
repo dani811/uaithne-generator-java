@@ -62,6 +62,9 @@ public class OperationTemplate extends PojoTemplate {
         }
         appendClassAnnotationImports(packageName, getImport(), operation.getElement());
         for (FieldInfo field : operation.getFields()) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             appendAnnotationImports(packageName, getImport(), field);
         }
         setDeprecated(operation.isDeprecated());
@@ -123,9 +126,10 @@ public class OperationTemplate extends PojoTemplate {
             if (field.isOptional()) {
                 continue;
             }
-            if (!field.isExcludedFromConstructor()) {
-                filteredMandatoryFields.add(field);
+            if (field.isExcludedFromConstructor()) {
+                continue;
             }
+            filteredMandatoryFields.add(field);
         }
 
         if (!filteredMandatoryFields.isEmpty()) {
@@ -191,10 +195,16 @@ public class OperationTemplate extends PojoTemplate {
         boolean hasExtend = operation.getExtend() != null;
 
         for (FieldInfo field : operation.getFields()) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             writeField(appender, field);
         }
 
         for (FieldInfo field : operation.getFields()) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             appender.append("\n");
             writeFieldGetter(appender, field);
             appender.append("\n");

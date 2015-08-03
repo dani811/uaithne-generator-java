@@ -148,6 +148,9 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             if (field.isExcludedFromToString()) {
                 continue;
             }
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             if (requireSeparator) {
                 appender.append("\"| \" +\n");
             } else {
@@ -181,6 +184,9 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
 
         ArrayList<FieldInfo> filteredFields = new ArrayList<FieldInfo>(fields.size());
         for (FieldInfo field : fields) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             if (!field.isMarkAsTransient()) {
                 filteredFields.add(field);
             }
@@ -212,9 +218,13 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
 
         ArrayList<FieldInfo> filteredFields = new ArrayList<FieldInfo>(fields.size());
         for (FieldInfo field : fields) {
-            if (!field.isMarkAsTransient()) {
-                filteredFields.add(field);
+            if (field.isExcludedFromObject()) {
+                continue;
             }
+            if (field.isMarkAsTransient()) {
+                continue;
+            }
+            filteredFields.add(field);
         }
 
         if (callSuper || filteredFields.isEmpty()) {

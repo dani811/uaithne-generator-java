@@ -211,7 +211,7 @@ public class EntityInfo {
         this.usedInOrderedOperation = usedInOrderedOperation;
     }
     
-    public void appendImportsForConstructor(String currentPackage, HashSet<String> imports) {
+    public void appendImports(String currentPackage, HashSet<String> imports) {
         if (extend != null) {
             extend.appendImports(currentPackage, imports);
         }
@@ -219,6 +219,9 @@ public class EntityInfo {
             imp.appendImports(currentPackage, imports);
         }
         for (FieldInfo field : fields) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             field.appendImports(currentPackage, imports);
         }
         for (FieldInfo field : combined.fields) {

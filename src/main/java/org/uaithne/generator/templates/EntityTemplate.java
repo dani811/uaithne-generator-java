@@ -39,7 +39,7 @@ public class EntityTemplate extends PojoTemplate {
     public EntityTemplate(EntityInfo entity) {
         String packageName = entity.getDataType().getPackageName();
         setPackageName(packageName);
-        entity.appendImportsForConstructor(packageName, getImport());
+        entity.appendImports(packageName, getImport());
         setDocumentation(entity.getDocumentation());
         setClassName(entity.getDataType().getSimpleNameWithoutGenerics());
         if (entity.getExtend() != null) {
@@ -50,6 +50,9 @@ public class EntityTemplate extends PojoTemplate {
         }
         appendClassAnnotationImports(packageName, getImport(), entity.getElement());
         for (FieldInfo field : entity.getFields()) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             appendAnnotationImports(packageName, getImport(), field);
         }
         setDeprecated(entity.isDeprecated());
@@ -72,9 +75,10 @@ public class EntityTemplate extends PojoTemplate {
             if (field.isOptional()) {
                 continue;
             }
-            if (!field.isExcludedFromConstructor()) {
-                filteredMandatoryFields.add(field);
+            if (field.isExcludedFromConstructor()) {
+                continue;
             }
+            filteredMandatoryFields.add(field);
         }
 
         ArrayList<FieldInfo> combinedFields = entity.getCombined().getFields();
@@ -86,9 +90,10 @@ public class EntityTemplate extends PojoTemplate {
             if (field.isOptional()) {
                 continue;
             }
-            if (!field.isExcludedFromConstructor()) {
-                filteredCombinedMandatoryFields.add(field);
+            if (field.isExcludedFromConstructor()) {
+                continue;
             }
+            filteredCombinedMandatoryFields.add(field);
         }
 
         if (!filteredCombinedMandatoryFields.isEmpty()) {
@@ -110,9 +115,10 @@ public class EntityTemplate extends PojoTemplate {
                 if (field.isOptional()) {
                     continue;
                 }
-                if (!field.isExcludedFromConstructor()) {
-                    filteredCombinedParentMandatoryFields.add(field);
+                if (field.isExcludedFromConstructor()) {
+                    continue;
                 }
+                filteredCombinedParentMandatoryFields.add(field);
             }
 
             appender.append("        super(");
@@ -125,9 +131,10 @@ public class EntityTemplate extends PojoTemplate {
         ArrayList<FieldInfo> filteredIdAndMandatoryFields = new ArrayList<FieldInfo>(fields.size());
         for (FieldInfo field : fields) {
             if (field.isIdentifier() || !field.isOptional()) {
-                if (!field.isExcludedFromConstructor()) {
-                    filteredIdAndMandatoryFields.add(field);
+                if (field.isExcludedFromConstructor()) {
+                    continue;
                 }
+                filteredIdAndMandatoryFields.add(field);
             }
         }
 
@@ -136,17 +143,19 @@ public class EntityTemplate extends PojoTemplate {
             if (!field.isIdentifier()) {
                 continue;
             }
-            if (!field.isExcludedFromConstructor()) {
-                filteredCombinedIdFields.add(field);
+            if (field.isExcludedFromConstructor()) {
+                continue;
             }
+            filteredCombinedIdFields.add(field);
         }
 
         ArrayList<FieldInfo> filteredCombinedIdAndMandatoryFields = new ArrayList<FieldInfo>(combinedFields.size());
         for (FieldInfo field : combinedFields) {
             if (field.isIdentifier() || !field.isOptional()) {
-                if (!field.isExcludedFromConstructor()) {
-                    filteredCombinedIdAndMandatoryFields.add(field);
+                if (field.isExcludedFromConstructor()) {
+                    continue;
                 }
+                filteredCombinedIdAndMandatoryFields.add(field);
             }
         }
 
@@ -160,9 +169,10 @@ public class EntityTemplate extends PojoTemplate {
                 ArrayList<FieldInfo> filteredCombinedParentIdAndMandatoryFields = new ArrayList<FieldInfo>(combinedParentFields.size());
                 for (FieldInfo field : combinedParentFields) {
                     if (field.isIdentifier() || !field.isOptional()) {
-                        if (!field.isExcludedFromConstructor()) {
-                            filteredCombinedParentIdAndMandatoryFields.add(field);
+                        if (field.isExcludedFromConstructor()) {
+                            continue;
                         }
+                        filteredCombinedParentIdAndMandatoryFields.add(field);
                     }
                 }
 
@@ -181,12 +191,18 @@ public class EntityTemplate extends PojoTemplate {
         ArrayList<FieldInfo> fields = entity.getFields();
         ArrayList<FieldInfo> idFields = new ArrayList<FieldInfo>(fields.size());
         for (FieldInfo field : entity.getFields()) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             if (field.isIdentifier()) {
                 idFields.add(field);
             }
             writeField(appender, field);
         }
         for (FieldInfo field : entity.getFields()) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             appender.append("\n");
             writeFieldGetter(appender, field);
             appender.append("\n");

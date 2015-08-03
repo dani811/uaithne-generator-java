@@ -56,10 +56,15 @@ public class PlainChainedGroupingExecutorTemplate extends ExecutorModuleTemplate
                 + "    }\n");
 
         for (OperationInfo operation : getExecutorModule().getOperations()) {
-            ArrayList<FieldInfo> fields = operation.getFields();
-            ArrayList<FieldInfo> mandatoryFields = new ArrayList<FieldInfo>(fields.size());
-            ArrayList<FieldInfo> optionalFields = new ArrayList<FieldInfo>(fields.size());
-            for (FieldInfo field : fields) {
+            ArrayList<FieldInfo> allFields = operation.getFields();
+            ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>(allFields.size());
+            ArrayList<FieldInfo> mandatoryFields = new ArrayList<FieldInfo>(allFields.size());
+            ArrayList<FieldInfo> optionalFields = new ArrayList<FieldInfo>(allFields.size());
+            for (FieldInfo field : allFields) {
+                if (field.isExcludedFromObject()) {
+                    continue;
+                }
+                fields.add(field);
                 if (field.isOptional()) {
                     optionalFields.add(field);
                 } else {

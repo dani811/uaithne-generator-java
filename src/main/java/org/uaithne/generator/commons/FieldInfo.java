@@ -444,6 +444,9 @@ public class FieldInfo {
     }
 
     public boolean isExcludedFromConstructor() {
+        if (isExcludedFromObject()) {
+            return true;
+        }
         return excludedFromConstructor;
     }
 

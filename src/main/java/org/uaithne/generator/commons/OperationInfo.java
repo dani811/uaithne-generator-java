@@ -219,6 +219,9 @@ public class OperationInfo {
             imp.appendImports(currentPackage, imports);
         }
         for (FieldInfo field : fields) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             field.appendImports(currentPackage, imports);
         }
         returnDataType.appendImports(currentPackage, imports);
@@ -232,6 +235,9 @@ public class OperationInfo {
 
     public void appendPlainImplementationImports(String currentPackage, HashSet<String> imports) {
         for (FieldInfo field : fields) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             field.appendImports(currentPackage, imports);
         }
         returnDataType.appendImports(currentPackage, imports);
@@ -240,6 +246,9 @@ public class OperationInfo {
 
     public void appendPlainDefinitionImports(String currentPackage, HashSet<String> imports) {
         for (FieldInfo field : fields) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             field.appendImports(currentPackage, imports);
         }
         if (oneItemReturnDataType != null) {
