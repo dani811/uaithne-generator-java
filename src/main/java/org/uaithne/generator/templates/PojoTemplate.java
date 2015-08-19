@@ -631,6 +631,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
         GenerationInfo generationInfo = TemplateProcessor.getGenerationInfo();
         fake.ensureValidationsInfo(generationInfo);
         HashSet<String> loaded = new HashSet<String>();
+        loaded.add("java.lang.Deprecated");
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
             DataTypeInfo dataType = NamesGenerator.createDataTypeFor(annotation.getAnnotationType(), true);
             String qualifiedName = dataType.getQualifiedNameWithoutGenerics();
