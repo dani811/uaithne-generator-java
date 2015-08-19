@@ -660,7 +660,7 @@ public class FieldInfo {
         if (setValue != null) {
             setValueMark = true;
             ignoreWhenNull = setValue.ignoreWhenNull();
-            if (ignoreWhenNull && optional) {
+            if (ignoreWhenNull && !optional) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only fields marked as optionals can ignore when null", element);
                 ignoreWhenNull = false;
             }
