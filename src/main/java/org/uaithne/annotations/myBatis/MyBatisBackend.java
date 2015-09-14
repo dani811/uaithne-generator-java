@@ -20,6 +20,7 @@ package org.uaithne.annotations.myBatis;
 
 import org.uaithne.generator.processors.database.QueryGenerator;
 import org.uaithne.generator.processors.database.providers.derby.MyBatisDerbySql2008QueryGenerator;
+import org.uaithne.generator.processors.database.providers.mySql.MyBatisMySql2008QueryGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10OldSqlQueryGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10PackageGenerator;
 import org.uaithne.generator.processors.database.providers.oracle.MyBatisOracle10ProcedureGenerator;
@@ -51,7 +52,10 @@ public enum MyBatisBackend {
     DERBY_10_8        (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
     DERBY_10_9        (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
     DERBY_10_10       (MyBatisDerbySql2008QueryGenerator.class,     true,  true  ),
-    SQL_2008          (MyBatisSql2008QueryGenerator.class,          true,  true  );
+    SQL_2008          (MyBatisSql2008QueryGenerator.class,          true,  true  ),
+    MY_SQL_5_5        (MyBatisMySql2008QueryGenerator.class,        true,  true  ),
+    MY_SQL_5_6        (MyBatisMySql2008QueryGenerator.class,        true,  true  ),
+    MY_SQL_5_7        (MyBatisMySql2008QueryGenerator.class,        true,  true  );
     
     private final Class generator;
     private final boolean useAutoIncrementId;
