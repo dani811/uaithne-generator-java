@@ -46,4 +46,9 @@ public class MyBatisMySql2008QueryGenerator extends MyBatisSql2008QueryGenerator
              + "    {[if test='offset != null']}offset #{offset,jdbcType=NUMERIC}{[/if]}\n"
              + "{[/if]}");
     }
+
+    @Override
+    public void appendSelectOneRowAfterOrderBy(StringBuilder result, ArrayList<FieldInfo> orderBys, CustomSqlQuery customQuery) {
+        result.append("\nlimit 1");
+    }
 }
