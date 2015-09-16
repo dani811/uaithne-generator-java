@@ -400,7 +400,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 + "\n");
         if (useAliasInOrderBy) {
             for (EntityInfo entity : getExecutorModule().getEntities()) {
-                if (entity.getCombined().isUsedInOrderedOperation()) {
+                if (entity.isUsedInOrderedOperation()) {
                     for (FieldInfo field : entity.getCombined().getFields()) {
                         appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getLowerCaseName()).append("\");\n"
                                 + "        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getLowerCaseName()).append(" asc\");\n"
@@ -410,7 +410,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             }
         } else {
             for (EntityInfo entity : getExecutorModule().getEntities()) {
-                if (entity.getCombined().isUsedInOrderedOperation()) {
+                if (entity.isUsedInOrderedOperation()) {
                     for (FieldInfo field : entity.getCombined().getFields()) {
                         appender.append("        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append("\", \"").append(field.getMappedNameOrName()).append("\");\n"
                                 + "        orderByTranslationsFor").append(entity.getDataType().getSimpleNameWithoutGenerics()).append(".put(\"").append(field.getLowerCaseName()).append(" asc\", \"").append(field.getMappedNameOrName()).append(" asc\");\n"
