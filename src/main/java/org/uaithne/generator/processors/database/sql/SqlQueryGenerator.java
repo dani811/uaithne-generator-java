@@ -326,6 +326,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         }
         boolean requireComma = false;
         for (FieldInfo field : entity.getFields()) {
+            if (field.isExcludedFromObject()) {
+                continue;
+            }
             if (excludeFields.contains(field)) {
                 continue;
             }

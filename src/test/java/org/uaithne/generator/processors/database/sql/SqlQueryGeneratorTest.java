@@ -903,6 +903,22 @@ public class SqlQueryGeneratorTest {
         assertEquals("\n    field", result.toString());
     }
 
+    @Test
+    public void testAppendSelectFieldsWithExcludeFromObject() {
+        StringBuilder result = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.INT_DATA_TYPE);
+        EntityInfo entity = getEntityForSelect();
+        FieldInfo field = new FieldInfo("excludedFromObject", DataTypeInfo.LIST_DATA_TYPE);
+        field.setExcludedFromObject(true);
+        entity.addField(field);
+        boolean count = false;
+        TestCustomSqlQuery customQuery = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        instance.appendSelectFields(result, operation, entity, count, customQuery);
+        assertEquals("\n    mappedName as \"mappedField\",\n"
+                + "    field", result.toString());
+    }
+
     private EntityInfo getEntityForSelect() {
         EntityInfo entity = new EntityInfo(new DataTypeInfo("MyEntity"), EntityKind.ENTITY);
 
