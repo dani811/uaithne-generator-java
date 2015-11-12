@@ -447,7 +447,15 @@ public class FieldInfo {
         if (isExcludedFromObject()) {
             return true;
         }
-        return excludedFromConstructor;
+        if (!excludedFromConstructor) {
+            if (related != null) {
+                return related.isExcludedFromConstructor();
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 
     public void setExcludedFromConstructor(boolean excludedFromConstructor) {
