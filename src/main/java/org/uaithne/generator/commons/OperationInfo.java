@@ -49,6 +49,7 @@ public class OperationInfo {
     private boolean ignoreLogicalDeletion;
     private String queryId;
     private String countQueryId;
+    private String saveInsertQueryId;
     private InsertedIdOrigin insertedIdOrigin;
     private boolean deprecated;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
@@ -326,6 +327,14 @@ public class OperationInfo {
 
     public void setCountQueryId(String countQueryId) {
         this.countQueryId = countQueryId;
+    }
+
+    public String getSaveInsertQueryId() {
+        return saveInsertQueryId;
+    }
+
+    public void setSaveInsertQueryId(String saveInsertQueryId) {
+        this.saveInsertQueryId = saveInsertQueryId;
     }
 
     public InsertedIdOrigin getInsertedIdOrigin() {

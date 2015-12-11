@@ -180,14 +180,14 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case DELETE_BY_ID: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().delete(\"").append(namespace).append(".").append(operation.getMethodName()).append("\", operation.getId());\n");
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().delete(\"").append(operation.getQueryId()).append("\", operation.getId());\n");
                     appender.append("        return result;\n");
                     break;
                 }
                 case INSERT: {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n" 
                             + "        SqlSession session = getSession();\n"
-                            + "        int i = session.insert(\"").append(namespace).append(".").append(operation.getMethodName()).append("\", value);\n"
+                            + "        int i = session.insert(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "        if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
                     InsertedIdOrigin idOrigin = operation.getInsertedIdOrigin();
@@ -212,30 +212,15 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case JUST_INSERT: {
-                    String name;
-                    if (operation.isReuseEntityOperations()) {
-                        name = "insert" + operation.getEntity().getDataType().getSimpleNameWithoutGenerics();
-                    } else {
-                        name = operation.getMethodName();
-                    }
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(namespace).append(".").append(name).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
                 case SAVE: {
-                    String insertName;
-                    String updateName;
-                    if (operation.isReuseEntityOperations()) {
-                        insertName = "insert" + operation.getEntity().getDataType().getSimpleNameWithoutGenerics();
-                        updateName = "update" + operation.getEntity().getDataType().getSimpleNameWithoutGenerics();
-                    } else {
-                        insertName = operation.getMethodName() + "-Insert";
-                        updateName = operation.getMethodName() + "-Update";
-                    }
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
                             + "            SqlSession session = getSession();\n"
-                            + "            int i = session.insert(\"").append(namespace).append(".").append(insertName).append("\", value);\n"
+                            + "            int i = session.insert(\"").append(operation.getSaveInsertQueryId()).append("\", value);\n"
                             + "            if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
                     InsertedIdOrigin idOrigin = operation.getInsertedIdOrigin();
@@ -258,7 +243,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
                             + "            }\n"
                             + "        } else {\n"
-                            + "            int i = getSession().update(\"").append(namespace).append(".").append(updateName).append("\", value);\n"
+                            + "            int i = getSession().update(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "            if (i == 1) {\n"
                             + "                ").append(returnTypeName).append(" result = value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("();\n"
                             + "                return result;\n"
@@ -269,32 +254,23 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case JUST_SAVE: {
-                    String insertName;
-                    String updateName;
-                    if (operation.isReuseEntityOperations()) {
-                        insertName = "insert" + operation.getEntity().getDataType().getSimpleNameWithoutGenerics();
-                        updateName = "update" + operation.getEntity().getDataType().getSimpleNameWithoutGenerics();
-                    } else {
-                        insertName = operation.getMethodName() + "-Insert";
-                        updateName = operation.getMethodName() + "-Update";
-                    }
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        ").append(returnTypeName).append(" result;\n"
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
-                            + "            result = getSession().insert(\"").append(namespace).append(".").append(insertName).append("\", value);\n"
+                            + "            result = getSession().insert(\"").append(operation.getSaveInsertQueryId()).append("\", value);\n"
                             + "        } else {\n"
-                            + "            result = getSession().update(\"").append(namespace).append(".").append(updateName).append("\", value);\n"
+                            + "            result = getSession().update(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "        }\n"
                             + "        return result;\n");
                     break;
                 }
                 case SELECT_BY_ID: {
-                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(namespace).append(".").append(operation.getMethodName()).append("\", operation.getId());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation.getId());\n"
                             + "        return result;\n");
                     break;
                 }
                 case UPDATE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(namespace).append(".").append(operation.getMethodName()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
@@ -343,7 +319,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case MERGE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(namespace).append(".").append(operation.getMethodName()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }

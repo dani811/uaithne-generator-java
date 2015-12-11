@@ -28,4 +28,5 @@ import java.lang.annotation.Target;
 public @interface MyBatisCustomSqlStatementId {
     String value();
     String countStatementId() default "";
+    String saveInsertStatementId() default "";
 }
