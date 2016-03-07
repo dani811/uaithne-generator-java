@@ -1888,7 +1888,10 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         return sb.toString();
     }
     
-    public abstract String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull);
+    public abstract String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull, boolean ignoreForcedValue);
+    public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull) {
+        return getParameterValue(field, ignoreValueWhenNull, false);
+    }
     public String getParameterValue(FieldInfo field) {
         return getParameterValue(field, false);
     }

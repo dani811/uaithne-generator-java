@@ -60,6 +60,7 @@ public class FieldInfo {
     private boolean excludedFromToString;
     private boolean excludedFromObject;
     private String valueWhenNull;
+    private String forcedValue;
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
     private ArrayList<DataTypeInfo> validationAnnotations;
     private ArrayList<DataTypeInfo> validationGroups;
@@ -510,6 +511,21 @@ public class FieldInfo {
         this.valueWhenNull = valueWhenNull;
     }
 
+    public String getForcedValue() {
+        if (forcedValue == null) {
+            if (related != null) {
+                return related.getForcedValue();
+            } else {
+                return null;
+            }
+        }
+        return forcedValue;
+    }
+
+    public void setForcedValue(String forceValue) {
+        this.forcedValue = forceValue;
+    }
+
     public ArrayList<DataTypeInfo> getValidationAnnotations() {
         return validationAnnotations;
     }
@@ -717,6 +733,14 @@ public class FieldInfo {
                 }
             }
         }
+        
+        ForceValue forceValue = element.getAnnotation(ForceValue.class);
+        if (forceValue != null) {
+            forcedValue = forceValue.value();
+            if (forcedValue != null && forcedValue.isEmpty()) {
+                forcedValue = null;
+            }
+        }
 
         Doc doc = element.getAnnotation(Doc.class);
         if (doc != null) {
@@ -780,6 +804,7 @@ public class FieldInfo {
         excludedFromToString = fieldInfo.excludedFromToString;
         excludedFromObject = fieldInfo.excludedFromObject;
         valueWhenNull = fieldInfo.valueWhenNull;
+        forcedValue = fieldInfo.forcedValue;
         markAsOvwrride = fieldInfo.markAsOvwrride;
         markAsTransient = fieldInfo.markAsTransient;
         if (!name.equals(fieldInfo.name)) {
@@ -818,6 +843,7 @@ public class FieldInfo {
         excludedFromToString = fieldInfo.excludedFromToString;
         excludedFromObject = fieldInfo.excludedFromObject;
         valueWhenNull = fieldInfo.valueWhenNull;
+        forcedValue = fieldInfo.forcedValue;
         markAsOvwrride = fieldInfo.markAsOvwrride;
         markAsTransient = fieldInfo.markAsTransient;
         mappedName = fieldInfo.mappedName;

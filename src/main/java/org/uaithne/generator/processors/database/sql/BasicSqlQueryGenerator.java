@@ -162,6 +162,25 @@ public abstract class BasicSqlQueryGenerator extends SqlQueryGenerator {
                 return "UNKOWN_DEFAULT_VALUE";
             }
             return result;
+        } else if ("unforcedValue".equals(rule) || "UNFORCED_VALUE".equals(rule)) {
+            if (field.isExcludedFromObject()) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' is not present in the object, you cannot access to the inexistent property value using unforcedValue", field.getElement());
+                return "FORCED_VALUE_FIELD_NOT_PRESENT_IN_OBJECT";
+            }
+            return getParameterValue(field, false, true);
+        } else if ("unforcedNullbaleValue".equals(rule) || "UNFORCED_NULLABLE_VALUE".equals(rule)) {
+            if (field.isExcludedFromObject()) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' is not present in the object, you cannot access to the inexistent property value using unforcedNullableValue", field.getElement());
+                return "FORCED_NULLABLE_VALUE_FIELD_NOT_PRESENT_IN_OBJECT";
+            }
+            return getParameterValue(field, true, true);
+        } else if ("forcedValue".equals(rule) || "FORCED_VALUE".equals(rule)) {
+            String result = field.getForcedValue();
+            if (result == null) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' has no forced value, use @ForceValue annotation for define one", field.getElement());
+                return "UNKOWN_FORCED_VALUE";
+            }
+            return result;
         } else {
             return null;
         }

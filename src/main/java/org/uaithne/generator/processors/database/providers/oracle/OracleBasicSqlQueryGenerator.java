@@ -196,7 +196,10 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
     }
 
     @Override
-    public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull) {
+    public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull, boolean ignoreForcedValue) {
+        if (!ignoreForcedValue && field.getForcedValue() != null) {
+            return field.getForcedValue(); // TODO: In an stored procedure this value meybe must be a param
+        }
         String name;
         ArrayList<FieldInfo> applicationParametersUsed = getConfiguration().getUsedApplicationParameters();
         if (applicationParametersUsed != null && applicationParametersUsed.contains(field)) {
@@ -212,7 +215,7 @@ public class OracleBasicSqlQueryGenerator extends BasicSqlQueryGenerator {
         } else if (field.isExcludedFromObject()) {
             return field.getValueWhenNull();
         } else {
-            return "NVL(" + name + ", " + field.getValueWhenNull() + ")";
+            return "NVL(" + name + ", " + field.getValueWhenNull() + ")"; // TODO: In an stored procedure this value meybe must be a param
         }
     }
 

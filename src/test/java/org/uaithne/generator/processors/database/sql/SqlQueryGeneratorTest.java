@@ -5933,8 +5933,10 @@ public class SqlQueryGeneratorTest {
         }
 
         @Override
-        public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull) {
-            if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
+        public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull, boolean ignoreForcedValue) {
+            if (!ignoreForcedValue && field.getForcedValue() != null) {
+                return "parameterForcedValue!" + field.getName() + "!" + field.getValueWhenNull();
+            } else if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
                 return "parameterValue!" + field.getName();
             } else if (field.isExcludedFromObject()) {
                 return "parameterValueWhenNull!" + field.getName() + "!" + field.getValueWhenNull();

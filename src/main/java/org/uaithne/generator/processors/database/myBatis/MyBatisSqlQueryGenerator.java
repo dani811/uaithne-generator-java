@@ -171,8 +171,10 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
 
     //<editor-fold defaultstate="collapsed" desc="Parameter">
     @Override
-    public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull) {
-        if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
+    public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull, boolean ignoreForcedValue) {
+        if (!ignoreForcedValue && field.getForcedValue() != null) {
+            return field.getForcedValue();
+        } else if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
             return "#{" + field.getName() + getJdbcTypeAttribute(field) + getTypeHandler(field) + "}";
         } else if (field.isExcludedFromObject()) {
             return field.getValueWhenNull();
@@ -360,6 +362,25 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
             if (result == null) {
                 getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' has no defined value when null, use @ValueWhenNull annotation for define one", field.getElement());
                 return "UNKOWN_DEFAULT_VALUE";
+            }
+            return result;
+        } else if ("unforcedValue".equals(rule) || "UNFORCED_VALUE".equals(rule)) {
+            if (field.isExcludedFromObject()) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' is not present in the object, you cannot access to the inexistent property value using unforcedValue", field.getElement());
+                return "FORCED_VALUE_FIELD_NOT_PRESENT_IN_OBJECT";
+            }
+            return getParameterValue(field, false, true);
+        } else if ("unforcedNullbaleValue".equals(rule) || "UNFORCED_NULLABLE_VALUE".equals(rule)) {
+            if (field.isExcludedFromObject()) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' is not present in the object, you cannot access to the inexistent property value using unforcedNullableValue", field.getElement());
+                return "FORCED_NULLABLE_VALUE_FIELD_NOT_PRESENT_IN_OBJECT";
+            }
+            return getParameterValue(field, true, true);
+        } else if ("forcedValue".equals(rule) || "FORCED_VALUE".equals(rule)) {
+            String result = field.getForcedValue();
+            if (result == null) {
+                getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "The field '" + field.getName() + "' has no forced value, use @ForceValue annotation for define one", field.getElement());
+                return "UNKOWN_FORCED_VALUE";
             }
             return result;
         } else {
