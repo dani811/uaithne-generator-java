@@ -748,6 +748,31 @@ public class SqlQueryGeneratorTest {
         String result = instance.completeQueryWithoutEnvolve(query, operation, count, selectPage, customQuery);
         assertEquals(expResult, result);
     }
+    
+    @Test
+    public void testCompleteQueryWithoutEnvolveLimitToOneResultAndOrderBy2() {
+        OperationInfo operation = new OperationInfo(DataTypeInfo.LIST_DATA_TYPE);
+        operation.setLimitToOneResult(true);
+        EntityInfo entity = getEntityForSelect();
+        FieldInfo orderBy = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
+        orderBy.setOrderBy(true);
+        operation.addField(orderBy);
+        operation.setEntity(entity);
+        boolean count = false;
+        boolean selectPage = false;
+        CustomSqlQuery customQuery = null;
+        SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
+        String result = instance.completeQueryWithoutEnvolve(null, operation, count, selectPage, customQuery);
+        assertEquals(result, "select top 1 \n"
+                + "    mappedName as \"mappedField\",\n"
+                + "    fieldappendOrderByAfterSelectForSelectOneRow\n"
+                + "from\n"
+                + "    MyEntity \n"
+                + "where\n"
+                + "    rownum = 1\n"
+                + "order by field\n"
+                + "selectOneRowAfterOrderBy");
+    }
 
     @Test
     public void testAppendSelectCount() {
