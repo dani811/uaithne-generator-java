@@ -48,4 +48,5 @@ public @interface CustomSqlQuery {
     String[] beforeUpdateSetExpression() default {};
     String[] afterUpdateSetExpression() default {};
     String[] excludeEntityFields() default {};
+    boolean isProcedureInvocation() default false;
 }

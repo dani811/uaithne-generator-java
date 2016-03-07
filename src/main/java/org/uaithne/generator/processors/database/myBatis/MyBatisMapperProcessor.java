@@ -39,6 +39,7 @@ import org.uaithne.annotations.myBatis.MyBatisBackend;
 import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 import org.uaithne.annotations.myBatis.MyBatisCustomSqlStatementId;
 import org.uaithne.annotations.myBatis.MyBatisMapper;
+import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.*;
 import org.uaithne.generator.processors.database.QueryGenerator;
 import org.uaithne.generator.processors.database.QueryGeneratorConfiguration;
@@ -187,6 +188,12 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         }
         
         sqlGenerator.getConfiguration().setUsedApplicationParameters(null);
+        
+        boolean isProcedureInvocation = false;
+        CustomSqlQuery customSqlQuery = operation.getAnnotation(CustomSqlQuery.class);
+        if (customSqlQuery != null) {
+            isProcedureInvocation = customSqlQuery.isProcedureInvocation();
+        }
 
         switch (operation.getOperationKind()) {
             case CUSTOM: {
@@ -200,7 +207,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
                             operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -212,7 +220,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
                             operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -224,7 +233,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
                             operation.getOneItemReturnDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -237,7 +247,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName() + "Page",
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
                             operation.getOneItemReturnDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
                 query = sqlGenerator.getSelectPageCountQuery(operation);
                 if (query != null) {
@@ -245,7 +256,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName() + "Count",
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
                             DataTypeInfo.PAGE_INFO_DATA_TYPE.getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -260,7 +272,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                     writeDelete(writer,
                             operation.getMethodName(),
                             entity.getFirstIdField().getDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -282,7 +295,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                                 writeSelectWithoutParameter(writer,
                                         "lastInsertedIdFor" + entity.getDataType().getSimpleNameWithoutGenerics(),
                                         operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
-                                        query);
+                                        query,
+                                        isProcedureInvocation);
                                 entitiesWithLastInsertedId.add(entity);
                             }
                             useGeneratedKey = false;
@@ -303,12 +317,14 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                                 entity.getDataType().getQualifiedNameWithoutGenerics(),
                                 query,
                                 keyProperty,
-                                keyColumn);
+                                keyColumn,
+                                isProcedureInvocation);
                     } else {
                         writeInsert(writer,
                                 operation.getMethodName(),
                                 entity.getDataType().getQualifiedNameWithoutGenerics(),
-                                query);
+                                query,
+                                isProcedureInvocation);
                     }
                 }
             }
@@ -331,7 +347,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                         writeInsert(writer,
                                 operation.getMethodName(),
                                 entity.getDataType().getQualifiedNameWithoutGenerics(),
-                                query);
+                                query,
+                                isProcedureInvocation);
                     }
                 }
             }
@@ -362,7 +379,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                                 writeSelectWithoutParameter(writer,
                                         "lastInsertedIdFor" + entity.getDataType().getSimpleNameWithoutGenerics(),
                                         operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
-                                        query);
+                                        query,
+                                        isProcedureInvocation);
                                 entitiesWithLastInsertedId.add(entity);
                             }
                             useGeneratedKey = false;
@@ -384,12 +402,14 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                                     entity.getDataType().getQualifiedNameWithoutGenerics(),
                                     insertQuery,
                                     keyProperty,
-                                    keyColumn);
+                                    keyColumn,
+                                    isProcedureInvocation);
                         } else {
                             writeInsert(writer,
                                     operation.getMethodName() + "-Insert",
                                     entity.getDataType().getQualifiedNameWithoutGenerics(),
-                                    insertQuery);
+                                    insertQuery,
+                                    isProcedureInvocation);
                         }
                     }
                     String[] updateQuery = sqlGenerator.getEntityUpdateQuery(entity, operation);
@@ -397,7 +417,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                         writeUpdate(writer,
                                 operation.getMethodName() + "-Update",
                                 entity.getDataType().getQualifiedNameWithoutGenerics(),
-                                updateQuery);
+                                updateQuery,
+                                isProcedureInvocation);
                     }
                 }
             }
@@ -422,14 +443,16 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                         writeInsert(writer,
                                 operation.getMethodName() + "-Insert",
                                 entity.getDataType().getQualifiedNameWithoutGenerics(),
-                                insertQuery);
+                                insertQuery,
+                                isProcedureInvocation);
                     }
                     String[] updateQuery = sqlGenerator.getEntityUpdateQuery(entity, operation);
                     if (updateQuery != null) {
                         writeUpdate(writer,
                                 operation.getMethodName() + "-Update",
                                 entity.getDataType().getQualifiedNameWithoutGenerics(),
-                                updateQuery);
+                                updateQuery,
+                                isProcedureInvocation);
                     }
                 }
             }
@@ -446,7 +469,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             entity.getFirstIdField().getDataType().getQualifiedNameWithoutGenerics(),
                             operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -461,7 +485,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                     writeUpdate(writer,
                             operation.getMethodName(),
                             entity.getDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -472,7 +497,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                     writeInsert(writer,
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -483,7 +509,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                     writeUpdate(writer,
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -494,7 +521,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                     writeDelete(writer,
                             operation.getMethodName(),
                             operation.getDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -520,7 +548,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                                 writeSelectWithoutParameter(writer,
                                         "lastInsertedIdFor" + entity.getDataType().getSimpleNameWithoutGenerics(),
                                         operation.getReturnDataType().getQualifiedNameWithoutGenerics(),
-                                        query);
+                                        query,
+                                        isProcedureInvocation);
                                 entitiesWithLastInsertedId.add(entity);
                             }
                             useGeneratedKey = false;
@@ -552,12 +581,14 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                                 operation.getDataType().getQualifiedNameWithoutGenerics(),
                                 query,
                                 keyProperty,
-                                keyColumn);
+                                keyColumn,
+                                isProcedureInvocation);
                     } else {
                         writeInsert(writer,
                                 operation.getMethodName(),
                                 operation.getDataType().getQualifiedNameWithoutGenerics(),
-                                query);
+                                query,
+                                isProcedureInvocation);
                     }
                 }
             }
@@ -573,7 +604,8 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                     writeUpdate(writer,
                             operation.getMethodName(),
                             entity.getDataType().getQualifiedNameWithoutGenerics(),
-                            query);
+                            query,
+                            isProcedureInvocation);
                 }
             }
             break;
@@ -582,11 +614,14 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Write xml entries">
-    public void writeUpdate(Writer writer, String id, String parameterType, String[] lines) throws IOException {
+    public void writeUpdate(Writer writer, String id, String parameterType, String[] lines, boolean isProcedureInvocation) throws IOException {
         writer.write("    <update id='");
         writer.write(id);
         writer.write("' parameterType='");
         writer.write(parameterType);
+        if (isProcedureInvocation) {
+            writer.write("' statementType='CALLABLE");
+        }
         writer.write("'>\n");
         if (lines != null) {
             for (String line : lines) {
@@ -598,13 +633,16 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         writer.write("    </update>\n\n");
     }
 
-    public void writeSelect(Writer writer, String id, String parameterType, String resultType, String[] lines) throws IOException {
+    public void writeSelect(Writer writer, String id, String parameterType, String resultType, String[] lines, boolean isProcedureInvocation) throws IOException {
         writer.write("    <select id='");
         writer.write(id);
         writer.write("' parameterType='");
         writer.write(parameterType);
         writer.write("' resultType='");
         writer.write(resultType);
+        if (isProcedureInvocation) {
+            writer.write("' statementType='CALLABLE");
+        }
         writer.write("'>\n");
         if (lines != null) {
             for (String line : lines) {
@@ -616,11 +654,14 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         writer.write("    </select>\n\n");
     }
 
-    public void writeSelectWithoutParameter(Writer writer, String id, String resultType, String[] lines) throws IOException {
+    public void writeSelectWithoutParameter(Writer writer, String id, String resultType, String[] lines, boolean isProcedureInvocation) throws IOException {
         writer.write("    <select id='");
         writer.write(id);
         writer.write("' resultType='");
         writer.write(resultType);
+        if (isProcedureInvocation) {
+            writer.write("' statementType='CALLABLE");
+        }
         writer.write("'>\n");
         if (lines != null) {
             for (String line : lines) {
@@ -632,11 +673,14 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         writer.write("    </select>\n\n");
     }
 
-    public void writeInsert(Writer writer, String id, String parameterType, String[] lines) throws IOException {
+    public void writeInsert(Writer writer, String id, String parameterType, String[] lines, boolean isProcedureInvocation) throws IOException {
         writer.write("    <insert id='");
         writer.write(id);
         writer.write("' parameterType='");
         writer.write(parameterType);
+        if (isProcedureInvocation) {
+            writer.write("' statementType='CALLABLE");
+        }
         writer.write("'>\n");
         if (lines != null) {
             for (String line : lines) {
@@ -648,7 +692,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         writer.write("    </insert>\n\n");
     }
 
-    public void writeInsertWithGeneratedKey(Writer writer, String id, String parameterType, String[] lines, String keyProperty, String keyColumn) throws IOException {
+    public void writeInsertWithGeneratedKey(Writer writer, String id, String parameterType, String[] lines, String keyProperty, String keyColumn, boolean isProcedureInvocation) throws IOException {
         writer.write("    <insert id='");
         writer.write(id);
         writer.write("' parameterType='");
@@ -657,6 +701,9 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         writer.write(keyProperty);
         writer.write("' keyColumn='");
         writer.write(keyColumn);
+        if (isProcedureInvocation) {
+            writer.write("' statementType='CALLABLE");
+        }
         writer.write("'>\n");
         if (lines != null) {
             for (String line : lines) {
@@ -668,11 +715,14 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         writer.write("    </insert>\n\n");
     }
 
-    public void writeDelete(Writer writer, String id, String parameterType, String[] lines) throws IOException {
+    public void writeDelete(Writer writer, String id, String parameterType, String[] lines, boolean isProcedureInvocation) throws IOException {
         writer.write("    <delete id='");
         writer.write(id);
         writer.write("' parameterType='");
         writer.write(parameterType);
+        if (isProcedureInvocation) {
+            writer.write("' statementType='CALLABLE");
+        }
         writer.write("'>\n");
         if (lines != null) {
             for (String line : lines) {

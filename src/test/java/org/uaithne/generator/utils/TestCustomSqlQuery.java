@@ -52,6 +52,7 @@ public class TestCustomSqlQuery implements CustomSqlQuery {
     public String[] beforeUpdateSetExpression = new String[]{};
     public String[] afterUpdateSetExpression = new String[]{};
     public String[] excludeEntityFields = new String[]{};
+    public boolean isProcedureInvocation;
 
     @Override
     public String[] query() {
@@ -202,4 +203,10 @@ public class TestCustomSqlQuery implements CustomSqlQuery {
     public String[] excludeEntityFields() {
         return excludeEntityFields;
     }
+
+    @Override
+    public boolean isProcedureInvocation() {
+        return isProcedureInvocation;
+    }
+    
 }
