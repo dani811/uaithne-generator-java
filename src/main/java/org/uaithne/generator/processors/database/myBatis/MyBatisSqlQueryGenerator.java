@@ -94,7 +94,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         for (FieldInfo orderBy : orderBys) {
             optional = optional || orderBy.isOptional();
         }
-        boolean firstOptional = orderBys.get(0).isOptional();
+        boolean firstOptional = orderBys.get(0).isOptional() && orderBys.get(0).getValueWhenNull() == null;
         
         if (!optional || !firstOptional || orderBys.size() <= 1) {
             boolean hasOnlyOne = orderBys.size() == 1;
@@ -119,15 +119,23 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                 result.append("${");
                 result.append(orderBy.getName());
                 result.append("}");
-                if (hasOnlyOne) {
+                if (hasOnlyOne && firstOptional) {
                     result.append(endOrderBy);
                 }
                 if (orderBy.isOptional()) {
                     result.append("{[/if]}");
                 }
+                
+                if (orderBy.getValueWhenNull() != null) {
+                    result.append(" {[if test='");
+                    result.append(orderBy.getName());
+                    result.append(" == null']}");
+                    result.append(orderBy.getValueWhenNull());
+                    result.append("{[/if]}");
+                }
                 requireComma = true;
             }
-            if (!hasOnlyOne) {
+            if (!hasOnlyOne || !firstOptional) {
                 result.append(endOrderBy);
             }
             return;
@@ -153,6 +161,18 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                 result.append("${");
                 result.append(orderBy.getName());
                 result.append("} {[/if]}");
+                
+                String valueWhenNull = orderBy.getValueWhenNull();
+                if (valueWhenNull != null) {
+                    result.append(" {[if test='");
+                    result.append(orderBy.getName());
+                    result.append(" == null']}");
+                    if (requireComma) {
+                        result.append(commaSeparator);
+                    }
+                    result.append(valueWhenNull);
+                    result.append(" {[/if]}");
+                }
             } else {
                 if (requireComma) {
                     result.append(commaSeparator);
