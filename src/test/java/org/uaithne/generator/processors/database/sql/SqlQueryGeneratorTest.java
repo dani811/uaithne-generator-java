@@ -1092,9 +1092,9 @@ public class SqlQueryGeneratorTest {
         OperationInfo operation = new OperationInfo(new DataTypeInfo("myOperation"));
 
         EntityInfo entity = new EntityInfo(new DataTypeInfo("myEntity"), EntityKind.ENTITY);
-        FieldInfo field = new FieldInfo("myField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field = new FieldInfo("myField", DataTypeInfo.BOOLEAN_DATA_TYPE);
         field.setDeletionMark(true);
-        FieldInfo field1 = new FieldInfo("myField1", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field1 = new FieldInfo("myField1", DataTypeInfo.BOOLEAN_DATA_TYPE);
         field1.setDeletionMark(true);
         FieldInfo field2 = new FieldInfo("myManuallyField", DataTypeInfo.LIST_DATA_TYPE);
         field2.setManually(true);
@@ -1445,7 +1445,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeleted() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, null);
         assertEquals("myField = false", result.toString());
@@ -1454,7 +1454,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedWithOptionalField() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         field.setOptional(true);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, null);
@@ -1464,7 +1464,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedWithTableAlias() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
         customSqlQuery.tableAlias = "alias";
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
@@ -1475,7 +1475,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedWithOptionalFieldWithTableAlias() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         field.setOptional(true);
         TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
         customSqlQuery.tableAlias = "alias";
@@ -1487,7 +1487,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedWithMappedName() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         field.setMappedName("myFieldMappedName");
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeleted(result, field, null);
@@ -1497,7 +1497,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedWithOptionalFieldWithMappedName() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         field.setMappedName("myFieldMappedName");
         field.setOptional(true);
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
@@ -1508,7 +1508,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedWithTableAliasWithMappedName() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         field.setMappedName("myFieldMappedName");
         TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
         customSqlQuery.tableAlias = "alias";
@@ -1520,7 +1520,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedWithOptionalFieldWithTableAliasWithMappedName() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Boolean"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         field.setMappedName("myFieldMappedName");
         field.setOptional(true);
         TestCustomSqlQuery customSqlQuery = getCustomSqlQuery();
@@ -1533,7 +1533,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendNotDeletedValue() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendNotDeletedValue(result, field);
         assertEquals("false", result.toString());
@@ -1552,7 +1552,7 @@ public class SqlQueryGeneratorTest {
     @Test
     public void testAppendDeletedValue() {
         StringBuilder result = new StringBuilder();
-        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("Integer"));
+        FieldInfo field = new FieldInfo("myField", new DataTypeInfo("boolean"));
         SqlQueryGenerator instance = new SqlQueryGeneratorImpl();
         instance.appendDeletedValue(result, field);
         assertEquals("true", result.toString());
@@ -1614,7 +1614,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field4 = new FieldInfo("idFieldInsertDateMark", DataTypeInfo.LIST_DATA_TYPE);
         field4.setInsertDateMark(true);
         field4.setIdentifier(true);
-        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
+        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("boolean"));
         field5.setDeletionMark(true);
         FieldInfo field6 = new FieldInfo("insertDateMarkField", new DataTypeInfo("java.util", "Date"));
         field6.setInsertDateMark(true);
@@ -2193,9 +2193,9 @@ public class SqlQueryGeneratorTest {
 
         FieldInfo field1 = new FieldInfo("manuallyField", DataTypeInfo.LIST_DATA_TYPE);
         field1.setManually(true);
-        FieldInfo field2 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
+        FieldInfo field2 = new FieldInfo("deletionMarkField", new DataTypeInfo("boolean"));
         field2.setDeletionMark(true);
-        FieldInfo field2BIS = new FieldInfo("deletionMarkFieldBIS", new DataTypeInfo("Boolean"));
+        FieldInfo field2BIS = new FieldInfo("deletionMarkFieldBIS", new DataTypeInfo("boolean"));
         field2BIS.setDeletionMark(true);
         FieldInfo field3 = new FieldInfo("deleteDateMarkField", new DataTypeInfo("java.util", "Date"));
         field3.setDeleteDateMark(true);
@@ -2222,10 +2222,10 @@ public class SqlQueryGeneratorTest {
         FieldInfo operationField1 = new FieldInfo("manuallyOperationField", new DataTypeInfo("Integer"));
         operationField1.setManually(true);
         FieldInfo operationField2 = new FieldInfo("operationField", new DataTypeInfo("Integer"));
-        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("Boolean"));
+        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("boolean"));
         operationField3.setSetValueMark(true);
         operationField3.setDeleteUserMark(true);
-        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("Boolean"));
+        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("boolean"));
         operationField4.setSetValueMark(true);
         operationField4.setDeleteUserMark(true);
         operation.addField(operationField1);
@@ -2260,10 +2260,10 @@ public class SqlQueryGeneratorTest {
         FieldInfo operationField1 = new FieldInfo("manuallyOperationField", new DataTypeInfo("Integer"));
         operationField1.setManually(true);
         FieldInfo operationField2 = new FieldInfo("operationField", new DataTypeInfo("Integer"));
-        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("Boolean"));
+        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("boolean"));
         operationField3.setSetValueMark(true);
         operationField3.setDeleteUserMark(true);
-        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("Boolean"));
+        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("boolean"));
         operationField4.setSetValueMark(true);
         operationField4.setDeleteUserMark(true);
         operation.addField(operationField1);
@@ -2300,10 +2300,10 @@ public class SqlQueryGeneratorTest {
         FieldInfo operationField1 = new FieldInfo("manuallyOperationField", new DataTypeInfo("Integer"));
         operationField1.setManually(true);
         FieldInfo operationField2 = new FieldInfo("operationField", new DataTypeInfo("Integer"));
-        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("Boolean"));
+        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("boolean"));
         operationField3.setSetValueMark(true);
         operationField3.setDeleteUserMark(true);
-        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("Boolean"));
+        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("boolean"));
         operationField4.setSetValueMark(true);
         operationField4.setDeleteUserMark(true);
         operation.addField(operationField1);
@@ -2340,10 +2340,10 @@ public class SqlQueryGeneratorTest {
         FieldInfo operationField1 = new FieldInfo("manuallyOperationField", new DataTypeInfo("Integer"));
         operationField1.setManually(true);
         FieldInfo operationField2 = new FieldInfo("operationField", new DataTypeInfo("Integer"));
-        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("Boolean"));
+        FieldInfo operationField3 = new FieldInfo("deleteUserMarkOperationField", new DataTypeInfo("boolean"));
         operationField3.setSetValueMark(true);
         operationField3.setDeleteUserMark(true);
-        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("Boolean"));
+        FieldInfo operationField4 = new FieldInfo("deleteUserMarkOperationField2", new DataTypeInfo("boolean"));
         operationField4.setSetValueMark(true);
         operationField4.setDeleteUserMark(true);
         operation.addField(operationField1);
@@ -2830,7 +2830,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         FieldInfo field4 = new FieldInfo("identifierField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
-        FieldInfo field5 = new FieldInfo("deletionMarkField", DataTypeInfo.LIST_DATA_TYPE);
+        FieldInfo field5 = new FieldInfo("deletionMarkField", DataTypeInfo.BOOLEAN_DATA_TYPE);
         field5.setDeletionMark(true);
         entity.addField(field1);
         entity.addField(field2);
@@ -3167,7 +3167,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field4 = new FieldInfo("idFieldNotIncluyed", DataTypeInfo.LIST_DATA_TYPE);
         field4.setIdentifier(true);
         field4.setIdentifierAutogenerated(true);
-        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
+        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("boolean"));
         field5.setDeletionMark(true);
         FieldInfo field6 = new FieldInfo("insertDateMarkField", new DataTypeInfo("java.util", "Date"));
         field6.setInsertDateMark(true);
@@ -3238,7 +3238,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
-        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
+        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("boolean"));
         field5.setDeletionMark(true);
         FieldInfo field6 = new FieldInfo("insertDateMarkField", new DataTypeInfo("java.util", "Date"));
         field6.setInsertDateMark(true);
@@ -3552,7 +3552,7 @@ public class SqlQueryGeneratorTest {
         field4.setIdentifier(true);
         FieldInfo fieldWithValueWhenNull = new FieldInfo("fieldWithValueWhenNull", DataTypeInfo.BOXED_INT_DATA_TYPE);
         fieldWithValueWhenNull.setValueWhenNull("WithValueWhenNullValue");
-        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
+        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("boolean"));
         field5.setDeletionMark(true);
         FieldInfo field6 = new FieldInfo("insertDateMarkField", new DataTypeInfo("java.util", "Date"));
         field6.setInsertDateMark(true);
@@ -3948,7 +3948,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field3 = new FieldInfo("field", DataTypeInfo.LIST_DATA_TYPE);
         FieldInfo field4 = new FieldInfo("idField", DataTypeInfo.BOXED_INT_DATA_TYPE);
         field4.setIdentifier(true);
-        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("Boolean"));
+        FieldInfo field5 = new FieldInfo("deletionMarkField", new DataTypeInfo("boolean"));
         field5.setDeletionMark(true);
         FieldInfo field6 = new FieldInfo("deleteDateMarkField", new DataTypeInfo("java.util", "Date"));
         field6.setDeleteDateMark(true);
