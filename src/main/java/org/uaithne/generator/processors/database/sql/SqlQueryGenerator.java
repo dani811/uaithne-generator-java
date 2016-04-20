@@ -674,26 +674,32 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         if (field.isOptional()) {
             result.append(getColumnNameForWhereFromEntity(field, customQuery));
             result.append(" is null");
-        } else {
+        } else if (field.getDataType().isBoolean()) {
             result.append(getColumnNameForWhereFromEntity(field, customQuery));
             result.append(" = ");
             result.append(falseValue());
+        } else {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to handle deletion mark field, it must be optional or boolean", field.getElement());
         }
     }
 
     public void appendNotDeletedValue(StringBuilder result, FieldInfo field) {
         if (field.isOptional()) {
             result.append("null");
-        } else {
+        } else if (field.getDataType().isBoolean()) {
             result.append(falseValue());
+        } else {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to handle deletion mark field, it must be optional or boolean", field.getElement());
         }
     }
 
     public void appendDeletedValue(StringBuilder result, FieldInfo field) {
         if (field.getDataType().isDate()) {
             result.append(currentSqlDate());
-        } else {
+        } else if (field.getDataType().isBoolean()) {
             result.append(trueValue());
+        } else {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to handle deletion mark field, it must be optional or boolean", field.getElement());
         }
     }
     //</editor-fold>
