@@ -31,7 +31,7 @@ public class RetainIdPluginTemplate extends ClassTemplate {
         addImport("java.sql.ResultSetMetaData", packageName);
         addImport("java.sql.SQLException", packageName);
         addImport("java.sql.Statement", packageName);
-        addImport("java.util.List", packageName);
+        addImport("java.util.Collection", packageName);
         addImport("java.util.Properties", packageName);
         addImport("org.apache.ibatis.executor.Executor", packageName);
         addImport("org.apache.ibatis.executor.ExecutorException", packageName);
@@ -45,6 +45,7 @@ public class RetainIdPluginTemplate extends ClassTemplate {
         addImport("org.apache.ibatis.plugin.Signature", packageName);
         addImport("org.apache.ibatis.reflection.MetaObject", packageName);
         addImport("org.apache.ibatis.session.Configuration", packageName);
+        addImport("org.apache.ibatis.type.JdbcType", packageName);
         addImport("org.apache.ibatis.type.TypeAliasRegistry", packageName);
         addImport("org.apache.ibatis.type.TypeHandler", packageName);
         addImport("org.apache.ibatis.type.TypeHandlerRegistry", packageName);
@@ -112,7 +113,7 @@ public class RetainIdPluginTemplate extends ClassTemplate {
             "    private static class RetainKeyGenerator extends Jdbc3KeyGenerator {\n" +
             "\n" +
             "        @Override\n" +
-            "        public void processBatch(MappedStatement ms, Statement stmt, List<Object> parameters) {\n" +
+            "        public void processBatch(MappedStatement ms, Statement stmt, Collection<Object> parameters) {\n" +
             "\n" +
             "            ResultSet rs = null;\n" +
             "            try {\n" +
@@ -131,7 +132,7 @@ public class RetainIdPluginTemplate extends ClassTemplate {
             "                        }\n" +
             "                        final MetaObject metaParam = configuration.newMetaObject(parameter);\n" +
             "                        if (typeHandlers == null) {\n" +
-            "                            typeHandlers = getTypeHandlers(typeAliasRegistry, typeHandlerRegistry, metaParam, keyProperties);\n" +
+            "                            typeHandlers = getTypeHandlers(typeAliasRegistry, typeHandlerRegistry, metaParam, keyProperties, rsmd);\n" +
             "                        }\n" +
             "                        populateKeys(rs, metaParam, keyProperties, typeHandlers);\n" +
             "                    }\n" +
@@ -149,18 +150,18 @@ public class RetainIdPluginTemplate extends ClassTemplate {
             "            }\n" +
             "        }\n" +
             "\n" +
-            "        private TypeHandler<?>[] getTypeHandlers(TypeAliasRegistry typeAliasRegistry, TypeHandlerRegistry typeHandlerRegistry, MetaObject metaParam, String[] keyProperties) {\n" +
+            "        private TypeHandler<?>[] getTypeHandlers(TypeAliasRegistry typeAliasRegistry, TypeHandlerRegistry typeHandlerRegistry, MetaObject metaParam, String[] keyProperties, ResultSetMetaData rsmd) throws SQLException {\n" +
             "            TypeHandler<?>[] typeHandlers = new TypeHandler<?>[keyProperties.length];\n" +
             "            for (int i = 0; i < keyProperties.length; i++) {\n" +
             "                String key = keyProperties[i];\n" +
             "                if (metaParam.hasSetter(key)) {\n" +
             "                    Class<?> keyPropertyType = metaParam.getSetterType(key);\n" +
-            "                    TypeHandler<?> th = typeHandlerRegistry.getTypeHandler(keyPropertyType);\n" +
+            "                    TypeHandler<?> th = typeHandlerRegistry.getTypeHandler(keyPropertyType, JdbcType.forCode(rsmd.getColumnType(i + 1)));\n" +
             "                    typeHandlers[i] = th;\n" +
             "                } else if (key.startsWith(\"__retain_\")) {\n" +
             "                    String type = key.substring(9);\n" +
             "                    Class<?> keyPropertyType = typeAliasRegistry.resolveAlias(type);\n" +
-            "                    TypeHandler<?> th = typeHandlerRegistry.getTypeHandler(keyPropertyType);\n" +
+            "                    TypeHandler<?> th = typeHandlerRegistry.getTypeHandler(keyPropertyType, JdbcType.forCode(rsmd.getColumnType(i + 1)));\n" +
             "                    typeHandlers[i] = th;\n" +
             "                }\n" +
             "            }\n" +
