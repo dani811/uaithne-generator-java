@@ -740,6 +740,9 @@ public class FieldInfo {
             if (forcedValue != null && forcedValue.isEmpty()) {
                 forcedValue = null;
             }
+            if (forcedValue == null && (insertDateMark || updateDateMark || deleteDateMark || deletionMark || versionMark)) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields cannot have force value and the same time generate automatically it value, like the fields annotated with: @InsertDate, @UpdateDate, @DeleteDate, @DeletionMark, @Version", element);   
+            }
         }
 
         Doc doc = element.getAnnotation(Doc.class);
@@ -764,8 +767,8 @@ public class FieldInfo {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields excludes from the object cannot marked as identifier", element);
                 excludedFromObject = false;
             }
-            if (valueWhenNull == null && !(insertDateMark || updateDateMark || deleteDateMark || deletionMark || versionMark)) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields excludes from the object must specify the value using the @ValueWhenNull or use with fields that generate automatically it value, like the fields annotated with: @InsertDate, @UpdateDate, @DeleteDate, @DeletionMark, @Version", element);
+            if (valueWhenNull == null && forcedValue == null && !(insertDateMark || updateDateMark || deleteDateMark || deletionMark || versionMark)) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Fields excludes from the object must specify the value using the @ValueWhenNull or @ForceValue or use with fields that generate automatically it value, like the fields annotated with: @InsertDate, @UpdateDate, @DeleteDate, @DeletionMark, @Version", element);
                 excludedFromObject = false;
             }
         }
