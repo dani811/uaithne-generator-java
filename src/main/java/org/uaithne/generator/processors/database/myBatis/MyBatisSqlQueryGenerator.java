@@ -94,7 +94,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         for (FieldInfo orderBy : orderBys) {
             optional = optional || orderBy.isOptional();
         }
-        boolean firstOptional = orderBys.get(0).isOptional() && orderBys.get(0).getValueWhenNull() == null;
+        boolean firstOptional = orderBys.get(0).isOptional() && (orderBys.get(0).getValueWhenNull() == null || orderBys.get(0).getForcedValue() == null);
         
         if (!optional || !firstOptional || orderBys.size() <= 1) {
             boolean hasOnlyOne = orderBys.size() == 1;
@@ -105,7 +105,8 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                 if (!hasOnlyOne) {
                     result.append(separator);
                 }
-                if (orderBy.isOptional()) {
+                String forcedValue = orderBy.getForcedValue();
+                if (orderBy.isOptional() && forcedValue == null) {
                     result.append("{[if test='");
                     result.append(orderBy.getName());
                     result.append(" != null']}");
@@ -116,17 +117,21 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                 if (requireComma) {
                     result.append(commaSeparator);
                 }
-                result.append("${");
-                result.append(orderBy.getName());
-                result.append("}");
+                if (forcedValue == null) {
+                    result.append("${");
+                    result.append(orderBy.getName());
+                    result.append("}");
+                } else {
+                    result.append(forcedValue);
+                }
                 if (hasOnlyOne && firstOptional) {
                     result.append(endOrderBy);
                 }
-                if (orderBy.isOptional()) {
+                if (orderBy.isOptional() && forcedValue == null) {
                     result.append("{[/if]}");
                 }
                 
-                if (orderBy.getValueWhenNull() != null) {
+                if (orderBy.getValueWhenNull() != null && forcedValue == null) {
                     result.append(" {[if test='");
                     result.append(orderBy.getName());
                     result.append(" == null']}");
@@ -150,7 +155,8 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         result.append("']}");
         
         for (FieldInfo orderBy : orderBys) {
-            if (orderBy.isOptional()) {
+            String forcedValue = orderBy.getForcedValue();
+            if (orderBy.isOptional() && forcedValue == null) {
                 result.append(separator);
                 result.append("{[if test='");
                 result.append(orderBy.getName());
@@ -178,9 +184,13 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                     result.append(commaSeparator);
                 }
                 result.append(separator);
-                result.append("${");
-                result.append(orderBy.getName());
-                result.append("}");
+                if (forcedValue == null) {
+                    result.append("${");
+                    result.append(orderBy.getName());
+                    result.append("}");
+                } else {
+                    result.append(forcedValue);
+                }
             }
             requireComma=true;
         }
