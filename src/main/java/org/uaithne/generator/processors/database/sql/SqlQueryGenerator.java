@@ -680,6 +680,9 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             result.append(falseValue());
         } else {
             getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to handle deletion mark field, it must be optional or boolean", field.getElement());
+            result.append(getColumnNameForWhereFromEntity(field, customQuery));
+            result.append(" = ");
+            result.append("INVALID_NOT_DELETED");
         }
     }
 
@@ -690,6 +693,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             result.append(falseValue());
         } else {
             getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to handle deletion mark field, it must be optional or boolean", field.getElement());
+            result.append("INVALID_NOT_DELETED_VALUE");
         }
     }
 
@@ -700,6 +704,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             result.append(trueValue());
         } else {
             getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to handle deletion mark field, it must be optional or boolean", field.getElement());
+            result.append("INVALID_DELETED_VALUE");
         }
     }
     //</editor-fold>
@@ -761,6 +766,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         continue;
                     } else if (field.isManually()) {
                         continue;
+                    } else if (operation.getFieldByName(field.getName()) != null) {
+                        continue;
                     } else if (!field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
@@ -797,9 +804,18 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         continue;
                     } else if (field.isManually()) {
                         continue;
+                    } else if (operation.getFieldByName(field.getName()) != null) {
+                        continue;
                     } else if (field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        requireComma = true;
+                    } else if (field.isInsertUserMark()) {
                         if (requireComma) {
                             result.append(",\n");
                         }
@@ -847,6 +863,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         continue;
                     } else if (field.isManually()) {
                         continue;
+                    } else if (operation.getFieldByName(field.getName()) != null) {
+                        continue;
                     } else if (!field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
@@ -877,6 +895,14 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     result.append("    ");
                     if (field.hasDefaultValueWhenInsert()) {
                         appendParameterValueOrDefaultInDatabaseWhenNullForInsert(result, operation, entity, field);
+                    } else if (field.isInsertDateMark()) {
+                        result.append(currentSqlDate());
+                    } else if (field.isInsertUserMark()) {
+                        result.append(getParameterValue(field));
+                    } else if (field.isDeletionMark()) {
+                        appendNotDeletedValue(result, field);
+                    } else if (field.isVersionMark()) {
+                        appendInitialVersionValue(result, entity, field);
                     } else {
                         result.append(getParameterValue(field));
                     }
@@ -887,6 +913,8 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         continue;
                     } else if (field.isManually()) {
                         continue;
+                    } else if (operation.getFieldByName(field.getName()) != null) {
+                        continue;
                     } else if (field.isIdentifier()) {
                         continue;
                     } else if (field.isInsertDateMark()) {
@@ -896,6 +924,19 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append("    ");
                         result.append(currentSqlDate());
                         requireComma = true;
+                    } else if (field.isInsertUserMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        requireComma = true;
+                        
+                        if (field.getValueWhenNull() == null && field.getForcedValue() == null) {
+                            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate Insert operation query, because is not possible to determine the insert user value for the field '" + field.getName() + "' present in the entity. Include this field as a member of the operation for allow specify one or use @CustomSqlQuery for handle it.", operation.getElement());
+                            result.append("INVALID_INSERT_USER");
+                        } else {
+                            result.append(getParameterValue(field));
+                        }
                     } else if (field.isDeletionMark()) {
                         if (requireComma) {
                             result.append(",\n");
@@ -994,14 +1035,25 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     } else {
                         result.append(getColumnName(field));
                         result.append(" = ");
-                        result.append(getParameterValue(field));
+                        if (field.isUpdateDateMark()) {
+                            result.append(currentSqlDate());
+                        } else if (field.isUpdateUserMark()) {
+                            result.append(getParameterValue(field));
+                        } else if (field.isVersionMark()) {
+                            appendNextVersionValue(result, entity, field);
+                        } else {
+                            result.append(getParameterValue(field));
+                        }
                     }
                     requireComma = true;
                 }
                 for (FieldInfo field : entity.getFields()) {
+                    FieldInfo operationField = operation.getFieldByName(field.getName());
                     if (excludeFields.contains(field)) {
                         continue;
                     } else if (field.isManually()) {
+                        continue;
+                    } else if (operationField != null && operationField.isSetValueMark()) {
                         continue;
                     } else if (field.isUpdateDateMark()) {
                         if (requireEndSetValueIfNotNull) {
@@ -1016,6 +1068,21 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append(" = ");
                         result.append(currentSqlDate());
                         requireComma = true;
+                    } else if (field.isUpdateUserMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        result.append(" = ");
+                        requireComma = true;
+                        
+                        if (field.getValueWhenNull() == null && field.getForcedValue() == null) {
+                            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate Update operation query, because is not possible to determine the update user value for the field '" + field.getName() + "' present in the entity. Include this field as a member of the operation with the annotation @SetValue for allow specify one or use @CustomSqlQuery for handle it.", operation.getElement());
+                            result.append("INVALID_UPDATE_USER");
+                        } else {
+                            result.append(getParameterValue(field));
+                        }
                     } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnUpdate()) {
                             continue;
@@ -1086,6 +1153,15 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         continue;
                     } else if (!field.isSetValueMark()) {
                         continue;
+                    } else if (field.isDeleteDateMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        result.append(" = ");
+                        result.append(currentSqlDate());
+                        requireComma = true;
                     } else if (field.isDeleteUserMark()) {
                         if (requireComma) {
                             result.append(",\n");
@@ -1095,12 +1171,36 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append(" = ");
                         result.append(getParameterValue(field));
                         requireComma = true;
+                    } else if (field.isDeletionMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        result.append(" = ");
+                        appendDeletedValue(result, field);
+                        requireComma = true;
+                    } else if (field.isVersionMark()) {
+                        if (!handleVersionFieldOnDelete()) {
+                            continue;
+                        }
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        result.append(" = ");
+                        appendNextVersionValue(result, entity, field);
+                        requireComma = true;
                     }
                 }
                 for (FieldInfo field : entity.getFields()) {
+                    FieldInfo operationField = operation.getFieldByName(field.getName());
                     if (excludeFields.contains(field)) {
                         continue;
                     } else if (field.isManually()) {
+                        continue;
+                    } else if (operationField != null && operationField.isSetValueMark()) {
                         continue;
                     } else if (field.isDeleteDateMark()) {
                         if (requireComma) {
@@ -1111,6 +1211,21 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append(" = ");
                         result.append(currentSqlDate());
                         requireComma = true;
+                    } else if (field.isDeleteUserMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        result.append(" = ");
+                        requireComma = true;
+                            
+                        if (field.getValueWhenNull() == null && field.getForcedValue() == null) {
+                            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate Delete operation query, because is not possible to determine the delete user value for the field '" + field.getName() + "' present in the entity. Include this field as a member of the operation with the annotation @SetValue for allow specify one or use @CustomSqlQuery for handle it.", operation.getElement());
+                            result.append("INVALID_DELETE_USER");
+                        } else {
+                            result.append(getParameterValue(field));
+                        }
                     } else if (field.isDeletionMark()) {
                         if (requireComma) {
                             result.append(",\n");
@@ -1769,6 +1884,21 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append(" = ");                
                         result.append(currentSqlDate());
                         requireComma = true;
+                    } else if (field.isDeleteUserMark()) {
+                        if (requireComma) {
+                            result.append(",\n");
+                        }
+                        result.append("    ");
+                        result.append(getColumnName(field));
+                        result.append(" = ");
+                        requireComma = true;
+                            
+                        if (field.getValueWhenNull() == null && field.getForcedValue() == null) {
+                            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate DeleteEntityById operation query, because is not possible to determine the delete user value for the field '" + field.getName() + "'. Create your own delete operation for specify one or use @CustomSqlQuery for handle it.", operation.getElement());
+                            result.append("INVALID_ENTITY_DELETE_USER");
+                        } else {
+                            result.append(getParameterValue(field));
+                        }
                     } else if (field.isDeletionMark()) {
                         if (requireComma) {
                             result.append(",\n");
@@ -1778,19 +1908,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                         result.append(" = ");
                         appendDeletedValue(result, field);
                         requireComma = true;
-                    } else if (field.isDeleteUserMark()) {
-                        if (field.getValueWhenNull() == null) {
-                            // TODO: deleteUser
-                        } else {
-                            if (requireComma) {
-                                result.append(",\n");
-                            }
-                            result.append("    ");
-                            result.append(getColumnName(field));
-                            result.append(" = ");
-                            result.append(getParameterValue(field));
-                            requireComma = true;
-                        }
                     } else if (field.isVersionMark()) {
                         if (!handleVersionFieldOnDelete()) {
                             continue;

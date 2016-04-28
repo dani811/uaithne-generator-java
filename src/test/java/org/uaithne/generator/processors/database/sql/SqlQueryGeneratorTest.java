@@ -1619,6 +1619,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field6 = new FieldInfo("insertDateMarkField", new DataTypeInfo("java.util", "Date"));
         field6.setInsertDateMark(true);
         FieldInfo field7 = new FieldInfo("insertUserMarkField", new DataTypeInfo("java.util", "Date"));
+        field7.setValueWhenNull("insertUserMarkFieldValue");
         field7.setInsertUserMark(true);
         FieldInfo field8 = new FieldInfo("updateDateMarkField", new DataTypeInfo("java.util", "Date"));
         field8.setUpdateDateMark(true);
@@ -1669,6 +1670,7 @@ public class SqlQueryGeneratorTest {
             "    operationField,",
             "    deletionMarkField,",
             "    insertDateMarkField,",
+            "    insertUserMarkField,",
             "    versionMarkField",
             ") values (",
             "    parameterValue!idField,",
@@ -1677,6 +1679,7 @@ public class SqlQueryGeneratorTest {
             "    parameterValue!operationField,",
             "    false,",
             "    current_timestamp,",
+            "    parameterValueAndWhenNull!insertUserMarkField!insertUserMarkFieldValue,",
             "    initalVersionValue!versionMarkField",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
@@ -1703,12 +1706,14 @@ public class SqlQueryGeneratorTest {
             "    idFieldInsertDateMark,",
             "    operationField,",
             "    insertDateMarkField,",
+            "    insertUserMarkField,",
             "    versionMarkField",
             ") values (",
             "    parameterValue!idField,",
             "    current_timestamp,",
             "    parameterValue!operationField,",
             "    current_timestamp,",
+            "    parameterValueAndWhenNull!insertUserMarkField!insertUserMarkFieldValue,",
             "    initalVersionValue!versionMarkField",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
@@ -1738,6 +1743,7 @@ public class SqlQueryGeneratorTest {
             "    defaultValue,",
             "    deletionMarkField,",
             "    insertDateMarkField,",
+            "    insertUserMarkField,",
             "    versionMarkField",
             ") values (",
             "    parameterValue!idField,",
@@ -1747,6 +1753,7 @@ public class SqlQueryGeneratorTest {
             "    parameterValueOrDBDefault!defaultValue,",
             "    false,",
             "    current_timestamp,",
+            "    parameterValueAndWhenNull!insertUserMarkField!insertUserMarkFieldValue,",
             "    initalVersionValue!versionMarkField",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
@@ -1800,13 +1807,15 @@ public class SqlQueryGeneratorTest {
             "    idFieldBIS,",
             "    idFieldInsertDateMark,",
             "    deletionMarkField,",
-            "    insertDateMarkField",
+            "    insertDateMarkField,",
+            "    insertUserMarkField",
             ") values (",
             "    parameterValue!idField,",
             "    parameterValue!idFieldBIS,",
             "    current_timestamp,",
             "    false,",
-            "    current_timestamp",
+            "    current_timestamp,",
+            "    parameterValueAndWhenNull!insertUserMarkField!insertUserMarkFieldValue",
             ")"};
         String[] result = instance.getCustomInsertQuery(operation);
         assertArrayEquals(expResult, result);
@@ -2200,6 +2209,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field3 = new FieldInfo("deleteDateMarkField", new DataTypeInfo("java.util", "Date"));
         field3.setDeleteDateMark(true);
         FieldInfo field4 = new FieldInfo("deleteUserMarkField", new DataTypeInfo("java.util", "Date"));
+        field4.setValueWhenNull("deleteUserMarkFieldValue");
         field4.setDeleteUserMark(true);
         FieldInfo field5 = new FieldInfo("versionMarkField", new DataTypeInfo("String"));
         field5.setVersionMark(true);
@@ -2243,6 +2253,7 @@ public class SqlQueryGeneratorTest {
             "    deletionMarkField = true,",
             "    deletionMarkFieldBIS = true,",
             "    deleteDateMarkField = current_timestamp,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue,",
             "    versionMarkField = nextVersion!versionMarkField",
             "where",
             "    operationField = parameterValue!operationField",
@@ -2283,7 +2294,8 @@ public class SqlQueryGeneratorTest {
             "    deleteUserMarkOperationField = parameterValue!deleteUserMarkOperationField,",
             "    deleteUserMarkOperationField2 = parameterValue!deleteUserMarkOperationField2,",
             "    deletionMarkFieldBIS = true,",
-            "    deleteDateMarkField = current_timestamp",
+            "    deleteDateMarkField = current_timestamp,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue",
             "where",
             "    operationField = parameterValue!operationField",
             "    and deletionMarkField = false",
@@ -2319,7 +2331,8 @@ public class SqlQueryGeneratorTest {
             "    deleteUserMarkOperationField2 = parameterValue!deleteUserMarkOperationField2,",
             "    deletionMarkField = true,",
             "    deletionMarkFieldBIS = true,",
-            "    deleteDateMarkField = current_timestamp",
+            "    deleteDateMarkField = current_timestamp,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue",
             "where",
             "    operationField = parameterValue!operationField",
             "    and deletionMarkField = false",
@@ -2361,7 +2374,8 @@ public class SqlQueryGeneratorTest {
             "    deleteUserMarkOperationField2 = parameterValue!deleteUserMarkOperationField2,",
             "    deletionMarkField = true,",
             "    deletionMarkFieldBIS = true,",
-            "    deleteDateMarkField = current_timestamp",
+            "    deleteDateMarkField = current_timestamp,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue",
             "where",
             "    operationField = parameterValue!operationField",
             "    and deletionMarkField = false",
@@ -3953,6 +3967,7 @@ public class SqlQueryGeneratorTest {
         FieldInfo field6 = new FieldInfo("deleteDateMarkField", new DataTypeInfo("java.util", "Date"));
         field6.setDeleteDateMark(true);
         FieldInfo field7 = new FieldInfo("deleteUserMarkField", new DataTypeInfo("java.util", "Date"));
+        field7.setValueWhenNull("deleteUserMarkFieldValue");
         field7.setDeleteUserMark(true);
         FieldInfo field8 = new FieldInfo("versionMarkField", new DataTypeInfo("String"));
         field8.setVersionMark(true);
@@ -4004,6 +4019,7 @@ public class SqlQueryGeneratorTest {
             "set",
             "    deleteDateMarkField = current_timestamp,",
             "    deletionMarkField = true,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue,",
             "    versionMarkField = nextVersion!versionMarkField",
             "where",
             "    idField = parameterValue!id",
@@ -4027,6 +4043,7 @@ public class SqlQueryGeneratorTest {
             "set",
             "    deleteDateMarkField = current_timestamp,",
             "    deletionMarkField = true,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue,",
             "    versionMarkField = nextVersion!versionMarkField,",
             "    deleteUser = parameterValueAndWhenNull!deleteUser!deleteUserValue",
             "where",
@@ -4048,6 +4065,7 @@ public class SqlQueryGeneratorTest {
         String[] expResult = new String[]{"update",
             "    MyEntity ",
             "set",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue,",
             "    versionMarkField = nextVersion!versionMarkField",
             "where",
             "    idField = parameterValue!id",
@@ -4067,6 +4085,7 @@ public class SqlQueryGeneratorTest {
             "set",
             "    deletionMarkField = true,",
             "    deleteDateMarkField = current_timestamp,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue,",
             "    versionMarkField = nextVersion!versionMarkField",
             "where",
             "    idField = parameterValue!id",
@@ -4085,7 +4104,8 @@ public class SqlQueryGeneratorTest {
             "    MyEntity ",
             "set",
             "    deleteDateMarkField = current_timestamp,",
-            "    deletionMarkField = true",
+            "    deletionMarkField = true,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue",
             "where",
             "    idField = parameterValue!id",
             "    and deletionMarkField = false"};
@@ -4150,7 +4170,8 @@ public class SqlQueryGeneratorTest {
             "    from ",
             "set",
             "    deleteDateMarkField = current_timestamp,",
-            "    deletionMarkField = true",
+            "    deletionMarkField = true,",
+            "    deleteUserMarkField = parameterValueAndWhenNull!deleteUserMarkField!deleteUserMarkFieldValue",
             "where",
             "    idField = parameterValue!id",
             "    and deletionMarkField = false"
@@ -5974,6 +5995,12 @@ public class SqlQueryGeneratorTest {
         @Override
         public void appendParameterValueOrDefaultInDatabaseWhenNullForInsert(StringBuilder result, OperationInfo operation, EntityInfo entity, FieldInfo field) {
             result.append("parameterValueOrDBDefault!").append(field.getName());
+        }
+    }
+    
+    void print(String[] array) {
+        for (String s: array) {
+            System.out.println(s);
         }
     }
 }
