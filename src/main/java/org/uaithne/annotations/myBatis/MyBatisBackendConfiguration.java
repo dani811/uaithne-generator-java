@@ -30,4 +30,5 @@ public @interface MyBatisBackendConfiguration {
     Ternary useAutoIncrementId() default Ternary.UNSPECIFIED;
     DefaultJdbcType[] defaultJdbcTypes() default {};
     String defaultValue() default "";
+    boolean useParameterType() default false;
 }
