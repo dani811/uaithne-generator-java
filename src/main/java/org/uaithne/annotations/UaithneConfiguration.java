@@ -42,4 +42,6 @@ public @interface UaithneConfiguration {
     AnnotationSubstitution[] annotationSubstitutions() default {};
     @Deprecated
     boolean includeExecuteOtherMethodInExecutors() default false;
+    @Deprecated
+    boolean includeExecutePostOperationInOperations() default false;
 }

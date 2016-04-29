@@ -36,8 +36,11 @@ public class OperationTemplate extends ClassTemplate {
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         appender.append("    public Object getExecutorSelector();\n"
-                + "    public RESULT execute(Executor executor);\n"
+                + "    public RESULT execute(Executor executor);");
+        if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append("\n"
                 + "    public RESULT executePostOperation(RESULT result);");
+        }
     }
     
 }

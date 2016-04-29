@@ -104,19 +104,22 @@ public class OperationTemplate extends PojoTemplate {
                 + "    \n"
                 + "    public ").append(returnName).append(" execute(").append(executorName).append(" executor) {\n"
                 + "        return executor.").append(operation.getMethodName()).append("(this);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(returnName).append(" executePostOperation(").append(returnName).append(" result) {\n");
-        if (operation.getOperationKind() == OperationKind.INSERT || operation.getOperationKind() == OperationKind.SAVE) {
-            appender.append("        if (value != null) {\n"
+            if (operation.getOperationKind() == OperationKind.INSERT || operation.getOperationKind() == OperationKind.SAVE) {
+                appender.append("        if (value != null) {\n"
                     + "            value.set").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("(result);\n"
                     + "        }\n"
                     + "        return result;\n");
-        } else {
-            appender.append("        return result;\n");
+            } else {
+                appender.append("        return result;\n");
+            }
+            appender.append("    }\n");
         }
-        appender.append("    }\n");
     }
 
     void writeConstructors(Appendable appender) throws IOException {

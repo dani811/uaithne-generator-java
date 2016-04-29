@@ -46,12 +46,16 @@ public class AwaitGwtOperationTemplate extends ClassTemplate {
                 + "            throw new IllegalArgumentException(\"executor for execute \" + this.getClass().getName() + \" AwaitGwtOperation cannot be null\");\n"
                 + "        }\n"
                 + "        return ((GwtOperationExecutor)executor).executeAwaitGwtOperation(this);\n"
-                + "    }\n"
+                + "    }");
+        
+        if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append("\n"
                 + "\n"
                 + "    @Override\n"
                 + "    public AwaitGwtResult executePostOperation(AwaitGwtResult result) {\n"
                 + "        return result;\n"
                 + "    }");
+        }
     }
     
 }

@@ -94,8 +94,10 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 processClassTemplate(new ChainedExecutorTemplate(packageName), element);
                 processClassTemplate(new ChainedExecutorGroupTemplate(packageName), element);
                 processClassTemplate(new ChainedGroupingExecutorTemplate(packageName), element);
-                processClassTemplate(new PostOperationExecutorTemplate(packageName), element);
-                processClassTemplate(new PostOperationExecutorGroupTemplate(packageName), element);
+                if (generationInfo.isIncludeExecutePostOperationInOperations()) {
+                    processClassTemplate(new PostOperationExecutorTemplate(packageName), element);
+                    processClassTemplate(new PostOperationExecutorGroupTemplate(packageName), element);
+                }
                 processClassTemplate(new DataPageTemplate(packageName), element);
                 processClassTemplate(new DataPageRequestTemplate(packageName), element);
             }

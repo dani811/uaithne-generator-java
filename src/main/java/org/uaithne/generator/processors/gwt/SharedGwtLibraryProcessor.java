@@ -96,8 +96,10 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
                     processClassTemplate(new ChainedGroupingAsyncExecutorTemplate(sharedGwtPackageDot), element);
                     processClassTemplate(new ChainedMappedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
                     processClassTemplate(new MappedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
-                    processClassTemplate(new PostOperationAsyncExecutorTemplate(sharedGwtPackageDot), element);
-                    processClassTemplate(new PostOperationAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
+                    if (generationInfo.isIncludeExecutePostOperationInOperations()) {
+                        processClassTemplate(new PostOperationAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                        processClassTemplate(new PostOperationAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
+                    }
                     processClassTemplate(new LoggedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
                     processClassTemplate(new SyncAsyncExecutorTemplate(sharedGwtPackageDot), element);
                     processClassTemplate(new SyncAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);

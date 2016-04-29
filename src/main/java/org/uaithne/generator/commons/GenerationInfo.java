@@ -56,6 +56,7 @@ public class GenerationInfo {
     
     // Deprecated configurations
     private boolean includeExecuteOtherMethodInExecutors;
+    private boolean includeExecutePostOperationInOperations;
 
     public GenerationInfo() {
         for (AnnotationConfigurationKeys key : AnnotationConfigurationKeys.values()) {
@@ -339,6 +340,14 @@ public class GenerationInfo {
 
     public void setIncludeExecuteOtherMethodInExecutors(boolean includeExecuteOtherMethodInExecutors) {
         this.includeExecuteOtherMethodInExecutors = includeExecuteOtherMethodInExecutors;
+    }
+
+    public boolean isIncludeExecutePostOperationInOperations() {
+        return includeExecutePostOperationInOperations;
+    }
+
+    public void setIncludeExecutePostOperationInOperations(boolean includeExecutePostOperationInOperations) {
+        this.includeExecutePostOperationInOperations = includeExecutePostOperationInOperations;
     }
 
 }

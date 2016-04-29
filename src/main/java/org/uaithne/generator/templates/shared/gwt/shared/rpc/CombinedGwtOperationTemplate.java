@@ -50,12 +50,16 @@ public class CombinedGwtOperationTemplate extends ClassTemplate {
                 + "        return ((GwtOperationExecutor)executor).executeCombinedGwtOperation(this);\n"
                 + "    }\n"
                 + "\n"
-                + "    public abstract RESULT executeOnServer(Executor executor);\n"
+                + "    public abstract RESULT executeOnServer(Executor executor);");
+        
+        if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append("\n"
                 + "\n"
                 + "    @Override\n"
                 + "    public RESULT executePostOperation(RESULT result) {\n"
                 + "        return result;\n"
                 + "    }");
+        }
     }
     
 }

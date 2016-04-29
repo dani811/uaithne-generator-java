@@ -52,6 +52,7 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                 if (configuration != null) {
                     generationInfo.setConfigurationElement(element);
                     generationInfo.setIncludeExecuteOtherMethodInExecutors(configuration.includeExecuteOtherMethodInExecutors());
+                    generationInfo.setIncludeExecutePostOperationInOperations(configuration.includeExecutePostOperationInOperations());
                     generationInfo.setGenerateDefaultEntityOperations(configuration.enableDefaultEntityOperations());
                     generationInfo.setGenerateJustOperationsEnabled(configuration.enableJustOperations());
                     generationInfo.setGenerateSaveOperationsEnabled(configuration.enableSaveOperations());

@@ -45,9 +45,13 @@ public class RpcAsyncExecutorGroupTemplate extends ClassTemplate {
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    private ExecutorGroupRpcAsync executorGroupRpc;\n"
-                + "    private boolean executePostOperationEnabled = true;\n"
-                + "    private boolean sendDeferredEnabled = true;\n"
+        appender.append("    private ExecutorGroupRpcAsync executorGroupRpc;\n");
+        
+        if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append("    private boolean executePostOperationEnabled = true;\n");
+        }
+        
+        appender.append("    private boolean sendDeferredEnabled = true;\n"
                 + "    private ArrayList<Operation> deferredOperations;\n"
                 + "    private ArrayList<AsyncCallback> deferredCallbacks;\n"
                 + "    private boolean containsExecutableOperations;\n"
@@ -57,8 +61,10 @@ public class RpcAsyncExecutorGroupTemplate extends ClassTemplate {
                 + "     */\n"
                 + "    public ExecutorGroupRpcAsync getExecutorGroupRpc() {\n"
                 + "        return executorGroupRpc;\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append("\n"
                 + "    /**\n"
                 + "     * @return the executePostOperationEnabled\n"
                 + "     */\n"
@@ -71,8 +77,10 @@ public class RpcAsyncExecutorGroupTemplate extends ClassTemplate {
                 + "     */\n"
                 + "    public void setExecutePostOperationEnabled(boolean executePostOperationEnabled) {\n"
                 + "        this.executePostOperationEnabled = executePostOperationEnabled;\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    /**\n"
                 + "     * @return the sendDeferredEnabled\n"
                 + "     */\n"
@@ -267,11 +275,17 @@ public class RpcAsyncExecutorGroupTemplate extends ClassTemplate {
                 + "            } else {\n"
                 + "                callback.onFailure(rpcException);\n"
                 + "            }\n"
-                + "        } else {\n"
-                + "            if (executePostOperationEnabled) {\n"
+                + "        } else {\n");
+        
+        if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append(
+                  "            if (executePostOperationEnabled) {\n"
                 + "                result = operation.executePostOperation(result);\n"
-                + "            }\n"
-                + "            callback.onSuccess(result);\n"
+                + "            }\n");
+        }
+        
+        appender.append(
+                  "            callback.onSuccess(result);\n"
                 + "        }\n"
                 + "    }"
                 + "\n"
