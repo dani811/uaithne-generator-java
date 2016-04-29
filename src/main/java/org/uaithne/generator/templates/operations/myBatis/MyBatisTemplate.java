@@ -33,6 +33,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
     private String namespace;
     private boolean useAliasInOrderBy;
     private boolean hasUnimplementedOperations;
+    private String indentation = "        ";
 
     public String getNamespace() {
         return namespace;
@@ -140,43 +141,43 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             switch (operation.getOperationKind()) {
                 case SELECT_COUNT: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_ONE: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_MANY: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append(returnTypeName).append(" result = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
                     writeEndOrderByVariable(appender, operation);
                     appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_PAGE: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append("        ").append(returnTypeName).append(" result = new ").append(returnTypeName).append("();\n"
-                            + "        ").append(PAGE_INFO_DATA).append(" count = operation.getDataCount();\n"
-                            + "        if (count == null) {\n"
-                            + "            count = (").append(PAGE_INFO_DATA).append(") getSession().selectOne(\"").append(operation.getCountQueryId()).append("\", operation);\n"
-                            + "        }\n"
-                            + "        result.setDataCount(count);\n"
-                            + "        if (operation.isOnlyDataCount()) {\n"
-                            + "            return result;\n"
-                            + "        }\n"
-                            + "\n"
-                            + "        ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append(returnTypeName).append(" result = new ").append(returnTypeName).append("();\n")
+                            .append(indentation).append(PAGE_INFO_DATA).append(" count = operation.getDataCount();\n")
+                            .append(indentation).append("if (count == null) {\n")
+                            .append(indentation).append("    count = (").append(PAGE_INFO_DATA).append(") getSession().selectOne(\"").append(operation.getCountQueryId()).append("\", operation);\n")
+                            .append(indentation).append("}\n")
+                            .append(indentation).append("result.setDataCount(count);\n")
+                            .append(indentation).append("if (operation.isOnlyDataCount()) {\n")
+                            .append(indentation).append("    return result;\n")
+                            .append(indentation).append("}\n"
+                            + "\n")
+                            .append(indentation).append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append("result.setData(data);\n")
+                            .append(indentation).append("result.setLimit(operation.getLimit());\n")
+                            .append(indentation).append("result.setOffset(operation.getOffset());\n");
+                    appender.append(indentation).append("return result;\n");
                     writeEndOrderByVariable(appender, operation);
-                    appender.append("        result.setData(data);\n"
-                            + "        result.setLimit(operation.getLimit());\n"
-                            + "        result.setOffset(operation.getOffset());\n");
-                    appender.append("        return result;\n");
                     break;
                 }
                 case DELETE_BY_ID: {
@@ -408,16 +409,21 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         + "        operation.set").append(field.getCapitalizedName()).append("(translateOrderBy(").append(field.getName()).append("Old, orderByTranslationsFor").append(operation.getEntity().getDataType().getSimpleName()).append("));\n");
             }
         }
+        appender.append("        try {\n");
+        indentation = "            ";
     }
 
     void writeEndOrderByVariable(Appendable appender, OperationInfo operation) throws IOException {
         if (!operation.isOrdered() || operation.getEntity() == null) {
             return;
         }
+        appender.append("        } finally {\n");
         for (FieldInfo field : operation.getFields()) {
             if (field.isOrderBy()) {
-                appender.append("        operation.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append("Old);\n");
+                appender.append("            operation.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append("Old);\n");
             }
         }
+        appender.append("        }\n");
+        indentation = "        ";
     }
 }
