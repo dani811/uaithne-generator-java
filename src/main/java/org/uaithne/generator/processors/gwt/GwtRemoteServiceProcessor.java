@@ -39,8 +39,6 @@ public class GwtRemoteServiceProcessor extends TemplateProcessor {
 
     @Override
     public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
-        GenerationInfo generationInfo = getGenerationInfo();
-
         for (Element element : re.getElementsAnnotatedWith(GwtRemoteService.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
@@ -51,8 +49,8 @@ public class GwtRemoteServiceProcessor extends TemplateProcessor {
                 String serviceName = dataType.getSimpleNameWithoutGenerics();
                 processClassTemplate(new GwtRemoteServiceTemplate(packageName, serviceName, relativePath), element);
                 processClassTemplate(new GwtRemoteServiceAsyncTemplate(packageName, serviceName), element);
-                processClassTemplate(new GwtRemoteServiceRequestTypeIncluder(packageName, serviceName, generationInfo), element);
-                processClassTemplate(new GwtRemoteServiceResponseTypeIncluder(packageName, serviceName, generationInfo), element);
+                processClassTemplate(new GwtRemoteServiceRequestTypeIncluder(packageName, serviceName), element);
+                processClassTemplate(new GwtRemoteServiceResponseTypeIncluder(packageName, serviceName), element);
             }
         }
         return true; // no further processing of this annotation type

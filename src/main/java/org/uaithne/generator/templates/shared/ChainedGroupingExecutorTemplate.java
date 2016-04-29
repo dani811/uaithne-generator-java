@@ -49,13 +49,17 @@ public class ChainedGroupingExecutorTemplate extends ClassTemplate {
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
                 + "        return chainedExecutorGroup.execute(operation);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
                 + "        return execute(operation);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    public ChainedGroupingExecutor(ExecutorGroup chainedExecutorGroup, Object executorSelector) {\n"
                 + "        if (chainedExecutorGroup == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutorGroup for the ChainedGroupingExecutor cannot be null\");\n"

@@ -52,13 +52,17 @@ public class ChainedAsyncExecutorTemplate extends ClassTemplate {
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" void execute(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
                 + "        chainedExecutor.execute(operation, asyncCallback);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
                 + "        execute(operation, asyncCallback);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    public ChainedAsyncExecutor(AsyncExecutor chainedExecutor) {\n"
                 + "        if (chainedExecutor == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutor for the ChainedAsyncExecutor cannot be null\");\n"

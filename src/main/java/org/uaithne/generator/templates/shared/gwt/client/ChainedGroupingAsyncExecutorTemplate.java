@@ -53,13 +53,17 @@ public class ChainedGroupingAsyncExecutorTemplate extends ClassTemplate {
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" void execute(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
                 + "        chainedExecutorGroup.execute(operation, asyncCallback);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
                 + "        execute(operation, asyncCallback);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    public ChainedGroupingAsyncExecutor(AsyncExecutorGroup chainedExecutorGroup, Object executorSelector) {\n"
                 + "        if (chainedExecutorGroup == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutorGroup for the ChainedGroupingAsyncExecutor cannot be null\");\n"

@@ -20,13 +20,11 @@ package org.uaithne.generator.templates.gwt;
 
 import java.io.IOException;
 import org.uaithne.generator.commons.DataTypeInfo;
-import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.templates.ClassTemplate;
 
 public class GwtRemoteServiceRequestTypeIncluder extends ClassTemplate {
     
     private String serviceName;
-    private GenerationInfo generationInfo;
 
     public String getServiceName() {
         return serviceName;
@@ -36,15 +34,7 @@ public class GwtRemoteServiceRequestTypeIncluder extends ClassTemplate {
         this.serviceName = serviceName;
     }
 
-    public GenerationInfo getGenerationInfo() {
-        return generationInfo;
-    }
-
-    public void setGenerationInfo(GenerationInfo generationInfo) {
-        this.generationInfo = generationInfo;
-    }
-
-    public GwtRemoteServiceRequestTypeIncluder(String packageName, String serviceName, GenerationInfo generationInfo) {
+    public GwtRemoteServiceRequestTypeIncluder(String packageName, String serviceName) {
         setPackageName(packageName);
         addImport(DataTypeInfo.SERIALIZABLE_DATA_TYPE, packageName);
         addImport(DataTypeInfo.ARRAYLIST_DATA_TYPE, packageName);
@@ -52,7 +42,6 @@ public class GwtRemoteServiceRequestTypeIncluder extends ClassTemplate {
         setClassName(serviceName + "RequestTypeIncluder");
         addImplement(DataTypeInfo.SERIALIZABLE_DATA);
         this.serviceName = serviceName;
-        this.generationInfo = generationInfo;
     }
 
     @Override

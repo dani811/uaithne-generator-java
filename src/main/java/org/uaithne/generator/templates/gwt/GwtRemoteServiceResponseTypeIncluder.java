@@ -29,7 +29,6 @@ import org.uaithne.generator.templates.ClassTemplate;
 public class GwtRemoteServiceResponseTypeIncluder extends ClassTemplate {
     
     private String serviceName;
-    private GenerationInfo generationInfo;
 
     public String getServiceName() {
         return serviceName;
@@ -39,15 +38,7 @@ public class GwtRemoteServiceResponseTypeIncluder extends ClassTemplate {
         this.serviceName = serviceName;
     }
 
-    public GenerationInfo getGenerationInfo() {
-        return generationInfo;
-    }
-
-    public void setGenerationInfo(GenerationInfo generationInfo) {
-        this.generationInfo = generationInfo;
-    }
-
-    public GwtRemoteServiceResponseTypeIncluder(String packageName, String serviceName, GenerationInfo generationInfo) {
+    public GwtRemoteServiceResponseTypeIncluder(String packageName, String serviceName) {
         setPackageName(packageName);
         addImport(DataTypeInfo.SERIALIZABLE_DATA_TYPE, packageName);
         addImport(DataTypeInfo.ARRAYLIST_DATA_TYPE, packageName);
@@ -55,13 +46,13 @@ public class GwtRemoteServiceResponseTypeIncluder extends ClassTemplate {
         addImport(DataTypeInfo.GWT_RPC_EXCEPTION_DATA_TYPE, packageName);
         addImport(DataTypeInfo.GWT_AWAIT_GWT_RESULT_DATA_TYPE, packageName);
         addImport(DataTypeInfo.GWT_COMBINED_GWT_RESULT_DATA_TYPE, packageName);
+        GenerationInfo generationInfo = getGenerationInfo();
         if (generationInfo.getEntitiesImplements() != null) {
              addImport(generationInfo.getEntitiesImplements(), packageName);
         }
         setClassName(serviceName + "ResponseTypeIncluder");
         addImplement(DataTypeInfo.SERIALIZABLE_DATA);
         this.serviceName = serviceName;
-        this.generationInfo = generationInfo;
     }
 
     @Override
@@ -71,6 +62,7 @@ public class GwtRemoteServiceResponseTypeIncluder extends ClassTemplate {
         appender.append("    ").append(DataTypeInfo.GWT_AWAIT_GWT_RESULT_DATA_TYPE.getSimpleNameWithoutGenerics()).append(" awaitresult;\n");
         appender.append("    ").append(DataTypeInfo.GWT_COMBINED_GWT_RESULT_DATA_TYPE.getSimpleNameWithoutGenerics()).append(" combinedresult;\n");
         HashSet<String> types = new HashSet<String>(0);
+        GenerationInfo generationInfo = getGenerationInfo();
         if (generationInfo.getEntitiesImplements() != null) {
             appender.append("    ").append(generationInfo.getEntitiesImplements().getSimpleName()).append(" entityBase;\n");
             for (OperationInfo operation : generationInfo.getOperations()) {

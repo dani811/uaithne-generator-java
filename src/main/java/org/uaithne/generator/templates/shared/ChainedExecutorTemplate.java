@@ -49,13 +49,17 @@ public class ChainedExecutorTemplate extends ClassTemplate {
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
                 + "        return chainedExecutor.execute(operation);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
                 + "        return execute(operation);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    public ChainedExecutor(Executor chainedExecutor) {\n"
                 + "        if (chainedExecutor == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutor for the ChainedExecutor cannot be null\");\n"

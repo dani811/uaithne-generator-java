@@ -68,13 +68,17 @@ public class ExecutorGroupRpcImplTemplate extends ClassTemplate {
                 + "        @Override\n"
                 + "        public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
                 + "            return ExecutorGroupRpcImpl.this.runOperation(operation);\n"
-                + "        }\n"
-                + "\n"
+                + "        }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "        @Override\n"
                 + "        public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
                 + "            return execute(operation);\n"
-                + "        }\n"
-                + "\n"
+                + "        }\n");
+        }
+        
+        appender.append("\n"
                 + "    }\n"
                 + "\n"
                 + "    private GwtOperationExecutorImpl gwtOperationExecutorImpl;\n"

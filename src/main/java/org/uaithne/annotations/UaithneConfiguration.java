@@ -40,4 +40,6 @@ public @interface UaithneConfiguration {
     boolean enableBeanValidations() default false;
     AnnotationConfiguration[] annotationConfigurations() default {};
     AnnotationSubstitution[] annotationSubstitutions() default {};
+    @Deprecated
+    boolean includeExecuteOtherMethodInExecutors() default false;
 }

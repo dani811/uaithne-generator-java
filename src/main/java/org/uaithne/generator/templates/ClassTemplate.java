@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import org.uaithne.generator.commons.DataTypeInfo;
+import org.uaithne.generator.commons.GenerationInfo;
+import org.uaithne.generator.commons.TemplateProcessor;
 import org.uaithne.generator.commons.Utils;
 
 public abstract class ClassTemplate {
@@ -206,5 +208,9 @@ public abstract class ClassTemplate {
         if (isDeprecated) {
             appender.append("@Deprecated\n");
         }
+    }
+    
+    public static GenerationInfo getGenerationInfo() {
+        return TemplateProcessor.getGenerationInfo();
     }
 }

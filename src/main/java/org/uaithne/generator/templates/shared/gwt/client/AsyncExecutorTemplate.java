@@ -37,9 +37,12 @@ public class AsyncExecutorTemplate extends ClassTemplate {
     protected void writeContent(Appendable appender) throws IOException {
         appender.append("    public Object getExecutorSelector();\n"
                 + "\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" void execute(OPERATION operation, AsyncCallback<RESULT> asyncCallback);\n"
-                + "\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" void execute(OPERATION operation, AsyncCallback<RESULT> asyncCallback);\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback);");
+        }
     }
     
 }

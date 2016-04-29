@@ -53,6 +53,9 @@ public class GenerationInfo {
     private boolean enableBeanValidations;
     private HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>> validationConfigurations = new HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>>();
     private HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions = new HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>>();
+    
+    // Deprecated configurations
+    private boolean includeExecuteOtherMethodInExecutors;
 
     public GenerationInfo() {
         for (AnnotationConfigurationKeys key : AnnotationConfigurationKeys.values()) {
@@ -328,6 +331,14 @@ public class GenerationInfo {
 
     public void setValidationSubstitutions(HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions) {
         this.validationSubstitutions = validationSubstitutions;
+    }
+
+    public boolean isIncludeExecuteOtherMethodInExecutors() {
+        return includeExecuteOtherMethodInExecutors;
+    }
+
+    public void setIncludeExecuteOtherMethodInExecutors(boolean includeExecuteOtherMethodInExecutors) {
+        this.includeExecuteOtherMethodInExecutors = includeExecuteOtherMethodInExecutors;
     }
 
 }

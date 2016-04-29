@@ -58,13 +58,17 @@ public class SyncAsyncExecutorTemplate extends ClassTemplate {
                 + "        } catch (Throwable caught) {\n"
                 + "            asyncCallback.onFailure(caught);\n"
                 + "        }\n"
-                + "    }\n"
-                + "\n"
-                + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
-                + "        execute(operation, asyncCallback);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
+                    + "    @Override\n"
+                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
+                    + "        execute(operation, asyncCallback);\n"
+                    + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    public SyncAsyncExecutor(Executor chainedExecutor) {\n"
                 + "        if (chainedExecutor == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutor for the SyncAsyncExecutor cannot be null\");\n"

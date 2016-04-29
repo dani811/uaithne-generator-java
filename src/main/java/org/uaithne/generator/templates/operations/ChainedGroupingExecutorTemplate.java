@@ -48,12 +48,15 @@ public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
                 + "        return operation.execute(this);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
                 + "        return chainedExecutorGroup.execute(operation);\n"
                 + "    }\n");
+        }
 
         for (OperationInfo operation : getExecutorModule().getOperations()) {
             appender.append("\n"

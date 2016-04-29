@@ -33,9 +33,12 @@ public class ExecutorTemplate extends ClassTemplate {
     protected void writeContent(Appendable appender) throws IOException {
         appender.append("    public Object getExecutorSelector();\n"
                 + "    \n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);\n"
-                + "    \n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation);");
+        }
     }
     
 }

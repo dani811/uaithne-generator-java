@@ -49,13 +49,17 @@ public class PostOperationExecutorTemplate extends ClassTemplate {
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
                 + "        RESULT result = chainedExecutor.execute(operation);\n"
                 + "        return operation.executePostOperation(result);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
                 + "        return execute(operation);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    public PostOperationExecutor(Executor chainedExecutor) {\n"
                 + "        if (chainedExecutor == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutor for the PostOperationExecutor cannot be null\");\n"

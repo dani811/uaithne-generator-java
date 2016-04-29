@@ -65,13 +65,17 @@ public class PostOperationAsyncExecutorTemplate extends ClassTemplate {
                 + "            }\n"
                 + "        };\n"
                 + "        chainedExecutor.execute(operation, postOperationAsyncCallback);\n"
-                + "    }\n"
-                + "\n"
-                + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
-                + "        execute(operation, asyncCallback);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
+                    + "    @Override\n"
+                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback) {\n"
+                    + "        execute(operation, asyncCallback);\n"
+                    + "    }\n");
+        }
+        
+        appender.append("\n"
                 + "    public PostOperationAsyncExecutor(AsyncExecutor chainedExecutor) {\n"
                 + "        if (chainedExecutor == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutor for the PostOperationAsyncExecutor cannot be null\");\n"

@@ -46,12 +46,15 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
         appender.append("    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
                 + "        return operation.execute(this);\n"
-                + "    }\n"
-                + "\n"
+                + "    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
                 + "        throw new UnsupportedOperationException(\"Unsuported operation. Operation: \" + operation);\n"
                 + "    }\n");
+        }
     }
     
     protected void writeOperationMethodHeader(Appendable appender, OperationInfo operation) throws IOException {
