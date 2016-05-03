@@ -109,7 +109,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
         }
 
         appender.append("    public ").append(field.getDataType().getSimpleName());
-        if (field.getDataType().isPrimitiveBoolean()) {
+        if (field.getDataType().isPrimitiveBoolean() || (getGenerationInfo().isUseIsInBooleanObjectGetter() && field.getDataType().isBoolean())) {
             appender.append(" is");
         } else {
             appender.append(" get");

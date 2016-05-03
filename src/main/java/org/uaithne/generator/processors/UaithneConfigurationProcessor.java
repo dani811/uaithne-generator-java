@@ -51,6 +51,7 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                 UaithneConfiguration configuration = element.getAnnotation(UaithneConfiguration.class);
                 if (configuration != null) {
                     generationInfo.setConfigurationElement(element);
+                    generationInfo.setUseIsInBooleanObjectGetter(configuration.booleanObjectGetterWithIs());
                     generationInfo.setIncludeExecuteOtherMethodInExecutors(configuration.includeExecuteOtherMethodInExecutors());
                     generationInfo.setIncludeExecutePostOperationInOperations(configuration.includeExecutePostOperationInOperations());
                     generationInfo.setSetResultingIdInOperationEnabled(configuration.setResultingIdInOperation());

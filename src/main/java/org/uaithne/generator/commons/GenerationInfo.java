@@ -53,6 +53,7 @@ public class GenerationInfo {
     private boolean enableBeanValidations;
     private HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>> validationConfigurations = new HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>>();
     private HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions = new HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>>();
+    private boolean useIsInBooleanObjectGetter = true;
     
     // Deprecated configurations
     private boolean includeExecuteOtherMethodInExecutors;
@@ -366,6 +367,14 @@ public class GenerationInfo {
 
     public void setExecutorExtendsExecutorGroup(boolean executorExtendsExecutorGroup) {
         this.executorExtendsExecutorGroup = executorExtendsExecutorGroup;
+    }
+
+    public boolean isUseIsInBooleanObjectGetter() {
+        return useIsInBooleanObjectGetter;
+    }
+
+    public void setUseIsInBooleanObjectGetter(boolean useIsInBooleanObjectGetter) {
+        this.useIsInBooleanObjectGetter = useIsInBooleanObjectGetter;
     }
 
 }

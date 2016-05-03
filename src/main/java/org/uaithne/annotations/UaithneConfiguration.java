@@ -49,4 +49,5 @@ public @interface UaithneConfiguration {
     boolean setResultingIdInOperation() default false;
     @Deprecated
     boolean executorExtendsExecutorGroup() default true;
+    boolean booleanObjectGetterWithIs() default true;
 }
