@@ -24,7 +24,7 @@ import org.uaithne.annotations.sql.DefaultJdbcType;
 public @interface MyBatisBackendConfiguration {
     MyBatisBackend backend();
     String subPackageName() default "myBatis";
-    String mapperPrefix() default "MyBatis";
+    String mapperPrefix() default "";
     String mapperSuffix() default "Mapper";
     String idSecuenceNameTemplate() default "[[table]]_[[column]]_seq";
     Ternary useAutoIncrementId() default Ternary.UNSPECIFIED;
