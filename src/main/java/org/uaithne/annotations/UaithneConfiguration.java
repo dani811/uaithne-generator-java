@@ -33,7 +33,8 @@ public @interface UaithneConfiguration {
     boolean enableMergeOperations() default true;
     boolean enableModuleAbstractExecutors() default true;
     boolean enableModuleChainedExecutors() default true;
-    boolean enableModuleChainedGroupingExecutors() default true;
+    @Deprecated
+    boolean enableModuleChainedGroupingExecutors() default false;
     Class<?> entitiesImplements() default Void.class;
     MyBatisBackendConfiguration[] myBatisBackendConfigurations() default {};
     Class<?> applicationParameterType() default Void.class;
@@ -46,4 +47,6 @@ public @interface UaithneConfiguration {
     boolean includeExecutePostOperationInOperations() default false;
     @Deprecated
     boolean setResultingIdInOperation() default false;
+    @Deprecated
+    boolean executorExtendsExecutorGroup() default true;
 }

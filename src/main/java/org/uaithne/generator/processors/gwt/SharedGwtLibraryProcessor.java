@@ -35,6 +35,7 @@ import org.uaithne.generator.templates.shared.gwt.client.AsyncExecutorGroupTempl
 import org.uaithne.generator.templates.shared.gwt.client.AsyncExecutorTemplate;
 import org.uaithne.generator.templates.shared.gwt.client.ChainedAsyncExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.gwt.client.ChainedAsyncExecutorTemplate;
+import org.uaithne.generator.templates.shared.gwt.client.ChainedAsyncExecutorTemplate_WithExecutorGroup;
 import org.uaithne.generator.templates.shared.gwt.client.ChainedGroupingAsyncExecutorTemplate;
 import org.uaithne.generator.templates.shared.gwt.client.ChainedMappedAsyncExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.gwt.client.LoggedAsyncExecutorGroupTemplate;
@@ -91,9 +92,15 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
 
                 if (includeGwtClientExecutors) {
                     processClassTemplate(new AsyncExecutorTemplate(sharedGwtPackageDot), element);
-                    processClassTemplate(new ChainedAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    if (generationInfo.isExecutorExtendsExecutorGroup()) {
+                        processClassTemplate(new ChainedAsyncExecutorTemplate_WithExecutorGroup(sharedGwtPackageDot), element);
+                    } else {
+                        processClassTemplate(new ChainedAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    }
                     processClassTemplate(new ChainedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
-                    processClassTemplate(new ChainedGroupingAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    if (!generationInfo.isExecutorExtendsExecutorGroup()) {
+                        processClassTemplate(new ChainedGroupingAsyncExecutorTemplate(sharedGwtPackageDot), element);
+                    }
                     processClassTemplate(new ChainedMappedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
                     processClassTemplate(new MappedAsyncExecutorGroupTemplate(sharedGwtPackageDot), element);
                     if (generationInfo.isIncludeExecutePostOperationInOperations()) {

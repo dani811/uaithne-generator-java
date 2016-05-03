@@ -44,9 +44,43 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
     
     protected void writeExecuteMethods(Appendable appender) throws IOException {
         appender.append("    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
-                + "        return operation.execute(this);\n"
+            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n");
+        if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
+            appender.append("        if (operation.getExecutorSelector() == ").append(getExecutorModule().getExecutorInterfaceName()).append(".SELECTOR) {\n"
+                    + "            return operation.execute(this);\n"
+                    + "        } else {\n"
+                    + "            throw new IllegalStateException(\"Unable to handle the operation: \" +\n"
+                    + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
+                    + "                    \"'\" + operation.getExecutorSelector() + \"'. \" +\n"
+                    + "                    \"Operation: \" + operation.toString());\n"
+                    + "        }\n");
+        } else {
+            appender.append("        return operation.execute(this);\n");
+        }
+        appender.append("    }\n");
+        
+        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+            appender.append("\n"
+                + "    @Override\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
+                + "        throw new UnsupportedOperationException(\"Unsuported operation. Operation: \" + operation);\n"
                 + "    }\n");
+        }
+    }
+    
+    protected void writeChainedExecuteMethods(Appendable appender, String chainedName) throws IOException {
+        appender.append("    @Override\n"
+            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n");
+        if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
+            appender.append("        if (operation.getExecutorSelector() == ").append(getExecutorModule().getExecutorInterfaceName()).append(".SELECTOR) {\n"
+                    + "            return operation.execute(this);\n"
+                    + "        } else {\n"
+                    + "            return ").append(chainedName).append(".execute(operation);\n"
+                    + "        }\n");
+        } else {
+            appender.append("        return operation.execute(this);\n");
+        }
+        appender.append("    }\n");
         
         if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n"

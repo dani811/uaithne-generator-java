@@ -29,6 +29,9 @@ public class ChainedExecutorTemplate extends ExecutorModuleTemplate {
         setPackageName(packageName);
         executorModule.appendDefinitionImports(packageName, getImport());
         addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
+        if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
+            addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
+        }
         setClassName(executorModule.getNameUpper() + "ChainedExecutor");        
         addImplement(executorModule.getExecutorInterfaceName());
         setExecutorModule(executorModule);
@@ -36,26 +39,21 @@ public class ChainedExecutorTemplate extends ExecutorModuleTemplate {
 
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    private ").append(getExecutorModule().getExecutorInterfaceName()).append(" chainedExecutor;\n"
+        String executorInterfaceName;
+        if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
+            executorInterfaceName = "ExecutorGroup";
+        } else {
+            executorInterfaceName = getExecutorModule().getExecutorInterfaceName();
+        }
+        appender.append("    private ").append(executorInterfaceName).append(" chainedExecutor;\n"
                 + "\n");
         writeGetExecutorSelector(appender);
         appender.append("\n"
-                + "    public ").append(getExecutorModule().getExecutorInterfaceName()).append(" getChainedExecutor() {\n"
+                + "    public ").append(executorInterfaceName).append(" getChainedExecutor() {\n"
                 + "        return chainedExecutor;\n"
                 + "    }\n"
-                + "\n"
-                + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
-                + "        return operation.execute(this);\n"
-                + "    }\n");
-        
-        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
-            appender.append("\n"
-                + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
-                + "        return chainedExecutor.execute(operation);\n"
-                + "    }\n");
-        }
+                + "\n");
+        writeChainedExecuteMethods(appender, "chainedExecutor");
 
         for (OperationInfo operation : getExecutorModule().getOperations()) {
             appender.append("\n"
@@ -66,7 +64,7 @@ public class ChainedExecutorTemplate extends ExecutorModuleTemplate {
                     + "    }\n");
         }
         appender.append("\n"
-                + "    public ").append(getClassName()).append("(").append(getExecutorModule().getExecutorInterfaceName()).append(" chainedExecutor) {\n"
+                + "    public ").append(getClassName()).append("(").append(executorInterfaceName).append(" chainedExecutor) {\n"
                 + "        if (chainedExecutor == null) {\n"
                 + "            throw new IllegalArgumentException(\"chainedExecutor for the ").append(getClassName()).append(" cannot be null\");\n"
                 + "        }\n"

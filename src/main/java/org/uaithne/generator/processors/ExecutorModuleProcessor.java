@@ -1317,7 +1317,11 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
 
         if (generateModuleChainedGroupingExecutorsEnabled) {
-            processClassTemplate(new ChainedGroupingExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            if (generationInfo.isExecutorExtendsExecutorGroup()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedGroupingExecutor to true you also must set executorExtendsExecutorGroup to false in the Uaithne configuration (continue assuming the first one as false)", executorModuleInfo.getElement());
+            } else {
+                processClassTemplate(new ChainedGroupingExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            }
         }
 
         if (executorModuleInfo.getAnnotation(PlainExecutor.class) != null) {

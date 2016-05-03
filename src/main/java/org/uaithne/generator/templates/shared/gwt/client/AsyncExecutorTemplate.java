@@ -20,7 +20,9 @@ package org.uaithne.generator.templates.shared.gwt.client;
 
 import java.io.IOException;
 import org.uaithne.generator.commons.DataTypeInfo;
+import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.templates.ClassTemplate;
+import static org.uaithne.generator.templates.ClassTemplate.getGenerationInfo;
 
 public class AsyncExecutorTemplate extends ClassTemplate {
 
@@ -30,16 +32,23 @@ public class AsyncExecutorTemplate extends ClassTemplate {
         addImport("com.google.gwt.user.client.rpc.AsyncCallback", packageName);
         addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName("AsyncExecutor");
+        if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
+            setExtend("AsyncExecutorGroup");
+        }
         setInterface(true);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    public Object getExecutorSelector();\n"
-                + "\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" void execute(OPERATION operation, AsyncCallback<RESULT> asyncCallback);\n");
+        GenerationInfo generationInfo = getGenerationInfo();
         
-        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+        appender.append("    public Object getExecutorSelector();\n");
+        if (!generationInfo.isExecutorExtendsExecutorGroup()) {
+            appender.append("\n"
+                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" void execute(OPERATION operation, AsyncCallback<RESULT> asyncCallback);\n");
+        }
+        
+        if (generationInfo.isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" void executeOther(OPERATION operation, AsyncCallback<RESULT> asyncCallback);");
         }

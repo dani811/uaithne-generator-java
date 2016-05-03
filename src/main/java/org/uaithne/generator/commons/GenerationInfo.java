@@ -58,6 +58,7 @@ public class GenerationInfo {
     private boolean includeExecuteOtherMethodInExecutors;
     private boolean includeExecutePostOperationInOperations;
     private boolean setResultingIdInOperationEnabled;
+    private boolean executorExtendsExecutorGroup = true;
 
     public GenerationInfo() {
         for (AnnotationConfigurationKeys key : AnnotationConfigurationKeys.values()) {
@@ -357,6 +358,14 @@ public class GenerationInfo {
 
     public void setSetResultingIdInOperationEnabled(boolean setResultingIdInOperationEnabled) {
         this.setResultingIdInOperationEnabled = setResultingIdInOperationEnabled;
+    }
+
+    public boolean isExecutorExtendsExecutorGroup() {
+        return executorExtendsExecutorGroup;
+    }
+
+    public void setExecutorExtendsExecutorGroup(boolean executorExtendsExecutorGroup) {
+        this.executorExtendsExecutorGroup = executorExtendsExecutorGroup;
     }
 
 }

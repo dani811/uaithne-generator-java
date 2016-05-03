@@ -28,5 +28,6 @@ import java.lang.annotation.Target;
 public @interface OperationModule {
     Ternary generateAbstractExecutor() default Ternary.UNSPECIFIED;
     Ternary generateChainedExecutor() default Ternary.UNSPECIFIED;
+    @Deprecated
     Ternary generateChainedGroupingExecutor() default Ternary.UNSPECIFIED;
 }

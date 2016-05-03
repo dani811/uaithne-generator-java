@@ -54,6 +54,13 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setIncludeExecuteOtherMethodInExecutors(configuration.includeExecuteOtherMethodInExecutors());
                     generationInfo.setIncludeExecutePostOperationInOperations(configuration.includeExecutePostOperationInOperations());
                     generationInfo.setSetResultingIdInOperationEnabled(configuration.setResultingIdInOperation());
+                    generationInfo.setExecutorExtendsExecutorGroup(configuration.executorExtendsExecutorGroup());
+                    
+                    if (generationInfo.isIncludeExecuteOtherMethodInExecutors() && generationInfo.isExecutorExtendsExecutorGroup()) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set includeExecutePostOperationInOperations to true you also must set executorExtendsExecutorGroup to false (continue assuming the first one as false)", element);
+                        generationInfo.setIncludeExecutePostOperationInOperations(false);
+                    }
+                    
                     generationInfo.setGenerateDefaultEntityOperations(configuration.enableDefaultEntityOperations());
                     generationInfo.setGenerateJustOperationsEnabled(configuration.enableJustOperations());
                     generationInfo.setGenerateSaveOperationsEnabled(configuration.enableSaveOperations());
@@ -61,6 +68,12 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setGenerateModuleAbstractExecutorsEnabled(configuration.enableModuleAbstractExecutors());
                     generationInfo.setGenerateModuleChainedExecutorsEnabled(configuration.enableModuleChainedExecutors());
                     generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(configuration.enableModuleChainedGroupingExecutors());
+                    
+                    if (generationInfo.isGenerateModuleChainedGroupingExecutorsEnabled() && generationInfo.isExecutorExtendsExecutorGroup()) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleChainedGroupingExecutors to true you also must set executorExtendsExecutorGroup to false (continue assuming the first one as false)", element);
+                        generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(false);
+                    }
+                    
                     generationInfo.setMyBatisBackends(configuration.myBatisBackendConfigurations());
                     
                     generationInfo.setEnableBeanValidations(configuration.enableBeanValidations());

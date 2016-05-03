@@ -19,6 +19,7 @@
 package org.uaithne.generator.templates.shared;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.templates.ClassTemplate;
 
 public class ExecutorTemplate extends ClassTemplate {
@@ -26,16 +27,23 @@ public class ExecutorTemplate extends ClassTemplate {
     public ExecutorTemplate(String packageName) {
         setPackageName(packageName);
         setClassName("Executor");
+        if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
+            setExtend("ExecutorGroup");
+        }
         setInterface(true);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    public Object getExecutorSelector();\n"
-                + "    \n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);\n");
+        GenerationInfo generationInfo = getGenerationInfo();
         
-        if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
+        appender.append("    public Object getExecutorSelector();\n");
+        if (!generationInfo.isExecutorExtendsExecutorGroup()) {
+            appender.append("    \n"
+                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);\n");
+        }
+        
+        if (generationInfo.isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation);");
         }

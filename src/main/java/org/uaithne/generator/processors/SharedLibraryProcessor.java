@@ -33,6 +33,7 @@ import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
 import org.uaithne.generator.templates.shared.ChainedExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.ChainedExecutorTemplate;
+import org.uaithne.generator.templates.shared.ChainedExecutorTemplate_WithExecutorGroup;
 import org.uaithne.generator.templates.shared.ChainedGroupingExecutorTemplate;
 import org.uaithne.generator.templates.shared.ChainedMappedExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.DataPageRequestTemplate;
@@ -91,9 +92,15 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 processClassTemplate(new ChainedMappedExecutorGroupTemplate(packageName), element);
                 processClassTemplate(new LoggedExecutorGroupTemplate(packageName), element);
                 processClassTemplate(new MappedExecutorGroupTemplate(packageName), element);
-                processClassTemplate(new ChainedExecutorTemplate(packageName), element);
+                if (generationInfo.isExecutorExtendsExecutorGroup()) {
+                    processClassTemplate(new ChainedExecutorTemplate_WithExecutorGroup(packageName), element);
+                } else {
+                    processClassTemplate(new ChainedExecutorTemplate(packageName), element);
+                }
                 processClassTemplate(new ChainedExecutorGroupTemplate(packageName), element);
-                processClassTemplate(new ChainedGroupingExecutorTemplate(packageName), element);
+                if (!generationInfo.isExecutorExtendsExecutorGroup()) {
+                    processClassTemplate(new ChainedGroupingExecutorTemplate(packageName), element);
+                }
                 if (generationInfo.isIncludeExecutePostOperationInOperations()) {
                     processClassTemplate(new PostOperationExecutorTemplate(packageName), element);
                     processClassTemplate(new PostOperationExecutorGroupTemplate(packageName), element);
