@@ -145,22 +145,22 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 case SELECT_COUNT: {
                     writeStartOrderByVariable(appender, operation);
                     appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append("return result;\n");
                     writeEndOrderByVariable(appender, operation);
-                    appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_ONE: {
                     writeStartOrderByVariable(appender, operation);
                     appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append("return result;\n");
                     writeEndOrderByVariable(appender, operation);
-                    appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_MANY: {
                     writeStartOrderByVariable(appender, operation);
                     appender.append(indentation).append(returnTypeName).append(" result = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append("return result;\n");
                     writeEndOrderByVariable(appender, operation);
-                    appender.append("        return result;\n");
                     break;
                 }
                 case SELECT_PAGE: {
