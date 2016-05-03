@@ -175,6 +175,9 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
     protected void writeEquals(Appendable appender, ArrayList<FieldInfo> fields, boolean callSuper) throws IOException {
         appender.append("    @Override\n"
                 + "    public boolean equals(Object obj) {\n"
+                + "        if (this == obj) {\n"
+                + "            return true;\n"
+                + "        }\n"
                 + "        if (obj == null) {\n"
                 + "            return false;\n"
                 + "        }\n"

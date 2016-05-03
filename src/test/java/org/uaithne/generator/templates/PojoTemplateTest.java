@@ -292,6 +292,9 @@ public class PojoTemplateTest {
         instance.writeEquals(appender, fields, callSuper);
         Assert.assertEquals("    @Override\n"
                 + "    public boolean equals(Object obj) {\n"
+                + "        if (this == obj) {\n"
+                + "            return true;\n"
+                + "        }\n"
                 + "        if (obj == null) {\n"
                 + "            return false;\n"
                 + "        }\n"
@@ -320,6 +323,9 @@ public class PojoTemplateTest {
         instance.writeEquals(appender, fields, callSuper);
         Assert.assertEquals("    @Override\n"
                 + "    public boolean equals(Object obj) {\n"
+                + "        if (this == obj) {\n"
+                + "            return true;\n"
+                + "        }\n"
                 + "        if (obj == null) {\n"
                 + "            return false;\n"
                 + "        }\n"
@@ -353,6 +359,9 @@ public class PojoTemplateTest {
         instance.writeEquals(appender, fields, callSuper);
         Assert.assertEquals("    @Override\n"
                 + "    public boolean equals(Object obj) {\n"
+                + "        if (this == obj) {\n"
+                + "            return true;\n"
+                + "        }\n"
                 + "        if (obj == null) {\n"
                 + "            return false;\n"
                 + "        }\n"
@@ -376,6 +385,9 @@ public class PojoTemplateTest {
         instance.writeEquals(appender, fields, callSuper);
         Assert.assertEquals("    @Override\n"
                 + "    public boolean equals(Object obj) {\n"
+                + "        if (this == obj) {\n"
+                + "            return true;\n"
+                + "        }\n"
                 + "        if (obj == null) {\n"
                 + "            return false;\n"
                 + "        }\n"
