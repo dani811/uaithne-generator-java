@@ -44,4 +44,6 @@ public @interface UaithneConfiguration {
     boolean includeExecuteOtherMethodInExecutors() default false;
     @Deprecated
     boolean includeExecutePostOperationInOperations() default false;
+    @Deprecated
+    boolean setResultingIdInOperation() default false;
 }

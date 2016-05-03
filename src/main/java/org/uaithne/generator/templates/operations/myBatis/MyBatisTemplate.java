@@ -23,6 +23,7 @@ import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.FieldInfo;
+import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.InsertedIdOrigin;
 import org.uaithne.generator.commons.OperationInfo;
 import org.uaithne.generator.commons.OperationKind;
@@ -118,6 +119,8 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         appender.append("\n");
 
         writeExecuteMethods(appender);
+        
+        GenerationInfo generationInfo = getGenerationInfo();
 
         for (OperationInfo operation : getExecutorModule().getOperations()) {
             if (operation.isManually() || operation.getOperationKind() == OperationKind.CUSTOM) {
@@ -202,9 +205,14 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         appender.append(idField.getCapitalizedName()).append("();\n");
                     } else if (idOrigin == InsertedIdOrigin.RETAINED) {
                         appender.append("            ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") RetainIdPlugin.getRetainedId();\n");
+                        if (generationInfo.isSetResultingIdInOperationEnabled()) {
+                            appender.append("            value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        }
                     } else {
-                        appender.append("            ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
-                                + "            value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        appender.append("            ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n");
+                        if (generationInfo.isSetResultingIdInOperationEnabled()) {
+                            appender.append("            value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        }
                     }
                     appender.append("            return result;\n"
                             + "        } else {\n"
@@ -235,9 +243,14 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         appender.append(idField.getCapitalizedName()).append("();\n");
                     } else if (idOrigin == InsertedIdOrigin.RETAINED) {
                         appender.append("                ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") RetainIdPlugin.getRetainedId();\n");
+                        if (generationInfo.isSetResultingIdInOperationEnabled()) {
+                            appender.append("                value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        }
                     } else {
-                        appender.append("                ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
-                                + "                value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        appender.append("                ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n");
+                        if (generationInfo.isSetResultingIdInOperationEnabled()) {
+                            appender.append("                value.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        }
                     }
                     appender.append("                return result;\n"
                             + "            } else {\n"
@@ -307,9 +320,12 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         appender.append(idField.getCapitalizedName()).append("();\n");
                     } else if (idOrigin == InsertedIdOrigin.RETAINED) {
                         appender.append("            ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") RetainIdPlugin.getRetainedId();\n");
+                        if (generationInfo.isSetResultingIdInOperationEnabled() && operation.hasReferenceToField(idField)) {
+                            appender.append("            operation.set").append(idField.getCapitalizedName()).append("(result);\n");
+                        }
                     } else {
                         appender.append("            ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") session.selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n");
-                        if (operation.hasReferenceToField(idField)) {
+                        if (generationInfo.isSetResultingIdInOperationEnabled() && operation.hasReferenceToField(idField)) {
                             appender.append("            operation.set").append(idField.getCapitalizedName()).append("(result);\n");
                         }
                     }
