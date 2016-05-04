@@ -27,12 +27,12 @@ import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface UaithneConfiguration {
-    boolean enableDefaultEntityOperations() default true;
+    boolean enableDefaultEntityOperations() default false;
     boolean enableJustOperations() default false;
     boolean enableSaveOperations() default true;
     boolean enableMergeOperations() default true;
-    boolean enableModuleAbstractExecutors() default true;
-    boolean enableModuleChainedExecutors() default true;
+    boolean enableModuleAbstractExecutors() default false;
+    boolean enableModuleChainedExecutors() default false;
     @Deprecated
     boolean enableModuleChainedGroupingExecutors() default false;
     Class<?> entitiesImplements() default Void.class;
