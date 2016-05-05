@@ -37,14 +37,14 @@ public class ExecutorTemplate extends ClassTemplate {
     protected void writeContent(Appendable appender) throws IOException {
         GenerationInfo generationInfo = getGenerationInfo();
         
-        appender.append("    public Object getExecutorSelector();\n");
+        appender.append("    public Object getExecutorSelector();");
         if (!generationInfo.isExecutorExtendsExecutorGroup()) {
-            appender.append("    \n"
-                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);\n");
+            appender.append("\n\n"
+                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);");
         }
         
         if (generationInfo.isIncludeExecuteOtherMethodInExecutors()) {
-            appender.append("\n"
+            appender.append("\n\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation);");
         }
     }

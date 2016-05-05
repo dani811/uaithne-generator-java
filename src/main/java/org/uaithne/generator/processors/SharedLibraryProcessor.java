@@ -36,6 +36,7 @@ import org.uaithne.generator.templates.shared.ChainedExecutorTemplate;
 import org.uaithne.generator.templates.shared.ChainedExecutorTemplate_WithExecutorGroup;
 import org.uaithne.generator.templates.shared.ChainedGroupingExecutorTemplate;
 import org.uaithne.generator.templates.shared.ChainedMappedExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.ChainedMappedExecutorGroupTemplate_WithExecutorGroup;
 import org.uaithne.generator.templates.shared.DataPageRequestTemplate;
 import org.uaithne.generator.templates.shared.DataPageTemplate;
 import org.uaithne.generator.templates.shared.DeleteByIdOperationTemplate;
@@ -46,6 +47,7 @@ import org.uaithne.generator.templates.shared.JustInsertValueOperationTemplate;
 import org.uaithne.generator.templates.shared.JustSaveValueOperationTemplate;
 import org.uaithne.generator.templates.shared.LoggedExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.MappedExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.MappedExecutorGroupTemplate_WithExecutorGroup;
 import org.uaithne.generator.templates.shared.MergeValueOperationTemplate;
 import org.uaithne.generator.templates.shared.OperationTemplate;
 import org.uaithne.generator.templates.shared.PostOperationExecutorGroupTemplate;
@@ -89,18 +91,18 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 processClassTemplate(new MergeValueOperationTemplate(packageName), element);
                 processClassTemplate(new SelectByIdOperationTemplate(packageName), element);
                 processClassTemplate(new UpdateValueOperationTemplate(packageName), element);
-                processClassTemplate(new ChainedMappedExecutorGroupTemplate(packageName), element);
                 processClassTemplate(new LoggedExecutorGroupTemplate(packageName), element);
-                processClassTemplate(new MappedExecutorGroupTemplate(packageName), element);
                 if (generationInfo.isExecutorExtendsExecutorGroup()) {
+                    processClassTemplate(new ChainedMappedExecutorGroupTemplate_WithExecutorGroup(packageName), element);
+                    processClassTemplate(new MappedExecutorGroupTemplate_WithExecutorGroup(packageName), element);
                     processClassTemplate(new ChainedExecutorTemplate_WithExecutorGroup(packageName), element);
                 } else {
+                    processClassTemplate(new ChainedMappedExecutorGroupTemplate(packageName), element);
+                    processClassTemplate(new MappedExecutorGroupTemplate(packageName), element);
                     processClassTemplate(new ChainedExecutorTemplate(packageName), element);
-                }
-                processClassTemplate(new ChainedExecutorGroupTemplate(packageName), element);
-                if (!generationInfo.isExecutorExtendsExecutorGroup()) {
                     processClassTemplate(new ChainedGroupingExecutorTemplate(packageName), element);
                 }
+                processClassTemplate(new ChainedExecutorGroupTemplate(packageName), element);
                 if (generationInfo.isIncludeExecutePostOperationInOperations()) {
                     processClassTemplate(new PostOperationExecutorTemplate(packageName), element);
                     processClassTemplate(new PostOperationExecutorGroupTemplate(packageName), element);
