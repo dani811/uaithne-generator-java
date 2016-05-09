@@ -40,5 +40,9 @@ public interface QueryGenerator {
     public String[] getCustomDeleteQuery(OperationInfo operation);
     public String[] getCustomInsertQuery(OperationInfo operation);
     public String[] getCustomUpdateQuery(OperationInfo operation);
+    public String[] getComplexSelectCallQuery(OperationInfo operation);
+    public String[] getComplexInsertCallQuery(OperationInfo operation);
+    public String[] getComplexUpdateCallQuery(OperationInfo operation);
+    public String[] getComplexDeleteCallQuery(OperationInfo operation);
     public boolean useAliasInOrderByTranslation();
 }

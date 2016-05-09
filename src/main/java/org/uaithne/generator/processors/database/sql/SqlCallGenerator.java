@@ -21,6 +21,8 @@ package org.uaithne.generator.processors.database.sql;
 import java.util.ArrayList;
 import java.util.List;
 import javax.tools.Diagnostic;
+import org.uaithne.annotations.Query;
+import org.uaithne.annotations.sql.CustomSqlQuery;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.FieldInfo;
 import org.uaithne.generator.commons.OperationInfo;
@@ -663,4 +665,29 @@ public abstract class SqlCallGenerator extends SqlGenerator {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Complex call queries">
+    @Override
+    public String[] getComplexSelectCallQuery(OperationInfo operation) {
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for complex select call", operation.getElement());
+        return null;
+    }
+    
+    @Override
+    public String[] getComplexInsertCallQuery(OperationInfo operation) {
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for complex insert call", operation.getElement());
+        return null;
+    }
+    
+    @Override
+    public String[] getComplexUpdateCallQuery(OperationInfo operation) {
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for complex update call", operation.getElement());
+        return null;
+    }
+    
+    @Override
+    public String[] getComplexDeleteCallQuery(OperationInfo operation) {
+        getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unsuported sql procedure call generation for complex delete call", operation.getElement());
+        return null;
+    }
+    //</editor-fold>
 }

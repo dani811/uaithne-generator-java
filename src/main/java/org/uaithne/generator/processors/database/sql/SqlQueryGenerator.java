@@ -2342,4 +2342,74 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         return result;
     }
     //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Complex call queries">
+    @Override
+    public String[] getComplexSelectCallQuery(OperationInfo operation) {
+        Query query = operation.getAnnotation(Query.class);
+        CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
+        String finalQuery;
+        if (customQuery != null && hasQueryValue(customQuery.query())) {
+            finalQuery = joinln(customQuery.query());
+        } else if (query == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate ComplexSelectCall operation query, you must specify one manually.", operation.getElement());
+            return new String[]{""};
+        } else {
+            finalQuery = joinln(query.value());
+        }
+        finalQuery = finalizeQuery(finalQuery, operation, customQuery);
+        return finalQuery.split("\n");
+    }
+    
+    @Override
+    public String[] getComplexInsertCallQuery(OperationInfo operation) {
+        Query query = operation.getAnnotation(Query.class);
+        CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
+        String finalQuery;
+        if (customQuery != null && hasQueryValue(customQuery.query())) {
+            finalQuery = joinln(customQuery.query());
+        } else if (query == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate ComplexInsertCall operation query, you must specify one manually.", operation.getElement());
+            return new String[]{""};
+        } else {
+            finalQuery = joinln(query.value());
+        }
+        finalQuery = finalizeQuery(finalQuery, operation, customQuery);
+        return finalQuery.split("\n");
+    }
+    
+    @Override
+    public String[] getComplexUpdateCallQuery(OperationInfo operation) {
+        Query query = operation.getAnnotation(Query.class);
+        CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
+        String finalQuery;
+        if (customQuery != null && hasQueryValue(customQuery.query())) {
+            finalQuery = joinln(customQuery.query());
+        } else if (query == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate ComplexUpdateCall operation query, you must specify one manually.", operation.getElement());
+            return new String[]{""};
+        } else {
+            finalQuery = joinln(query.value());
+        }
+        finalQuery = finalizeQuery(finalQuery, operation, customQuery);
+        return finalQuery.split("\n");
+    }
+    
+    @Override
+    public String[] getComplexDeleteCallQuery(OperationInfo operation) {
+        Query query = operation.getAnnotation(Query.class);
+        CustomSqlQuery customQuery = operation.getAnnotation(CustomSqlQuery.class);
+        String finalQuery;
+        if (customQuery != null && hasQueryValue(customQuery.query())) {
+            finalQuery = joinln(customQuery.query());
+        } else if (query == null) {
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to generate ComplexDeleteCall operation query, you must specify one manually.", operation.getElement());
+            return new String[]{""};
+        } else {
+            finalQuery = joinln(query.value());
+        }
+        finalQuery = finalizeQuery(finalQuery, operation, customQuery);
+        return finalQuery.split("\n");
+    }
+    //</editor-fold>
 }

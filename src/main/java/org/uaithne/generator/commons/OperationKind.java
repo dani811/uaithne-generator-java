@@ -19,26 +19,31 @@
 package org.uaithne.generator.commons;
 
 public enum OperationKind {
-    CUSTOM(0, "Custom"),
-    SELECT_ONE(1, "SelectOne"),
-    SELECT_MANY(2, "SelectMany"),
-    SELECT_PAGE(3, "SelectPage"),
-    DELETE_BY_ID(4, "DeleteById"),
-    INSERT(5, "Insert"),
-    JUST_INSERT(6, "JustInsert"),
-    SAVE(7, "Save"),
-    JUST_SAVE(8, "JustSave"),
-    SELECT_BY_ID(9, "SelectById"),
-    UPDATE(10, "Update"),
-    CUSTOM_INSERT(11, "CustomInsert"),
-    CUSTOM_UPDATE(12, "CustomUpdate"),
-    CUSTOM_DELETE(13, "CustomDelete"),
-    CUSTOM_INSERT_WITH_ID(14, "CustomInsertWithId"),
-    MERGE(15, "Merge"),
-    SELECT_COUNT(16, "SelectCount");
+    CUSTOM(0, "Custom", false),
+    SELECT_ONE(1, "SelectOne", false),
+    SELECT_MANY(2, "SelectMany", false),
+    SELECT_PAGE(3, "SelectPage", false),
+    DELETE_BY_ID(4, "DeleteById", false),
+    INSERT(5, "Insert", false),
+    JUST_INSERT(6, "JustInsert", false),
+    SAVE(7, "Save", false),
+    JUST_SAVE(8, "JustSave", false),
+    SELECT_BY_ID(9, "SelectById", false),
+    UPDATE(10, "Update", false),
+    CUSTOM_INSERT(11, "CustomInsert", false),
+    CUSTOM_UPDATE(12, "CustomUpdate", false),
+    CUSTOM_DELETE(13, "CustomDelete", false),
+    CUSTOM_INSERT_WITH_ID(14, "CustomInsertWithId", false),
+    MERGE(15, "Merge", false),
+    SELECT_COUNT(16, "SelectCount", false),
+    COMPLEX_SELECT_CALL(17, "ComplexSelectCall", true),
+    COMPLEX_INSERT_CALL(18, "ComplexInsertCall", true),
+    COMPLEX_UPDATE_CALL(19, "ComplexUpdateCall", true),
+    COMPLEX_DELETE_CALL(20, "ComplexDeleteCall", true);
     
     private final int id;
     private final String name;
+    private final boolean complexCall;
 
     public int getId() {
         return id;
@@ -47,10 +52,15 @@ public enum OperationKind {
     public String getName() {
         return name;
     }
+
+    public boolean isComplexCall() {
+        return complexCall;
+    }
     
-    private OperationKind(int id, String name) {
+    private OperationKind(int id, String name, boolean complexCall) {
         this.id = id;
         this.name = name;
+        this.complexCall = complexCall;
     }
     
 }

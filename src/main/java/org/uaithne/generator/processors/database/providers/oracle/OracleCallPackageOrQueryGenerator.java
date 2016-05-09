@@ -439,4 +439,24 @@ public class OracleCallPackageOrQueryGenerator extends SqlGenerator {
             return queryGenerator.getCustomUpdateQuery(operation);
         }
     }
+
+    @Override
+    public String[] getComplexSelectCallQuery(OperationInfo operation) {
+        return queryGenerator.getCustomUpdateQuery(operation);
+    }
+
+    @Override
+    public String[] getComplexInsertCallQuery(OperationInfo operation) {
+        return queryGenerator.getCustomUpdateQuery(operation);
+    }
+
+    @Override
+    public String[] getComplexUpdateCallQuery(OperationInfo operation) {
+        return queryGenerator.getCustomUpdateQuery(operation);
+    }
+
+    @Override
+    public String[] getComplexDeleteCallQuery(OperationInfo operation) {
+        return queryGenerator.getCustomUpdateQuery(operation);
+    }
 }

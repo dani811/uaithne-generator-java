@@ -479,6 +479,14 @@ public class DataTypeInfo {
         return "java.lang.Object".equals(qualifiedName);
     }
     
+    public String getGetterPrefix(GenerationInfo generationInfo) {
+        if (isPrimitiveBoolean() || (generationInfo.isUseIsInBooleanObjectGetter() && isBoolean())) {
+            return "is";
+        } else {
+            return "get";
+        }
+    }
+    
     private static final int[] PRIMES = new int[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
 
     public static final DataTypeInfo VOID_DATA_TYPE = new DataTypeInfo("java.lang", "Void", "java.lang.Void");

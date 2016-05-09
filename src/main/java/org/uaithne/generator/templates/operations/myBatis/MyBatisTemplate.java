@@ -19,6 +19,7 @@
 package org.uaithne.generator.templates.operations.myBatis;
 
 import java.io.IOException;
+import org.uaithne.generator.commons.DataTypeInfo;
 import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.EntityInfo;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
@@ -84,6 +85,22 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 case JUST_SAVE:
                     addImport(operation.getEntity().getDataType(), packageName);
                     break;
+                case COMPLEX_SELECT_CALL:
+                case COMPLEX_INSERT_CALL:
+                case COMPLEX_UPDATE_CALL:
+                case COMPLEX_DELETE_CALL: {
+                    EntityInfo entity = operation.getEntity().getCombined();
+                    for (FieldInfo field : operation.getFields()) {
+                        FieldInfo entityField = entity.getFieldByName(field.getName());
+                        if (entityField == null) {
+                            continue;
+                        }
+                        if (!field.getDataType().equals(entityField.getDataType())) {
+                            continue;
+                        }
+                        addImport(field.getDataType(), packageName);
+                    }
+                }
                 default:
             }
             if (operation.getInsertedIdOrigin() == InsertedIdOrigin.RETAINED) {
@@ -136,8 +153,14 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         + "\n");
             }
 
+            OperationKind operationKind = operation.getOperationKind();
+            
             appender.append("    @Override\n");
-            writeOperationMethodHeader(appender, operation);
+            if (operationKind.isComplexCall()) {
+                writeComplexCallMethodHeader(appender, operation);
+            } else {
+                writeOperationMethodHeader(appender, operation);
+            }
             appender.append(" {\n");
 
             String returnTypeName = operation.getReturnDataType().getSimpleName();
@@ -340,6 +363,24 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "        return result;\n");
                     break;
                 }
+                case COMPLEX_SELECT_CALL: {
+                    writeStartOrderByVariable(appender, operation);
+                    writeComplexCallBody(appender, operation, "selectOne");
+                    writeEndOrderByVariable(appender, operation);
+                    break;
+                }
+                case COMPLEX_INSERT_CALL: {
+                    writeComplexCallBody(appender, operation, "insert");
+                    break;
+                }
+                case COMPLEX_UPDATE_CALL: {
+                    writeComplexCallBody(appender, operation, "update");
+                    break;
+                }
+                case COMPLEX_DELETE_CALL: {
+                    writeComplexCallBody(appender, operation, "delete");
+                    break;
+                }
                 default:
                     throw new AssertionError(operation.getOperationKind().name());
             }
@@ -441,5 +482,51 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         }
         appender.append("        }\n");
         indentation = "        ";
+    }
+    
+    void writeComplexCallMethodHeader(Appendable appender, OperationInfo operation) throws IOException {
+        appender.append("    public ");
+        appender.append(operation.getReturnDataType().getSimpleName());
+        appender.append(" ");
+        appender.append(operation.getMethodName());
+        appender.append("(final ");
+        appender.append(operation.getDataType().getSimpleName());
+        appender.append(" _operation)");
+    }
+    
+    void writeComplexCallBody(Appendable appender, OperationInfo operation, String myBatisMethod) throws IOException {
+        String returnTypeName = operation.getReturnDataType().getSimpleName();
+        appender.append(indentation).append("final ").append(returnTypeName).append(" _result = new ").append(returnTypeName).append("();\n");
+        appender.append(indentation).append("Object wrapper = new Object() {\n");
+        appender.append(indentation).append("    ").append(operation.getDataType().getSimpleName()).append(" operation = _operation;\n");
+        appender.append(indentation).append("    ").append(returnTypeName).append(" result = _result;\n");
+        
+        GenerationInfo generationInfo = getGenerationInfo();
+        EntityInfo entity = operation.getEntity().getCombined();
+        for (FieldInfo field : operation.getFields()) {
+            DataTypeInfo fieldDataType = field.getDataType();
+            FieldInfo entityField = entity.getFieldByName(field.getName());
+            if (entityField == null) {
+                continue;
+            }
+            if (!fieldDataType.equals(entityField.getDataType())) {
+                continue;
+            }
+            
+            String getterPrefix = fieldDataType.getGetterPrefix(generationInfo);
+            String capitalizedName = field.getCapitalizedName();
+            String type = fieldDataType.getSimpleName();
+            appender.append(indentation).append("    ");
+            appender.append(type).append(" ");
+            appender.append(getterPrefix).append(capitalizedName).append("() { return operation.");
+            appender.append(getterPrefix).append(capitalizedName).append("(); }\n");
+            
+            appender.append(indentation).append("    ");
+            appender.append("void set").append(capitalizedName).append("(").append(type).append(" ").append(field.getName()).append(") { result.set");
+            appender.append(capitalizedName).append("(").append(field.getName()).append("); }\n");
+        }
+        appender.append(indentation).append("};\n");
+        appender.append(indentation).append("getSession().").append(myBatisMethod).append("(\"").append(operation.getQueryId()).append("\", wrapper);\n");
+        appender.append(indentation).append("return _result;\n");
     }
 }

@@ -149,6 +149,22 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
                 if (mergeEntity != null) {
                     processMergeEntity(re, (TypeElement) enclosedModuleElement, executorModuleInfo, mergeEntity);
                 }
+                ComplexSelectCall complexSelectCall = enclosedModuleElement.getAnnotation(ComplexSelectCall.class);
+                if (complexSelectCall != null) {
+                    processComplexSelectCall(re, (TypeElement) enclosedModuleElement, executorModuleInfo, complexSelectCall);
+                }
+                ComplexInsertCall complexInsertCall = enclosedModuleElement.getAnnotation(ComplexInsertCall.class);
+                if (complexInsertCall != null) {
+                    processComplexInsertCall(re, (TypeElement) enclosedModuleElement, executorModuleInfo, complexInsertCall);
+                }
+                ComplexUpdateCall complexUpdateCall = enclosedModuleElement.getAnnotation(ComplexUpdateCall.class);
+                if (complexUpdateCall != null) {
+                    processComplexUpdateCall(re, (TypeElement) enclosedModuleElement, executorModuleInfo, complexUpdateCall);
+                }
+                ComplexDeleteCall complexDeleteCall = enclosedModuleElement.getAnnotation(ComplexDeleteCall.class);
+                if (complexDeleteCall != null) {
+                    processComplexDeleteCall(re, (TypeElement) enclosedModuleElement, executorModuleInfo, complexDeleteCall);
+                }
             }
         }
         
@@ -1276,6 +1292,114 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         if (hasMembers(element)) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Merge entity operations do not allow define members", element);
         }
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processComplexSelectCall(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, ComplexSelectCall operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo resultDataType;
+        try {
+            resultDataType = NamesGenerator.createResultDataType(operation.result());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            resultDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (resultDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
+            return;
+        }
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setReturnDataType(resultDataType);
+        operationInfo.setOperationKind(OperationKind.COMPLEX_SELECT_CALL);
+        operationInfo.setEntity(entityInfo);
+
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
+        operationInfo.addImplement(operationInterface);
+
+        loadShared(re, element, executorModuleInfo, operationInfo);
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processComplexInsertCall(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, ComplexInsertCall operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo resultDataType;
+        try {
+            resultDataType = NamesGenerator.createResultDataType(operation.result());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            resultDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (resultDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
+            return;
+        }
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setReturnDataType(resultDataType);
+        operationInfo.setOperationKind(OperationKind.COMPLEX_INSERT_CALL);
+        operationInfo.setEntity(entityInfo);
+
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
+        operationInfo.addImplement(operationInterface);
+
+        loadShared(re, element, executorModuleInfo, operationInfo);
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processComplexUpdateCall(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, ComplexUpdateCall operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo resultDataType;
+        try {
+            resultDataType = NamesGenerator.createResultDataType(operation.result());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            resultDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (resultDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
+            return;
+        }
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setReturnDataType(resultDataType);
+        operationInfo.setOperationKind(OperationKind.COMPLEX_UPDATE_CALL);
+        operationInfo.setEntity(entityInfo);
+
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
+        operationInfo.addImplement(operationInterface);
+
+        loadShared(re, element, executorModuleInfo, operationInfo);
+        generationInfo.addOperation(operationInfo, executorModuleInfo);
+    }
+
+    public void processComplexDeleteCall(RoundEnvironment re, TypeElement element, ExecutorModuleInfo executorModuleInfo, ComplexDeleteCall operation) {
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo resultDataType;
+        try {
+            resultDataType = NamesGenerator.createResultDataType(operation.result());
+        } catch (MirroredTypeException ex) {
+            // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+            resultDataType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+        }
+        if (resultDataType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Unable to find the result element", element);
+            return;
+        }
+        EntityInfo entityInfo = generationInfo.getEntityByName(resultDataType);
+
+        OperationInfo operationInfo = new OperationInfo(element, executorModuleInfo.getOperationPackage());
+        operationInfo.setReturnDataType(resultDataType);
+        operationInfo.setOperationKind(OperationKind.COMPLEX_DELETE_CALL);
+        operationInfo.setEntity(entityInfo);
+
+        DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
+        operationInfo.addImplement(operationInterface);
+
+        loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
     }
 

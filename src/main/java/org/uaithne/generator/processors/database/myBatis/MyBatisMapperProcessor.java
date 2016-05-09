@@ -639,6 +639,58 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                 }
             }
             break;
+            case COMPLEX_SELECT_CALL: {
+                operation.setQueryId(namespace + "." + operation.getMethodName());
+                String[] query = sqlGenerator.getComplexSelectCallQuery(operation);
+                if (query != null) {
+                    writeSelectWithoutResult(writer,
+                            operation.getMethodName(),
+                            null,
+                            query,
+                            isProcedureInvocation,
+                            false);
+                }
+            }
+            break;
+            case COMPLEX_INSERT_CALL: {
+                operation.setQueryId(namespace + "." + operation.getMethodName());
+                String[] query = sqlGenerator.getComplexInsertCallQuery(operation);
+                if (query != null) {
+                    writeInsert(writer,
+                            operation.getMethodName(),
+                            null,
+                            query,
+                            isProcedureInvocation,
+                            false);
+                }
+            }
+            break;
+            case COMPLEX_UPDATE_CALL: {
+                operation.setQueryId(namespace + "." + operation.getMethodName());
+                String[] query = sqlGenerator.getComplexUpdateCallQuery(operation);
+                if (query != null) {
+                    writeUpdate(writer,
+                            operation.getMethodName(),
+                            null,
+                            query,
+                            isProcedureInvocation,
+                            false);
+                }
+            }
+            break;
+            case COMPLEX_DELETE_CALL: {
+                operation.setQueryId(namespace + "." + operation.getMethodName());
+                String[] query = sqlGenerator.getComplexDeleteCallQuery(operation);
+                if (query != null) {
+                    writeDelete(writer,
+                            operation.getMethodName(),
+                            null,
+                            query,
+                            isProcedureInvocation,
+                            false);
+                }
+            }
+            break;
         }
     }
     //</editor-fold>
@@ -693,6 +745,27 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         writer.write(id);
         writer.write("' resultType='");
         writer.write(resultType);
+        if (isProcedureInvocation) {
+            writer.write("' statementType='CALLABLE");
+        }
+        writer.write("'>\n");
+        if (lines != null) {
+            for (String line : lines) {
+                writer.write("        ");
+                writer.write(line);
+                writer.write("\n");
+            }
+        }
+        writer.write("    </select>\n\n");
+    }
+
+    public void writeSelectWithoutResult(Writer writer, String id, String parameterType, String[] lines, boolean isProcedureInvocation, boolean useParameterType) throws IOException {
+        writer.write("    <select id='");
+        writer.write(id);
+        if (useParameterType) {
+            writer.write("' parameterType='");
+            writer.write(parameterType);
+        }
         if (isProcedureInvocation) {
             writer.write("' statementType='CALLABLE");
         }

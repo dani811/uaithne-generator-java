@@ -108,13 +108,7 @@ public abstract class PojoTemplate extends WithFieldsTemplate {
             appender.append("    @Deprecated\n");
         }
 
-        appender.append("    public ").append(field.getDataType().getSimpleName());
-        if (field.getDataType().isPrimitiveBoolean() || (getGenerationInfo().isUseIsInBooleanObjectGetter() && field.getDataType().isBoolean())) {
-            appender.append(" is");
-        } else {
-            appender.append(" get");
-        }
-        appender.append(field.getCapitalizedName()).append("() {\n");
+        appender.append("    public ").append(field.getDataType().getSimpleName()).append(" ").append(field.getDataType().getGetterPrefix(getGenerationInfo())).append(field.getCapitalizedName()).append("() {\n");
         appender.append("        return ").append(field.getName()).append(";\n");
         appender.append("    }\n");
     }

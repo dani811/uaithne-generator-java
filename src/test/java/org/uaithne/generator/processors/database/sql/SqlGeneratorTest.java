@@ -368,5 +368,25 @@ public class SqlGeneratorTest {
         public String[] getCustomUpdateQuery(OperationInfo operation) {
             throw new UnsupportedOperationException("No needed for test");
         }
+
+        @Override
+        public String[] getComplexSelectCallQuery(OperationInfo operation) {
+            throw new UnsupportedOperationException("No needed for test");
+        }
+
+        @Override
+        public String[] getComplexInsertCallQuery(OperationInfo operation) {
+            throw new UnsupportedOperationException("No needed for test");
+        }
+
+        @Override
+        public String[] getComplexUpdateCallQuery(OperationInfo operation) {
+            throw new UnsupportedOperationException("No needed for test");
+        }
+
+        @Override
+        public String[] getComplexDeleteCallQuery(OperationInfo operation) {
+            throw new UnsupportedOperationException("No needed for test");
+        }
     }
 }
