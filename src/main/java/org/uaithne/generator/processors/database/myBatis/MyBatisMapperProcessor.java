@@ -203,7 +203,6 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         } else {
             defaultIdOrigin = InsertedIdOrigin.RETAINED;
         }
-        defaultIdOrigin = InsertedIdOrigin.RETAINED;
 
         switch (operation.getOperationKind()) {
             case CUSTOM: {
