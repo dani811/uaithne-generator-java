@@ -647,7 +647,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            isProcedureInvocation,
+                            true,
                             false);
                 }
             }
@@ -660,7 +660,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            isProcedureInvocation,
+                            true,
                             false);
                 }
             }
@@ -673,7 +673,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            isProcedureInvocation,
+                            true,
                             false);
                 }
             }
@@ -686,7 +686,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            isProcedureInvocation,
+                            true,
                             false);
                 }
             }
