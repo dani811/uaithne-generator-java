@@ -19,6 +19,8 @@
 package org.uaithne.generator.templates.operations.myBatis;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import org.uaithne.generator.commons.DataTypeInfo;
 import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.EntityInfo;
@@ -509,35 +511,79 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         }
         
         GenerationInfo generationInfo = getGenerationInfo();
-        EntityInfo entity = operation.getEntity();
-        if (entity != null) {
-            entity = entity.getCombined();
-            for (FieldInfo field : operation.getFields()) {
-                DataTypeInfo fieldDataType = field.getDataType();
-                FieldInfo entityField = entity.getFieldByName(field.getName());
-                if (entityField == null) {
+        EntityInfo resultEntity = operation.getEntity();
+        if (resultEntity != null) {
+            resultEntity = resultEntity.getCombined();
+            ArrayList<FieldInfo> resultFields = resultEntity.getFields();
+            HashSet<String> processedFields = new HashSet<String>(resultFields.size() + 2);
+            processedFields.add("operation");
+            processedFields.add("result");
+            for (FieldInfo resultField : resultFields) {
+                if (processedFields.contains(resultField.getName())) {
                     continue;
                 }
-                if (!fieldDataType.equals(entityField.getDataType())) {
+                DataTypeInfo fieldDataType = resultField.getDataType();
+                FieldInfo operationField = operation.getFieldByName(resultField.getName());
+                if (operationField == null) {
                     continue;
                 }
+                if (!fieldDataType.equals(operationField.getDataType())) {
+                    continue;
+                }
+                
+                writeJoinFieldGetterAndSetter(appender, resultField, null, generationInfo);
+                processedFields.add(resultField.getName());
+            }
+            
+            for (FieldInfo operationField : operation.getFields()) {
+                if (processedFields.contains(operationField.getName())) {
+                    continue;
+                }
+                EntityInfo operationFieldEntity = generationInfo.getEntityByName(operationField.getDataType());
+                if (operationFieldEntity == null) {
+                    continue;
+                }
+                operationFieldEntity = operationFieldEntity.getCombined();
+             
+                for (FieldInfo field : operationFieldEntity.getFields()) {
+                    if (processedFields.contains(field.getName())) {
+                        continue;
+                    }
+                    DataTypeInfo fieldDataType = field.getDataType();
+                    FieldInfo resultField = resultEntity.getFieldByName(field.getName());
+                    if (resultField == null) {
+                        continue;
+                    }
+                    if (!fieldDataType.equals(resultField.getDataType())) {
+                        continue;
+                    }
 
-                String getterPrefix = fieldDataType.getGetterPrefix(generationInfo);
-                String capitalizedName = field.getCapitalizedName();
-                String type = fieldDataType.getSimpleName();
-                appender.append(indentation).append("    ");
-                appender.append(type).append(" ");
-                appender.append(getterPrefix).append(capitalizedName).append("() { return operation.");
-                appender.append(getterPrefix).append(capitalizedName).append("(); }\n");
-
-                appender.append(indentation).append("    ");
-                appender.append("void set").append(capitalizedName).append("(").append(type).append(" ").append(field.getName()).append(") { result.set");
-                appender.append(capitalizedName).append("(").append(field.getName()).append("); }\n");
+                    writeJoinFieldGetterAndSetter(appender, field, operationField, generationInfo);
+                    processedFields.add(field.getName());
+                }
             }
         }
         appender.append(indentation).append("}\n");
         appender.append(indentation).append("Wrapper wrapper = new Wrapper();\n");
         appender.append(indentation).append("getSession().").append(myBatisMethod).append("(\"").append(operation.getQueryId()).append("\", wrapper);\n");
         appender.append(indentation).append("return wrapper.result;\n");
+    }
+    
+    void writeJoinFieldGetterAndSetter(Appendable appender, FieldInfo field, FieldInfo getter, GenerationInfo generationInfo) throws IOException {
+        DataTypeInfo fieldDataType = field.getDataType();
+        String getterPrefix = fieldDataType.getGetterPrefix(generationInfo);
+        String capitalizedName = field.getCapitalizedName();
+        String type = fieldDataType.getSimpleName();
+        appender.append(indentation).append("    ");
+        appender.append(type).append(" ");
+        appender.append(getterPrefix).append(capitalizedName).append("() { return operation.");
+        if (getter != null) {
+            appender.append(getter.getDataType().getGetterPrefix(generationInfo)).append(getter.getCapitalizedName()).append("().");
+        }
+        appender.append(getterPrefix).append(capitalizedName).append("(); }\n");
+
+        appender.append(indentation).append("    ");
+        appender.append("void set").append(capitalizedName).append("(").append(type).append(" ").append(field.getName()).append(") { result.");
+        appender.append("set").append(capitalizedName).append("(").append(field.getName()).append("); }\n");
     }
 }
