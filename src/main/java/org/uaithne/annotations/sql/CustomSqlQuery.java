@@ -18,6 +18,8 @@
  */
 package org.uaithne.annotations.sql;
 
+import org.uaithne.annotations.Ternary;
+
 public @interface CustomSqlQuery {
     String[] query() default {};
     String[] select() default {};
@@ -48,5 +50,5 @@ public @interface CustomSqlQuery {
     String[] beforeUpdateSetExpression() default {};
     String[] afterUpdateSetExpression() default {};
     String[] excludeEntityFields() default {};
-    boolean isProcedureInvocation() default false;
+    Ternary isProcedureInvocation() default Ternary.UNSPECIFIED;
 }

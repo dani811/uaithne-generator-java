@@ -19,6 +19,7 @@
 package org.uaithne.generator.utils;
 
 import java.lang.annotation.Annotation;
+import org.uaithne.annotations.Ternary;
 import org.uaithne.annotations.sql.CustomSqlQuery;
 
 public class TestCustomSqlQuery implements CustomSqlQuery {
@@ -205,8 +206,8 @@ public class TestCustomSqlQuery implements CustomSqlQuery {
     }
 
     @Override
-    public boolean isProcedureInvocation() {
-        return isProcedureInvocation;
+    public Ternary isProcedureInvocation() {
+        return Ternary.UNSPECIFIED;
     }
     
 }

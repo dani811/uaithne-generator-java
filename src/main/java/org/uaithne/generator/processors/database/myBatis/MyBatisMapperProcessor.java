@@ -194,7 +194,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
         boolean isProcedureInvocation = false;
         CustomSqlQuery customSqlQuery = operation.getAnnotation(CustomSqlQuery.class);
         if (customSqlQuery != null) {
-            isProcedureInvocation = customSqlQuery.isProcedureInvocation();
+            isProcedureInvocation = customSqlQuery.isProcedureInvocation().solve(operation.getOperationKind().isComplexCall());
         }
 
         InsertedIdOrigin defaultIdOrigin;
@@ -647,7 +647,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            true,
+                            isProcedureInvocation,
                             false);
                 }
             }
@@ -660,7 +660,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            true,
+                            isProcedureInvocation,
                             false);
                 }
             }
@@ -673,7 +673,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            true,
+                            isProcedureInvocation,
                             false);
                 }
             }
@@ -686,7 +686,7 @@ public class MyBatisMapperProcessor extends TemplateProcessor {
                             operation.getMethodName(),
                             null,
                             query,
-                            true,
+                            isProcedureInvocation,
                             false);
                 }
             }
