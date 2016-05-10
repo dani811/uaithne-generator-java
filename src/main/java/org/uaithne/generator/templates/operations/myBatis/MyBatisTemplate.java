@@ -89,16 +89,19 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 case COMPLEX_INSERT_CALL:
                 case COMPLEX_UPDATE_CALL:
                 case COMPLEX_DELETE_CALL: {
-                    EntityInfo entity = operation.getEntity().getCombined();
-                    for (FieldInfo field : operation.getFields()) {
-                        FieldInfo entityField = entity.getFieldByName(field.getName());
-                        if (entityField == null) {
-                            continue;
+                    EntityInfo entity = operation.getEntity();
+                    if (entity != null) {
+                        entity = entity.getCombined();
+                        for (FieldInfo field : operation.getFields()) {
+                            FieldInfo entityField = entity.getFieldByName(field.getName());
+                            if (entityField == null) {
+                                continue;
+                            }
+                            if (!field.getDataType().equals(entityField.getDataType())) {
+                                continue;
+                            }
+                            addImport(field.getDataType(), packageName);
                         }
-                        if (!field.getDataType().equals(entityField.getDataType())) {
-                            continue;
-                        }
-                        addImport(field.getDataType(), packageName);
                     }
                 }
                 default:
@@ -496,37 +499,45 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
     
     void writeComplexCallBody(Appendable appender, OperationInfo operation, String myBatisMethod) throws IOException {
         String returnTypeName = operation.getReturnDataType().getSimpleName();
-        appender.append(indentation).append("final ").append(returnTypeName).append(" _result = new ").append(returnTypeName).append("();\n");
-        appender.append(indentation).append("Object wrapper = new Object() {\n");
+        appender.append(indentation).append("class Wrapper {\n");
         appender.append(indentation).append("    ").append(operation.getDataType().getSimpleName()).append(" operation = _operation;\n");
-        appender.append(indentation).append("    ").append(returnTypeName).append(" result = _result;\n");
+        appender.append(indentation).append("    ").append(returnTypeName).append(" result");
+        if (operation.isInitComplexResult()) {
+            appender.append(" = new ").append(returnTypeName).append("();\n");
+        } else {
+            appender.append(";\n");
+        }
         
         GenerationInfo generationInfo = getGenerationInfo();
-        EntityInfo entity = operation.getEntity().getCombined();
-        for (FieldInfo field : operation.getFields()) {
-            DataTypeInfo fieldDataType = field.getDataType();
-            FieldInfo entityField = entity.getFieldByName(field.getName());
-            if (entityField == null) {
-                continue;
+        EntityInfo entity = operation.getEntity();
+        if (entity != null) {
+            entity = entity.getCombined();
+            for (FieldInfo field : operation.getFields()) {
+                DataTypeInfo fieldDataType = field.getDataType();
+                FieldInfo entityField = entity.getFieldByName(field.getName());
+                if (entityField == null) {
+                    continue;
+                }
+                if (!fieldDataType.equals(entityField.getDataType())) {
+                    continue;
+                }
+
+                String getterPrefix = fieldDataType.getGetterPrefix(generationInfo);
+                String capitalizedName = field.getCapitalizedName();
+                String type = fieldDataType.getSimpleName();
+                appender.append(indentation).append("    ");
+                appender.append(type).append(" ");
+                appender.append(getterPrefix).append(capitalizedName).append("() { return operation.");
+                appender.append(getterPrefix).append(capitalizedName).append("(); }\n");
+
+                appender.append(indentation).append("    ");
+                appender.append("void set").append(capitalizedName).append("(").append(type).append(" ").append(field.getName()).append(") { result.set");
+                appender.append(capitalizedName).append("(").append(field.getName()).append("); }\n");
             }
-            if (!fieldDataType.equals(entityField.getDataType())) {
-                continue;
-            }
-            
-            String getterPrefix = fieldDataType.getGetterPrefix(generationInfo);
-            String capitalizedName = field.getCapitalizedName();
-            String type = fieldDataType.getSimpleName();
-            appender.append(indentation).append("    ");
-            appender.append(type).append(" ");
-            appender.append(getterPrefix).append(capitalizedName).append("() { return operation.");
-            appender.append(getterPrefix).append(capitalizedName).append("(); }\n");
-            
-            appender.append(indentation).append("    ");
-            appender.append("void set").append(capitalizedName).append("(").append(type).append(" ").append(field.getName()).append(") { result.set");
-            appender.append(capitalizedName).append("(").append(field.getName()).append("); }\n");
         }
-        appender.append(indentation).append("};\n");
+        appender.append(indentation).append("}\n");
+        appender.append(indentation).append("Wrapper wrapper = new Wrapper();\n");
         appender.append(indentation).append("getSession().").append(myBatisMethod).append("(\"").append(operation.getQueryId()).append("\", wrapper);\n");
-        appender.append(indentation).append("return _result;\n");
+        appender.append(indentation).append("return wrapper.result;\n");
     }
 }

@@ -1317,6 +1317,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
+        
+        boolean initResult = operation.initResult().solve(entityInfo != null);
+        operationInfo.setInitComplexResult(initResult);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
@@ -1344,6 +1347,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
+        
+        boolean initResult = operation.initResult().solve(entityInfo != null);
+        operationInfo.setInitComplexResult(initResult);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
@@ -1371,6 +1377,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
+        
+        boolean initResult = operation.initResult().solve(entityInfo != null);
+        operationInfo.setInitComplexResult(initResult);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);
@@ -1398,6 +1407,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         DataTypeInfo operationInterface = DataTypeInfo.OPERATION_DATA_TYPE.of(resultDataType);
         operationInfo.addImplement(operationInterface);
+        
+        boolean initResult = operation.initResult().solve(entityInfo != null);
+        operationInfo.setInitComplexResult(initResult);
 
         loadShared(re, element, executorModuleInfo, operationInfo);
         generationInfo.addOperation(operationInfo, executorModuleInfo);

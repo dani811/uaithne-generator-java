@@ -27,6 +27,7 @@ import javax.lang.model.type.TypeMirror;
 import org.uaithne.annotations.Doc;
 import org.uaithne.annotations.IgnoreLogicalDeletion;
 import org.uaithne.annotations.Manually;
+import org.uaithne.annotations.Ternary;
 
 public class OperationInfo {
 
@@ -55,6 +56,7 @@ public class OperationInfo {
     private final HashMap<Class<?>, Object> annotations = new HashMap<Class<?>, Object>(0);
     private boolean reuseEntityOperations;
     private boolean hasIgnoreWhenNull;
+    private boolean initComplexResult;
 
     public String[] getDocumentation() {
         return documentation;
@@ -363,6 +365,14 @@ public class OperationInfo {
 
     public boolean hasIgnoreWhenNull() {
         return hasIgnoreWhenNull;
+    }
+
+    public boolean isInitComplexResult() {
+        return initComplexResult;
+    }
+
+    public void setInitComplexResult(boolean initComplexResult) {
+        this.initComplexResult = initComplexResult;
     }
 
     public OperationInfo(TypeElement classElement, String packageName) {

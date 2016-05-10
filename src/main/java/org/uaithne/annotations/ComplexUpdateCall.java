@@ -27,4 +27,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface ComplexUpdateCall {
     Class<?> result();
+    Ternary initResult() default Ternary.UNSPECIFIED;
 }
