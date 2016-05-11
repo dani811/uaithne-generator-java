@@ -91,18 +91,57 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 case COMPLEX_INSERT_CALL:
                 case COMPLEX_UPDATE_CALL:
                 case COMPLEX_DELETE_CALL: {
-                    EntityInfo entity = operation.getEntity();
-                    if (entity != null) {
-                        entity = entity.getCombined();
-                        for (FieldInfo field : operation.getFields()) {
-                            FieldInfo entityField = entity.getFieldByName(field.getName());
-                            if (entityField == null) {
+                    GenerationInfo generationInfo = getGenerationInfo();
+                    EntityInfo resultEntity = operation.getEntity();
+                    if (resultEntity != null) {
+                        resultEntity = resultEntity.getCombined();
+                        ArrayList<FieldInfo> resultFields = resultEntity.getFields();
+                        HashSet<String> processedFields = new HashSet<String>(resultFields.size() + 2);
+                        processedFields.add("operation");
+                        processedFields.add("result");
+                        for (FieldInfo resultField : resultFields) {
+                            if (processedFields.contains(resultField.getName())) {
                                 continue;
                             }
-                            if (!field.getDataType().equals(entityField.getDataType())) {
+                            DataTypeInfo fieldDataType = resultField.getDataType();
+                            FieldInfo operationField = operation.getFieldByName(resultField.getName());
+                            if (operationField == null) {
                                 continue;
                             }
-                            addImport(field.getDataType(), packageName);
+                            if (!fieldDataType.equals(operationField.getDataType())) {
+                                continue;
+                            }
+
+                            addImport(resultField.getDataType(), packageName);
+                            processedFields.add(resultField.getName());
+                        }
+
+                        for (FieldInfo operationField : operation.getFields()) {
+                            if (processedFields.contains(operationField.getName())) {
+                                continue;
+                            }
+                            EntityInfo operationFieldEntity = generationInfo.getEntityByName(operationField.getDataType());
+                            if (operationFieldEntity == null) {
+                                continue;
+                            }
+                            operationFieldEntity = operationFieldEntity.getCombined();
+
+                            for (FieldInfo field : operationFieldEntity.getFields()) {
+                                if (processedFields.contains(field.getName())) {
+                                    continue;
+                                }
+                                DataTypeInfo fieldDataType = field.getDataType();
+                                FieldInfo resultField = resultEntity.getFieldByName(field.getName());
+                                if (resultField == null) {
+                                    continue;
+                                }
+                                if (!fieldDataType.equals(resultField.getDataType())) {
+                                    continue;
+                                }
+
+                                addImport(field.getDataType(), packageName);
+                                processedFields.add(field.getName());
+                            }
                         }
                     }
                 }
