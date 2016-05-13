@@ -2242,14 +2242,6 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
                     comparator = Comparators.EQUAL_INSENSITIVE;
                 } else if ("i!=".equals(rule) || "i<>".equals(rule) || "I!=".equals(rule) || "I<>".equals(rule) || "inotEqual".equals(rule) || "INOT_EQUAL".equals(rule) || "notEqualInsensitive".equals(rule) || "NOT_EQUAL_INSENSITIVE".equals(rule)) {
                     comparator = Comparators.NOT_EQUAL_INSENSITIVE;
-                } else if ("=?".equals(rule) || "==?".equals(rule) || "equalNullable".equals(rule) || "EQUAL_NULLABLE".equals(rule)) {
-                    comparator = Comparators.EQUAL_NULLABLE;
-                } else if ("=!?".equals(rule) || "==!?".equals(rule) || "equalNotNullable".equals(rule) || "EQUAL_NOT_NULLABLE".equals(rule)) {
-                    comparator = Comparators.EQUAL_NOT_NULLABLE;
-                } else if ("!=?".equals(rule) || "<>?".equals(rule) || "notEqualNullable".equals(rule) || "NOT_EQUAL_NULLABLE".equals(rule)) {
-                    comparator = Comparators.NOT_EQUAL_NULLABLE;
-                } else if ("!=!?".equals(rule) || "<>!?".equals(rule) || "notEqualNotNullable".equals(rule) || "NOT_EQUAL_NOT_NULLABLE".equals(rule)) {
-                    comparator = Comparators.NOT_EQUAL_NOT_NULLABLE;
                 } else if ("<".equals(rule) || "smaller".equals(rule) || "SMALLER".equals(rule)) {
                     comparator = Comparators.SMALLER;
                 } else if (">".equals(rule) || "larger".equals(rule) || "LARGER".equals(rule)) {

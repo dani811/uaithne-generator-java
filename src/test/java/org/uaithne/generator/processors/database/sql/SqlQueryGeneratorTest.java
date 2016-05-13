@@ -33,8 +33,6 @@ import static org.uaithne.annotations.Comparators.CONTAINS_INSENSITIVE;
 import static org.uaithne.annotations.Comparators.END_WITH;
 import static org.uaithne.annotations.Comparators.END_WITH_INSENSITIVE;
 import static org.uaithne.annotations.Comparators.EQUAL;
-import static org.uaithne.annotations.Comparators.EQUAL_NOT_NULLABLE;
-import static org.uaithne.annotations.Comparators.EQUAL_NULLABLE;
 import static org.uaithne.annotations.Comparators.IN;
 import static org.uaithne.annotations.Comparators.LARGER;
 import static org.uaithne.annotations.Comparators.LARGER_AS;
@@ -45,8 +43,6 @@ import static org.uaithne.annotations.Comparators.NOT_CONTAINS_INSENSITIVE;
 import static org.uaithne.annotations.Comparators.NOT_END_WITH;
 import static org.uaithne.annotations.Comparators.NOT_END_WITH_INSENSITIVE;
 import static org.uaithne.annotations.Comparators.NOT_EQUAL;
-import static org.uaithne.annotations.Comparators.NOT_EQUAL_NOT_NULLABLE;
-import static org.uaithne.annotations.Comparators.NOT_EQUAL_NULLABLE;
 import static org.uaithne.annotations.Comparators.NOT_IN;
 import static org.uaithne.annotations.Comparators.NOT_LIKE;
 import static org.uaithne.annotations.Comparators.NOT_LIKE_INSENSITIVE;
@@ -4966,10 +4962,6 @@ public class SqlQueryGeneratorTest {
                 + "{{myField:!=}} {{myField:<>}} {{myField:notEqual}} {{myField:NOT_EQUAL}}\n"
                 + "{{myField:i=}} {{myField:i==}} {{myField:I=}} {{myField:I==}} {{myField:iequal}} {{myField:IEQUAL}} {{myField:equalInsensitive}} {{myField:EQUAL_INSENSITIVE}}\n"
                 + "{{myField:i!=}} {{myField:i<>}} {{myField:I!=}} {{myField:I<>}} {{myField:inotEqual}} {{myField:INOT_EQUAL}} {{myField:notEqualInsensitive}} {{myField:NOT_EQUAL_INSENSITIVE}}\n"
-                + "{{myField:=?}} {{myField:==?}} {{myField:equalNullable}} {{myField:EQUAL_NULLABLE}}\n"
-                + "{{myField:=!?}} {{myField:==!?}} {{myField:equalNotNullable}} {{myField:EQUAL_NOT_NULLABLE}}\n"
-                + "{{myField:!=?}} {{myField:<>?}} {{myField:notEqualNullable}} {{myField:NOT_EQUAL_NULLABLE}}\n"
-                + "{{myField:!=!?}} {{myField:<>!?}} {{myField:notEqualNotNullable}} {{myField:NOT_EQUAL_NOT_NULLABLE}}\n"
                 + "{{myField:smaller}} {{myField:SMALLER}}\n"
                 + "{{myField:larger}} {{myField:LARGER}}\n"
                 + "{{myField:smallAs}} {{myField:SMALL_AS}}\n"
@@ -5013,10 +5005,6 @@ public class SqlQueryGeneratorTest {
                 + "myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField myField &lt;&gt; parameterValue!myField\n"
                 + "lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField) lower(myField) = lower(parameterValue!myField)\n"
                 + "lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField) lower(myField) <> lower(parameterValue!myField)\n"
-                + "<if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is null </if>\n"
-                + "<if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField = parameterValue!myField </if> <if test='myField == null'> myField is not null </if>\n"
-                + "<if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is null </if>\n"
-                + "<if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if> <if test='myField != null'> myField &lt;&gt; parameterValue!myField </if> <if test='myField == null'> myField is not null </if>\n"
                 + "myField &lt; parameterValue!myField myField &lt; parameterValue!myField\n"
                 + "myField &gt; parameterValue!myField myField &gt; parameterValue!myField\n"
                 + "myField &lt;= parameterValue!myField myField &lt;= parameterValue!myField\n"
@@ -5743,14 +5731,6 @@ public class SqlQueryGeneratorTest {
                     return "lower([[column]]) = lower([[value]])";
                 case NOT_EQUAL_INSENSITIVE:
                     return "lower([[column]]) <> lower([[value]])";
-                case EQUAL_NULLABLE:
-                    return "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>";
-                case EQUAL_NOT_NULLABLE:
-                    return "<if test='[[name]] != null'> [[column]] = [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
-                case NOT_EQUAL_NULLABLE:
-                    return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is null </if>";
-                case NOT_EQUAL_NOT_NULLABLE:
-                    return "<if test='[[name]] != null'> [[column]] &lt;&gt; [[value]] </if> <if test='[[name]] == null'> [[column]] is not null </if>";
                 case SMALLER:
                     return "[[column]] &lt; [[value]]";
                 case LARGER:
