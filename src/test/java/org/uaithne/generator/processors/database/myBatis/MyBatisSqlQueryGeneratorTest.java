@@ -169,6 +169,23 @@ public class MyBatisSqlQueryGeneratorTest {
     }
 
     @Test
+    public void testAppendOrderByContentWithOnlyOneOrderByFieldWithForceValue() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setForcedValue("field1FrocedValue");
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = " endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy field1FrocedValue endOrderBy", result.toString());
+    }
+
+    @Test
     public void testAppendOrderByContentWithOnlyOneOptionalOrderByField() {
         StringBuilder result = new StringBuilder();
         ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
@@ -183,6 +200,61 @@ public class MyBatisSqlQueryGeneratorTest {
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
         assertEquals("start{[if test='optionalField != null']}startOrderBy ${optionalField}endOrderBy{[/if]}", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOnlyOneOptionalOrderByFieldWithValueWhenNull() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        field1.setValueWhenNull("field1ValueWhenNull");
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = " endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy {[if test='optionalField != null']}${optionalField}{[/if]} {[if test='optionalField == null']}field1ValueWhenNull{[/if]} endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOnlyOneOptionalOrderByFieldWithForceValue() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        field1.setForcedValue("field1ForcedValue");
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = " endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy field1ForcedValue endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOnlyOneOptionalOrderByFieldWithValueWhenNullAndForceValue() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        field1.setValueWhenNull("field1ValueWhenNull");
+        field1.setForcedValue("field1ForcedValue");
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = " endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy field1ForcedValue endOrderBy", result.toString());
     }
 
     @Test
@@ -202,6 +274,166 @@ public class MyBatisSqlQueryGeneratorTest {
     }
 
     @Test
+    public void testAppendOrderByContentWithForcedValueAndOptionalOrderByFields() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setForcedValue("normalFieldForcedValue");
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setOptional(true);
+        orderBys.add(field1);
+        orderBys.add(field2);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    normalFieldForcedValue\n"
+                + "    {[if test='optionalField != null']}, ${optionalField}{[/if]}endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithForcedValueAndOptionalOrderByFields2() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        field1.setForcedValue("normalFieldForcedValue");
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setOptional(true);
+        orderBys.add(field1);
+        orderBys.add(field2);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    normalFieldForcedValue\n"
+                + "    {[if test='optionalField != null']}, ${optionalField}{[/if]}endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithForcedValueAndOptionalValueWhenNullOrderByFields() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setForcedValue("normalFieldForcedValue");
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setOptional(true);
+        orderBys.add(field1);
+        orderBys.add(field2);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    normalFieldForcedValue\n"
+                + "    {[if test='optionalField != null']}, ${optionalField}{[/if]} {[if test='optionalField == null']}, optionalFieldValueWhenNull{[/if]}endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithForcedValueAndOptionalValueWhenNullOrderByFields2() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setForcedValue("optionalFieldForcedValue");
+        field2.setOptional(true);
+        orderBys.add(field1);
+        orderBys.add(field2);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    ${normalField}\n"
+                + "    , optionalFieldForcedValueendOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithForcedValueAndOptionalValueWhenNullOrderByFields3() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setForcedValue("optionalFieldForcedValue");
+        field2.setOptional(true);
+        orderBys.add(field1);
+        orderBys.add(field2);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("start{[trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', ']}\n"
+                + "    {[if test='normalField != null']}${normalField} {[/if]}, \n"
+                + "    optionalFieldForcedValuestart{[/trim]}", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithNormalAndOptionalValueWhenNullOrderByFields() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setOptional(true);
+        orderBys.add(field1);
+        orderBys.add(field2);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    ${normalField}\n"
+                + "    {[if test='optionalField != null']}, ${optionalField}{[/if]} {[if test='optionalField == null']}, optionalFieldValueWhenNull{[/if]}endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithNormalAndOptionalValueWhenNullOrderByFields2() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setOptional(true);
+        orderBys.add(field1);
+        orderBys.add(field2);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("start{[trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', ']}\n"
+                + "    {[if test='normalField != null']}${normalField} {[/if]}\n"
+                + "    {[if test='optionalField != null']}, ${optionalField} {[/if]} {[if test='optionalField == null']}, optionalFieldValueWhenNull {[/if]}start{[/trim]}", result.toString());
+    }
+
+    @Test
     public void testAppendOrderByContentWithOptionalAndNormalOrderByFields() {
         StringBuilder result = new StringBuilder();
         ArrayList<FieldInfo> orderBys = getOrderBys(true);
@@ -215,6 +447,166 @@ public class MyBatisSqlQueryGeneratorTest {
         assertEquals("start{[trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', ']}\n"
                 + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
                 + "    ${normalField}start{[/trim]}", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOptionalAndForcedValueOrderByFields() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setForcedValue("normalFieldForcedValue");
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setOptional(true);
+        orderBys.add(field2);
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("start{[trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
+                + "    normalFieldForcedValuestart{[/trim]}", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOptionalAndForcedValueOrderByFields2() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        field1.setForcedValue("normalFieldForcedValue");
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setOptional(true);
+        orderBys.add(field2);
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("start{[trim prefix='startOrderBy ' suffix='endOrderBy' prefixOverrides=', ']}\n"
+                + "    {[if test='optionalField != null']}${optionalField} {[/if]}, \n"
+                + "    normalFieldForcedValuestart{[/trim]}", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOptionalValueWhenNullAndForcedValueOrderByFields() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setForcedValue("normalFieldForcedValue");
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setOptional(true);
+        orderBys.add(field2);
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    {[if test='optionalField != null']}${optionalField}{[/if]} {[if test='optionalField == null']}optionalFieldValueWhenNull{[/if]}\n"
+                + "    , normalFieldForcedValueendOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOptionalValueWhenNullAndForcedValueOrderByFields2() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setForcedValue("optionalFieldForcedValue");
+        field2.setOptional(true);
+        orderBys.add(field2);
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    optionalFieldForcedValue\n"
+                + "    , ${normalField}endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOptionalValueWhenNullAndForcedValueOrderByFields3() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setForcedValue("optionalFieldForcedValue");
+        field2.setOptional(true);
+        orderBys.add(field2);
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    optionalFieldForcedValue\n"
+                + "    {[if test='normalField != null']}, ${normalField}{[/if]}endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOptionalValueWhenNullAndNormalOrderByFields() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setOptional(true);
+        orderBys.add(field2);
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    {[if test='optionalField != null']}${optionalField}{[/if]} {[if test='optionalField == null']}optionalFieldValueWhenNull{[/if]}\n"
+                + "    , ${normalField}endOrderBy", result.toString());
+    }
+
+    @Test
+    public void testAppendOrderByContentWithOptionalValueWhenNullAndNormalOrderByFields2() {
+        StringBuilder result = new StringBuilder();
+        ArrayList<FieldInfo> orderBys = new ArrayList<FieldInfo>();
+        FieldInfo field1 = new FieldInfo("normalField", new DataTypeInfo("int"));
+        field1.setOptional(true);
+        FieldInfo field2 = new FieldInfo("optionalField", new DataTypeInfo("int"));
+        field2.setValueWhenNull("optionalFieldValueWhenNull");
+        field2.setOptional(true);
+        orderBys.add(field2);
+        orderBys.add(field1);
+        String start = "start";
+        String separator = "\n    ";
+        String commaSeparator = ", ";
+        String startOrderBy = "startOrderBy ";
+        String endOrderBy = "endOrderBy";
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        instance.appendOrderByContent(result, orderBys, start, separator, commaSeparator, startOrderBy, endOrderBy);
+        assertEquals("startstartOrderBy \n"
+                + "    {[if test='optionalField != null']}${optionalField}{[/if]} {[if test='optionalField == null']}optionalFieldValueWhenNull{[/if]}\n"
+                + "    {[if test='normalField != null']}, ${normalField}{[/if]}endOrderBy", result.toString());
     }
 
     @Test
@@ -343,6 +735,302 @@ public class MyBatisSqlQueryGeneratorTest {
         MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
         String expResult = "#{myFieldWithNull,jdbcType=INTEGER,typeHandler=java.lang.Integer}";
         String result = instance.getParameterValue(field, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue4() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, false, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue4t() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, true, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue4ft() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, false, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue4tt() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, true, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue5() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "{[if test='field1 != null']} #{field1,jdbcType=INTEGER} {[/if]} {[if test='field1 == null']} field1ValueWhenNull {[/if]}";
+        String result = instance.getParameterValue(field, false, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue5t() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, true, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue5ft() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "{[if test='field1 != null']} #{field1,jdbcType=INTEGER} {[/if]} {[if test='field1 == null']} field1ValueWhenNull {[/if]}";
+        String result = instance.getParameterValue(field, false, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue5tt() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, true, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue6() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ValueWhenNull";
+        String result = instance.getParameterValue(field, false, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue6t() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ValueWhenNull";
+        String result = instance.getParameterValue(field, true, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue6ft() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ValueWhenNull";
+        String result = instance.getParameterValue(field, false, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue6tt() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ValueWhenNull";
+        String result = instance.getParameterValue(field, true, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue7() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, false, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue7t() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, true, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue7ft() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, false, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue7tt() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, true, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue8() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, false, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue8t() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, true, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue8ft() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "{[if test='field1 != null']} #{field1,jdbcType=INTEGER} {[/if]} {[if test='field1 == null']} field1ValueWhenNull {[/if]}";
+        String result = instance.getParameterValue(field, false, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue8tt() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "#{field1,jdbcType=INTEGER}";
+        String result = instance.getParameterValue(field, true, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue9() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, false, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue9t() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, true, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue9ft() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, false, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue9tt() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, true, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue10() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, false, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue10t() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, true, false);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue10ft() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, false, true);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetParameterValue10tt() {
+        FieldInfo field = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field.setValueWhenNull("field1ValueWhenNull");
+        field.setForcedValue("field1ForcedValue");
+        field.setExcludedFromObject(true);
+        MyBatisSqlQueryGenerator instance = new MyBatisSqlQueryGeneratorImpl();
+        String expResult = "field1ForcedValue";
+        String result = instance.getParameterValue(field, true, true);
         assertEquals(expResult, result);
     }
 

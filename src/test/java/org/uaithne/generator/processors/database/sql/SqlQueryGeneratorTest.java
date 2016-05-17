@@ -1204,6 +1204,70 @@ public class SqlQueryGeneratorTest {
         operation.addField(field6);
         return operation;
     }
+    
+    @Test
+    public void testAppendWhereWithValueWhenNull() {
+        StringBuilder query = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.INT_DATA_TYPE);
+        operation.setOperationKind(OperationKind.SELECT_MANY);
+        FieldInfo field1 = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field1.setOptional(true);
+        field1.setValueWhenNull("field1ValueWhenNull");
+        operation.addField(field1);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.appendWhere(query, operation, null, false, null);
+        assertEquals(query.toString(), "\n"
+                + "where\n"
+                + "    field1 = parameterValueAndWhenNull!field1!field1ValueWhenNull");
+    }
+    
+    @Test
+    public void testAppendWhereWithForceValue() {
+        StringBuilder query = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.INT_DATA_TYPE);
+        operation.setOperationKind(OperationKind.SELECT_MANY);
+        FieldInfo field1 = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field1.setOptional(true);
+        field1.setForcedValue("field1ForcedValue");
+        operation.addField(field1);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.appendWhere(query, operation, null, false, null);
+        assertEquals(query.toString(), "\n"
+                + "where\n"
+                + "    field1 = parameterForcedValue!field1!field1ForcedValue");
+    }
+    
+    @Test
+    public void testAppendWhereWithForceValue2() {
+        StringBuilder query = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.INT_DATA_TYPE);
+        operation.setOperationKind(OperationKind.SELECT_MANY);
+        FieldInfo field1 = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field1.setForcedValue("field1ForcedValue");
+        operation.addField(field1);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.appendWhere(query, operation, null, false, null);
+        assertEquals(query.toString(), "\n"
+                + "where\n"
+                + "    field1 = parameterForcedValue!field1!field1ForcedValue");
+    }
+    
+    @Test
+    public void testAppendWhereWithValueWhenNullAndForceValue() {
+        StringBuilder query = new StringBuilder();
+        OperationInfo operation = new OperationInfo(DataTypeInfo.INT_DATA_TYPE);
+        operation.setOperationKind(OperationKind.SELECT_MANY);
+        FieldInfo field1 = new FieldInfo("field1", DataTypeInfo.INT_DATA_TYPE);
+        field1.setOptional(true);
+        field1.setValueWhenNull("field1ValueWhenNull");
+        field1.setForcedValue("field1ForcedValue");
+        operation.addField(field1);
+        SqlQueryGeneratorImpl instance = new SqlQueryGeneratorImpl();
+        instance.appendWhere(query, operation, null, false, null);
+        assertEquals(query.toString(), "\n"
+                + "where\n"
+                + "    field1 = parameterForcedValue!field1!field1ForcedValue");
+    }
 
     @Test
     public void testAppendCondition() {
@@ -5936,7 +6000,7 @@ public class SqlQueryGeneratorTest {
         @Override
         public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull, boolean ignoreForcedValue) {
             if (!ignoreForcedValue && field.getForcedValue() != null) {
-                return "parameterForcedValue!" + field.getName() + "!" + field.getValueWhenNull();
+                return "parameterForcedValue!" + field.getName() + "!" + field.getForcedValue();
             } else if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
                 return "parameterValue!" + field.getName();
             } else if (field.isExcludedFromObject()) {

@@ -92,7 +92,7 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
         for (FieldInfo orderBy : orderBys) {
             optional = optional || orderBy.isOptional();
         }
-        boolean firstOptional = orderBys.get(0).isOptional() && (orderBys.get(0).getValueWhenNull() == null || orderBys.get(0).getForcedValue() == null);
+        boolean firstOptional = orderBys.get(0).isQueryOptional();
         
         if (!optional || !firstOptional || orderBys.size() <= 1) {
             boolean hasOnlyOne = orderBys.size() == 1;
@@ -133,6 +133,9 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
                     result.append(" {[if test='");
                     result.append(orderBy.getName());
                     result.append(" == null']}");
+                    if (requireComma) {
+                        result.append(commaSeparator);
+                    }
                     result.append(orderBy.getValueWhenNull());
                     result.append("{[/if]}");
                 }
@@ -202,10 +205,13 @@ public abstract class MyBatisSqlQueryGenerator extends SqlQueryGenerator {
     public String getParameterValue(FieldInfo field, boolean ignoreValueWhenNull, boolean ignoreForcedValue) {
         if (!ignoreForcedValue && field.getForcedValue() != null) {
             return field.getForcedValue();
+        } else if (field.isExcludedFromObject()) {
+            if (field.getForcedValue() != null) {
+                return field.getForcedValue();
+            }
+            return field.getValueWhenNull();
         } else if (ignoreValueWhenNull || field.getValueWhenNull() == null) {
             return "#{" + field.getName() + getJdbcTypeAttribute(field) + getTypeHandler(field) + "}";
-        } else if (field.isExcludedFromObject()) {
-            return field.getValueWhenNull();
         } else {
             return "{[if test='" + field.getName() + " != null']} " + 
                 "#{" + field.getName() + getJdbcTypeAttribute(field) + getTypeHandler(field) + "} " +

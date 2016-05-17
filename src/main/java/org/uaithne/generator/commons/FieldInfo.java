@@ -180,6 +180,16 @@ public class FieldInfo {
     public void setOptional(boolean optional) {
         this.optional = optional;
     }
+    
+    public boolean isQueryOptional() {
+        if (valueWhenNull != null) {
+            return false;
+        }
+        if (forcedValue != null) {
+            return false;
+        }
+        return optional;
+    }
 
     public String getMappedName() {
         if (mappedName == null && related != null) {

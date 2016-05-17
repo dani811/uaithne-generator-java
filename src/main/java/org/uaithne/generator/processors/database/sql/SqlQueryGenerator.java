@@ -394,7 +394,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
             if (field.isOrderBy()) {
                 continue;
             }
-            boolean optional = field.isOptional();
+            boolean optional = field.isQueryOptional();
             if (optional) {
                 if (requireAnd) {
                     result.append("\n    ");
