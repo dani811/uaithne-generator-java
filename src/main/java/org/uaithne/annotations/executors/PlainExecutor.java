@@ -26,5 +26,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface PlainExecutor {
-    
+    boolean generateInterface() default false;
+    @Deprecated
+    boolean generateChainedGroupingPlainExecutor() default false;
 }

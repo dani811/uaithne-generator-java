@@ -20,6 +20,7 @@ package org.uaithne.generator.templates.operations;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import org.uaithne.generator.commons.DataTypeInfo;
 import static org.uaithne.generator.commons.DataTypeInfo.*;
 import org.uaithne.generator.commons.ExecutorModuleInfo;
 import org.uaithne.generator.commons.FieldInfo;
@@ -28,22 +29,15 @@ import org.uaithne.generator.commons.OperationKind;
 
 public class PlainChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
 
-    private String executorInterfaceName;
-
-    public String getExecutorInterfaceName() {
-        return executorInterfaceName;
-    }
-
-    public void setExecutorInterfaceName(String executorInterfaceName) {
-        this.executorInterfaceName = executorInterfaceName;
-    }
-
-    public PlainChainedGroupingExecutorTemplate(ExecutorModuleInfo executorModule, String packageName) {
-        executorInterfaceName = executorModule.getNameUpper() + "PlainExecutor";
+    public PlainChainedGroupingExecutorTemplate(ExecutorModuleInfo executorModule, String packageName, boolean usePlainInterface) {
         setPackageName(packageName);
         executorModule.appendPlainImplementationImports(packageName, getImport());
         setClassName(executorModule.getNameUpper() + "PlainChainedGroupingExecutor");
-        addImplement(executorInterfaceName);
+        addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
+        if (usePlainInterface) {
+            String executorInterfaceName = executorModule.getNameUpper() + "PlainExecutor";
+            addImplement(executorInterfaceName);
+        }
         setExecutorModule(executorModule);
     }
 
@@ -64,8 +58,11 @@ public class PlainChainedGroupingExecutorTemplate extends ExecutorModuleTemplate
                 if (field.isExcludedFromObject()) {
                     continue;
                 }
+                if (field.isSelectPageField()) {
+                    continue;
+                }
                 fields.add(field);
-                if (field.isOptional()) {
+                if (field.isOptional() || field.isExcludedFromConstructor()) {
                     optionalFields.add(field);
                 } else {
                     mandatoryFields.add(field);
@@ -73,129 +70,129 @@ public class PlainChainedGroupingExecutorTemplate extends ExecutorModuleTemplate
             }
             
             if (operation.getOperationKind() != OperationKind.SELECT_PAGE) {
-                appender.append("    public ").append(operation.getReturnDataType().getSimpleName()).append(" ").append(operation.getMethodName()).append(" (");
+                appender.append("    public ").append(operation.getReturnDataType().getSimpleName()).append(" ").append(operation.getMethodName()).append("(");
                 writeArguments(appender, mandatoryFields);
                 appender.append(") {\n"
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArguments(appender, mandatoryFields);
                 appender.append(");\n"
-                        + "        return chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
-                        + "}\n"
+                        + "        return chainedExecutorGroup.execute(operation__instance);\n"
+                        + "    }\n"
                         + "\n");
 
                 if (!optionalFields.isEmpty()) {
-                    appender.append("    public ").append(operation.getReturnDataType().getSimpleName()).append(" ").append(operation.getMethodName()).append("WithOptionals (");
+                    appender.append("    public ").append(operation.getReturnDataType().getSimpleName()).append(" ").append(operation.getMethodName()).append("WithOptionals(");
                     writeArguments(appender, fields);
                     appender.append(") {\n"
                             + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                     writeCallArguments(appender, mandatoryFields);
                     appender.append(");\n");
                     for (FieldInfo field : optionalFields) {
-                        appender.append("operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");");
+                        appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        return chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
-                            + "}\n"
+                    appender.append("        return chainedExecutorGroup.execute(operation__instance);\n"
+                            + "    }\n"
                             + "\n");
                 }
             } else {
-                appender.append("    public ").append(PAGE_INFO_DATA).append(" ").append(operation.getMethodName()).append("Count (");
+                appender.append("    public ").append(PAGE_INFO_DATA).append(" ").append(operation.getMethodName()).append("Count(");
                 writeArguments(appender, mandatoryFields);
                 appender.append(") {\n"
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArgumentsForAddMore(appender, mandatoryFields);
                 appender.append("true);\n"
-                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
+                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.execute(operation__instance);\n"
                         + "        if (operation__result != null) {\n"
                         + "            return operation__result.getDataCount();\n"
                         + "        } else {\n"
                         + "            return null;\n"
                         + "        }\n"
-                        + "}\n"
+                        + "    }\n"
                         + "\n");
 
-                appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append(" (");
+                appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append("(");
                 writeArgumentsForAddMore(appender, mandatoryFields);
-                appender.append(PAGE_INFO_DATA).append("limit) {\n"
+                appender.append(PAGE_INFO_DATA).append(" limit) {\n"
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArgumentsForAddMore(appender, mandatoryFields);
-                appender.append("limit);\n"
-                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
+                appender.append("limit, null, ").append(PAGE_INFO_ZERO).append(");\n"
+                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.execute(operation__instance);\n"
                         + "        if (operation__result != null) {\n"
                         + "            return operation__result.getData();\n"
                         + "        } else {\n"
                         + "            return null;\n"
                         + "        }\n"
-                        + "}\n"
+                        + "    }\n"
                         + "\n");
 
-                appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append(" (");
+                appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append("(");
                 writeArgumentsForAddMore(appender, mandatoryFields);
-                appender.append(PAGE_INFO_DATA).append("limit, ").append(PAGE_INFO_DATA).append(" offset) {\n"
+                appender.append(PAGE_INFO_DATA).append(" limit, ").append(PAGE_INFO_DATA).append(" offset) {\n"
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArgumentsForAddMore(appender, mandatoryFields);
-                appender.append("limit, offset);\n"
-                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
+                appender.append("limit, offset, ").append(PAGE_INFO_ZERO).append(");\n"
+                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.execute(operation__instance);\n"
                         + "        if (operation__result != null) {\n"
                         + "            return operation__result.getData();\n"
                         + "        } else {\n"
                         + "            return null;\n"
                         + "        }\n"
-                        + "}\n"
+                        + "    }\n"
                         + "\n");
 
                 if (!optionalFields.isEmpty()) {
-                    appender.append("    public ").append(PAGE_INFO_DATA).append(" ").append(operation.getMethodName()).append("CountWithOptionals (");
+                    appender.append("    public ").append(PAGE_INFO_DATA).append(" ").append(operation.getMethodName()).append("CountWithOptionals(");
                     writeArguments(appender, fields);
                     appender.append(") {\n"
                             + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                     writeCallArgumentsForAddMore(appender, mandatoryFields);
                     appender.append("true);\n");
                     for (FieldInfo field : optionalFields) {
-                        appender.append("operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");");
+                        appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
+                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.execute(operation__instance);\n"
                             + "        if (operation__result != null) {\n"
                             + "            return operation__result.getDataCount();\n"
                             + "        } else {\n"
                             + "            return null;\n"
                             + "        }\n"
-                            + "}\n"
+                            + "    }\n"
                             + "\n");
 
-                    appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append("WithOptionals (");
+                    appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append("WithOptionals(");
                     writeArgumentsForAddMore(appender, fields);
-                    appender.append(PAGE_INFO_DATA).append("limit) {\n"
+                    appender.append(PAGE_INFO_DATA).append(" limit) {\n"
                             + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                     writeCallArgumentsForAddMore(appender, mandatoryFields);
-                    appender.append("limit);\n");
+                    appender.append("limit, null, ").append(PAGE_INFO_ZERO).append(");\n");
                     for (FieldInfo field : optionalFields) {
-                        appender.append("operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");");
+                        appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
+                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.execute(operation__instance);\n"
                             + "        if (operation__result != null) {\n"
                             + "            return operation__result.getData();\n"
                             + "        } else {\n"
                             + "            return null;\n"
                             + "        }\n"
-                            + "}\n"
+                            + "    }\n"
                             + "\n");
 
-                    appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append("WithOptionals (");
+                    appender.append("    public ").append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> ").append(operation.getMethodName()).append("WithOptionals(");
                     writeArgumentsForAddMore(appender, fields);
-                    appender.append(PAGE_INFO_DATA).append("limit, ").append(PAGE_INFO_DATA).append(" offset) {\n"
+                    appender.append(PAGE_INFO_DATA).append(" limit, ").append(PAGE_INFO_DATA).append(" offset) {\n"
                             + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
-                    writeCallArguments(appender, mandatoryFields);
-                    appender.append("limit, offset);\n");
+                    writeCallArgumentsForAddMore(appender, mandatoryFields);
+                    appender.append("limit, offset, ").append(PAGE_INFO_ZERO).append(");\n");
                     for (FieldInfo field : optionalFields) {
-                        appender.append("operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");");
+                        appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.").append(operation.getMethodName()).append("(operation__instance);\n"
+                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutorGroup.execute(operation__instance);\n"
                             + "        if (operation__result != null) {\n"
                             + "            return operation__result.getData();\n"
                             + "        } else {\n"
                             + "            return null;\n"
                             + "        }\n"
-                            + "}\n"
+                            + "    }\n"
                             + "\n");
                 }
             }

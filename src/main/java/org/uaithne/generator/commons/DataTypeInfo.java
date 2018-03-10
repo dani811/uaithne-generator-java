@@ -508,7 +508,8 @@ public class DataTypeInfo {
     public static final DataTypeInfo BYTE_DATA_TYPE = new DataTypeInfo("byte", BOXED_BYTE_DATA_TYPE);
     public static final DataTypeInfo CHAR_DATA_TYPE = new DataTypeInfo("char", BOXED_CHAR_DATA_TYPE);
     public static final DataTypeInfo SHORT_DATA_TYPE = new DataTypeInfo("short", BOXED_SHORT_DATA_TYPE);
-        
+    
+    public static final String PAGE_INFO_ZERO = "BigInteger.ZERO";
     public static final String PAGE_INFO_DATA = "BigInteger";
     public static final DataTypeInfo PAGE_INFO_DATA_TYPE = new DataTypeInfo("java.math", PAGE_INFO_DATA, "java.math.BigInteger");
     public static final String PAGE_ONLY_DATA_COUNT_DATA = "boolean";

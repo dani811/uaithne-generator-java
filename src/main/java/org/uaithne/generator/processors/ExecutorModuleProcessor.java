@@ -244,12 +244,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         limitInfo.setMarkAsOvwrride(true);
         limitInfo.setExcludedFromConstructor(true);
         limitInfo.setManually(true);
+        limitInfo.setSelectPageField(true);
         operationInfo.addField(limitInfo);
 
         FieldInfo offsetInfo = new FieldInfo("offset", pageInfoDataType);
         offsetInfo.setMarkAsOvwrride(true);
         offsetInfo.setExcludedFromConstructor(true);
         offsetInfo.setManually(true);
+        offsetInfo.setSelectPageField(true);
         operationInfo.addField(offsetInfo);
 
         FieldInfo dataCountInfo = new FieldInfo("dataCount", pageInfoDataType);
@@ -257,12 +259,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         dataCountInfo.setExcludedFromConstructor(true);
         dataCountInfo.setManually(true);
         dataCountInfo.setOptional(true);
+        dataCountInfo.setSelectPageField(true);
         operationInfo.addField(dataCountInfo);
 
         FieldInfo onlyDataCount = new FieldInfo("onlyDataCount", onlyDataCountDataType);
         onlyDataCount.setMarkAsOvwrride(true);
         onlyDataCount.setExcludedFromConstructor(true);
         onlyDataCount.setManually(true);
+        onlyDataCount.setSelectPageField(true);
         operationInfo.addField(onlyDataCount);
 
         generationInfo.addOperation(operationInfo, executorModuleInfo);
@@ -1460,10 +1464,20 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
             }
         }
 
-        if (executorModuleInfo.getAnnotation(PlainExecutor.class) != null) {
-            processClassTemplate(new PlainExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
-            processClassTemplate(new PlainChainedExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
-            processClassTemplate(new PlainChainedGroupingExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+        PlainExecutor plainExecutor = executorModuleInfo.getAnnotation(PlainExecutor.class);
+        if (plainExecutor != null) {
+            boolean generatePlainInterface = plainExecutor.generateInterface();
+            if (generatePlainInterface) {
+                processClassTemplate(new PlainExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            }
+            processClassTemplate(new PlainChainedExecutorTemplate(executorModuleInfo, packageName, generatePlainInterface), executorModuleInfo.getElement());
+            if (plainExecutor.generateChainedGroupingPlainExecutor()) {
+                if (generationInfo.isExecutorExtendsExecutorGroup()) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedGroupingPlainExecutor to true you also must set executorExtendsExecutorGroup to false in the Uaithne configuration (continue assuming the first one as false)", executorModuleInfo.getElement());
+                } else {
+                    processClassTemplate(new PlainChainedGroupingExecutorTemplate(executorModuleInfo, packageName, generatePlainInterface), executorModuleInfo.getElement());
+                }
+            }
         }
     }
 }

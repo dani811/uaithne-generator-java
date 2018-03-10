@@ -245,6 +245,12 @@ public class OperationInfo {
         }
         returnDataType.appendImports(currentPackage, imports);
         dataType.appendImports(currentPackage, imports);
+        if (operationKind == OperationKind.SELECT_PAGE) {
+            DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(currentPackage, imports);
+            DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
+        } else if (operationKind == OperationKind.SELECT_MANY) {
+            DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
+        }
     }
 
     public void appendPlainDefinitionImports(String currentPackage, HashSet<String> imports) {
@@ -258,6 +264,12 @@ public class OperationInfo {
             oneItemReturnDataType.appendImports(currentPackage, imports);
         } else {
             returnDataType.appendImports(currentPackage, imports);
+        }
+        if (operationKind == OperationKind.SELECT_PAGE) {
+            DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(currentPackage, imports);
+            DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
+        } else if (operationKind == OperationKind.SELECT_MANY) {
+            DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
         }
     }
 

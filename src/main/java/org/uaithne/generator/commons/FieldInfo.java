@@ -68,6 +68,7 @@ public class FieldInfo {
     private ValidationRule validationRule;
     private boolean validationAlreadyConfigured;
     private boolean hasDefaultValueWhenInsert;
+    private boolean selectPageField;
 
     public String[] getDocumentation() {
         if (documentation == null && related != null) {
@@ -576,6 +577,14 @@ public class FieldInfo {
         this.validationAlreadyConfigured = validationAlreadyConfigured;
     }
 
+    public boolean isSelectPageField() {
+        return selectPageField;
+    }
+
+    public void setSelectPageField(boolean selectPageField) {
+        this.selectPageField = selectPageField;
+    }
+
     public boolean hasDefaultValueWhenInsert() {
         if (!hasDefaultValueWhenInsert) {
             if (related != null) {
@@ -826,6 +835,7 @@ public class FieldInfo {
             }
         }
         hasDefaultValueWhenInsert = fieldInfo.hasDefaultValueWhenInsert;
+        selectPageField = fieldInfo.selectPageField;
     }
 
     public FieldInfo(FieldInfo fieldInfo) {
@@ -861,6 +871,7 @@ public class FieldInfo {
         markAsTransient = fieldInfo.markAsTransient;
         mappedName = fieldInfo.mappedName;
         hasDefaultValueWhenInsert = fieldInfo.hasDefaultValueWhenInsert;
+        selectPageField = fieldInfo.selectPageField;
     }
 
     public FieldInfo() {

@@ -137,16 +137,12 @@ public class ExecutorModuleInfo {
         for (OperationInfo operation : operations) {
             operation.appendPlainDefinitionImports(currentPackage, imports);
         }
-        DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(currentPackage, imports);
-        DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
     }
     
     public void appendPlainImplementationImports(String currentPackage, HashSet<String> imports) {
         for (OperationInfo operation : operations) {
             operation.appendPlainImplementationImports(currentPackage, imports);
         }
-        DataTypeInfo.PAGE_INFO_DATA_TYPE.appendImports(currentPackage, imports);
-        DataTypeInfo.LIST_DATA_TYPE.appendImports(currentPackage, imports);
     }
     
     public TypeElement getElement() {
