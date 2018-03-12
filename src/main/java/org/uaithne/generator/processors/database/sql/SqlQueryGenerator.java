@@ -2304,7 +2304,7 @@ public abstract class SqlQueryGenerator extends SqlGenerator {
         String parameterName = name.substring(5);
         EntityInfo _app = getConfiguration().getApplicationParameter();
         if (_app == null) {
-            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "You must configure the application parameter type in using the @UaithneConfiguration annotation fon allow use it in the query element: " + matcher.group(), operation.getElement());
+            getProcessingEnv().getMessager().printMessage(Diagnostic.Kind.ERROR, "You must configure the application parameter type using the @UaithneConfiguration annotation to allow use it in the query element: " + matcher.group(), operation.getElement());
             return null;
         }
         FieldInfo field = _app.getFieldByName(parameterName);

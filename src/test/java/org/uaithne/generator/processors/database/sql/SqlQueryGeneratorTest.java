@@ -5445,7 +5445,7 @@ public class SqlQueryGeneratorTest {
         ArrayList<MessageContent> actualMsg = instance.getProcessingEnv().getMessager().getContent();
         ArrayList<MessageContent> expectedMsg = new ArrayList<MessageContent>();
         expectedMsg.add(new MessageContent(Diagnostic.Kind.ERROR,
-                "You must configure the application parameter type in using the @UaithneConfiguration annotation fon allow use it in the query element: {{_app.myInvalidField}}",
+                "You must configure the application parameter type using the @UaithneConfiguration annotation to allow use it in the query element: {{_app.myInvalidField}}",
                 operation.getElement()));
         assertArrayEquals(expectedMsg.toArray(), actualMsg.toArray());
         assertEquals(expResult, result);
