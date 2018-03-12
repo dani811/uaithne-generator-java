@@ -31,13 +31,14 @@ public class AbstractExecutorTemplate extends ExecutorModuleTemplate {
         setExecutorModule(executorModule);
         addImplement(executorModule.getExecutorInterfaceName());
         setAbstract(true);
+        addContextImport(packageName);
     }
 
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         writeGetExecutorSelector(appender);
         appender.append("\n");
-        writeExecuteMethods(appender);
+        writeExecuteMethods(appender, false);
         appender.append("\n"
                 + "    public ").append(getClassName()).append("() {\n"
                 + "    }");

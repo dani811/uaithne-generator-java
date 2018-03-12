@@ -42,6 +42,10 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
             addImplement(executorInterfaceName);
         }
         setExecutorModule(executorModule);
+        if (HAS_CONTEXT) {
+            setAbstract(true);
+            addContextImport(packageName);
+        }
     }
 
     @Override
@@ -58,6 +62,14 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                 + "        return chainedExecutor;\n"
                 + "    }\n"
                 + "\n");
+        
+        String context;
+        if (HAS_CONTEXT) {
+            appender.append("    protected abstract ").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" getContext();\n\n");
+            context = ", getContext()";
+        } else {
+            context = "";
+        }
 
         for (OperationInfo operation : getExecutorModule().getOperations()) {
             ArrayList<FieldInfo> allFields = operation.getFields();
@@ -86,7 +98,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArguments(appender, mandatoryFields);
                 appender.append(");\n"
-                        + "        return chainedExecutor.execute(operation__instance);\n"
+                        + "        return chainedExecutor.execute(operation__instance").append(context).append(");\n"
                         + "    }\n"
                         + "\n");
 
@@ -100,7 +112,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                     for (FieldInfo field : optionalFields) {
                         appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        return chainedExecutor.execute(operation__instance);\n"
+                    appender.append("        return chainedExecutor.execute(operation__instance").append(context).append(");\n"
                             + "    }\n"
                             + "\n");
                 }
@@ -111,7 +123,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArgumentsForAddMore(appender, mandatoryFields);
                 appender.append("true);\n"
-                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance);\n"
+                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance").append(context).append(");\n"
                         + "        if (operation__result != null) {\n"
                         + "            return operation__result.getDataCount();\n"
                         + "        } else {\n"
@@ -126,7 +138,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArgumentsForAddMore(appender, mandatoryFields);
                 appender.append("limit, null, ").append(PAGE_INFO_ZERO).append(");\n"
-                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance);\n"
+                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance").append(context).append(");\n"
                         + "        if (operation__result != null) {\n"
                         + "            return operation__result.getData();\n"
                         + "        } else {\n"
@@ -141,7 +153,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                         + "        ").append(operation.getDataType().getSimpleName()).append(" operation__instance = new ").append(operation.getDataType().getSimpleName()).append("(");
                 writeCallArgumentsForAddMore(appender, mandatoryFields);
                 appender.append("limit, offset, ").append(PAGE_INFO_ZERO).append(");\n"
-                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance);\n"
+                        + "        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance").append(context).append(");\n"
                         + "        if (operation__result != null) {\n"
                         + "            return operation__result.getData();\n"
                         + "        } else {\n"
@@ -160,7 +172,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                     for (FieldInfo field : optionalFields) {
                         appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance);\n"
+                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance").append(context).append(");\n"
                             + "        if (operation__result != null) {\n"
                             + "            return operation__result.getDataCount();\n"
                             + "        } else {\n"
@@ -178,7 +190,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                     for (FieldInfo field : optionalFields) {
                         appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance);\n"
+                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance").append(context).append(");\n"
                             + "        if (operation__result != null) {\n"
                             + "            return operation__result.getData();\n"
                             + "        } else {\n"
@@ -196,7 +208,7 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
                     for (FieldInfo field : optionalFields) {
                         appender.append("        operation__instance.set").append(field.getCapitalizedName()).append("(").append(field.getName()).append(");\n");
                     }
-                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance);\n"
+                    appender.append("        ").append(operation.getReturnDataType().getSimpleName()).append(" operation__result = chainedExecutor.execute(operation__instance").append(context).append(");\n"
                             + "        if (operation__result != null) {\n"
                             + "            return operation__result.getData();\n"
                             + "        } else {\n"

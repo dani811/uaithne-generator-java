@@ -33,6 +33,7 @@ public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
         setClassName(executorModule.getNameUpper() + "ChainedGroupingExecutor");
         addImplement(executorModule.getExecutorInterfaceName());
         setExecutorModule(executorModule);
+        addContextImport(packageName);
     }
 
     @Override
@@ -46,15 +47,15 @@ public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
-                + "        return operation.execute(this);\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "        return operation.execute(this").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         
         if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
-                + "        return chainedExecutorGroup.execute(operation);\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "        return chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         }
 
@@ -63,7 +64,7 @@ public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
                     + "    @Override\n");
             writeOperationMethodHeader(appender, operation);
             appender.append(" {\n"
-                    + "        return chainedExecutorGroup.execute(operation);\n"
+                    + "        return chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
                     + "    }\n");
         }
 

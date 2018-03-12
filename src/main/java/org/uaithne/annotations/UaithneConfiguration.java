@@ -38,6 +38,7 @@ public @interface UaithneConfiguration {
     Class<?> entitiesImplements() default Void.class;
     MyBatisBackendConfiguration[] myBatisBackendConfigurations() default {};
     Class<?> applicationParameterType() default Void.class;
+    Class<?> contextParameterType() default Void.class;
     boolean enableBeanValidations() default false;
     AnnotationConfiguration[] annotationConfigurations() default {};
     AnnotationSubstitution[] annotationSubstitutions() default {};

@@ -206,8 +206,20 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                         // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
                         applicationParameterType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
                     }
+                    
                     if (!applicationParameterType.isVoid()) {
                         generationInfo.setApplicationParameterType(applicationParameterType);
+                    }
+                    
+                    DataTypeInfo contextParameterType;
+                    try {
+                        contextParameterType = NamesGenerator.createResultDataType(configuration.contextParameterType());
+                    } catch (MirroredTypeException ex) {
+                        // See: http://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                        contextParameterType = NamesGenerator.createDataTypeFor(ex.getTypeMirror());
+                    }
+                    if (!contextParameterType.isVoid()) {
+                        generationInfo.setContextParameterType(contextParameterType);
                     }
                 }
             }

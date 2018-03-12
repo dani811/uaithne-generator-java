@@ -158,6 +158,12 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         this.namespace = namespace;
         this.useAliasInOrderBy = useAliasInOrderBy;
         this.hasUnimplementedOperations = hasUnimplementedOperations;
+        if (HAS_CONTEXT) {
+            addContextImport(packageName);
+            if (getGenerationInfo().getApplicationParameter() != null) {
+                addImport(MYBATIS_APPLICATION_PARAMETER_DRIVER_DATA_TYPE, packageName);
+            }
+        }
     }
 
     @Override
@@ -169,20 +175,50 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             }
         }
 
-        appender.append("    private SqlSessionProvider provider;\n"
-                + "\n"
+        appender.append("    private SqlSessionProvider provider;\n");
+        if (HAS_CONTEXT) {
+            appender.append("\n"
+                + "    public SqlSession getSession(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context) {\n"
+                + "        return provider.getSqlSession(context);\n"
+                + "    }\n"
+                + "\n");
+        } else {
+            appender.append("\n"
                 + "    public SqlSession getSession() {\n"
                 + "        return provider.getSqlSession();\n"
                 + "    }\n"
                 + "\n");
+        }
+        
+        if (HAS_CONTEXT && getGenerationInfo().getApplicationParameterType() != null) {
+            appender.append("    public void setContext(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context) {\n");
+            if (HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT) {
+                appender.append("        ApplicationParameterDriver.setApplicationParameter(getSession(context), provider.getApplicationParameter(context));\n");
+            } else {
+                appender.append("        ApplicationParameterDriver.setApplicationParameter(getSession(context), context);\n");
+            }
+            appender.append("    }\n"
+                    + "\n"
+                    + "    public void clearContext(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context) {\n"
+                    + "        ApplicationParameterDriver.setApplicationParameter(getSession(context), null);\n"
+                    + "    }\n"
+                    + "\n");
+        }
 
         writeGetExecutorSelector(appender);
         appender.append("\n");
 
-        writeExecuteMethods(appender);
+        writeExecuteMethods(appender, getGenerationInfo().getApplicationParameterType() != null);
         
         GenerationInfo generationInfo = getGenerationInfo();
 
+        String context;
+        if (HAS_CONTEXT) {
+            context = "context";
+        } else {
+            context = "";
+        }
+        
         for (OperationInfo operation : getExecutorModule().getOperations()) {
             if (operation.isManually() || operation.getOperationKind() == OperationKind.CUSTOM) {
                 continue;
@@ -192,7 +228,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
 
             if (operation.getOperationKind() == OperationKind.INSERT && operation.getInsertedIdOrigin() == InsertedIdOrigin.QUERY) {
                 appender.append("    public ").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(" getLastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("() {\n"
-                        + "        return (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") getSession().selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
+                        + "        return (").append(operation.getEntity().getCombined().getFirstIdField().getDataType().getSimpleName()).append(") getSession(").append(context).append(").selectOne(\"").append(namespace).append(".lastInsertedIdFor").append(operation.getEntity().getDataType().getSimpleNameWithoutGenerics()).append("\");\n"
                         + "    }\n"
                         + "\n");
             }
@@ -211,21 +247,21 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             switch (operation.getOperationKind()) {
                 case SELECT_COUNT: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession(").append(context).append(").selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
                     appender.append(indentation).append("return result;\n");
                     writeEndOrderByVariable(appender, operation);
                     break;
                 }
                 case SELECT_ONE: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession(").append(context).append(").selectOne(\"").append(operation.getQueryId()).append("\", operation);\n");
                     appender.append(indentation).append("return result;\n");
                     writeEndOrderByVariable(appender, operation);
                     break;
                 }
                 case SELECT_MANY: {
                     writeStartOrderByVariable(appender, operation);
-                    appender.append(indentation).append(returnTypeName).append(" result = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                    appender.append(indentation).append(returnTypeName).append(" result = getSession(").append(context).append(").selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
                     appender.append(indentation).append("return result;\n");
                     writeEndOrderByVariable(appender, operation);
                     break;
@@ -235,14 +271,14 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     appender.append(indentation).append(returnTypeName).append(" result = new ").append(returnTypeName).append("();\n")
                             .append(indentation).append(PAGE_INFO_DATA).append(" count = operation.getDataCount();\n")
                             .append(indentation).append("if (count == null) {\n")
-                            .append(indentation).append("    count = (").append(PAGE_INFO_DATA).append(") getSession().selectOne(\"").append(operation.getCountQueryId()).append("\", operation);\n")
+                            .append(indentation).append("    count = (").append(PAGE_INFO_DATA).append(") getSession(").append(context).append(").selectOne(\"").append(operation.getCountQueryId()).append("\", operation);\n")
                             .append(indentation).append("}\n")
                             .append(indentation).append("result.setDataCount(count);\n")
                             .append(indentation).append("if (operation.isOnlyDataCount()) {\n")
                             .append(indentation).append("    return result;\n")
                             .append(indentation).append("}\n"
                             + "\n")
-                            .append(indentation).append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession().selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
+                            .append(indentation).append(LIST_DATA).append("<").append(operation.getOneItemReturnDataType().getSimpleName()).append("> data = getSession(").append(context).append(").selectList(\"").append(operation.getQueryId()).append("\", operation);\n");
                     appender.append(indentation).append("result.setData(data);\n")
                             .append(indentation).append("result.setLimit(operation.getLimit());\n")
                             .append(indentation).append("result.setOffset(operation.getOffset());\n");
@@ -251,13 +287,13 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case DELETE_BY_ID: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().delete(\"").append(operation.getQueryId()).append("\", operation.getId());\n");
+                    appender.append("        ").append(returnTypeName).append(" result = getSession(").append(context).append(").delete(\"").append(operation.getQueryId()).append("\", operation.getId());\n");
                     appender.append("        return result;\n");
                     break;
                 }
                 case INSERT: {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n" 
-                            + "        SqlSession session = getSession();\n"
+                            + "        SqlSession session = getSession(").append(context).append(");\n"
                             + "        int i = session.insert(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "        if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
@@ -288,14 +324,14 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case JUST_INSERT: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession(").append(context).append(").insert(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
                 case SAVE: {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
-                            + "            SqlSession session = getSession();\n"
+                            + "            SqlSession session = getSession(").append(context).append(");\n"
                             + "            int i = session.insert(\"").append(operation.getSaveInsertQueryId()).append("\", value);\n"
                             + "            if (i == 1) {\n");
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
@@ -324,7 +360,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                             + "                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
                             + "            }\n"
                             + "        } else {\n"
-                            + "            int i = getSession().update(\"").append(operation.getQueryId()).append("\", value);\n"
+                            + "            int i = getSession(").append(context).append(").update(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "            if (i == 1) {\n"
                             + "                ").append(returnTypeName).append(" result = value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("();\n"
                             + "                return result;\n"
@@ -338,40 +374,40 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        ").append(returnTypeName).append(" result;\n"
                             + "        if (value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("() == null) {\n"
-                            + "            result = getSession().insert(\"").append(operation.getSaveInsertQueryId()).append("\", value);\n"
+                            + "            result = getSession(").append(context).append(").insert(\"").append(operation.getSaveInsertQueryId()).append("\", value);\n"
                             + "        } else {\n"
-                            + "            result = getSession().update(\"").append(operation.getQueryId()).append("\", value);\n"
+                            + "            result = getSession(").append(context).append(").update(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "        }\n"
                             + "        return result;\n");
                     break;
                 }
                 case SELECT_BY_ID: {
-                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession().selectOne(\"").append(operation.getQueryId()).append("\", operation.getId());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = (").append(returnTypeName).append(") getSession(").append(context).append(").selectOne(\"").append(operation.getQueryId()).append("\", operation.getId());\n"
                             + "        return result;\n");
                     break;
                 }
                 case UPDATE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession(").append(context).append(").update(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
                 case CUSTOM_INSERT: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().insert(\"").append(operation.getQueryId()).append("\", operation);\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession(").append(context).append(").insert(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        return result;\n");
                     break;
                 }
                 case CUSTOM_UPDATE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(operation.getQueryId()).append("\", operation);\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession(").append(context).append(").update(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        return result;\n");
                     break;
                 }
                 case CUSTOM_DELETE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().delete(\"").append(operation.getQueryId()).append("\", operation);\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession(").append(context).append(").delete(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        return result;\n");
                     break;
                 }
                 case CUSTOM_INSERT_WITH_ID: {
-                    appender.append("        SqlSession session = getSession();\n"
+                    appender.append("        SqlSession session = getSession(").append(context).append(");\n"
                             + "        int i = session.insert(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        if (i == 1) {\n");
                     
@@ -403,7 +439,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case MERGE: {
-                    appender.append("        ").append(returnTypeName).append(" result = getSession().update(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
+                    appender.append("        ").append(returnTypeName).append(" result = getSession(").append(context).append(").update(\"").append(operation.getQueryId()).append("\", operation.getValue());\n"
                             + "        return result;\n");
                     break;
                 }
@@ -604,7 +640,11 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         }
         appender.append(indentation).append("}\n");
         appender.append(indentation).append("Wrapper wrapper = new Wrapper();\n");
-        appender.append(indentation).append("getSession().").append(myBatisMethod).append("(\"").append(operation.getQueryId()).append("\", wrapper);\n");
+        if (HAS_CONTEXT) {
+            appender.append(indentation).append("getSession().").append(myBatisMethod).append("(\"").append(operation.getQueryId()).append("\", wrapper);\n");
+        } else {
+            appender.append(indentation).append("getSession(context).").append(myBatisMethod).append("(\"").append(operation.getQueryId()).append("\", wrapper);\n");
+        }
         appender.append(indentation).append("return wrapper.result;\n");
     }
     

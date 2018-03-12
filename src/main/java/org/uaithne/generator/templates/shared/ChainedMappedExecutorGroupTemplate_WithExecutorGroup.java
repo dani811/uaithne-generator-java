@@ -29,6 +29,7 @@ public class ChainedMappedExecutorGroupTemplate_WithExecutorGroup extends ClassT
         addImport(HASHMAP_DATA_TYPE, packageName);
         setClassName("ChainedMappedExecutorGroup");
         addImplement("ExecutorGroup");
+        addContextImport(packageName);
     }
     
     @Override
@@ -44,12 +45,12 @@ public class ChainedMappedExecutorGroupTemplate_WithExecutorGroup extends ClassT
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        ExecutorGroup executor = getCustomizedExecutor(operation);\n"
                 + "        if (executor == null) {\n"
-                + "            return chainedExecutorGroup.execute(operation);\n"
+                + "            return chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "        } else {\n"
-                + "            return executor.execute(operation);\n"
+                + "            return executor.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "        }\n"
                 + "    }\n"
                 + "\n"

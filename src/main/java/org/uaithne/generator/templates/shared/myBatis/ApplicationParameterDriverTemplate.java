@@ -28,7 +28,10 @@ public class ApplicationParameterDriverTemplate extends ClassTemplate {
         addImport("org.apache.ibatis.executor.parameter.ParameterHandler", packageName);
         addImport("org.apache.ibatis.mapping.BoundSql", packageName);
         addImport("org.apache.ibatis.mapping.MappedStatement", packageName);
+        addImport("org.apache.ibatis.scripting.LanguageDriver", packageName);
         addImport("org.apache.ibatis.scripting.xmltags.XMLLanguageDriver", packageName);
+        addImport("org.apache.ibatis.session.SqlSession", packageName);
+        addImport("org.apache.ibatis.session.SqlSessionFactory", packageName);
         setClassName("ApplicationParameterDriver");
         setExtend("XMLLanguageDriver");
     }
@@ -41,10 +44,6 @@ public class ApplicationParameterDriverTemplate extends ClassTemplate {
             "        return applicationParameters.get();\n" +
             "    }\n" +
             "\n" +
-            "    /**\n" +
-            "     * Important: only set this value one time per thread, only if getApplicationParameter() return null\n" +
-            "     * @param applicationParameter\n" +
-            "     */\n" +
             "    public void setApplicationParameter(Object applicationParameter) {\n" +
             "        applicationParameters.set(applicationParameter);\n" +
             "    }\n" +
@@ -54,6 +53,22 @@ public class ApplicationParameterDriverTemplate extends ClassTemplate {
             "        Object appParameter = getApplicationParameter();\n" +
             "        boundSql.setAdditionalParameter(\"_app\", appParameter);\n" +
             "        return super.createParameterHandler(mappedStatement, parameterObject, boundSql);\n" +
+            "    }\n" +
+            "\n" +
+            "    public static void setApplicationParameter(SqlSessionFactory sqlSessionFactory, Object applicationParameter) {\n" +
+            "        LanguageDriver languageDriver = sqlSessionFactory.getConfiguration().getDefaultScriptingLanguageInstance();\n" +
+            "        if (languageDriver instanceof ApplicationParameterDriver) {\n" +
+            "            ApplicationParameterDriver driver = (ApplicationParameterDriver) languageDriver;\n" +
+            "            driver.setApplicationParameter(applicationParameter);\n" +
+            "        }\n" +
+            "    }\n" +
+            "\n" +
+            "    public static void setApplicationParameter(SqlSession sqlSession, Object applicationParameter) {\n" +
+            "        LanguageDriver languageDriver = sqlSession.getConfiguration().getDefaultScriptingLanguageInstance();\n" +
+            "        if (languageDriver instanceof ApplicationParameterDriver) {\n" +
+            "            ApplicationParameterDriver driver = (ApplicationParameterDriver) languageDriver;\n" +
+            "            driver.setApplicationParameter(applicationParameter);\n" +
+            "        }\n" +
             "    }");
     }
     

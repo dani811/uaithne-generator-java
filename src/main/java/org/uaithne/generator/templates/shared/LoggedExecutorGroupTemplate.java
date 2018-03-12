@@ -29,28 +29,35 @@ public class LoggedExecutorGroupTemplate extends ClassTemplate {
         addImport("java.util.logging.Logger", packageName);
         setClassName("LoggedExecutorGroup");
         addImplement("ExecutorGroup");
+        addContextImport(packageName);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
+        String context;
+        if (HAS_CONTEXT) {
+            context = " + \". Context: \" + context";
+        } else {
+            context = "";
+        }
         appender.append("    private ExecutorGroup chainedExecutorGroup;\n"
                 + "    private Logger logger;\n"
                 + "    private String shortName;\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        boolean fineLevelEnabled = logger.isLoggable(Level.FINE);\n"
                 + "        try {\n"
                 + "            if (fineLevelEnabled) {\n"
-                + "                logger.log(Level.FINE, shortName + \": Execute operation requested. Operation: \" + operation);\n"
-                + "                RESULT result = chainedExecutorGroup.execute(operation);\n"
-                + "                logger.log(Level.FINE, shortName + \": Execute operation executed. Operation: \" + operation + \". Result: \" + result);\n"
+                + "                logger.log(Level.FINE, shortName + \": Execute operation requested. Operation: \" + operation").append(context).append(");\n"
+                + "                RESULT result = chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
+                + "                logger.log(Level.FINE, shortName + \": Execute operation executed. Operation: \" + operation").append(context).append(" + \". Result: \" + result);\n"
                 + "                return result;\n"
                 + "            } else {\n"
-                + "                return chainedExecutorGroup.execute(operation);\n"
+                + "                return chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "            }\n"
                 + "        } catch (RuntimeException e) {\n"
-                + "            logger.log(Level.SEVERE, \"An exception has been ocurrend when execute an operation. Operation: \" + operation, e);\n"
+                + "            logger.log(Level.SEVERE, \"An exception has been ocurrend when execute an operation. Operation: \" + operation").append(context).append(", e);\n"
                 + "            throw e;\n"
                 + "        }\n"
                 + "    }\n"

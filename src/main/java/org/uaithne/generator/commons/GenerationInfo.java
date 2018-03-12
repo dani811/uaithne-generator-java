@@ -54,6 +54,7 @@ public class GenerationInfo {
     private HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>> validationConfigurations = new HashMap<AnnotationConfigurationKeys, ArrayList<DataTypeInfo>>();
     private HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions = new HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>>();
     private boolean useIsInBooleanObjectGetter = true;
+    private DataTypeInfo contextParameterType;
     
     // Deprecated configurations
     private boolean includeExecuteOtherMethodInExecutors;
@@ -335,6 +336,14 @@ public class GenerationInfo {
 
     public void setValidationSubstitutions(HashMap<AnnotationConfigurationKeys, HashMap<DataTypeInfo, DataTypeInfo>> validationSubstitutions) {
         this.validationSubstitutions = validationSubstitutions;
+    }
+
+    public DataTypeInfo getContextParameterType() {
+        return contextParameterType;
+    }
+
+    public void setContextParameterType(DataTypeInfo contextParameterType) {
+        this.contextParameterType = contextParameterType;
     }
 
     public boolean isIncludeExecuteOtherMethodInExecutors() {

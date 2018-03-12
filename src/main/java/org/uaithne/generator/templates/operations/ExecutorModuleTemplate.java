@@ -42,51 +42,87 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
                 + "    }\n");
     }
     
-    protected void writeExecuteMethods(Appendable appender) throws IOException {
+    protected void writeExecuteMethods(Appendable appender, boolean setContext) throws IOException {
+        String contextNewLine;
+        String context;
+        if (HAS_CONTEXT) {
+            contextNewLine = " +\n"
+                + "                    \"Context: \" + context";
+            context = "+ \". Context: \" + context";
+        } else {
+            contextNewLine = "";
+            context = "";
+        }
         appender.append("    @Override\n"
-            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n");
+            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n");
         if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
-            appender.append("        if (operation.getExecutorSelector() == ").append(getExecutorModule().getExecutorInterfaceName()).append(".SELECTOR) {\n"
-                    + "            return operation.execute(this);\n"
-                    + "        } else {\n"
+            appender.append("        if (operation.getExecutorSelector() == ").append(getExecutorModule().getExecutorInterfaceName()).append(".SELECTOR) {\n");
+            if (setContext && HAS_CONTEXT) {
+                appender.append(""
+                        + "            try {\n"
+                        + "                setContext(context);\n"
+                        + "                return operation.execute(this").append(CONTEXT_VALUE).append(");\n"
+                        + "            } finally {\n"
+                        + "                clearContext(context);\n"
+                        + "            }\n");
+            } else {
+                appender.append("            return operation.execute(this").append(CONTEXT_VALUE).append(");\n");
+            }
+            appender.append("        } else {\n"
                     + "            throw new IllegalStateException(\"Unable to handle the operation: \" +\n"
                     + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
                     + "                    \"'\" + operation.getExecutorSelector() + \"'. \" +\n"
-                    + "                    \"Operation: \" + operation.toString());\n"
+                    + "                    \"Operation: \" + operation").append(contextNewLine).append(");\n"
                     + "        }\n");
         } else {
-            appender.append("        return operation.execute(this);\n");
+            if (setContext && HAS_CONTEXT) {
+                appender.append(""
+                        + "        try {\n"
+                        + "            setContext(context);\n"
+                        + "            return operation.execute(this").append(CONTEXT_VALUE).append(");\n"
+                        + "        } finally {\n"
+                        + "            clearContext(context);\n"
+                        + "        }\n");
+            } else {
+                appender.append("        return operation.execute(this").append(CONTEXT_VALUE).append(");\n");
+            }
         }
         appender.append("    }\n");
         
         if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
-                + "        throw new UnsupportedOperationException(\"Unsuported operation. Operation: \" + operation);\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "        throw new UnsupportedOperationException(\"Unsuported operation. Operation: \" + operation").append(context).append(");\n"
                 + "    }\n");
         }
     }
     
     protected void writeChainedExecuteMethods(Appendable appender, String chainedName) throws IOException {
+        String context;
+        if (HAS_CONTEXT) {
+            context = "+ \". Context: \" + context";
+        } else {
+            context = "";
+        }
         appender.append("    @Override\n"
-            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n");
+            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n");
         if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
             appender.append("        if (operation.getExecutorSelector() == ").append(getExecutorModule().getExecutorInterfaceName()).append(".SELECTOR) {\n"
-                    + "            return operation.execute(this);\n"
+                    + "            return operation.execute(this").append(CONTEXT_VALUE).append(");\n"
                     + "        } else {\n"
-                    + "            return ").append(chainedName).append(".execute(operation);\n"
+                    + "            return ").append(chainedName).append(".execute(operation").append(CONTEXT_VALUE).append(");\n"
                     + "        }\n");
         } else {
-            appender.append("        return operation.execute(this);\n");
+            appender.append("        return operation.execute(this").append(CONTEXT_VALUE).append(");\n");
         }
         appender.append("    }\n");
         
         if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
-                + "        throw new UnsupportedOperationException(\"Unsuported operation. Operation: \" + operation);\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "        throw new UnsupportedOperationException(\"Unsuported operation. Operation: \" + operation").append(context).append(");\n"
                 + "    }\n");
         }
     }
@@ -98,6 +134,6 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
         appender.append(operation.getMethodName());
         appender.append("(");
         appender.append(operation.getDataType().getSimpleName());
-        appender.append(" operation)");
+        appender.append(" operation").append(CONTEXT_PARAM).append(")");
     }
 }

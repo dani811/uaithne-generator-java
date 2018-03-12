@@ -27,11 +27,12 @@ public class ExecutorGroupTemplate extends ClassTemplate {
         setPackageName(packageName);
         setClassName("ExecutorGroup");
         setInterface(true);
+        addContextImport(packageName);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);");
+        appender.append("    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(");");
     }
     
 }

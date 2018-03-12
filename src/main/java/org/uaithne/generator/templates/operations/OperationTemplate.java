@@ -70,6 +70,7 @@ public class OperationTemplate extends PojoTemplate {
         setDeprecated(operation.isDeprecated());
         this.executorName = executorName;
         this.operation = operation;
+        addContextImport(packageName);
     }
 
     @Override
@@ -98,12 +99,12 @@ public class OperationTemplate extends PojoTemplate {
     void writeVisit(Appendable appender) throws IOException {
         String returnName = operation.getReturnDataType().getSimpleName();
         appender.append("    @Override\n"
-                + "    public ").append(returnName).append(" execute(Executor executor) {\n"
-                + "        return execute((").append(executorName).append(")executor);\n"
+                + "    public ").append(returnName).append(" execute(Executor executor").append(CONTEXT_PARAM).append(") {\n"
+                + "        return execute((").append(executorName).append(")executor").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n"
                 + "    \n"
-                + "    public ").append(returnName).append(" execute(").append(executorName).append(" executor) {\n"
-                + "        return executor.").append(operation.getMethodName()).append("(this);\n"
+                + "    public ").append(returnName).append(" execute(").append(executorName).append(" executor").append(CONTEXT_PARAM).append(") {\n"
+                + "        return executor.").append(operation.getMethodName()).append("(this").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         
         if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {

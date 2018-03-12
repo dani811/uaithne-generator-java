@@ -64,8 +64,10 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                 }
 
                 processClassTemplate(new SqlSessionProviderTemplate(packageName), element);
-                processClassTemplate(new ManagedSqlSessionProviderTemplate(packageName), element);
-                processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName), element);
+                if (getGenerationInfo().getContextParameterType() == null) {
+                    processClassTemplate(new ManagedSqlSessionProviderTemplate(packageName), element);
+                    processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName), element);
+                }
                 if (includeRetainIdPlugin) {
                     processClassTemplate(new RetainIdPluginTemplate(packageName), element);
                 }

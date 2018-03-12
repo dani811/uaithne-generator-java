@@ -29,10 +29,18 @@ public class MappedExecutorGroupTemplate_WithExecutorGroup extends ClassTemplate
         addImport(HASHMAP_DATA_TYPE, packageName);
         setClassName("MappedExecutorGroup");
         addImplement("ExecutorGroup");
+        addContextImport(packageName);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
+        String context;
+        if (HAS_CONTEXT) {
+            context = " +\n"
+                + "                    \"Context: \" + context";
+        } else {
+            context = "";
+        }
         appender.append("    private final HashMap<Object, ExecutorGroup> executorMap = new HashMap<Object, ExecutorGroup>();\n"
                 + "\n"
                 + "    public ExecutorGroup addExecutor(Executor executor) {\n"
@@ -81,15 +89,15 @@ public class MappedExecutorGroupTemplate_WithExecutorGroup extends ClassTemplate
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        ExecutorGroup executor = getExecutor(operation);\n"
                 + "        if (executor == null) {\n"
                 + "            throw new IllegalStateException(\"Unable to find a executor for the operation: \" +\n"
                 + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
                 + "                    \"'\" + operation.getExecutorSelector() + \"'. \" +\n"
-                + "                    \"Operation: \" + operation.toString());\n"
+                + "                    \"Operation: \" + operation").append(context).append(");\n"
                 + "        }\n"
-                + "        return executor.execute(operation);\n"
+                + "        return executor.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n"
                 + "\n"
                 + "    public MappedExecutorGroup() {\n"

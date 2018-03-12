@@ -27,6 +27,7 @@ public class PostOperationExecutorGroupTemplate extends ClassTemplate {
         setPackageName(packageName);
         setClassName("PostOperationExecutorGroup");
         addImplement("ExecutorGroup");
+        addContextImport(packageName);
     }
     
     @Override
@@ -41,8 +42,8 @@ public class PostOperationExecutorGroupTemplate extends ClassTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
-                + "        RESULT result = chainedExecutorGroup.execute(operation);\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "        RESULT result = chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "        return operation.executePostOperation(result);\n"
                 + "    }\n"
                 + "\n"

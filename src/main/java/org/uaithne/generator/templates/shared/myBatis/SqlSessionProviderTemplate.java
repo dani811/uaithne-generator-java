@@ -26,13 +26,24 @@ public class SqlSessionProviderTemplate extends ClassTemplate {
     public SqlSessionProviderTemplate(String packageName) {
         setPackageName(packageName);
         addImport("org.apache.ibatis.session.SqlSession", packageName);
+        if (HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT) {
+            addImport(getGenerationInfo().getApplicationParameterType(), packageName);
+        }
         setClassName("SqlSessionProvider");
         setInterface(true);
+        addContextImport(packageName);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    public SqlSession getSqlSession();");
+        if (HAS_CONTEXT) {
+            appender.append("    public SqlSession getSqlSession(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context);");
+        } else {
+            appender.append("    public SqlSession getSqlSession();");
+        }
+        if (HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT) {
+            appender.append("\n    public ").append(getGenerationInfo().getApplicationParameterType().getSimpleName()).append(" getApplicationParameter(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context);");
+        }
     }
     
 }

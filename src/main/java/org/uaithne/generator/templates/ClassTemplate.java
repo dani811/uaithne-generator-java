@@ -30,6 +30,10 @@ import org.uaithne.generator.commons.Utils;
 public abstract class ClassTemplate {
     public static final String RESULT_BASE_DEFINITION = "RESULT";
     public static final String OPERATION_BASE_DEFINITION = "<RESULT, OPERATION extends Operation<RESULT>>";
+    public static final String CONTEXT_PARAM;
+    public static final String CONTEXT_VALUE;
+    public static final boolean HAS_CONTEXT;
+    public static final boolean HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT;
     private String packageName;
     private String className;
     private String extend;
@@ -40,6 +44,29 @@ public abstract class ClassTemplate {
     private boolean isInterface;
     private boolean isAbstract;
     private boolean isDeprecated;
+    
+    static {
+        DataTypeInfo context = getGenerationInfo().getContextParameterType();
+        if (context == null) {
+            CONTEXT_PARAM = "";
+            CONTEXT_VALUE = "";
+            HAS_CONTEXT = false;
+            HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT = false;
+        } else {
+            CONTEXT_PARAM = ", " + context.getSimpleName() + " context";
+            CONTEXT_VALUE = ", context";
+            HAS_CONTEXT = true;
+            
+            DataTypeInfo applicationParameter = getGenerationInfo().getApplicationParameterType();
+            if (applicationParameter == null) {
+                HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT = false;
+            } else if (context.getQualifiedName().equals(applicationParameter.getQualifiedName())) {
+                HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT = false;
+            } else {
+                HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT = true;
+            }
+        }
+    }
 
     public String getPackageName() {
         return packageName;
@@ -83,6 +110,13 @@ public abstract class ClassTemplate {
     
     public void addImport(DataTypeInfo dataType, String currentPackage) {
         dataType.appendImports(currentPackage, imports);
+    }
+    
+    public void addContextImport(String currentPackage) {
+        DataTypeInfo context = getGenerationInfo().getContextParameterType();
+        if (context != null) {
+            addImport(context, currentPackage);
+        }
     }
 
     public String[] getDocumentation() {

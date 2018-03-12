@@ -35,6 +35,7 @@ public class ChainedExecutorTemplate extends ExecutorModuleTemplate {
         setClassName(executorModule.getNameUpper() + "ChainedExecutor");        
         addImplement(executorModule.getExecutorInterfaceName());
         setExecutorModule(executorModule);
+        addContextImport(packageName);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class ChainedExecutorTemplate extends ExecutorModuleTemplate {
                     + "    @Override\n");
             writeOperationMethodHeader(appender, operation);
             appender.append(" {\n"
-                    + "        return chainedExecutor.execute(operation);\n"
+                    + "        return chainedExecutor.execute(operation").append(CONTEXT_VALUE).append(");\n"
                     + "    }\n");
         }
         appender.append("\n"

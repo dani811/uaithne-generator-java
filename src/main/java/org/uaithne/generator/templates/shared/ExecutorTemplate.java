@@ -31,6 +31,7 @@ public class ExecutorTemplate extends ClassTemplate {
             setExtend("ExecutorGroup");
         }
         setInterface(true);
+        addContextImport(packageName);
     }
     
     @Override
@@ -40,12 +41,12 @@ public class ExecutorTemplate extends ClassTemplate {
         appender.append("    public Object getExecutorSelector();");
         if (!generationInfo.isExecutorExtendsExecutorGroup()) {
             appender.append("\n\n"
-                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation);");
+                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(");");
         }
         
         if (generationInfo.isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation);");
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation").append(CONTEXT_PARAM).append(");");
         }
     }
     

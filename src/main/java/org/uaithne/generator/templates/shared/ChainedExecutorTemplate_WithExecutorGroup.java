@@ -28,6 +28,7 @@ public class ChainedExecutorTemplate_WithExecutorGroup extends ClassTemplate {
         setPackageName(packageName);
         setClassName("ChainedExecutor");
         addImplement("Executor");
+        addContextImport(packageName);
     }
     
     @Override
@@ -49,15 +50,15 @@ public class ChainedExecutorTemplate_WithExecutorGroup extends ClassTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation) {\n"
-                + "        return chainedExecutor.execute(operation);\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "        return chainedExecutor.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         
         if (getGenerationInfo().isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation) {\n"
-                + "        return execute(operation);\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "        return execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         }
         

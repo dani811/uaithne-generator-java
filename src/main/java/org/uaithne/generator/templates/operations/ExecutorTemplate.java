@@ -34,6 +34,7 @@ public class ExecutorTemplate extends ExecutorModuleTemplate {
         setExecutorModule(executorModule);
         addImplement("Executor");
         setInterface(true);
+        addContextImport(packageName);
     }
     
     @Override

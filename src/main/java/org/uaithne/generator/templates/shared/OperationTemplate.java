@@ -31,12 +31,13 @@ public class OperationTemplate extends ClassTemplate {
         addGenericArgument(RESULT_BASE_DEFINITION);
         addImplement(SERIALIZABLE_DATA);
         setInterface(true);
+        addContextImport(packageName);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         appender.append("    public Object getExecutorSelector();\n"
-                + "    public RESULT execute(Executor executor);");
+                + "    public RESULT execute(Executor executor").append(CONTEXT_PARAM).append(");");
         if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
             appender.append("\n"
                 + "    public RESULT executePostOperation(RESULT result);");
