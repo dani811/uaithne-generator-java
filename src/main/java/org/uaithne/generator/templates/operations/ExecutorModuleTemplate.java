@@ -54,7 +54,7 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
             context = "";
         }
         appender.append("    @Override\n"
-            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n");
+            + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n");
         if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
             appender.append("        if (operation.getExecutorSelector() == ").append(getExecutorModule().getExecutorInterfaceName()).append(".SELECTOR) {\n");
             if (setContext && HAS_CONTEXT) {
@@ -68,12 +68,18 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
             } else {
                 appender.append("            return operation.execute(this").append(CONTEXT_VALUE).append(");\n");
             }
-            appender.append("        } else {\n"
-                    + "            throw new IllegalStateException(\"Unable to handle the operation: \" +\n"
-                    + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
-                    + "                    \"'\" + operation.getExecutorSelector() + \"'. \" +\n"
-                    + "                    \"Operation: \" + operation").append(contextNewLine).append(");\n"
-                    + "        }\n");
+            appender.append("        } else {\n");
+            if (ERROR_MANAGEMENT) {
+                appender.append("            throw new IllegalStateException(\"Unable to handle the operation: \" +\n"
+                        + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
+                        + "                    \"'\" + operation.getExecutorSelector() + \"'\");\n");
+            } else {
+                appender.append("            throw new IllegalStateException(\"Unable to handle the operation: \" +\n"
+                        + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
+                        + "                    \"'\" + operation.getExecutorSelector() + \"'. \" +\n"
+                        + "                    \"Operation: \" + operation").append(contextNewLine).append(");\n");
+            }
+            appender.append("        }\n");
         } else {
             if (setContext && HAS_CONTEXT) {
                 appender.append(""
@@ -106,7 +112,7 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
             context = "";
         }
         appender.append("    @Override\n"
-            + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n");
+            + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n");
         if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
             appender.append("        if (operation.getExecutorSelector() == ").append(getExecutorModule().getExecutorInterfaceName()).append(".SELECTOR) {\n"
                     + "            return operation.execute(this").append(CONTEXT_VALUE).append(");\n"
@@ -127,8 +133,19 @@ public abstract class ExecutorModuleTemplate extends WithFieldsTemplate {
         }
     }
     
+    protected void writeAbstractOperationMethodHeader(Appendable appender, OperationInfo operation) throws IOException {
+        appender.append("    ").append(EXECUTE_OPERATION_VISIBILITY);
+        appender.append("abstract ");
+        appender.append(operation.getReturnDataType().getSimpleName());
+        appender.append(" ");
+        appender.append(operation.getMethodName());
+        appender.append("(");
+        appender.append(operation.getDataType().getSimpleName());
+        appender.append(" operation").append(CONTEXT_PARAM).append(")");
+    }
+    
     protected void writeOperationMethodHeader(Appendable appender, OperationInfo operation) throws IOException {
-        appender.append("    public ");
+        appender.append("    ").append(EXECUTE_OPERATION_VISIBILITY);
         appender.append(operation.getReturnDataType().getSimpleName());
         appender.append(" ");
         appender.append(operation.getMethodName());

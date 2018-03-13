@@ -26,7 +26,11 @@ public class ChainedExecutorGroupTemplate extends ClassTemplate {
     public ChainedExecutorGroupTemplate(String packageName) {
         setPackageName(packageName);
         setClassName("ChainedExecutorGroup");
-        addImplement("ExecutorGroup");
+        if (ERROR_MANAGEMENT) {
+            setExtend("ExecutorGroup");
+        } else {
+            addImplement("ExecutorGroup");
+        }
         addContextImport(packageName);
     }
     
@@ -42,7 +46,7 @@ public class ChainedExecutorGroupTemplate extends ClassTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        return chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n"
                 + "\n"

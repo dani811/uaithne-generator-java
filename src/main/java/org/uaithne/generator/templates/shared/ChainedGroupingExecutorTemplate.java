@@ -26,7 +26,11 @@ public class ChainedGroupingExecutorTemplate extends ClassTemplate {
     public ChainedGroupingExecutorTemplate(String packageName) {
         setPackageName(packageName);
         setClassName("ChainedGroupingExecutor");
-        addImplement("Executor");
+        if (ERROR_MANAGEMENT) {
+            setExtend("Executor");
+        } else {
+            addImplement("Executor");
+        }
         addContextImport(packageName);
     }
     
@@ -48,7 +52,7 @@ public class ChainedGroupingExecutorTemplate extends ClassTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        return chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         

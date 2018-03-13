@@ -29,7 +29,11 @@ public class AbstractExecutorTemplate extends ExecutorModuleTemplate {
         addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName(executorModule.getNameUpper() + "AbstractExecutor");
         setExecutorModule(executorModule);
-        addImplement(executorModule.getExecutorInterfaceName());
+        if (ERROR_MANAGEMENT) {
+            setExtend(executorModule.getExecutorInterfaceName());
+        } else {
+            addImplement(executorModule.getExecutorInterfaceName());
+        }
         setAbstract(true);
         addContextImport(packageName);
     }

@@ -30,9 +30,13 @@ import org.uaithne.generator.commons.Utils;
 public abstract class ClassTemplate {
     public static final String RESULT_BASE_DEFINITION = "RESULT";
     public static final String OPERATION_BASE_DEFINITION = "<RESULT, OPERATION extends Operation<RESULT>>";
+    public static final String EXECUTE_ANY;
+    public static final String EXECUTE_ANY_VISIBILITY;
+    public static final String EXECUTE_OPERATION_VISIBILITY;
     public static final String CONTEXT_PARAM;
     public static final String CONTEXT_VALUE;
     public static final String CONTEXT_TYPE;
+    public static final boolean ERROR_MANAGEMENT;
     public static final boolean HAS_CONTEXT;
     public static final boolean HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT;
     private String packageName;
@@ -48,6 +52,18 @@ public abstract class ClassTemplate {
     
     static {
         GenerationInfo generationInfo = getGenerationInfo();
+        if (generationInfo.isErrorManagementEnabled()) {
+            EXECUTE_ANY = "executeAnyOperation";
+            EXECUTE_ANY_VISIBILITY = "protected ";
+            EXECUTE_OPERATION_VISIBILITY = "protected ";
+            ERROR_MANAGEMENT = true;
+        } else {
+            EXECUTE_ANY = "execute";
+            EXECUTE_ANY_VISIBILITY = "public ";
+            EXECUTE_OPERATION_VISIBILITY = "public ";
+            ERROR_MANAGEMENT = false;
+        }
+        
         DataTypeInfo context = generationInfo.getContextParameterType();
         if (context == null) {
             CONTEXT_PARAM = "";

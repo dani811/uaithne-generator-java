@@ -221,6 +221,8 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     if (!contextParameterType.isVoid()) {
                         generationInfo.setContextParameterType(contextParameterType);
                     }
+                    
+                    generationInfo.setErrorManagementEnabled(configuration.enableErrorManagement());
                 }
             }
         }

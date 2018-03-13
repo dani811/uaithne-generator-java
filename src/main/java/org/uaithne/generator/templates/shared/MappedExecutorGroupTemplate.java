@@ -28,7 +28,11 @@ public class MappedExecutorGroupTemplate extends ClassTemplate {
         setPackageName(packageName);
         addImport(HASHMAP_DATA_TYPE, packageName);
         setClassName("MappedExecutorGroup");
-        addImplement("ExecutorGroup");
+        if (ERROR_MANAGEMENT) {
+            setExtend("ExecutorGroup");
+        } else {
+            addImplement("ExecutorGroup");
+        }
         addContextImport(packageName);
     }
     
@@ -67,14 +71,20 @@ public class MappedExecutorGroupTemplate extends ClassTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        Executor executor = getExecutor(operation);\n"
-                + "        if (executor == null) {\n"
-                + "            throw new IllegalStateException(\"Unable to find a executor for the operation: \" +\n"
-                + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
-                + "                    \"'\" + operation.getExecutorSelector() + \"'. \" +\n"
-                + "                    \"Operation: \" + operation").append(context).append(");\n"
-                + "        }\n"
+                + "        if (executor == null) {\n");
+        if (ERROR_MANAGEMENT) {
+            appender.append("            throw new IllegalStateException(\"Unable to find a executor for the operation: \" +\n"
+                    + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
+                    + "                    \"'\" + operation.getExecutorSelector() + \"'\");\n");
+        } else {
+            appender.append("            throw new IllegalStateException(\"Unable to find a executor for the operation: \" +\n"
+                    + "                    \"'\" + operation.getClass().getName() + \"', expected executor selector: \" +\n"
+                    + "                    \"'\" + operation.getExecutorSelector() + \"'. \" +\n"
+                    + "                    \"Operation: \" + operation").append(context).append(");\n");
+        }
+        appender.append("        }\n"
                 + "        return executor.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n"
                 + "\n"

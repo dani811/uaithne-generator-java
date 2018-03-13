@@ -32,8 +32,12 @@ public class ChainedExecutorTemplate extends ExecutorModuleTemplate {
         if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
             addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
         }
-        setClassName(executorModule.getNameUpper() + "ChainedExecutor");        
-        addImplement(executorModule.getExecutorInterfaceName());
+        setClassName(executorModule.getNameUpper() + "ChainedExecutor"); 
+        if (ERROR_MANAGEMENT) {
+            setExtend(executorModule.getExecutorInterfaceName());
+        } else {
+            addImplement(executorModule.getExecutorInterfaceName());
+        }
         setExecutorModule(executorModule);
         addContextImport(packageName);
     }

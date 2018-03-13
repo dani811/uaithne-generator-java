@@ -30,24 +30,50 @@ public class ExecutorTemplate extends ClassTemplate {
         if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
             setExtend("ExecutorGroup");
         }
-        setInterface(true);
+        if (ERROR_MANAGEMENT) {
+            setAbstract(true);
+        } else {
+            setInterface(true);
+        }
         addContextImport(packageName);
     }
-    
+
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         GenerationInfo generationInfo = getGenerationInfo();
-        
-        appender.append("    public Object getExecutorSelector();");
-        if (!generationInfo.isExecutorExtendsExecutorGroup()) {
-            appender.append("\n\n"
-                    + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(");");
+        String modifier;
+        if (ERROR_MANAGEMENT) {
+            modifier = "abstract ";
+        } else {
+            modifier = "";
         }
-        
+        appender.append("    public ").append(modifier).append("Object getExecutorSelector();");
+        if (!generationInfo.isExecutorExtendsExecutorGroup()) {
+            if (ERROR_MANAGEMENT) {
+                appender.append("\n\n"
+                        + "    public final ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                        + "        try {\n"
+                        + "            return executeAnyOperation(operation").append(CONTEXT_VALUE).append(");\n"
+                        + "        } catch (OperationExecutionException ex) {\n"
+                        + "            if (ex.sameContent(operation").append(CONTEXT_VALUE).append(")) {\n"
+                        + "                throw ex;\n"
+                        + "            }\n"
+                        + "            throw new OperationExecutionException(operation").append(CONTEXT_VALUE).append(", ex);\n"
+                        + "        } catch (PublicException ex) {\n"
+                        + "            throw ex;\n"
+                        + "        } catch (Exception ex) {\n"
+                        + "            throw new OperationExecutionException(operation").append(CONTEXT_VALUE).append(", ex);\n"
+                        + "        }\n"
+                        + "    }");
+            }
+            appender.append("\n\n"
+                    + "    ").append(EXECUTE_ANY_VISIBILITY).append(modifier).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(");");
+        }
+
         if (generationInfo.isIncludeExecuteOtherMethodInExecutors()) {
             appender.append("\n\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation").append(CONTEXT_PARAM).append(");");
+                    + "    public ").append(modifier).append(OPERATION_BASE_DEFINITION).append(" RESULT executeOther(OPERATION operation").append(CONTEXT_PARAM).append(");");
         }
     }
-    
+
 }

@@ -26,13 +26,39 @@ public class ExecutorGroupTemplate extends ClassTemplate {
     public ExecutorGroupTemplate(String packageName) {
         setPackageName(packageName);
         setClassName("ExecutorGroup");
-        setInterface(true);
+        if (ERROR_MANAGEMENT) {
+            setAbstract(true);
+        } else {
+            setInterface(true);
+        }
         addContextImport(packageName);
     }
-    
+
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(");");
+        String modifier;
+        if (ERROR_MANAGEMENT) {
+            modifier = "abstract ";
+
+            appender.append(""
+                    + "    public final ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                    + "        try {\n"
+                    + "            return executeAnyOperation(operation").append(CONTEXT_VALUE).append(");\n"
+                    + "        } catch (OperationExecutionException ex) {\n"
+                    + "            if (ex.sameContent(operation").append(CONTEXT_VALUE).append(")) {\n"
+                    + "                throw ex;\n"
+                    + "            }\n"
+                    + "            throw new OperationExecutionException(operation").append(CONTEXT_VALUE).append(", ex);\n"
+                    + "        } catch (PublicException ex) {\n"
+                    + "            throw ex;\n"
+                    + "        } catch (Exception ex) {\n"
+                    + "            throw new OperationExecutionException(operation").append(CONTEXT_VALUE).append(", ex);\n"
+                    + "        }\n"
+                    + "    }\n\n");
+        } else {
+            modifier = "";
+        }
+        appender.append("    ").append(EXECUTE_ANY_VISIBILITY).append(modifier).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(");");
     }
-    
+
 }

@@ -31,7 +31,11 @@ public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
         addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
         addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
         setClassName(executorModule.getNameUpper() + "ChainedGroupingExecutor");
-        addImplement(executorModule.getExecutorInterfaceName());
+        if (ERROR_MANAGEMENT) {
+            setExtend(executorModule.getExecutorInterfaceName());
+        } else {
+            addImplement(executorModule.getExecutorInterfaceName());
+        }
         setExecutorModule(executorModule);
         addContextImport(packageName);
     }
@@ -47,7 +51,7 @@ public class ChainedGroupingExecutorTemplate extends ExecutorModuleTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        return operation.execute(this").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         

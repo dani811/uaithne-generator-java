@@ -62,7 +62,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
     public void setUnimplementedOperations(boolean hasUnimplementedOperations) {
         this.hasUnimplementedOperations = hasUnimplementedOperations;
     }
-    
+
     public MyBatisTemplate(ExecutorModuleInfo executorModule, String packageName, String className, String namespace, boolean useAliasInOrderBy, boolean hasUnimplementedOperations) {
         setPackageName(packageName);
         addImport(OPERATION_DATA_TYPE, packageName);
@@ -74,7 +74,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         }
         if (executorModule.isContainPagedOperations()) {
             addImport(PAGE_INFO_DATA_TYPE, packageName);
-            addImport(LIST_DATA_TYPE, packageName);            
+            addImport(LIST_DATA_TYPE, packageName);
         }
         addImport(MYBATIS_SQL_SESSION_PROVIDER_DATA_TYPE, packageName);
         for (OperationInfo operation : executorModule.getOperations()) {
@@ -153,7 +153,11 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         }
         setClassName(className);
         setExecutorModule(executorModule);
-        addImplement(executorModule.getExecutorInterfaceName());
+        if (ERROR_MANAGEMENT) {
+            setExtend(executorModule.getExecutorInterfaceName());
+        } else {
+            addImplement(executorModule.getExecutorInterfaceName());
+        }
         setAbstract(hasUnimplementedOperations);
         this.namespace = namespace;
         this.useAliasInOrderBy = useAliasInOrderBy;
@@ -178,22 +182,22 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         appender.append("    private SqlSessionProvider provider;\n");
         if (HAS_CONTEXT) {
             appender.append("\n"
-                + "    public SqlSession getSession(").append(CONTEXT_TYPE).append(" context) {\n"
-                + "        return provider.getSqlSession(context);\n"
-                + "    }\n"
-                + "\n");
+                    + "    protected SqlSession getSession(").append(CONTEXT_TYPE).append(" context) {\n"
+                    + "        return provider.getSqlSession(context);\n"
+                    + "    }\n"
+                    + "\n");
         } else {
             appender.append("\n"
-                + "    public SqlSession getSession() {\n"
-                + "        return provider.getSqlSession();\n"
-                + "    }\n"
-                + "\n");
+                    + "    protected SqlSession getSession() {\n"
+                    + "        return provider.getSqlSession();\n"
+                    + "    }\n"
+                    + "\n");
         }
-        
+
         GenerationInfo generationInfo = getGenerationInfo();
-        
+
         if (HAS_CONTEXT && generationInfo.getApplicationParameterType() != null) {
-            appender.append("    public void setContext(").append(CONTEXT_TYPE).append(" context) {\n");
+            appender.append("    protected void setContext(").append(CONTEXT_TYPE).append(" context) {\n");
             if (HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT) {
                 appender.append("        ApplicationParameterDriver.setApplicationParameter(getSession(context), provider.getApplicationParameter(context));\n");
             } else {
@@ -201,7 +205,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             }
             appender.append("    }\n"
                     + "\n"
-                    + "    public void clearContext(").append(CONTEXT_TYPE).append(" context) {\n"
+                    + "    protected void clearContext(").append(CONTEXT_TYPE).append(" context) {\n"
                     + "        ApplicationParameterDriver.setApplicationParameter(getSession(context), null);\n"
                     + "    }\n"
                     + "\n");
@@ -218,12 +222,12 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         } else {
             context = "";
         }
-        
+
         for (OperationInfo operation : getExecutorModule().getOperations()) {
             if (operation.isManually() || operation.getOperationKind() == OperationKind.CUSTOM) {
                 continue;
             }
-            
+
             appender.append("\n");
 
             if (operation.getOperationKind() == OperationKind.INSERT && operation.getInsertedIdOrigin() == InsertedIdOrigin.QUERY) {
@@ -234,7 +238,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             }
 
             OperationKind operationKind = operation.getOperationKind();
-            
+
             appender.append("    @Override\n");
             if (operationKind.isComplexCall()) {
                 writeComplexCallMethodHeader(appender, operation);
@@ -292,7 +296,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     break;
                 }
                 case INSERT: {
-                    appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n" 
+                    appender.append("        ").append(operation.getEntity().getDataType().getSimpleName()).append(" value = operation.getValue();\n"
                             + "        SqlSession session = getSession(").append(context).append(");\n"
                             + "        int i = session.insert(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "        if (i == 1) {\n");
@@ -318,9 +322,13 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         }
                     }
                     appender.append("            return result;\n"
-                            + "        } else {\n"
-                            + "            throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
-                            + "        }\n");
+                            + "        } else {\n");
+                    if (ERROR_MANAGEMENT) {
+                        appender.append("            throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Insertion result: \" + i);\n");
+                    } else {
+                        appender.append("            throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n");
+                    }
+                    appender.append("        }\n");
                     break;
                 }
                 case JUST_INSERT: {
@@ -356,17 +364,25 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         }
                     }
                     appender.append("                return result;\n"
-                            + "            } else {\n"
-                            + "                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n"
-                            + "            }\n"
+                            + "            } else {\n");
+                    if (ERROR_MANAGEMENT) {
+                        appender.append("                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Insertion result: \" + i);\n");
+                    } else {
+                        appender.append("                throw new IllegalStateException(\"Unable to insert a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Insertion result: \" + i);\n");
+                    }
+                    appender.append("            }\n"
                             + "        } else {\n"
                             + "            int i = getSession(").append(context).append(").update(\"").append(operation.getQueryId()).append("\", value);\n"
                             + "            if (i == 1) {\n"
                             + "                ").append(returnTypeName).append(" result = value.get").append(operation.getEntity().getCombined().getFirstIdField().getCapitalizedName()).append("();\n"
                             + "                return result;\n"
-                            + "            } else {\n"
-                            + "                throw new IllegalStateException(\"Unable to update a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Update result: \" + i);\n"
-                            + "            }\n"
+                            + "            } else {\n");
+                    if (ERROR_MANAGEMENT) {
+                        appender.append("                throw new IllegalStateException(\"Unable to update a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Update result: \" + i);\n");
+                    } else {
+                        appender.append("                throw new IllegalStateException(\"Unable to update a ").append(operation.getEntity().getDataType().getSimpleName()).append(". Operation: \" + operation + \". Update result: \" + i);\n");
+                    }
+                    appender.append("            }\n"
                             + "        }\n");
                     break;
                 }
@@ -410,7 +426,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     appender.append("        SqlSession session = getSession(").append(context).append(");\n"
                             + "        int i = session.insert(\"").append(operation.getQueryId()).append("\", operation);\n"
                             + "        if (i == 1) {\n");
-                    
+
                     FieldInfo idField = operation.getEntity().getCombined().getFirstIdField();
                     InsertedIdOrigin idOrigin = operation.getInsertedIdOrigin();
                     if (idOrigin == InsertedIdOrigin.FIELD) {
@@ -433,9 +449,13 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                         }
                     }
                     appender.append("            return result;\n"
-                            + "        } else {\n"
-                            + "            throw new IllegalStateException(\"Unable to insert. Operation: \" + operation + \". Insertion result: \" + i);\n"
-                            + "        }\n");
+                            + "        } else {\n");
+                    if (ERROR_MANAGEMENT) {
+                        appender.append("            throw new IllegalStateException(\"Unable to insert. Insertion result: \" + i);\n");
+                    } else {
+                        appender.append("            throw new IllegalStateException(\"Unable to insert. Operation: \" + operation + \". Insertion result: \" + i);\n");
+                    }
+                    appender.append("        }\n");
                     break;
                 }
                 case MERGE: {
@@ -563,7 +583,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         appender.append("        }\n");
         indentation = "        ";
     }
-    
+
     void writeComplexCallMethodHeader(Appendable appender, OperationInfo operation) throws IOException {
         appender.append("    public ");
         appender.append(operation.getReturnDataType().getSimpleName());
@@ -573,7 +593,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         appender.append(operation.getDataType().getSimpleName());
         appender.append(" _operation)");
     }
-    
+
     void writeComplexCallBody(Appendable appender, OperationInfo operation, String myBatisMethod) throws IOException {
         String returnTypeName = operation.getReturnDataType().getSimpleName();
         appender.append(indentation).append("class Wrapper {\n");
@@ -584,7 +604,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         } else {
             appender.append(";\n");
         }
-        
+
         GenerationInfo generationInfo = getGenerationInfo();
         EntityInfo resultEntity = operation.getEntity();
         if (resultEntity != null) {
@@ -605,11 +625,11 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 if (!fieldDataType.equals(operationField.getDataType())) {
                     continue;
                 }
-                
+
                 writeJoinFieldGetterAndSetter(appender, resultField, null, generationInfo);
                 processedFields.add(resultField.getName());
             }
-            
+
             for (FieldInfo operationField : operation.getFields()) {
                 if (processedFields.contains(operationField.getName())) {
                     continue;
@@ -619,7 +639,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     continue;
                 }
                 operationFieldEntity = operationFieldEntity.getCombined();
-             
+
                 for (FieldInfo field : operationFieldEntity.getFields()) {
                     if (processedFields.contains(field.getName())) {
                         continue;
@@ -647,7 +667,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         }
         appender.append(indentation).append("return wrapper.result;\n");
     }
-    
+
     void writeJoinFieldGetterAndSetter(Appendable appender, FieldInfo field, FieldInfo getter, GenerationInfo generationInfo) throws IOException {
         DataTypeInfo fieldDataType = field.getDataType();
         String getterPrefix = fieldDataType.getGetterPrefix(generationInfo);

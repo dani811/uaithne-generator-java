@@ -51,4 +51,5 @@ public @interface UaithneConfiguration {
     @Deprecated
     boolean executorExtendsExecutorGroup() default true;
     boolean booleanObjectGetterWithIs() default true;
+    boolean enableErrorManagement() default true;
 }

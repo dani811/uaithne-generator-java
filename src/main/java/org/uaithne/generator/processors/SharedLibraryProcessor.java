@@ -49,9 +49,11 @@ import org.uaithne.generator.templates.shared.LoggedExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.MappedExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.MappedExecutorGroupTemplate_WithExecutorGroup;
 import org.uaithne.generator.templates.shared.MergeValueOperationTemplate;
+import org.uaithne.generator.templates.shared.OperationExecutionExceptionTemplate;
 import org.uaithne.generator.templates.shared.OperationTemplate;
 import org.uaithne.generator.templates.shared.PostOperationExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.PostOperationExecutorTemplate;
+import org.uaithne.generator.templates.shared.PublicExceptionTemplate;
 import org.uaithne.generator.templates.shared.SaveValueOperationTemplate;
 import org.uaithne.generator.templates.shared.SelectByIdOperationTemplate;
 import org.uaithne.generator.templates.shared.UpdateValueOperationTemplate;
@@ -109,6 +111,11 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 }
                 processClassTemplate(new DataPageTemplate(packageName), element);
                 processClassTemplate(new DataPageRequestTemplate(packageName), element);
+                
+                if (generationInfo.isErrorManagementEnabled()) {
+                    processClassTemplate(new OperationExecutionExceptionTemplate(packageName), element);
+                    processClassTemplate(new PublicExceptionTemplate(packageName), element);
+                }
             }
         }
         return true; // no further processing of this annotation type

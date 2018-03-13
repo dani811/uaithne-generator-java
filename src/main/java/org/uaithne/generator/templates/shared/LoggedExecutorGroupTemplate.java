@@ -28,7 +28,11 @@ public class LoggedExecutorGroupTemplate extends ClassTemplate {
         addImport("java.util.logging.Level", packageName);
         addImport("java.util.logging.Logger", packageName);
         setClassName("LoggedExecutorGroup");
-        addImplement("ExecutorGroup");
+        if (ERROR_MANAGEMENT) {
+            setExtend("ExecutorGroup");
+        } else {
+            addImplement("ExecutorGroup");
+        }
         addContextImport(packageName);
     }
     
@@ -45,7 +49,7 @@ public class LoggedExecutorGroupTemplate extends ClassTemplate {
                 + "    private String shortName;\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        boolean fineLevelEnabled = logger.isLoggable(Level.FINE);\n"
                 + "        try {\n"
                 + "            if (fineLevelEnabled) {\n"

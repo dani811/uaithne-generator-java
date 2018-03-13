@@ -61,6 +61,7 @@ public class GenerationInfo {
     private boolean includeExecutePostOperationInOperations;
     private boolean setResultingIdInOperationEnabled;
     private boolean executorExtendsExecutorGroup = true;
+    private boolean errorManagementEnabled = true;
 
     public GenerationInfo() {
         for (AnnotationConfigurationKeys key : AnnotationConfigurationKeys.values()) {
@@ -384,6 +385,14 @@ public class GenerationInfo {
 
     public void setUseIsInBooleanObjectGetter(boolean useIsInBooleanObjectGetter) {
         this.useIsInBooleanObjectGetter = useIsInBooleanObjectGetter;
+    }
+
+    public boolean isErrorManagementEnabled() {
+        return errorManagementEnabled;
+    }
+
+    public void setErrorManagementEnabled(boolean errorManagementEnabled) {
+        this.errorManagementEnabled = errorManagementEnabled;
     }
 
 }

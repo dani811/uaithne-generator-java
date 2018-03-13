@@ -32,8 +32,13 @@ public class ExecutorTemplate extends ExecutorModuleTemplate {
         setClassName(executorModule.getExecutorInterfaceName());
         setDocumentation(executorModule.getDocumentation());
         setExecutorModule(executorModule);
-        addImplement("Executor");
-        setInterface(true);
+        if (ERROR_MANAGEMENT) {
+            setAbstract(true);
+            setExtend("Executor");
+        } else {
+            setInterface(true);
+            addImplement("Executor");
+        }
         addContextImport(packageName);
     }
     
@@ -50,7 +55,11 @@ public class ExecutorTemplate extends ExecutorModuleTemplate {
                 }
                 appender.append("     */\n");
             }
-            writeOperationMethodHeader(appender, operation);
+            if (ERROR_MANAGEMENT) {
+                writeAbstractOperationMethodHeader(appender, operation);
+            } else {
+                writeOperationMethodHeader(appender, operation);
+            }
             appender.append(";");
         }
     }

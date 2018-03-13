@@ -26,7 +26,11 @@ public class ChainedExecutorTemplate extends ClassTemplate {
     public ChainedExecutorTemplate(String packageName) {
         setPackageName(packageName);
         setClassName("ChainedExecutor");
-        addImplement("Executor");
+        if (ERROR_MANAGEMENT) {
+            setExtend("Executor");
+        } else {
+            addImplement("Executor");
+        }
         addContextImport(packageName);
     }
     
@@ -48,7 +52,7 @@ public class ChainedExecutorTemplate extends ClassTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        return chainedExecutor.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
         
