@@ -37,12 +37,12 @@ public class SqlSessionProviderTemplate extends ClassTemplate {
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         if (HAS_CONTEXT) {
-            appender.append("    public SqlSession getSqlSession(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context);");
+            appender.append("    public SqlSession getSqlSession(").append(CONTEXT_TYPE).append(" context);");
         } else {
             appender.append("    public SqlSession getSqlSession();");
         }
         if (HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT) {
-            appender.append("\n    public ").append(getGenerationInfo().getApplicationParameterType().getSimpleName()).append(" getApplicationParameter(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context);");
+            appender.append("\n    public ").append(getGenerationInfo().getApplicationParameterType().getSimpleName()).append(" getApplicationParameter(").append(CONTEXT_TYPE).append(" context);");
         }
     }
     

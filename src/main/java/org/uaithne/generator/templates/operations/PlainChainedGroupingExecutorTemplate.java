@@ -56,7 +56,7 @@ public class PlainChainedGroupingExecutorTemplate extends ExecutorModuleTemplate
         
         String context;
         if (HAS_CONTEXT) {
-            appender.append("    protected abstract ").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" getContext();\n\n");
+            appender.append("    protected abstract ").append(CONTEXT_TYPE).append(" getContext();\n\n");
             context = ", getContext()";
         } else {
             context = "";

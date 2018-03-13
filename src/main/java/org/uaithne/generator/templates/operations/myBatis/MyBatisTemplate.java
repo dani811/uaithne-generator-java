@@ -178,7 +178,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         appender.append("    private SqlSessionProvider provider;\n");
         if (HAS_CONTEXT) {
             appender.append("\n"
-                + "    public SqlSession getSession(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context) {\n"
+                + "    public SqlSession getSession(").append(CONTEXT_TYPE).append(" context) {\n"
                 + "        return provider.getSqlSession(context);\n"
                 + "    }\n"
                 + "\n");
@@ -190,8 +190,10 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                 + "\n");
         }
         
-        if (HAS_CONTEXT && getGenerationInfo().getApplicationParameterType() != null) {
-            appender.append("    public void setContext(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context) {\n");
+        GenerationInfo generationInfo = getGenerationInfo();
+        
+        if (HAS_CONTEXT && generationInfo.getApplicationParameterType() != null) {
+            appender.append("    public void setContext(").append(CONTEXT_TYPE).append(" context) {\n");
             if (HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT) {
                 appender.append("        ApplicationParameterDriver.setApplicationParameter(getSession(context), provider.getApplicationParameter(context));\n");
             } else {
@@ -199,7 +201,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             }
             appender.append("    }\n"
                     + "\n"
-                    + "    public void clearContext(").append(getGenerationInfo().getContextParameterType().getSimpleName()).append(" context) {\n"
+                    + "    public void clearContext(").append(CONTEXT_TYPE).append(" context) {\n"
                     + "        ApplicationParameterDriver.setApplicationParameter(getSession(context), null);\n"
                     + "    }\n"
                     + "\n");
@@ -208,9 +210,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         writeGetExecutorSelector(appender);
         appender.append("\n");
 
-        writeExecuteMethods(appender, getGenerationInfo().getApplicationParameterType() != null);
-        
-        GenerationInfo generationInfo = getGenerationInfo();
+        writeExecuteMethods(appender, generationInfo.getApplicationParameterType() != null);
 
         String context;
         if (HAS_CONTEXT) {

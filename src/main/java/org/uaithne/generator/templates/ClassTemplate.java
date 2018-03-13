@@ -32,6 +32,7 @@ public abstract class ClassTemplate {
     public static final String OPERATION_BASE_DEFINITION = "<RESULT, OPERATION extends Operation<RESULT>>";
     public static final String CONTEXT_PARAM;
     public static final String CONTEXT_VALUE;
+    public static final String CONTEXT_TYPE;
     public static final boolean HAS_CONTEXT;
     public static final boolean HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT;
     private String packageName;
@@ -46,18 +47,21 @@ public abstract class ClassTemplate {
     private boolean isDeprecated;
     
     static {
-        DataTypeInfo context = getGenerationInfo().getContextParameterType();
+        GenerationInfo generationInfo = getGenerationInfo();
+        DataTypeInfo context = generationInfo.getContextParameterType();
         if (context == null) {
             CONTEXT_PARAM = "";
             CONTEXT_VALUE = "";
+            CONTEXT_TYPE = null;
             HAS_CONTEXT = false;
             HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT = false;
         } else {
             CONTEXT_PARAM = ", " + context.getSimpleName() + " context";
             CONTEXT_VALUE = ", context";
+            CONTEXT_TYPE = context.getSimpleName();
             HAS_CONTEXT = true;
             
-            DataTypeInfo applicationParameter = getGenerationInfo().getApplicationParameterType();
+            DataTypeInfo applicationParameter = generationInfo.getApplicationParameterType();
             if (applicationParameter == null) {
                 HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT = false;
             } else if (context.getQualifiedName().equals(applicationParameter.getQualifiedName())) {
