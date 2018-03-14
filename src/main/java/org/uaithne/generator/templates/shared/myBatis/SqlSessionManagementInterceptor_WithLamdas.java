@@ -22,28 +22,28 @@ import java.io.IOException;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.templates.ClassTemplate;
 
-public class ManagedSqlSessionExecutorGroupTemplate extends ClassTemplate {
+public class SqlSessionManagementInterceptor_WithLamdas extends ClassTemplate {
 
-    public ManagedSqlSessionExecutorGroupTemplate(String packageName) {
+    public SqlSessionManagementInterceptor_WithLamdas(String packageName) {
         setPackageName(packageName);
-        addImport(DataTypeInfo.CHAINED_EXECUTOR_GROUP_DATA_TYPE, packageName);
-        addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
+        addImport(DataTypeInfo.EXECUTOR_DATA_TYPE, packageName);
         addImport(DataTypeInfo.OPERATION_DATA_TYPE, packageName);
-        setClassName("ManagedSqlSessionExecutorGroup");
-        setExtend("ChainedExecutorGroup");
+        setClassName("SqlSessionManagementInterceptor");
+        setExtend("Executor");
         addContextImport(packageName);
+        setFinal(true);
     }
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    private ManagedSqlSessionProvider provider;\n"
+        appender.append("    private final ManagedSqlSessionProvider provider;\n"
                 + "\n"
                 + "    @Override\n"
                 + "    ").append(EXECUTE_ANY_VISIBILITY).append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        boolean maybeRollback = true;\n"
                 + "        try {\n"
                 + "            provider.beginSqlSessionLevel();\n"
-                + "            RESULT result = super.").append(EXECUTE_ANY).append("(operation").append(CONTEXT_VALUE).append(");\n"
+                + "            RESULT result = next.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "            maybeRollback = false;\n"
                 + "            return result;\n"
                 + "        } finally {\n"
@@ -51,11 +51,13 @@ public class ManagedSqlSessionExecutorGroupTemplate extends ClassTemplate {
                 + "        }\n"
                 + "    }\n"
                 + "\n"
-                + "    public ManagedSqlSessionExecutorGroup(ExecutorGroup chainedExecutorGroup, ManagedSqlSessionProvider provider) {\n"
-                + "        super(chainedExecutorGroup);\n"
-                + "        \n"
+                + "    public SqlSessionManagementInterceptor(Executor next, ManagedSqlSessionProvider provider) {\n"
+                + "        super(next);\n"
+                + "        if (next == null) {\n"
+                + "            throw new IllegalArgumentException(\"next for the SqlSessionManagementInterceptor cannot be null\");\n"
+                + "        }\n"
                 + "        if (provider == null) {\n"
-                + "            throw new IllegalArgumentException(\"provider for the ManagedSqlSessionExecutorGroup cannot be null\");\n"
+                + "            throw new IllegalArgumentException(\"provider for the SqlSessionManagementInterceptor cannot be null\");\n"
                 + "        }\n"
                 + "        this.provider = provider;\n"
                 + "    }");

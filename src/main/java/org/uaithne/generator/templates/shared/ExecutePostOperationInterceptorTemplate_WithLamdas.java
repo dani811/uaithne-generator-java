@@ -21,38 +21,30 @@ package org.uaithne.generator.templates.shared;
 import java.io.IOException;
 import org.uaithne.generator.templates.ClassTemplate;
 
-public class PostOperationExecutorGroupTemplate extends ClassTemplate {
+public class ExecutePostOperationInterceptorTemplate_WithLamdas extends ClassTemplate {
 
-    public PostOperationExecutorGroupTemplate(String packageName) {
+    public ExecutePostOperationInterceptorTemplate_WithLamdas(String packageName) {
         setPackageName(packageName);
-        setClassName("PostOperationExecutorGroup");
-        addImplement("ExecutorGroup");
+        setClassName("ExecutePostOperationInterceptor");
+        setExtend("Executor");
         addContextImport(packageName);
+        setFinal(true);
     }
-    
+
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    private ExecutorGroup chainedExecutorGroup;\n"
-                + "\n"
-                + "    /**\n"
-                + "     * @return the chainedExecutorGroup\n"
-                + "     */\n"
-                + "    public ExecutorGroup getChainedExecutorGroup() {\n"
-                + "        return chainedExecutorGroup;\n"
-                + "    }\n"
-                + "\n"
-                + "    @Override\n"
+        appender.append("    @Override\n"
                 + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
-                + "        RESULT result = chainedExecutorGroup.execute(operation").append(CONTEXT_VALUE).append(");\n"
+                + "        RESULT result = next.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "        return operation.executePostOperation(result);\n"
                 + "    }\n"
                 + "\n"
-                + "    public PostOperationExecutorGroup(ExecutorGroup chainedExecutorGroup) {\n"
-                + "        if (chainedExecutorGroup == null) {\n"
-                + "            throw new IllegalArgumentException(\"chainedExecutorGroup for the PostOperationExecutorGroup cannot be null\");\n"
+                + "    public ExecutePostOperationInterceptor(Executor next) {\n"
+                + "        super(next);\n"
+                + "        if (next == null) {\n"
+                + "            throw new IllegalArgumentException(\"next for the PostOperationExecutor cannot be null\");\n"
                 + "        }\n"
-                + "        this.chainedExecutorGroup = chainedExecutorGroup;\n"
                 + "    }");
     }
-    
+
 }

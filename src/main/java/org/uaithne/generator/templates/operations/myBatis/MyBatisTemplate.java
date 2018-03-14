@@ -65,9 +65,7 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
 
     public MyBatisTemplate(ExecutorModuleInfo executorModule, String packageName, String className, String namespace, boolean useAliasInOrderBy, boolean hasUnimplementedOperations) {
         setPackageName(packageName);
-        addImport(OPERATION_DATA_TYPE, packageName);
         addImport("org.apache.ibatis.session.SqlSession", packageName);
-        addImport(executorModule.getOperationPackage() + "." + executorModule.getExecutorInterfaceName(), packageName);
         executorModule.appendNotMannuallyDefinitionImports(packageName, getImport());
         if (executorModule.isContainOrderedOperations()) {
             addImport(HASHMAP_DATA_TYPE, packageName);
@@ -153,12 +151,19 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
         }
         setClassName(className);
         setExecutorModule(executorModule);
-        if (ERROR_MANAGEMENT) {
-            setExtend(executorModule.getExecutorInterfaceName());
+        if (LAMBADAS_ENABLED) {
+            addImport(EXECUTOR_DATA_TYPE, packageName);
+            setExtend("Executor");
         } else {
-            addImplement(executorModule.getExecutorInterfaceName());
+            addImport(OPERATION_DATA_TYPE, packageName);
+            addImport(executorModule.getOperationPackage() + "." + executorModule.getExecutorInterfaceName(), packageName);
+            setAbstract(hasUnimplementedOperations);
+            if (ERROR_MANAGEMENT) {
+                setExtend(executorModule.getExecutorInterfaceName());
+            } else {
+                addImplement(executorModule.getExecutorInterfaceName());
+            }
         }
-        setAbstract(hasUnimplementedOperations);
         this.namespace = namespace;
         this.useAliasInOrderBy = useAliasInOrderBy;
         this.hasUnimplementedOperations = hasUnimplementedOperations;
@@ -184,20 +189,18 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
             appender.append("\n"
                     + "    protected SqlSession getSession(").append(CONTEXT_TYPE).append(" context) {\n"
                     + "        return provider.getSqlSession(context);\n"
-                    + "    }\n"
-                    + "\n");
+                    + "    }\n");
         } else {
             appender.append("\n"
                     + "    protected SqlSession getSession() {\n"
                     + "        return provider.getSqlSession();\n"
-                    + "    }\n"
-                    + "\n");
+                    + "    }\n");
         }
 
         GenerationInfo generationInfo = getGenerationInfo();
 
         if (HAS_CONTEXT && generationInfo.getApplicationParameterType() != null) {
-            appender.append("    protected void setContext(").append(CONTEXT_TYPE).append(" context) {\n");
+            appender.append("\n    protected void setContext(").append(CONTEXT_TYPE).append(" context) {\n");
             if (HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT) {
                 appender.append("        ApplicationParameterDriver.setApplicationParameter(getSession(context), provider.getApplicationParameter(context));\n");
             } else {
@@ -207,14 +210,15 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     + "\n"
                     + "    protected void clearContext(").append(CONTEXT_TYPE).append(" context) {\n"
                     + "        ApplicationParameterDriver.setApplicationParameter(getSession(context), null);\n"
-                    + "    }\n"
-                    + "\n");
+                    + "    }\n");
         }
 
-        writeGetExecutorSelector(appender);
-        appender.append("\n");
-
-        writeExecuteMethods(appender, generationInfo.getApplicationParameterType() != null);
+        if (!LAMBADAS_ENABLED) {
+            appender.append("\n");
+            writeGetExecutorSelector(appender);
+            appender.append("\n");
+            writeExecuteMethods(appender, generationInfo.getApplicationParameterType() != null);
+        }
 
         String context;
         if (HAS_CONTEXT) {
@@ -239,7 +243,9 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
 
             OperationKind operationKind = operation.getOperationKind();
 
-            appender.append("    @Override\n");
+            if (!LAMBADAS_ENABLED) {
+                appender.append("    @Override\n");
+            }
             if (operationKind.isComplexCall()) {
                 writeComplexCallMethodHeader(appender, operation);
             } else {
@@ -526,12 +532,33 @@ public class MyBatisTemplate extends ExecutorModuleTemplate {
                     + "\n");
         }
 
-        appender.append("    public ").append(getClassName()).append("(SqlSessionProvider provider) {\n"
-                + "        if (provider == null) {\n"
+        if (LAMBADAS_ENABLED) {
+            appender.append("    public ").append(getClassName()).append("(SqlSessionProvider provider) {\n"
+                    + "        this(null, provider);\n"
+                    + "    }\n"
+                    + "\n"
+                    + "    public ").append(getClassName()).append("(Executor next, SqlSessionProvider provider) {\n"
+                    + "        super(next);\n");
+            
+        } else {
+            appender.append("    public ").append(getClassName()).append("(SqlSessionProvider provider) {\n");
+        }
+        appender.append("        if (provider == null) {\n"
                 + "            throw new IllegalArgumentException(\"provider for the MyBatisOracleCampaignsMapperImpl cannot be null\");\n"
                 + "        }\n"
                 + "        this.provider = provider;\n"
                 + "\n");
+        
+        if (LAMBADAS_ENABLED) {
+            for (OperationInfo operation : getExecutorModule().getOperations()) {
+                if (operation.isManually() || operation.getOperationKind() == OperationKind.CUSTOM) {
+                    continue;
+                }
+                appender.append("        handle(").append(operation.getDataType().getSimpleName()).append(".class, this::").append(operation.getMethodName()).append(");\n");
+            }
+            appender.append("\n");
+        }
+        
         if (useAliasInOrderBy) {
             for (EntityInfo entity : getExecutorModule().getEntities()) {
                 if (entity.isUsedInOrderedOperation()) {

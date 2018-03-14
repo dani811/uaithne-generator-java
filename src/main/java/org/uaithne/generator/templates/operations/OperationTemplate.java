@@ -50,7 +50,9 @@ public class OperationTemplate extends PojoTemplate {
 
     public OperationTemplate(OperationInfo operation, String packageName, String executorName) {
         setPackageName(packageName);
-        addImport(EXECUTOR_DATA_TYPE, packageName);
+        if (!LAMBADAS_ENABLED) {
+            addImport(EXECUTOR_DATA_TYPE, packageName);
+        }
         operation.appendFullImports(packageName, getImport());
         setDocumentation(operation.getDocumentation());
         setClassName(operation.getDataType().getSimpleNameWithoutGenerics());
@@ -106,8 +108,11 @@ public class OperationTemplate extends PojoTemplate {
                 + "    public ").append(returnName).append(" execute(").append(executorName).append(" executor").append(CONTEXT_PARAM).append(") {\n"
                 + "        return executor.").append(operation.getMethodName()).append("(this").append(CONTEXT_VALUE).append(");\n"
                 + "    }\n");
-        
+    }
+    
+    void writePostOperation(Appendable appender) throws IOException {
         if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            String returnName = operation.getReturnDataType().getSimpleName();
             appender.append("\n"
                 + "    @Override\n"
                 + "    public ").append(returnName).append(" executePostOperation(").append(returnName).append(" result) {\n");
@@ -232,15 +237,21 @@ public class OperationTemplate extends PojoTemplate {
         appender.append("\n");
         writeHashCode(appender, operation.getFields(), hasExtend, firstPrime, secondPrime);
 
-        appender.append("\n");
-        writeVisit(appender);
-        appender.append("\n");
+        if (LAMBADAS_ENABLED) {
+            writePostOperation(appender);
+            appender.append("\n");
+        } else {
+            appender.append("\n");
+            writeVisit(appender);
+            writePostOperation(appender);
+            appender.append("\n");
 
-        appender.append("    @Override\n"
-                + "    public Object getExecutorSelector() {\n"
-                + "        return ").append(executorName).append(".SELECTOR;\n"
-                + "    }\n"
-                + "\n");
+            appender.append("    @Override\n"
+                    + "    public Object getExecutorSelector() {\n"
+                    + "        return ").append(executorName).append(".SELECTOR;\n"
+                    + "    }\n"
+                    + "\n");
+        }
 
         writeConstructors(appender);
     }

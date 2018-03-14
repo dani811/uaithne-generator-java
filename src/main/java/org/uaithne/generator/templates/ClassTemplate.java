@@ -39,6 +39,7 @@ public abstract class ClassTemplate {
     public static final boolean ERROR_MANAGEMENT;
     public static final boolean HAS_CONTEXT;
     public static final boolean HAS_CONTEXT_AND_APPPARAM_AND_ARE_DIFFERENT;
+    public static final boolean LAMBADAS_ENABLED;
     private String packageName;
     private String className;
     private String extend;
@@ -49,19 +50,36 @@ public abstract class ClassTemplate {
     private boolean isInterface;
     private boolean isAbstract;
     private boolean isDeprecated;
+    private boolean isFinal;
     
     static {
         GenerationInfo generationInfo = getGenerationInfo();
-        if (generationInfo.isErrorManagementEnabled()) {
-            EXECUTE_ANY = "executeAnyOperation";
-            EXECUTE_ANY_VISIBILITY = "protected ";
-            EXECUTE_OPERATION_VISIBILITY = "protected ";
-            ERROR_MANAGEMENT = true;
+        if (generationInfo.isLambdasEnabled()) {
+            LAMBADAS_ENABLED = true;
+            if (generationInfo.isErrorManagementEnabled()) {
+                EXECUTE_ANY = "executeAnyOperation";
+                EXECUTE_ANY_VISIBILITY = "protected ";
+                EXECUTE_OPERATION_VISIBILITY = "private ";
+                ERROR_MANAGEMENT = true;
+            } else {
+                EXECUTE_ANY = "execute";
+                EXECUTE_ANY_VISIBILITY = "public ";
+                EXECUTE_OPERATION_VISIBILITY = "private ";
+                ERROR_MANAGEMENT = false;
+            }
         } else {
-            EXECUTE_ANY = "execute";
-            EXECUTE_ANY_VISIBILITY = "public ";
-            EXECUTE_OPERATION_VISIBILITY = "public ";
-            ERROR_MANAGEMENT = false;
+            LAMBADAS_ENABLED = false;
+            if (generationInfo.isErrorManagementEnabled()) {
+                EXECUTE_ANY = "executeAnyOperation";
+                EXECUTE_ANY_VISIBILITY = "protected ";
+                EXECUTE_OPERATION_VISIBILITY = "protected ";
+                ERROR_MANAGEMENT = true;
+            } else {
+                EXECUTE_ANY = "execute";
+                EXECUTE_ANY_VISIBILITY = "public ";
+                EXECUTE_OPERATION_VISIBILITY = "public ";
+                ERROR_MANAGEMENT = false;
+            }
         }
         
         DataTypeInfo context = generationInfo.getContextParameterType();
@@ -178,6 +196,14 @@ public abstract class ClassTemplate {
     public void setDeprecated(boolean isDeprecated) {
         this.isDeprecated = isDeprecated;
     }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    public void setFinal(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
     
     public void write(Appendable appender) throws IOException {
         writeStartClass(appender);
@@ -211,6 +237,9 @@ public abstract class ClassTemplate {
         appender.append("public ");
         if (isAbstract) {
             appender.append("abstract ");
+        }
+        if (isFinal) {
+            appender.append("final ");
         }
         if (isInterface) {
             appender.append("interface ");

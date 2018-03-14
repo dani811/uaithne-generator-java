@@ -62,6 +62,7 @@ public class GenerationInfo {
     private boolean setResultingIdInOperationEnabled;
     private boolean executorExtendsExecutorGroup = true;
     private boolean errorManagementEnabled = true;
+    private boolean lambdasEnabled = true;
 
     public GenerationInfo() {
         for (AnnotationConfigurationKeys key : AnnotationConfigurationKeys.values()) {
@@ -395,4 +396,12 @@ public class GenerationInfo {
         this.errorManagementEnabled = errorManagementEnabled;
     }
 
+    public boolean isLambdasEnabled() {
+        return lambdasEnabled;
+    }
+
+    public void setLambdasEnabled(boolean lambdasEnabled) {
+        this.lambdasEnabled = lambdasEnabled;
+    }
+    
 }

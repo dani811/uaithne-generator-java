@@ -36,12 +36,27 @@ public class OperationTemplate extends ClassTemplate {
     
     @Override
     protected void writeContent(Appendable appender) throws IOException {
-        appender.append("    public Object getExecutorSelector();\n"
-                + "    public RESULT execute(Executor executor").append(CONTEXT_PARAM).append(");");
+        if (!LAMBADAS_ENABLED) {
+            appender.append("    public Object getExecutorSelector();\n"
+                    + "    public RESULT execute(Executor executor").append(CONTEXT_PARAM).append(");");
+        }
         if (getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
-            appender.append("\n"
-                + "    public RESULT executePostOperation(RESULT result);");
+            if (!LAMBADAS_ENABLED) {
+                appender.append("\n");
+            }
+            appender.append("    public RESULT executePostOperation(RESULT result);");
         }
     }
+
+    @Override
+    protected void writeEndClass(Appendable appender) throws IOException {
+        if (LAMBADAS_ENABLED && !getGenerationInfo().isIncludeExecutePostOperationInOperations()) {
+            appender.append("}");
+        } else {
+            super.writeEndClass(appender);
+        }
+    }
+    
+    
     
 }

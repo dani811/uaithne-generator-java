@@ -28,12 +28,14 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.uaithne.annotations.myBatis.SharedMyBatisLibrary;
 import org.uaithne.generator.commons.DataTypeInfo;
+import org.uaithne.generator.commons.GenerationInfo;
 import org.uaithne.generator.commons.NamesGenerator;
 import org.uaithne.generator.commons.TemplateProcessor;
 import org.uaithne.generator.templates.shared.myBatis.ApplicationParameterDriverTemplate;
 import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.myBatis.ManagedSqlSessionProviderTemplate;
 import org.uaithne.generator.templates.shared.myBatis.RetainIdPluginTemplate;
+import org.uaithne.generator.templates.shared.myBatis.SqlSessionManagementInterceptor_WithLamdas;
 import org.uaithne.generator.templates.shared.myBatis.SqlSessionProviderTemplate;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -63,10 +65,15 @@ public class SharedMyBatisLibraryProcessor extends TemplateProcessor {
                     }
                 }
 
+                GenerationInfo generationInfo = getGenerationInfo();
                 processClassTemplate(new SqlSessionProviderTemplate(packageName), element);
-                if (getGenerationInfo().getContextParameterType() == null) {
+                if (generationInfo.getContextParameterType() == null) {
                     processClassTemplate(new ManagedSqlSessionProviderTemplate(packageName), element);
-                    processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName), element);
+                    if (generationInfo.isLambdasEnabled()) {
+                        processClassTemplate(new SqlSessionManagementInterceptor_WithLamdas(packageName), element);
+                    } else {
+                        processClassTemplate(new ManagedSqlSessionExecutorGroupTemplate(packageName), element);
+                    }
                 }
                 if (includeRetainIdPlugin) {
                     processClassTemplate(new RetainIdPluginTemplate(packageName), element);

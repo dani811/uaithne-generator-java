@@ -47,7 +47,7 @@ public class PostOperationExecutorTemplate extends ClassTemplate {
                 + "    }\n"
                 + "\n"
                 + "    @Override\n"
-                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT execute(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
+                + "    public ").append(OPERATION_BASE_DEFINITION).append(" RESULT ").append(EXECUTE_ANY).append("(OPERATION operation").append(CONTEXT_PARAM).append(") {\n"
                 + "        RESULT result = chainedExecutor.execute(operation").append(CONTEXT_VALUE).append(");\n"
                 + "        return operation.executePostOperation(result);\n"
                 + "    }\n");

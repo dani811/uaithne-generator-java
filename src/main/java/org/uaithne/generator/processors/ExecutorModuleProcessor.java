@@ -1442,22 +1442,34 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
         }
         String packageName = executorModuleInfo.getOperationPackage();
 
-        processClassTemplate(new ExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+        if (!generationInfo.isLambdasEnabled()) {
+            processClassTemplate(new ExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+        }
 
         for (OperationInfo operation : executorModuleInfo.getOperations()) {
             processClassTemplate(new OperationTemplate(operation, packageName, executorModuleInfo.getExecutorInterfaceName()), operation.getElement());
         }
 
         if (generateModuleChainedExecutorsEnabled) {
-            processClassTemplate(new ChainedExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            if (generationInfo.isLambdasEnabled()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedExecutor to true you also must set enableLamdas to false in the Uaithne configuration (continue assuming the first one as false)", executorModuleInfo.getElement());
+            } else {
+                processClassTemplate(new ChainedExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            }
         }
 
         if (generateModuleAbstractExecutorsEnabled) {
-            processClassTemplate(new AbstractExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            if (generationInfo.isLambdasEnabled()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateAbstractExecutor to true you also must set enableLamdas to false in the Uaithne configuration (continue assuming the first one as false)", executorModuleInfo.getElement());
+            } else {
+                processClassTemplate(new AbstractExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());
+            }
         }
 
         if (generateModuleChainedGroupingExecutorsEnabled) {
-            if (generationInfo.isExecutorExtendsExecutorGroup()) {
+            if (generationInfo.isLambdasEnabled()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedGroupingExecutor to true you also must set enableLamdas to false in the Uaithne configuration (continue assuming the first one as false)", executorModuleInfo.getElement());
+            } else if (generationInfo.isExecutorExtendsExecutorGroup()) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedGroupingExecutor to true you also must set executorExtendsExecutorGroup to false in the Uaithne configuration (continue assuming the first one as false)", executorModuleInfo.getElement());
             } else {
                 processClassTemplate(new ChainedGroupingExecutorTemplate(executorModuleInfo, packageName), executorModuleInfo.getElement());

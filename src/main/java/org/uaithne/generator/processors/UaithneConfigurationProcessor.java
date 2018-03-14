@@ -223,6 +223,29 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     }
                     
                     generationInfo.setErrorManagementEnabled(configuration.enableErrorManagement());
+                    generationInfo.setLambdasEnabled(configuration.enableLamdas());
+                    if (configuration.enableLamdas()) {
+                        if (configuration.enableModuleAbstractExecutors()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleAbstractExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setGenerateModuleAbstractExecutorsEnabled(false);
+                        }
+                        if (configuration.enableModuleChainedExecutors()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleChainedExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setGenerateModuleChainedExecutorsEnabled(false);
+                        }
+                        if (configuration.enableModuleChainedGroupingExecutors()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleChainedGroupingExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(false);
+                        }
+                        if (configuration.includeExecuteOtherMethodInExecutors()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set includeExecuteOtherMethodInExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setIncludeExecuteOtherMethodInExecutors(false);
+                        }
+                        if (configuration.executorExtendsExecutorGroup()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set executorExtendsExecutorGroup to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setExecutorExtendsExecutorGroup(false);
+                        }
+                    }
                 }
             }
         }

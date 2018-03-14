@@ -52,4 +52,5 @@ public @interface UaithneConfiguration {
     boolean executorExtendsExecutorGroup() default true;
     boolean booleanObjectGetterWithIs() default true;
     boolean enableErrorManagement() default true;
+    boolean enableLamdas() default true;
 }

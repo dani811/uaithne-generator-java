@@ -42,17 +42,21 @@ import org.uaithne.generator.templates.shared.DataPageTemplate;
 import org.uaithne.generator.templates.shared.DeleteByIdOperationTemplate;
 import org.uaithne.generator.templates.shared.ExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.ExecutorTemplate;
+import org.uaithne.generator.templates.shared.ExecutorTemplate_WithLamdas;
 import org.uaithne.generator.templates.shared.InsertValueOperationTemplate;
 import org.uaithne.generator.templates.shared.JustInsertValueOperationTemplate;
 import org.uaithne.generator.templates.shared.JustSaveValueOperationTemplate;
 import org.uaithne.generator.templates.shared.LoggedExecutorGroupTemplate;
+import org.uaithne.generator.templates.shared.LogInterceptorTemplate_WithLamdas;
 import org.uaithne.generator.templates.shared.MappedExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.MappedExecutorGroupTemplate_WithExecutorGroup;
+import org.uaithne.generator.templates.shared.MappedExecutorTemplate_WithLamdas;
 import org.uaithne.generator.templates.shared.MergeValueOperationTemplate;
 import org.uaithne.generator.templates.shared.OperationExecutionExceptionTemplate;
 import org.uaithne.generator.templates.shared.OperationTemplate;
 import org.uaithne.generator.templates.shared.PostOperationExecutorGroupTemplate;
 import org.uaithne.generator.templates.shared.PostOperationExecutorTemplate;
+import org.uaithne.generator.templates.shared.ExecutePostOperationInterceptorTemplate_WithLamdas;
 import org.uaithne.generator.templates.shared.PublicExceptionTemplate;
 import org.uaithne.generator.templates.shared.SaveValueOperationTemplate;
 import org.uaithne.generator.templates.shared.SelectByIdOperationTemplate;
@@ -82,9 +86,16 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                     }
                 }
 
-                processClassTemplate(new ExecutorTemplate(packageName), element);
+                if (generationInfo.isLambdasEnabled()) {
+                    processClassTemplate(new ExecutorTemplate_WithLamdas(packageName), element);
+                    processClassTemplate(new MappedExecutorTemplate_WithLamdas(packageName), element);
+                    processClassTemplate(new LogInterceptorTemplate_WithLamdas(packageName), element);
+                } else {
+                    processClassTemplate(new ExecutorTemplate(packageName), element);
+                    processClassTemplate(new ExecutorGroupTemplate(packageName), element);
+                    processClassTemplate(new LoggedExecutorGroupTemplate(packageName), element);
+                }
                 processClassTemplate(new OperationTemplate(packageName), element);
-                processClassTemplate(new ExecutorGroupTemplate(packageName), element);
                 processClassTemplate(new DeleteByIdOperationTemplate(packageName), element);
                 processClassTemplate(new InsertValueOperationTemplate(packageName), element);
                 processClassTemplate(new JustInsertValueOperationTemplate(packageName), element);
@@ -93,21 +104,26 @@ public class SharedLibraryProcessor extends TemplateProcessor {
                 processClassTemplate(new MergeValueOperationTemplate(packageName), element);
                 processClassTemplate(new SelectByIdOperationTemplate(packageName), element);
                 processClassTemplate(new UpdateValueOperationTemplate(packageName), element);
-                processClassTemplate(new LoggedExecutorGroupTemplate(packageName), element);
-                if (generationInfo.isExecutorExtendsExecutorGroup()) {
-                    processClassTemplate(new ChainedMappedExecutorGroupTemplate_WithExecutorGroup(packageName), element);
-                    processClassTemplate(new MappedExecutorGroupTemplate_WithExecutorGroup(packageName), element);
-                    processClassTemplate(new ChainedExecutorTemplate_WithExecutorGroup(packageName), element);
-                } else {
-                    processClassTemplate(new ChainedMappedExecutorGroupTemplate(packageName), element);
-                    processClassTemplate(new MappedExecutorGroupTemplate(packageName), element);
-                    processClassTemplate(new ChainedExecutorTemplate(packageName), element);
-                    processClassTemplate(new ChainedGroupingExecutorTemplate(packageName), element);
+                if (!generationInfo.isLambdasEnabled()) {
+                    if (generationInfo.isExecutorExtendsExecutorGroup()) {
+                        processClassTemplate(new ChainedMappedExecutorGroupTemplate_WithExecutorGroup(packageName), element);
+                        processClassTemplate(new MappedExecutorGroupTemplate_WithExecutorGroup(packageName), element);
+                        processClassTemplate(new ChainedExecutorTemplate_WithExecutorGroup(packageName), element);
+                    } else {
+                        processClassTemplate(new ChainedMappedExecutorGroupTemplate(packageName), element);
+                        processClassTemplate(new MappedExecutorGroupTemplate(packageName), element);
+                        processClassTemplate(new ChainedExecutorTemplate(packageName), element);
+                        processClassTemplate(new ChainedGroupingExecutorTemplate(packageName), element);
+                    }
+                    processClassTemplate(new ChainedExecutorGroupTemplate(packageName), element);
                 }
-                processClassTemplate(new ChainedExecutorGroupTemplate(packageName), element);
                 if (generationInfo.isIncludeExecutePostOperationInOperations()) {
-                    processClassTemplate(new PostOperationExecutorTemplate(packageName), element);
-                    processClassTemplate(new PostOperationExecutorGroupTemplate(packageName), element);
+                    if (generationInfo.isLambdasEnabled()) {
+                        processClassTemplate(new ExecutePostOperationInterceptorTemplate_WithLamdas(packageName), element);
+                    } else {
+                        processClassTemplate(new PostOperationExecutorTemplate(packageName), element);
+                        processClassTemplate(new PostOperationExecutorGroupTemplate(packageName), element);
+                    }
                 }
                 processClassTemplate(new DataPageTemplate(packageName), element);
                 processClassTemplate(new DataPageRequestTemplate(packageName), element);
