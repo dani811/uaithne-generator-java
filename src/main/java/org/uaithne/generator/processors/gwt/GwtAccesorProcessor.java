@@ -26,6 +26,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.gwt.GwtAccesor;
 import org.uaithne.generator.commons.*;
 import org.uaithne.generator.templates.gwt.GwtAccesorTemplate;
@@ -41,6 +42,10 @@ public class GwtAccesorProcessor extends TemplateProcessor {
         for (Element element : re.getElementsAnnotatedWith(GwtAccesor.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
+                if (generationInfo.isLambdasEnabled()) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "To use @GwtAccesor you must set enableLamdas to false (continue ignoring this annotation)", element);
+                    continue;
+                }
                 DataTypeInfo dataType = NamesGenerator.createClassBasedDataType(classElement);
                 GwtAccesorTemplate template = new GwtAccesorTemplate(
                         generationInfo.getOperations(),

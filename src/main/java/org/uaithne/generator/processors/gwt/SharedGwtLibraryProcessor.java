@@ -26,6 +26,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.gwt.SharedGwtLibrary;
 import org.uaithne.generator.commons.DataTypeInfo;
 import org.uaithne.generator.commons.GenerationInfo;
@@ -70,6 +71,10 @@ public class SharedGwtLibraryProcessor extends TemplateProcessor {
         for (Element element : re.getElementsAnnotatedWith(SharedGwtLibrary.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
+                if (generationInfo.isLambdasEnabled()) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "To use @SharedGwtLibrary you must set enableLamdas to false (continue ignoring this annotation)", element);
+                    continue;
+                }
                 String packageName = NamesGenerator.createPackageNameFromFullName(classElement.getQualifiedName());
                 String sharedGwtPackageDot;
 

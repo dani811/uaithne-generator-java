@@ -26,6 +26,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import org.uaithne.annotations.gwt.GwtRemoteService;
 import org.uaithne.generator.commons.*;
 import org.uaithne.generator.templates.gwt.GwtRemoteServiceAsyncTemplate;
@@ -39,9 +40,15 @@ public class GwtRemoteServiceProcessor extends TemplateProcessor {
 
     @Override
     public boolean doProcess(Set<? extends TypeElement> set, RoundEnvironment re) {
+        GenerationInfo generationInfo = getGenerationInfo();
+
         for (Element element : re.getElementsAnnotatedWith(GwtRemoteService.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement classElement = (TypeElement) element;
+                if (generationInfo.isLambdasEnabled()) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "To use @GwtRemoteService you must set enableLamdas to false (continue ignoring this annotation)", element);
+                    continue;
+                }
                 GwtRemoteService rs = element.getAnnotation(GwtRemoteService.class);
                 String relativePath = rs.relativePath();
                 DataTypeInfo dataType = NamesGenerator.createClassBasedDataType(classElement);
