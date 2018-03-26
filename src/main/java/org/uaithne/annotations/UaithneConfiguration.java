@@ -27,14 +27,19 @@ import org.uaithne.annotations.myBatis.MyBatisBackendConfiguration;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface UaithneConfiguration {
-    boolean enableDefaultEntityOperations() default false;
-    boolean enableJustOperations() default false;
-    boolean enableSaveOperations() default true;
-    boolean enableMergeOperations() default true;
-    boolean enableModuleAbstractExecutors() default false;
-    boolean enableModuleChainedExecutors() default false;
+    boolean generateDeleteByIdOperations() default false;
+    boolean generateInsertOperations() default false;
+    boolean generateJustInsertOperations() default false;
+    boolean generateSaveOperations() default false;
+    boolean generateJustSaveOperations() default false;
+    boolean generateSelectByIdOperations() default false;
+    boolean generateUpdateOperations() default false;
+    boolean generateMergeOperations() default false;
+    boolean generateAbstractExecutors() default false;
+    boolean generateChainedExecutors() default false;
     @Deprecated
-    boolean enableModuleChainedGroupingExecutors() default false;
+    boolean generateChainedGroupingExecutors() default false;
+    
     Class<?> entitiesImplements() default Void.class;
     MyBatisBackendConfiguration[] myBatisBackendConfigurations() default {};
     Class<?> applicationParameterType() default Void.class;
@@ -42,6 +47,7 @@ public @interface UaithneConfiguration {
     boolean enableBeanValidations() default false;
     AnnotationConfiguration[] annotationConfigurations() default {};
     AnnotationSubstitution[] annotationSubstitutions() default {};
+    
     @Deprecated
     boolean includeExecuteOtherMethodInExecutors() default false;
     @Deprecated

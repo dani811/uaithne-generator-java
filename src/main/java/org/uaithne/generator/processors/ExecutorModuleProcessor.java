@@ -657,15 +657,14 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
 
         executorModuleInfo.addEntity(entityInfo);
 
-        boolean generateDefaultEntityOperations = generationInfo.isGenerateDefaultEntityOperations();
-        boolean defaultGenerateDeleteByIdOperation = generateDefaultEntityOperations;
-        boolean defaultGenerateInsertOperation = generateDefaultEntityOperations;
-        boolean defaultGenerateJustInsertOperation = generateDefaultEntityOperations && generationInfo.isGenerateJustOperationsEnabled();
-        boolean defaultGenerateSaveOperation = generateDefaultEntityOperations && generationInfo.isGenerateSaveOperationsEnabled();
-        boolean defaultGenerateJustSaveOperation = generateDefaultEntityOperations && generationInfo.isGenerateJustOperationsEnabled() && generationInfo.isGenerateSaveOperationsEnabled();
-        boolean defaultGenerateSelectByIdOperation = generateDefaultEntityOperations;
-        boolean defaultGenerateUpdateOperation = generateDefaultEntityOperations;
-        boolean defaultGenerateMergeOperation = generateDefaultEntityOperations && generationInfo.isGenerateMergeOperationsEnabled();
+        boolean defaultGenerateDeleteByIdOperation = generationInfo.isGenerateDeleteByIdOperationsEnabled();
+        boolean defaultGenerateInsertOperation = generationInfo.isGenerateInsertOperationsEnabled();
+        boolean defaultGenerateJustInsertOperation = generationInfo.isGenerateJustInsertOperationsEnabled();
+        boolean defaultGenerateSaveOperation = generationInfo.isGenerateSaveOperationsEnabled();
+        boolean defaultGenerateJustSaveOperation = generationInfo.isGenerateJustSaveOperationsEnabled();
+        boolean defaultGenerateSelectByIdOperation = generationInfo.isGenerateSelectByIdOperationsEnabled();
+        boolean defaultGenerateUpdateOperation = generationInfo.isGenerateUpdateOperationsEnabled();
+        boolean defaultGenerateMergeOperation = generationInfo.isGenerateMergeOperationsEnabled();
 
         boolean generateDeleteByIdOperation;
         boolean generateInsertOperation;
@@ -1422,9 +1421,9 @@ public class ExecutorModuleProcessor extends TemplateProcessor {
     public void generateOperations(RoundEnvironment re, ExecutorModuleInfo executorModuleInfo) {
         GenerationInfo generationInfo = getGenerationInfo();
 
-        boolean defaultGenerateModuleAbstractExecutorsEnabled = generationInfo.isGenerateModuleAbstractExecutorsEnabled();
-        boolean defaultGenerateModuleChainedExecutorsEnabled = generationInfo.isGenerateModuleChainedExecutorsEnabled();
-        boolean defaultGenerateModuleChainedGroupingExecutorsEnabled = generationInfo.isGenerateModuleChainedGroupingExecutorsEnabled();
+        boolean defaultGenerateModuleAbstractExecutorsEnabled = generationInfo.isGenerateAbstractExecutorsEnabled();
+        boolean defaultGenerateModuleChainedExecutorsEnabled = generationInfo.isGenerateChainedExecutorsEnabled();
+        boolean defaultGenerateModuleChainedGroupingExecutorsEnabled = generationInfo.isGenerateChainedGroupingExecutorsEnabled();
 
         boolean generateModuleAbstractExecutorsEnabled;
         boolean generateModuleChainedExecutorsEnabled;

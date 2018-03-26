@@ -62,17 +62,21 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                         generationInfo.setIncludeExecutePostOperationInOperations(false);
                     }
                     
-                    generationInfo.setGenerateDefaultEntityOperations(configuration.enableDefaultEntityOperations());
-                    generationInfo.setGenerateJustOperationsEnabled(configuration.enableJustOperations());
-                    generationInfo.setGenerateSaveOperationsEnabled(configuration.enableSaveOperations());
-                    generationInfo.setGenerateMergeOperationsEnabled(configuration.enableMergeOperations());
-                    generationInfo.setGenerateModuleAbstractExecutorsEnabled(configuration.enableModuleAbstractExecutors());
-                    generationInfo.setGenerateModuleChainedExecutorsEnabled(configuration.enableModuleChainedExecutors());
-                    generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(configuration.enableModuleChainedGroupingExecutors());
+                    generationInfo.setGenerateDeleteByIdOperationsEnabled(configuration.generateDeleteByIdOperations());
+                    generationInfo.setGenerateInsertOperationsEnabled(configuration.generateInsertOperations());
+                    generationInfo.setGenerateJustInsertOperationsEnabled(configuration.generateJustInsertOperations());
+                    generationInfo.setGenerateSaveOperationsEnabled(configuration.generateSaveOperations());
+                    generationInfo.setGenerateJustSaveOperationsEnabled(configuration.generateJustSaveOperations());
+                    generationInfo.setGenerateSelectByIdOperationsEnabled(configuration.generateSelectByIdOperations());
+                    generationInfo.setGenerateUpdateOperationsEnabled(configuration.generateUpdateOperations());
+                    generationInfo.setGenerateMergeOperationsEnabled(configuration.generateMergeOperations());
+                    generationInfo.setGenerateAbstractExecutorsEnabled(configuration.generateAbstractExecutors());
+                    generationInfo.setGenerateChainedExecutorsEnabled(configuration.generateChainedExecutors());
+                    generationInfo.setGenerateChainedGroupingExecutorsEnabled(configuration.generateChainedGroupingExecutors());
                     
-                    if (generationInfo.isGenerateModuleChainedGroupingExecutorsEnabled() && generationInfo.isExecutorExtendsExecutorGroup()) {
-                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleChainedGroupingExecutors to true you also must set executorExtendsExecutorGroup to false (continue assuming the first one as false)", element);
-                        generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(false);
+                    if (generationInfo.isGenerateChainedGroupingExecutorsEnabled() && generationInfo.isExecutorExtendsExecutorGroup()) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedGroupingExecutors to true you also must set executorExtendsExecutorGroup to false (continue assuming the first one as false)", element);
+                        generationInfo.setGenerateChainedGroupingExecutorsEnabled(false);
                     }
                     
                     generationInfo.setMyBatisBackends(configuration.myBatisBackendConfigurations());
@@ -225,17 +229,17 @@ public class UaithneConfigurationProcessor extends TemplateProcessor {
                     generationInfo.setErrorManagementEnabled(configuration.enableErrorManagement());
                     generationInfo.setLambdasEnabled(configuration.enableLamdas());
                     if (configuration.enableLamdas()) {
-                        if (configuration.enableModuleAbstractExecutors()) {
-                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleAbstractExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
-                            generationInfo.setGenerateModuleAbstractExecutorsEnabled(false);
+                        if (configuration.generateAbstractExecutors()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateAbstractExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setGenerateAbstractExecutorsEnabled(false);
                         }
-                        if (configuration.enableModuleChainedExecutors()) {
-                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleChainedExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
-                            generationInfo.setGenerateModuleChainedExecutorsEnabled(false);
+                        if (configuration.generateChainedExecutors()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setGenerateChainedExecutorsEnabled(false);
                         }
-                        if (configuration.enableModuleChainedGroupingExecutors()) {
-                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set enableModuleChainedGroupingExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
-                            generationInfo.setGenerateModuleChainedGroupingExecutorsEnabled(false);
+                        if (configuration.generateChainedGroupingExecutors()) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set generateChainedGroupingExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);
+                            generationInfo.setGenerateChainedGroupingExecutorsEnabled(false);
                         }
                         if (configuration.includeExecuteOtherMethodInExecutors()) {
                             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "For set includeExecuteOtherMethodInExecutors to true you also must set enableLamdas to false (continue assuming the first one as false)", element);

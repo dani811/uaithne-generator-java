@@ -37,13 +37,17 @@ public class GenerationInfo {
     private final ArrayList<OperationInfo> operations = new ArrayList<OperationInfo>();
     private final ArrayList<ExecutorModuleInfo> executorModules = new ArrayList<ExecutorModuleInfo>();
     private final HashMap<String, ExecutorModuleInfo> executorModulesByRealName = new HashMap<String, ExecutorModuleInfo>();
-    private boolean generateDefaultEntityOperations = true;
-    private boolean generateJustOperationsEnabled;
-    private boolean generateSaveOperationsEnabled = true;
-    private boolean generateMergeOperationsEnabled = true;
-    private boolean generateModuleAbstractExecutorsEnabled = true;
-    private boolean generateModuleChainedExecutorsEnabled = true;
-    private boolean generateModuleChainedGroupingExecutorsEnabled = true;
+    boolean generateDeleteByIdOperationsEnabled;
+    boolean generateInsertOperationsEnabled;
+    boolean generateJustInsertOperationsEnabled;
+    boolean generateSaveOperationsEnabled;
+    boolean generateJustSaveOperationsEnabled;
+    boolean generateSelectByIdOperationsEnabled;
+    boolean generateUpdateOperationsEnabled;
+    boolean generateMergeOperationsEnabled;
+    boolean generateAbstractExecutorsEnabled;
+    boolean generateChainedExecutorsEnabled;
+    boolean generateChainedGroupingExecutorsEnabled;
     private boolean includeGwtClientExecutors;
     private DataTypeInfo entitiesImplements;
     private MyBatisBackendConfiguration[] myBatisBackends;
@@ -203,20 +207,28 @@ public class GenerationInfo {
         return related;
     }
 
-    public boolean isGenerateDefaultEntityOperations() {
-        return generateDefaultEntityOperations;
+    public boolean isGenerateDeleteByIdOperationsEnabled() {
+        return generateDeleteByIdOperationsEnabled;
     }
 
-    public void setGenerateDefaultEntityOperations(boolean generateDefaultEntityOperations) {
-        this.generateDefaultEntityOperations = generateDefaultEntityOperations;
+    public void setGenerateDeleteByIdOperationsEnabled(boolean generateDeleteByIdOperationsEnabled) {
+        this.generateDeleteByIdOperationsEnabled = generateDeleteByIdOperationsEnabled;
     }
 
-    public boolean isGenerateJustOperationsEnabled() {
-        return generateJustOperationsEnabled;
+    public boolean isGenerateInsertOperationsEnabled() {
+        return generateInsertOperationsEnabled;
     }
 
-    public void setGenerateJustOperationsEnabled(boolean generateJustOperationsEnabled) {
-        this.generateJustOperationsEnabled = generateJustOperationsEnabled;
+    public void setGenerateInsertOperationsEnabled(boolean generateInsertOperationsEnabled) {
+        this.generateInsertOperationsEnabled = generateInsertOperationsEnabled;
+    }
+
+    public boolean isGenerateJustInsertOperationsEnabled() {
+        return generateJustInsertOperationsEnabled;
+    }
+
+    public void setGenerateJustInsertOperationsEnabled(boolean generateJustInsertOperationsEnabled) {
+        this.generateJustInsertOperationsEnabled = generateJustInsertOperationsEnabled;
     }
 
     public boolean isGenerateSaveOperationsEnabled() {
@@ -227,6 +239,30 @@ public class GenerationInfo {
         this.generateSaveOperationsEnabled = generateSaveOperationsEnabled;
     }
 
+    public boolean isGenerateJustSaveOperationsEnabled() {
+        return generateJustSaveOperationsEnabled;
+    }
+
+    public void setGenerateJustSaveOperationsEnabled(boolean generateJustSaveOperationsEnabled) {
+        this.generateJustSaveOperationsEnabled = generateJustSaveOperationsEnabled;
+    }
+
+    public boolean isGenerateSelectByIdOperationsEnabled() {
+        return generateSelectByIdOperationsEnabled;
+    }
+
+    public void setGenerateSelectByIdOperationsEnabled(boolean generateSelectByIdOperationsEnabled) {
+        this.generateSelectByIdOperationsEnabled = generateSelectByIdOperationsEnabled;
+    }
+
+    public boolean isGenerateUpdateOperationsEnabled() {
+        return generateUpdateOperationsEnabled;
+    }
+
+    public void setGenerateUpdateOperationsEnabled(boolean generateUpdateOperationsEnabled) {
+        this.generateUpdateOperationsEnabled = generateUpdateOperationsEnabled;
+    }
+
     public boolean isGenerateMergeOperationsEnabled() {
         return generateMergeOperationsEnabled;
     }
@@ -235,30 +271,30 @@ public class GenerationInfo {
         this.generateMergeOperationsEnabled = generateMergeOperationsEnabled;
     }
 
-    public boolean isGenerateModuleAbstractExecutorsEnabled() {
-        return generateModuleAbstractExecutorsEnabled;
+    public boolean isGenerateAbstractExecutorsEnabled() {
+        return generateAbstractExecutorsEnabled;
     }
 
-    public void setGenerateModuleAbstractExecutorsEnabled(boolean generateModuleAbstractExecutorsEnabled) {
-        this.generateModuleAbstractExecutorsEnabled = generateModuleAbstractExecutorsEnabled;
+    public void setGenerateAbstractExecutorsEnabled(boolean generateAbstractExecutorsEnabled) {
+        this.generateAbstractExecutorsEnabled = generateAbstractExecutorsEnabled;
     }
 
-    public boolean isGenerateModuleChainedExecutorsEnabled() {
-        return generateModuleChainedExecutorsEnabled;
+    public boolean isGenerateChainedExecutorsEnabled() {
+        return generateChainedExecutorsEnabled;
     }
 
-    public void setGenerateModuleChainedExecutorsEnabled(boolean generateModuleChainedExecutorsEnabled) {
-        this.generateModuleChainedExecutorsEnabled = generateModuleChainedExecutorsEnabled;
+    public void setGenerateChainedExecutorsEnabled(boolean generateChainedExecutorsEnabled) {
+        this.generateChainedExecutorsEnabled = generateChainedExecutorsEnabled;
     }
 
-    public boolean isGenerateModuleChainedGroupingExecutorsEnabled() {
-        return generateModuleChainedGroupingExecutorsEnabled;
+    public boolean isGenerateChainedGroupingExecutorsEnabled() {
+        return generateChainedGroupingExecutorsEnabled;
     }
 
-    public void setGenerateModuleChainedGroupingExecutorsEnabled(boolean generateModuleChainedGroupingExecutorsEnabled) {
-        this.generateModuleChainedGroupingExecutorsEnabled = generateModuleChainedGroupingExecutorsEnabled;
+    public void setGenerateChainedGroupingExecutorsEnabled(boolean generateChainedGroupingExecutorsEnabled) {
+        this.generateChainedGroupingExecutorsEnabled = generateChainedGroupingExecutorsEnabled;
     }
-
+    
     public boolean isIncludeGwtClientExecutors() {
         return includeGwtClientExecutors;
     }
