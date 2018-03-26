@@ -34,6 +34,9 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
         setPackageName(packageName);
         executorModule.appendPlainImplementationImports(packageName, getImport());
         setClassName(executorModule.getNameUpper() + "PlainChainedExecutor");
+        if (LAMBADAS_ENABLED) {
+            addImport(DataTypeInfo.EXECUTOR_DATA_TYPE, packageName);
+        } 
         if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
             addImport(DataTypeInfo.EXECUTOR_GROUP_DATA_TYPE, packageName);
         }
@@ -51,11 +54,14 @@ public class PlainChainedExecutorTemplate extends ExecutorModuleTemplate {
     @Override
     protected void writeContent(Appendable appender) throws IOException {
         String executorInterfaceName;
-        if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
+        if (LAMBADAS_ENABLED) {
+            executorInterfaceName = "Executor";
+        } else if (getGenerationInfo().isExecutorExtendsExecutorGroup()) {
             executorInterfaceName = "ExecutorGroup";
         } else {
             executorInterfaceName = getExecutorModule().getExecutorInterfaceName();
         }
+
         appender.append("    private ").append(executorInterfaceName).append(" chainedExecutor;\n"
                 + "\n"
                 + "    public ").append(executorInterfaceName).append(" getChainedExecutor() {\n"
